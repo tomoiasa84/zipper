@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'contacts_screen.dart';
+
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
 
@@ -8,16 +10,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _currentIndex = 0;
+  final List<Widget> _children = [
+    Container(),
+    ContactsScreen(),
+    Container(),
+    Container(),
+    Container()
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: _buildBottomNavigationBar(),
-      body: Container(),
+      body: _children[_currentIndex],
     );
   }
 
   BottomNavigationBar _buildBottomNavigationBar() {
     return BottomNavigationBar(
+      onTap: onTabTapped,
+      currentIndex: _currentIndex,
       items: [
         BottomNavigationBarItem(
           icon: new Icon(
@@ -71,5 +84,11 @@ class _HomePageState extends State<HomePage> {
         ),
       ],
     );
+  }
+
+  void onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
   }
 }
