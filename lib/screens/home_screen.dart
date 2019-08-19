@@ -1,5 +1,7 @@
+import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 
+import 'account_screen.dart';
 import 'contacts_screen.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,12 +13,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+
   final List<Widget> _children = [
     Container(),
     ContactsScreen(),
     Container(),
     Container(),
-    Container()
+    AccountScreen()
   ];
 
   @override
