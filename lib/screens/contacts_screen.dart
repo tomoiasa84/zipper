@@ -2,7 +2,6 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 
 class ContactsScreen extends StatefulWidget {
-
   @override
   ContactsScreenState createState() {
     return ContactsScreenState();
