@@ -1,6 +1,7 @@
+import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-import 'account_screen.dart';
 import 'contacts_screen.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,20 +13,62 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+  Iterable<Contact> _contacts;
+  PermissionStatus _permissionStatus = PermissionStatus.unknown;
 
-  final List<Widget> _children = [
-    Container(),
-    ContactsScreen(),
-    Container(),
-    Container(),
-    AccountScreen()
-  ];
+  getContacts() async {
+    return ContactsService.getContacts();
+  }
+
+  void _listenForPermissionStatus() {
+    final Future<PermissionStatus> statusFuture =
+        PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
+
+    statusFuture.then((PermissionStatus status) {
+      setState(() {
+        _permissionStatus = status;
+      });
+    });
+  }
+
+  Future<void> requestPermission(PermissionGroup permission) async {
+    final List<PermissionGroup> permissions = <PermissionGroup>[permission];
+    final Map<PermissionGroup, PermissionStatus> permissionRequestResult =
+        await PermissionHandler().requestPermissions(permissions);
+
+    setState(() {
+      print(permissionRequestResult);
+      _permissionStatus = permissionRequestResult[permission];
+      if (_permissionStatus == PermissionStatus.granted) {
+        getContacts().then((values) {
+          setState(() {
+            _contacts = values;
+          });
+        });
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    _listenForPermissionStatus();
+    requestPermission(PermissionGroup.contacts);
+    super.initState();
+  }
+
+  Widget getPage(int index) {
+    if (index == 1) {
+      return ContactsScreen(contacts: _contacts);
+    }
+    // A fallback, in this case just PageOne
+    return Container();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: _buildBottomNavigationBar(),
-      body: _children[_currentIndex],
+      body: getPage(_currentIndex),
     );
   }
 

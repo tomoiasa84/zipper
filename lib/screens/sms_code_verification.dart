@@ -23,7 +23,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("Enter code'"),
+                  Text("Enter code"),
                   TextField(
                     decoration: InputDecoration(hintText: 'Code'),
                     onChanged: (value) {
