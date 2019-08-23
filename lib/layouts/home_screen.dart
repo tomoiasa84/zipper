@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'account_screen.dart';
 import 'contacts_screen.dart';
+import 'chat_screen.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -62,7 +63,7 @@ class _HomePageState extends State<HomePage> {
             case NavBarItem.PLUS:
               return Container();
             case NavBarItem.INBOX:
-              return Container();
+              return ChatScreen();
             case NavBarItem.ACCOUNT:
               return AccountScreen();
             default:
