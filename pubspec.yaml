@@ -49,6 +49,11 @@ flutter:
     - assets/images/ic_inbox_gray.png
     - assets/images/ic_account_gray.png
 
+  fonts:
+    - family: Arial
+      fonts:
+        - asset: assets/fonts/Arial-Bold.ttf
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #  - images/a_dot_burr.jpeg

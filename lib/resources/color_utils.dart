@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 class ColorUtils {
-
   //Orange
   static const Color messageOrange = Color(0XFFFB8A40);
 
@@ -15,4 +14,7 @@ class ColorUtils {
   //Black
   static const Color almostBlack = Color(0XFF404040);
   static const Color textBlack = Color(0XFF1B1C1D);
+
+  //White
+  static const Color white = Color(0XFFFFFFFF);
 }

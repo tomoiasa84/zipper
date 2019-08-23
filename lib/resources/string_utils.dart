@@ -1,1 +1,5 @@
-class Strings {}
+class Strings {
+
+  static const String contacts = "Contacts";
+
+}
