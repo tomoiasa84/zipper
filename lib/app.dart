@@ -2,6 +2,7 @@ import 'package:contractor_search/utils/auth_status.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'layouts/home_screen.dart';
 import 'layouts/phone_auth_screen.dart';
 
@@ -28,9 +29,8 @@ class MyAppState extends State<MyApp> {
     return MaterialApp(
         title: 'Flutter Demo',
         home: Builder(
-          builder: (context) => authStatus == AuthStatus.LOGGED_IN
-              ? HomePage()
-              : PhoneAuthScreen(),
+          builder: (context) =>
+              authStatus == AuthStatus.LOGGED_IN ? HomePage() : HomePage(),
         ),
         routes: <String, WidgetBuilder>{
           '/phoneAuthScreen': (BuildContext context) => PhoneAuthScreen(),
