@@ -1,4 +1,4 @@
-import 'package:contractor_search/screens/sms_code_verification.dart';
+import 'package:contractor_search/layouts/sms_code_verification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

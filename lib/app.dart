@@ -1,9 +1,9 @@
-import 'package:contractor_search/screens/home_screen.dart';
-import 'package:contractor_search/screens/phone_auth_screen.dart';
 import 'package:contractor_search/utils/auth_status.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'layouts/home_screen.dart';
+import 'layouts/phone_auth_screen.dart';
 
 class MyApp extends StatefulWidget {
   @override
