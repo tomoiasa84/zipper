@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/bloc/contacts_bloc.dart';
 import 'package:contractor_search/model/user.dart';
@@ -48,56 +50,66 @@ class ContactsScreenState extends State<ContactsScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-          appBar: AppBar(
-            title: Text(
-              Strings.contacts,
-              style: TextStyle(fontFamily: 'Arial'),
-            ),
-            centerTitle: true,
+        appBar: _buildAppBar(),
+        body: DefaultTabController(
+          length: 3,
+          child: Column(
+            children: <Widget>[
+              _buildTabBar(),
+              _buildContent(),
+            ],
           ),
-          body: DefaultTabController(
-              length: 3,
-              child: Column(
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      // Tab Bar
-                      new TabBar(
-                        labelStyle: TextStyle(fontFamily: "Arial"),
-                        isScrollable: true,
-                        labelColor: ColorUtils.messageOrange,
-                        unselectedLabelColor: ColorUtils.darkerGray,
-                        indicatorColor: ColorUtils.messageOrange,
-                        tabs: _buildTabs(),
-                      ),
-                      // Border
-                      Container(
-                        // Negative padding
-                        margin: const EdgeInsets.symmetric(horizontal: 21.0),
-                        transform: Matrix4.translationValues(0.0, -2.6, 0.0),
-                        // Add top border
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: ColorUtils.lightLightGray,
-                              width: 0.6,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: TabBarView(
-                      children: <Widget>[
-                        _buildContactsListView(),
-                        _buildUsersListView(),
-                        Container()
-                      ],
-                    ),
-                  ),
-                ],
-              ))),
+        ),
+      ),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text(
+        Strings.contacts,
+        style: TextStyle(fontFamily: 'Arial'),
+      ),
+      centerTitle: true,
+    );
+  }
+
+  Column _buildTabBar() {
+    return Column(
+      children: <Widget>[
+        new TabBar(
+          labelStyle: TextStyle(fontFamily: "Arial"),
+          isScrollable: true,
+          labelColor: ColorUtils.messageOrange,
+          unselectedLabelColor: ColorUtils.darkerGray,
+          indicatorColor: ColorUtils.messageOrange,
+          tabs: _buildTabs(),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 21.0),
+          // Add top border
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: ColorUtils.lightLightGray,
+                width: 0.6,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Expanded _buildContent() {
+    return Expanded(
+      child: TabBarView(
+        children: <Widget>[
+          _buildContactsListView(),
+          _buildUsersListView(),
+          Container()
+        ],
+      ),
     );
   }
 
@@ -109,7 +121,7 @@ class ContactsScreenState extends State<ContactsScreen> {
                   itemCount: widget.contacts?.length ?? 0,
                   itemBuilder: (BuildContext context, int index) {
                     Contact contact = widget.contacts.elementAt(index);
-                    return _buildListItem(contact.displayName);
+                    return _buildListItem(contact.displayName, contact.avatar);
                   }),
             ),
           )
@@ -123,7 +135,6 @@ class ContactsScreenState extends State<ContactsScreen> {
 
   ListView _buildUsersListView() {
     return ListView.builder(
-      itemCount: 2,
       itemBuilder: (BuildContext context, int index) {
         return FutureBuilder<List<Map<String, dynamic>>>(
           future: _contactsBloc.getUsers(),
@@ -140,7 +151,15 @@ class ContactsScreenState extends State<ContactsScreen> {
             if (snapshot.hasError) {
               return Center(child: Text('Error : ${snapshot.error}'));
             } else {
-              return _buildPage(snapshot.data);
+              return ListView(
+                shrinkWrap: true,
+                primary: false,
+                children:
+                    snapshot.data.map<Widget>((Map<String, dynamic> item) {
+                  final User user = User.fromJson(item);
+                  return _buildListItem(user.name, Uint8List(0));
+                }).toList(),
+              );
             }
           },
         );
@@ -148,27 +167,33 @@ class ContactsScreenState extends State<ContactsScreen> {
     );
   }
 
-  Container _buildListItem(String name) {
+  Container _buildListItem(String name, Uint8List image) {
     return Container(
       margin: const EdgeInsets.only(left: 12.0, right: 12.0),
       child: Card(
         child: ListTile(
-          leading: Icon(Icons.person),
+          leading: CircleAvatar(
+            backgroundImage: MemoryImage(image),
+            backgroundColor: ColorUtils.lightLightGray,
+            child: (image != null && image.length > 0)
+                ? Text("")
+                : Text(_getInitials(name),
+                    style: TextStyle(color: ColorUtils.darkerGray)),
+          ),
           title: Text(name ?? ""),
         ),
       ),
     );
   }
 
-  Widget _buildPage(List<Map<String, dynamic>> page) {
-    return ListView(
-      shrinkWrap: true,
-      primary: false,
-      children: page.map<Widget>((Map<String, dynamic> item) {
-        final User user = User.fromJson(item);
-        return _buildListItem(user.name);
-      }).toList(),
-    );
+  _getInitials(String name) {
+    var n = name.split(" "), it = "", i = 0;
+    int counter = n.length > 2 ? 2 : n.length;
+    while (i < counter) {
+      it += n[i][0];
+      i++;
+    }
+    return (it.toUpperCase());
   }
 
   List<Widget> _buildTabs() {
