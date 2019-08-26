@@ -49,7 +49,11 @@ class _ChatScreenState extends State<ChatScreen> {
         AppBar(
           title: Text(
             'Message to Name Surname',
-            style: TextStyle(color: ColorUtils.textBlack, fontSize: 14, fontFamily: 'Arial',  fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: ColorUtils.textBlack,
+                fontSize: 14,
+                fontFamily: 'Arial',
+                fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
           leading: IconButton(
@@ -172,7 +176,11 @@ class _ChatScreenState extends State<ChatScreen> {
           margin: EdgeInsets.fromLTRB(0, 16, 15, 0),
           width: 32,
           height: 32,
-          color: Colors.red,
+          decoration: new BoxDecoration(
+              shape: BoxShape.circle,
+              image: new DecorationImage(
+                  fit: BoxFit.cover,
+                  image: new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
         )
       ],
     );
@@ -212,7 +220,11 @@ class _ChatScreenState extends State<ChatScreen> {
         margin: EdgeInsets.fromLTRB(15, 16, 0, 0),
         width: 32,
         height: 32,
-        color: Colors.red,
+        decoration: new BoxDecoration(
+            shape: BoxShape.circle,
+            image: new DecorationImage(
+                fit: BoxFit.cover,
+                image: new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
       ),
       new Card(
         margin: EdgeInsets.fromLTRB(8, 16, 15, 0),
@@ -429,7 +441,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     decoration: getRoundWhiteCircle(),
                     child: new IconButton(
                       icon: Image.asset(
-                        "assets/images/ic_inbox_gray.png",
+                        "assets/images/ic_inbox_orange.png",
                         color: ColorUtils.messageOrange,
                       ),
                     ),
@@ -445,7 +457,11 @@ class _ChatScreenState extends State<ChatScreen> {
             margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
             width: 56,
             height: 56,
-            color: Colors.red,
+              decoration: new BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: new DecorationImage(
+                      fit: BoxFit.cover,
+                      image: new NetworkImage("https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))
           ),
         ],
       ),

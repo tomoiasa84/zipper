@@ -49,6 +49,7 @@ flutter:
     - assets/images/ic_plus_accent_background.png
     - assets/images/ic_inbox_gray.png
     - assets/images/ic_account_gray.png
+    - assets/images/ic_inbox_orange.png
 
   fonts:
     - family: Arial
