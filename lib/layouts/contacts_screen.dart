@@ -37,7 +37,7 @@ class ContactsScreenState extends State<ContactsScreen> {
 
   void _listenForPermissionStatus() {
     final Future<PermissionStatus> statusFuture =
-        PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
+    PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
 
     statusFuture.then((PermissionStatus status) {
       setState(() {
@@ -68,7 +68,7 @@ class ContactsScreenState extends State<ContactsScreen> {
     return AppBar(
       title: Text(
         Strings.contacts,
-        style: TextStyle(fontFamily: 'Arial'),
+        style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
       ),
       centerTitle: true,
     );
@@ -78,7 +78,8 @@ class ContactsScreenState extends State<ContactsScreen> {
     return Column(
       children: <Widget>[
         new TabBar(
-          labelStyle: TextStyle(fontFamily: "Arial"),
+          labelStyle: TextStyle(
+              fontFamily: "Arial", fontWeight: FontWeight.bold),
           isScrollable: true,
           labelColor: ColorUtils.messageOrange,
           unselectedLabelColor: ColorUtils.darkerGray,
@@ -116,21 +117,21 @@ class ContactsScreenState extends State<ContactsScreen> {
   Widget _buildContactsListView() {
     return widget.contacts != null
         ? Container(
-            child: Scrollbar(
-              child: ListView.builder(
-                  itemCount: widget.contacts?.length ?? 0,
-                  itemBuilder: (BuildContext context, int index) {
-                    Contact contact = widget.contacts.elementAt(index);
-                    return _buildListItem(contact.displayName, contact.avatar);
-                  }),
-            ),
-          )
+      child: Scrollbar(
+        child: ListView.builder(
+            itemCount: widget.contacts?.length ?? 0,
+            itemBuilder: (BuildContext context, int index) {
+              Contact contact = widget.contacts.elementAt(index);
+              return _buildListItem(contact.displayName, contact.avatar);
+            }),
+      ),
+    )
         : (_permissionStatus == PermissionStatus.granted
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : Center(
-                child: Text("This app requires contacts access to function.")));
+        ? Center(
+      child: CircularProgressIndicator(),
+    )
+        : Center(
+        child: Text("This app requires contacts access to function.")));
   }
 
   ListView _buildUsersListView() {
@@ -142,7 +143,10 @@ class ContactsScreenState extends State<ContactsScreen> {
               AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SizedBox(
-                height: MediaQuery.of(context).size.height * 2,
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height * 2,
                 child: const Align(
                     alignment: Alignment.topCenter,
                     child: CircularProgressIndicator()),
@@ -155,7 +159,7 @@ class ContactsScreenState extends State<ContactsScreen> {
                 shrinkWrap: true,
                 primary: false,
                 children:
-                    snapshot.data.map<Widget>((Map<String, dynamic> item) {
+                snapshot.data.map<Widget>((Map<String, dynamic> item) {
                   final User user = User.fromJson(item);
                   return _buildListItem(user.name, Uint8List(0));
                 }).toList(),
@@ -178,7 +182,7 @@ class ContactsScreenState extends State<ContactsScreen> {
             child: (image != null && image.length > 0)
                 ? Text("")
                 : Text(_getInitials(name),
-                    style: TextStyle(color: ColorUtils.darkerGray)),
+                style: TextStyle(color: ColorUtils.darkerGray)),
           ),
           title: Text(name ?? ""),
         ),
@@ -187,7 +191,9 @@ class ContactsScreenState extends State<ContactsScreen> {
   }
 
   _getInitials(String name) {
-    var n = name.split(" "), it = "", i = 0;
+    var n = name.split(" "),
+        it = "",
+        i = 0;
     int counter = n.length > 2 ? 2 : n.length;
     while (i < counter) {
       it += n[i][0];
