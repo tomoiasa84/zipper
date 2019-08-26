@@ -2,6 +2,8 @@ import 'package:contractor_search/models/Conversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:flutter/material.dart';
 
+import 'chat_screen.dart';
+
 class ConversationsScreen extends StatefulWidget {
   ConversationsScreen({Key key}) : super(key: key);
 
@@ -49,7 +51,11 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     var listView = ListView.builder(
       padding: EdgeInsets.all(0),
       itemBuilder: (context, position) {
-        return getConversationUI();
+        return GestureDetector(
+          child: getConversationUI(),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()),
+          ),
+        );
       },
       itemCount: conversations.length,
     );
