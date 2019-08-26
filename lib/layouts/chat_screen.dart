@@ -10,30 +10,30 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController textEditingController =
+  final TextEditingController _textEditingController =
       new TextEditingController();
 
-  final List<Message> listOfMessages = [
+  final List<Message> _listOfMessages = [
     new Message("Bah Liviu", DateTime.now(), false),
     new Message("Ce faci?", DateTime.now(), false),
     new Message(":))", DateTime.now(), false)
   ];
 
-  final ScrollController listScrollController = new ScrollController();
+  final ScrollController _listScrollController = new ScrollController();
 
   void _handleSubmit(String text) {
     if (text.trim().length > 0) {
-      textEditingController.clear();
+      _textEditingController.clear();
       setState(() {
-        listOfMessages.add(new Message(text, DateTime.now(), true));
+        _listOfMessages.add(new Message(text, DateTime.now(), true));
         scrollToBottom();
       });
     }
   }
 
   void scrollToBottom() {
-    listScrollController.animateTo(
-        listScrollController.position.maxScrollExtent,
+    _listScrollController.animateTo(
+        _listScrollController.position.maxScrollExtent,
         duration: Duration(milliseconds: 300),
         curve: Curves.easeOut);
   }
@@ -79,7 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: new Container(
           margin: EdgeInsets.fromLTRB(16, 16, 16, 8),
           decoration: getRoundedWhiteDecoration(),
-          child: getListView(listOfMessages),
+          child: getListView(_listOfMessages),
         ),
       ),
     );
@@ -87,6 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget getListView(List<Message> listOfMessages) {
     var listView = ListView.builder(
+      padding: EdgeInsets.all(0),
       itemBuilder: (context, position) {
         if (listOfMessages[position].messageAuthorIsCurrentUser) {
           return currentUserMessage(position);
@@ -95,14 +96,14 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       },
       itemCount: listOfMessages.length,
-      controller: listScrollController,
+      controller: _listScrollController,
     );
     return listView;
   }
 
   Widget currentUserMessage(int position) {
     if (position > 0) {
-      if (listOfMessages[position - 1].messageAuthorIsCurrentUser) {
+      if (_listOfMessages[position - 1].messageAuthorIsCurrentUser) {
         return currentUserSecondMessage(position);
       } else {
         return currentUserFirstMessage(position);
@@ -113,7 +114,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget otherUserMessage(int position) {
     if (position > 0) {
-      if (listOfMessages[position - 1].messageAuthorIsCurrentUser) {
+      if (_listOfMessages[position - 1].messageAuthorIsCurrentUser) {
         return otherUserFirstMessage(position);
       } else {
         return otherUserSecondMessage(position);
@@ -139,7 +140,7 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 new Text(
-                  listOfMessages[position].message,
+                  _listOfMessages[position].message,
                   textWidthBasis: TextWidthBasis.longestLine,
                   style: TextStyle(color: Colors.white, fontSize: 14),
                   softWrap: true,
@@ -173,7 +174,7 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 new Text(
-                  listOfMessages[position].message,
+                  _listOfMessages[position].message,
                   textWidthBasis: TextWidthBasis.longestLine,
                   style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
@@ -206,7 +207,7 @@ class _ChatScreenState extends State<ChatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               new Text(
-                listOfMessages[position].message,
+                _listOfMessages[position].message,
                 textWidthBasis: TextWidthBasis.longestLine,
                 style: TextStyle(color: Colors.black, fontSize: 14),
               ),
@@ -232,7 +233,7 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 new Text(
-                  listOfMessages[position].message,
+                  _listOfMessages[position].message,
                   textWidthBasis: TextWidthBasis.longestLine,
                   style: TextStyle(color: Colors.black, fontSize: 14),
                 ),
@@ -280,7 +281,7 @@ class _ChatScreenState extends State<ChatScreen> {
         decoration: new InputDecoration.collapsed(
             hintStyle: TextStyle(color: ColorUtils.textGray),
             hintText: "Type a message..."),
-        controller: textEditingController,
+        controller: _textEditingController,
       ),
     ));
   }
@@ -296,7 +297,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _handleSubmit(textEditingController.text)),
+          onPressed: () => _handleSubmit(_textEditingController.text)),
     );
   }
 
@@ -311,7 +312,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _handleSubmit(textEditingController.text)),
+          onPressed: () => _handleSubmit(_textEditingController.text)),
     );
   }
 
@@ -326,7 +327,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _handleSubmit(textEditingController.text)),
+          onPressed: () => _handleSubmit(_textEditingController.text)),
     );
   }
 
@@ -341,7 +342,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.messageOrange,
             size: 24,
           ),
-          onPressed: () => _handleSubmit(textEditingController.text)),
+          onPressed: () => _handleSubmit(_textEditingController.text)),
     );
   }
 

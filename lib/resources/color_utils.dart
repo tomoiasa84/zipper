@@ -4,6 +4,7 @@ class ColorUtils {
 
   //Orange
   static const Color messageOrange = Color(0XFFFB8A40);
+  static const Color strongOrange = Color(0XFFF2711C);
 
   //Gray
   static const Color gray = Color(0xFF801B1C1D);
@@ -11,6 +12,7 @@ class ColorUtils {
   static const Color lightGray = Color(0XFF707070);
   static const Color textGray = Color(0XFFB4B4B4);
   static const Color darkGray = Color(0XFF404040);
+  static const Color mediumGray = Color(0XFF767676);
 
   //Black
   static const Color almostBlack = Color(0XFF404040);
