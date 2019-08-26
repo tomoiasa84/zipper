@@ -1,3 +1,4 @@
+import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/utils/auth_status.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,10 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Flutter Demo',
+        theme: ThemeData(
+          primaryColor: ColorUtils.white,
+          fontFamily: "Arial"
+        ),
         home: Builder(
           builder: (context) =>
               authStatus == AuthStatus.LOGGED_IN ? HomePage() : HomePage(),

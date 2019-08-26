@@ -27,6 +27,7 @@ dependencies:
   permission_handler: ^3.2.2
   shared_preferences: ^0.5.3+4
   firebase_auth:
+  graphql_flutter: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +49,11 @@ flutter:
     - assets/images/ic_plus_accent_background.png
     - assets/images/ic_inbox_gray.png
     - assets/images/ic_account_gray.png
+
+  fonts:
+    - family: Arial
+      fonts:
+        - asset: assets/fonts/Arial-Bold.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

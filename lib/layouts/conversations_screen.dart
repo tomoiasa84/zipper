@@ -95,7 +95,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                 ),
               ),
               Text("Here is just a last message you sent",
-                  style: TextStyle(fontSize: 12, color: ColorUtils.mediumGray))
+                  style: TextStyle(fontSize: 12, color: ColorUtils.darkerGray))
             ],
           )
         ],
