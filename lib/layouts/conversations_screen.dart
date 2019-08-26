@@ -25,7 +25,11 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
         AppBar(
           title: Text(
             'Messages',
-            style: TextStyle(color: ColorUtils.textBlack, fontSize: 14),
+            style: TextStyle(
+                color: ColorUtils.textBlack,
+                fontSize: 14,
+                fontFamily: 'Arial',
+                fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
           backgroundColor: Colors.white,
@@ -53,7 +57,9 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       itemBuilder: (context, position) {
         return GestureDetector(
           child: getConversationUI(),
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChatScreen()),
           ),
         );
       },
@@ -85,7 +91,10 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       child: Text(
                         "Name Surname",
                         style: TextStyle(
-                            fontSize: 14, color: ColorUtils.almostBlack),
+                            fontSize: 14,
+                            color: ColorUtils.almostBlack,
+                            fontFamily: 'Arial',
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                     Text("#housekeeper",

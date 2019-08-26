@@ -49,7 +49,7 @@ class _ChatScreenState extends State<ChatScreen> {
         AppBar(
           title: Text(
             'Message to Name Surname',
-            style: TextStyle(color: ColorUtils.textBlack, fontSize: 14),
+            style: TextStyle(color: ColorUtils.textBlack, fontSize: 14, fontFamily: 'Arial',  fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
           leading: IconButton(
@@ -394,12 +394,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(sharedContact.name,
-                            style:
-                                TextStyle(fontSize: 14, color: Colors.white)),
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontFamily: 'Arial',
+                                fontWeight: FontWeight.bold)),
                         Padding(
                           padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
                           child: Row(
-
                             children: <Widget>[
                               Text(
                                 sharedContact.hashtag,
