@@ -27,6 +27,12 @@ class ContactsScreenState extends State<ContactsScreen> {
     super.didChangeDependencies();
   }
 
+  @override
+  void initState() {
+    _listenForPermissionStatus();
+    super.initState();
+  }
+
   void _listenForPermissionStatus() {
     final Future<PermissionStatus> statusFuture =
         PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
@@ -36,12 +42,6 @@ class ContactsScreenState extends State<ContactsScreen> {
         _permissionStatus = status;
       });
     });
-  }
-
-  @override
-  void initState() {
-    _listenForPermissionStatus();
-    super.initState();
   }
 
   @override
@@ -88,19 +88,6 @@ class ContactsScreenState extends State<ContactsScreen> {
                     ],
                   ),
                   Expanded(
-//                    child: widget.contacts != null
-//                        ? Container(
-//                            child: Scrollbar(
-//                              child: _buildContactsListView(),
-//                            ),
-//                          )
-//                        : (_permissionStatus == PermissionStatus.granted
-//                            ? Center(
-//                                child: CircularProgressIndicator(),
-//                              )
-//                            : Center(
-//                                child: Text(
-//                                    "This app requires contacts access to function."))),
                     child: TabBarView(
                       children: <Widget>[
                         _buildContactsListView(),
@@ -112,6 +99,26 @@ class ContactsScreenState extends State<ContactsScreen> {
                 ],
               ))),
     );
+  }
+
+  Widget _buildContactsListView() {
+    return widget.contacts != null
+        ? Container(
+            child: Scrollbar(
+              child: ListView.builder(
+                  itemCount: widget.contacts?.length ?? 0,
+                  itemBuilder: (BuildContext context, int index) {
+                    Contact contact = widget.contacts.elementAt(index);
+                    return _buildListItem(contact.displayName);
+                  }),
+            ),
+          )
+        : (_permissionStatus == PermissionStatus.granted
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : Center(
+                child: Text("This app requires contacts access to function.")));
   }
 
   ListView _buildUsersListView() {
@@ -139,15 +146,6 @@ class ContactsScreenState extends State<ContactsScreen> {
         );
       },
     );
-  }
-
-  ListView _buildContactsListView() {
-    return ListView.builder(
-        itemCount: widget.contacts.length ?? 0,
-        itemBuilder: (BuildContext context, int index) {
-          Contact contact = widget.contacts.elementAt(index);
-          return _buildListItem(contact.displayName);
-        });
   }
 
   Container _buildListItem(String name) {
@@ -187,52 +185,3 @@ class ContactsScreenState extends State<ContactsScreen> {
     ];
   }
 }
-
-//class EpisodesCard extends StatelessWidget {
-//  const EpisodesCard({Key key, this.episode}) : super(key: key);
-//
-//  final User episode;
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return Container(
-//      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-//      padding: const EdgeInsets.all(8),
-//      decoration: BoxDecoration(
-//        shape: BoxShape.rectangle,
-//        borderRadius: BorderRadius.circular(8.0),
-//        boxShadow: const <BoxShadow>[
-//          BoxShadow(
-//            color: Colors.black12,
-//            blurRadius: 8.0,
-//            offset: Offset(0.0, 8.0),
-//          ),
-//        ],
-//      ),
-//      child: Column(
-//        children: <Widget>[
-//          Text(
-//            episode.name,
-//            style: const TextStyle(
-//                color: Colors.white70,
-//                fontSize: 18,
-//                fontWeight: FontWeight.bold),
-//          ),
-//          const SizedBox(height: 4),
-//          Text(
-//            episode.name,
-//            maxLines: 1,
-//            overflow: TextOverflow.ellipsis,
-//            style: const TextStyle(
-//                color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-//          ),
-//          const SizedBox(height: 8),
-//          Text(
-//            episode.name,
-//            style: const TextStyle(color: Colors.white70, fontSize: 14),
-//          ),
-//        ],
-//      ),
-//    );
-//  }
-//}
