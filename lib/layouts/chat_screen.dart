@@ -1,4 +1,6 @@
 import 'package:contractor_search/models/Message.dart';
+import 'package:contractor_search/models/MessageHeader.dart';
+import 'package:contractor_search/models/SharedContact.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -13,10 +15,12 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textEditingController =
       new TextEditingController();
 
-  final List<Message> _listOfMessages = [
+  final List<Object> _listOfMessages = [
+    new MessageHeader(DateTime.now()),
     new Message("Bah Liviu", DateTime.now(), false),
     new Message("Ce faci?", DateTime.now(), false),
-    new Message(":))", DateTime.now(), false)
+    new Message(":))", DateTime.now(), false),
+    new SharedContact("Name Surname", "#nanny", 4.8, "+40751811008")
   ];
 
   final ScrollController _listScrollController = new ScrollController();
@@ -85,15 +89,22 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget getListView(List<Message> listOfMessages) {
+  Widget getListView(List<Object> listOfMessages) {
     var listView = ListView.builder(
       padding: EdgeInsets.all(0),
       itemBuilder: (context, position) {
-        if (listOfMessages[position].messageAuthorIsCurrentUser) {
-          return currentUserMessage(position);
-        } else {
-          return otherUserMessage(position);
+        var item = listOfMessages[position];
+        if (item is Message) {
+          if (item.messageAuthorIsCurrentUser) {
+            return currentUserMessage(position, item);
+          } else {
+            return otherUserMessage(position, item);
+          }
         }
+        if (item is SharedContact) {
+          return getSharedContactUI(item);
+        }
+        return getMessageHeaderUI(item as MessageHeader);
       },
       itemCount: listOfMessages.length,
       controller: _listScrollController,
@@ -101,29 +112,37 @@ class _ChatScreenState extends State<ChatScreen> {
     return listView;
   }
 
-  Widget currentUserMessage(int position) {
+  Widget currentUserMessage(int position, Message message) {
     if (position > 0) {
-      if (_listOfMessages[position - 1].messageAuthorIsCurrentUser) {
-        return currentUserSecondMessage(position);
-      } else {
-        return currentUserFirstMessage(position);
+      var previousItem = _listOfMessages[position - 1];
+
+      if (previousItem is Message) {
+        if (previousItem.messageAuthorIsCurrentUser) {
+          return currentUserSecondMessage(message);
+        } else {
+          return currentUserFirstMessage(message);
+        }
       }
     }
-    return currentUserFirstMessage(position);
+    return currentUserFirstMessage(message);
   }
 
-  Widget otherUserMessage(int position) {
+  Widget otherUserMessage(int position, Message message) {
     if (position > 0) {
-      if (_listOfMessages[position - 1].messageAuthorIsCurrentUser) {
-        return otherUserFirstMessage(position);
-      } else {
-        return otherUserSecondMessage(position);
+      var previousItem = _listOfMessages[position - 1];
+
+      if (previousItem is Message) {
+        if (previousItem.messageAuthorIsCurrentUser) {
+          return otherUserFirstMessage(message);
+        } else {
+          return otherUserSecondMessage(message);
+        }
       }
     }
-    return otherUserFirstMessage(position);
+    return otherUserFirstMessage(message);
   }
 
-  Widget currentUserFirstMessage(int position) {
+  Widget currentUserFirstMessage(Message message) {
     return new Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.end,
@@ -140,7 +159,7 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 new Text(
-                  _listOfMessages[position].message,
+                  message.message,
                   textWidthBasis: TextWidthBasis.longestLine,
                   style: TextStyle(color: Colors.white, fontSize: 14),
                   softWrap: true,
@@ -159,7 +178,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget currentUserSecondMessage(int position) {
+  Widget currentUserSecondMessage(Message message) {
     return Row(
       children: <Widget>[
         new Card(
@@ -174,7 +193,7 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 new Text(
-                  _listOfMessages[position].message,
+                  message.message,
                   textWidthBasis: TextWidthBasis.longestLine,
                   style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
@@ -187,7 +206,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget otherUserFirstMessage(int position) {
+  Widget otherUserFirstMessage(Message message) {
     return new Row(children: <Widget>[
       Container(
         margin: EdgeInsets.fromLTRB(15, 16, 0, 0),
@@ -207,7 +226,7 @@ class _ChatScreenState extends State<ChatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               new Text(
-                _listOfMessages[position].message,
+                message.message,
                 textWidthBasis: TextWidthBasis.longestLine,
                 style: TextStyle(color: Colors.black, fontSize: 14),
               ),
@@ -218,7 +237,7 @@ class _ChatScreenState extends State<ChatScreen> {
     ]);
   }
 
-  Widget otherUserSecondMessage(int position) {
+  Widget otherUserSecondMessage(Message message) {
     return Row(
       children: <Widget>[
         new Card(
@@ -233,7 +252,7 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 new Text(
-                  _listOfMessages[position].message,
+                  message.message,
                   textWidthBasis: TextWidthBasis.longestLine,
                   style: TextStyle(color: Colors.black, fontSize: 14),
                 ),
@@ -346,9 +365,106 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  Widget getMessageHeaderUI(MessageHeader messageHeader) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(0, 22, 00, 0),
+      child: Text(messageHeader.timestamp.toIso8601String(),
+          textAlign: TextAlign.center,
+          style: TextStyle(color: ColorUtils.textGray, fontSize: 14)),
+    );
+  }
+
+  Widget getSharedContactUI(SharedContact sharedContact) {
+    return Container(
+      height: 72,
+      margin: EdgeInsets.fromLTRB(15, 16, 15, 0),
+      child: Stack(
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.fromLTRB(28, 0, 0, 0),
+            decoration: getRoundedOrangeDecoration(),
+            child: Container(
+              height: 80,
+              margin: EdgeInsets.fromLTRB(40, 0, 0, 0),
+              child: Row(
+                children: <Widget>[
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(sharedContact.name,
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.white)),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                          child: Row(
+
+                            children: <Widget>[
+                              Text(
+                                sharedContact.hashtag,
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.white),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(45, 0, 0, 0),
+                                child: Icon(
+                                  Icons.star,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
+                              Text("4.8",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.white))
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Container(
+                    decoration: getRoundWhiteCircle(),
+                    child: new IconButton(
+                      icon: Image.asset(
+                        "assets/images/ic_inbox_gray.png",
+                        color: ColorUtils.messageOrange,
+                      ),
+                    ),
+                    margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
+                    width: 40,
+                    height: 40,
+                  )
+                ],
+              ),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
+            width: 56,
+            height: 56,
+            color: Colors.red,
+          ),
+        ],
+      ),
+    );
+  }
+
   BoxDecoration getRoundedWhiteDecoration() {
     return BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(8)));
+  }
+
+  BoxDecoration getRoundWhiteCircle() {
+    return BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(20)));
+  }
+
+  BoxDecoration getRoundedOrangeDecoration() {
+    return BoxDecoration(
+        color: ColorUtils.messageOrange,
         borderRadius: BorderRadius.all(Radius.circular(8)));
   }
 }
