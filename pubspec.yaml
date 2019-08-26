@@ -27,6 +27,7 @@ dependencies:
   permission_handler: ^3.2.2
   shared_preferences: ^0.5.3+4
   firebase_auth:
+  graphql_flutter: ^2.1.0
 
 dev_dependencies:
   flutter_test:
