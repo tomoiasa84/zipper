@@ -187,18 +187,22 @@ class ContactsScreenState extends State<ContactsScreen> {
                   ),
             title: Row(
               children: <Widget>[
+                Flexible(
+                  child: Container(
+                      child: Text(
+                    name ?? "",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontFamily: 'Arial', fontWeight: FontWeight.bold),
+                  )),
+                ),
                 Container(
-                    width: 102.0,
-                    child: Text(
-                      name ?? "",
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontFamily: 'Arial', fontWeight: FontWeight.bold),
-                    )),
-                Image.asset(
-                  "assets/images/ic_contacts.png",
-                  height: 16.0,
-                  width: 16.0,
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Image.asset(
+                    "assets/images/ic_contacts.png",
+                    height: 16.0,
+                    width: 16.0,
+                  ),
                 )
               ],
             ),
