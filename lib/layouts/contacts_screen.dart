@@ -143,14 +143,12 @@ class ContactsScreenState extends State<ContactsScreen> {
   Widget _buildContactsListView() {
     return widget.contacts != null
         ? Container(
-            child: Scrollbar(
-              child: ListView.builder(
-                  itemCount: widget.contacts?.length ?? 0,
-                  itemBuilder: (BuildContext context, int index) {
-                    Contact contact = widget.contacts.elementAt(index);
-                    return _buildListItem(contact.displayName, contact.avatar);
-                  }),
-            ),
+            child: ListView.builder(
+                itemCount: widget.contacts?.length ?? 0,
+                itemBuilder: (BuildContext context, int index) {
+                  Contact contact = widget.contacts.elementAt(index);
+                  return _buildListItem(contact.displayName, contact.avatar);
+                }),
           )
         : (_permissionStatus == PermissionStatus.granted
             ? Center(
