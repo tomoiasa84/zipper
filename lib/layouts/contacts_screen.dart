@@ -5,6 +5,7 @@ import 'package:contractor_search/bloc/contacts_bloc.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/utils/contacts_search.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -56,7 +57,6 @@ class ContactsScreenState extends State<ContactsScreen> {
           child: Column(
             children: <Widget>[
               _buildTabBar(),
-              _buildSearchField(),
               _buildContent(),
             ],
           ),
@@ -65,39 +65,22 @@ class ContactsScreenState extends State<ContactsScreen> {
     );
   }
 
-  Widget _buildSearchField() {
-    return Container(
-      margin: const EdgeInsets.only(
-          left: 16.0, right: 16.0, top: 16.0, bottom: 8.0),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          color: ColorUtils.white,
-          border: new Border.all(color: ColorUtils.lightLightGray, width: 1.0)),
-      child: TextFormField(
-        decoration: InputDecoration(
-            contentPadding: EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 16.0),
-            labelText: Strings.searchs,
-            fillColor: ColorUtils.white,
-            border: InputBorder.none,
-            suffixIcon: GestureDetector(
-              onTap: () {},
-              child: Icon(
-                Icons.search,
-                color: ColorUtils.darkerGray,
-              ),
-            )),
-      ),
-    );
-  }
-
   AppBar _buildAppBar() {
     return AppBar(
-      title: Text(
-        Strings.contacts,
-        style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
-      ),
-      centerTitle: true,
-    );
+        title: Text(
+          Strings.contacts,
+          style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search, color: ColorUtils.darkerGray,),
+            onPressed: () {
+              showSearch(
+                  context: context, delegate: ContactsSearch(widget.contacts));
+            },
+          )
+        ]);
   }
 
   Column _buildTabBar() {
@@ -113,7 +96,7 @@ class ContactsScreenState extends State<ContactsScreen> {
           tabs: _buildTabs(),
         ),
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 21.0),
+          margin: const EdgeInsets.only(left: 21.0, right: 21.0, bottom: 12.0),
           // Add top border
           decoration: BoxDecoration(
             border: Border(
