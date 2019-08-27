@@ -56,10 +56,36 @@ class ContactsScreenState extends State<ContactsScreen> {
           child: Column(
             children: <Widget>[
               _buildTabBar(),
+              _buildSearchField(),
               _buildContent(),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return Container(
+      margin: const EdgeInsets.only(
+          left: 16.0, right: 16.0, top: 16.0, bottom: 8.0),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          color: ColorUtils.white,
+          border: new Border.all(color: ColorUtils.lightLightGray, width: 1.0)),
+      child: TextFormField(
+        decoration: InputDecoration(
+            contentPadding: EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 16.0),
+            labelText: Strings.searchs,
+            fillColor: ColorUtils.white,
+            border: InputBorder.none,
+            suffixIcon: GestureDetector(
+              onTap: () {},
+              child: Icon(
+                Icons.search,
+                color: ColorUtils.darkerGray,
+              ),
+            )),
       ),
     );
   }
@@ -170,7 +196,7 @@ class ContactsScreenState extends State<ContactsScreen> {
 
   Container _buildListItem(String name, Uint8List image) {
     return Container(
-      margin: const EdgeInsets.only(left: 12.0, right: 12.0),
+      margin: const EdgeInsets.only(left: 16.0, right: 16.0),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
