@@ -29,13 +29,11 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Flutter Demo',
-        theme: ThemeData(
-          primaryColor: ColorUtils.white,
-          fontFamily: "Arial"
-        ),
+        theme: ThemeData(primaryColor: ColorUtils.white, fontFamily: "Arial"),
         home: Builder(
-          builder: (context) =>
-              authStatus == AuthStatus.LOGGED_IN ? HomePage() : HomePage(),
+          builder: (context) => authStatus == AuthStatus.LOGGED_IN
+              ? HomePage()
+              : PhoneAuthScreen(),
         ),
         routes: <String, WidgetBuilder>{
           '/phoneAuthScreen': (BuildContext context) => PhoneAuthScreen(),
