@@ -2,57 +2,16 @@ import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class SmsCodeVerification extends StatefulWidget {
-  String smsCode;
-  String verificationId;
-
-  SmsCodeVerification(this.smsCode, this.verificationId);
-
+class LoginScreen extends StatefulWidget {
   @override
-  SmsCodeVerificationState createState() => SmsCodeVerificationState();
+  LoginScreenState createState() => LoginScreenState();
 }
 
-class SmsCodeVerificationState extends State<SmsCodeVerification> {
+class LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  signIn() async {
-    final AuthCredential credential = PhoneAuthProvider.getCredential(
-      verificationId: widget.verificationId,
-      smsCode: widget.smsCode,
-    );
-    FirebaseAuth _auth = FirebaseAuth.instance;
-
-    final AuthResult user = await _auth.signInWithCredential(credential);
-    final FirebaseUser currentUser = await _auth.currentUser();
-    assert(user.user.uid == currentUser.uid);
-
-    if (user != null) {
-      saveAccessToken(user.user.uid);
-      Navigator.of(context).pushReplacementNamed('/homepage');
-    }
-  }
-
-  Future saveAccessToken(String accessToken) async {
-    await SharedPreferencesHelper.saveAccessToken(accessToken);
-  }
-
-  void _login(BuildContext context) {
-    FirebaseAuth.instance.currentUser().then((user) {
-      if (user != null) {
-        saveAccessToken(user.uid);
-        Navigator.of(context).pop();
-        Navigator.of(context).pushReplacementNamed('/homepage');
-      } else {
-        Navigator.of(context).pop();
-        signIn();
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,13 +31,11 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                     children: <Widget>[
                       _buildBackButton(),
                       buildLogo(),
-                      buildTitle(Strings.verificationCode),
+                      buildTitle(Strings.login),
                       _buildForm(),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: customAccentButton(Strings.login, () {
-                          _login(context);
-                        }),
+                        child: customAccentButton(Strings.continueText, () {}),
                       ),
                       Expanded(
                         child: Container(
@@ -126,18 +83,15 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       child: Container(
         margin: const EdgeInsets.only(top: 35.0, left: 24.0, right: 24.0),
         child: TextFormField(
-          onChanged: (value) {
-            widget.smsCode = value;
-          },
-          keyboardType: TextInputType.number,
+          onChanged: (value) {},
+          keyboardType: TextInputType.phone,
           inputFormatters: <TextInputFormatter>[
             WhitelistingTextInputFormatter.digitsOnly,
           ],
-          decoration:
-              customInputDecoration(Strings.typeCodeHere, Icons.dialpad),
+          decoration: customInputDecoration(Strings.phoneNumber, Icons.phone),
           validator: (value) {
             if (value.isEmpty) {
-              return Strings.verificationCodeValidation;
+              return Strings.phoneNumberValidation;
             }
             return null;
           },

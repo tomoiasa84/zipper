@@ -15,12 +15,13 @@ class Strings {
   static const String verificationCode = "Verification Code";
   static const String login = "Login";
   static const String lastEdit = "Last Edit on June 2, 2017";
+  static const String typeCodeHere = "Type code here";
 
   //Sign up validations
   static const String nameValidation = "Please provide a valid name";
   static const String locationValidation = "Please provide a valid location";
   static const String phoneNumberValidation =
-      "Please provide a valid phone number";
+      "#### (###) ### - Enter a valid phone number.";
   static const String verificationCodeValidation =
       "The verification code cannot be empty";
 

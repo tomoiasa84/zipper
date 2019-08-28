@@ -1,3 +1,4 @@
+import 'package:contractor_search/layouts/login_screen.dart';
 import 'package:contractor_search/layouts/sms_code_verification.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -55,7 +56,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   String _validatePhoneNumber(String value) {
     final RegExp phoneExp = RegExp(r'^\(\d\d\d\) \d\d\d\-\d\d\d\d$');
     if (!phoneExp.hasMatch(value))
-      return '#### (###) ### - Enter a valid phone number.';
+      return Strings.phoneNumberValidation;
     return null;
   }
 
@@ -157,7 +158,10 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (BuildContext context) => LoginScreen()));
+            },
             child: Text(
               Strings.alreadyHaveAnAccount,
               style: TextStyle(color: ColorUtils.orangeAccent, fontSize: 11.0),
