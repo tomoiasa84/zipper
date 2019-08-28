@@ -1,3 +1,4 @@
+import 'package:contractor_search/bloc/chat_bloc.dart';
 import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
 import 'package:contractor_search/models/SharedContact.dart';
@@ -15,21 +16,26 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textEditingController =
       new TextEditingController();
 
-  final List<Object> _listOfMessages = [
-    new MessageHeader(DateTime.now()),
-    new Message("Bah Liviu", DateTime.now(), false),
-    new Message("Ce faci?", DateTime.now(), false),
-    new Message(":))", DateTime.now(), false),
-    new SharedContact("Name Surname", "#nanny", 4.8, "+40751811008")
-  ];
+  final List<Object> _listOfMessages = new List();
+
+//  [
+//    new MessageHeader(DateTime.now()),
+//    new Message("Bah Liviu", DateTime.now(), ""),
+//    new Message("Ce faci?", DateTime.now(), ""),
+//    new Message(":))", DateTime.now(), ""),
+//    new SharedContact("Name Surname", "#nanny", 4.8, "+40751811008")
+//  ];
 
   final ScrollController _listScrollController = new ScrollController();
+  final ChatBloc _chatBloc = ChatBloc();
 
   void _handleSubmit(String text) {
     if (text.trim().length > 0) {
       _textEditingController.clear();
       setState(() {
-        _listOfMessages.add(new Message(text, DateTime.now(), true));
+        _listOfMessages.add(new Message(text, DateTime.now(), "myUser"));
+        _chatBloc.sendMessage(
+            "1", new Message(text, DateTime.now(), "myUser"));
         scrollToBottom();
       });
     }
@@ -40,6 +46,12 @@ class _ChatScreenState extends State<ChatScreen> {
         _listScrollController.position.maxScrollExtent,
         duration: Duration(milliseconds: 300),
         curve: Curves.easeOut);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _chatBloc.getHistoryMessages("1");
   }
 
   @override
@@ -99,7 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
       itemBuilder: (context, position) {
         var item = listOfMessages[position];
         if (item is Message) {
-          if (item.messageAuthorIsCurrentUser) {
+          if (_messageAuthorIsCurrentUser(item)) {
             return currentUserMessage(position, item);
           } else {
             return otherUserMessage(position, item);
@@ -121,7 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
       var previousItem = _listOfMessages[position - 1];
 
       if (previousItem is Message) {
-        if (previousItem.messageAuthorIsCurrentUser) {
+        if (_messageAuthorIsCurrentUser(previousItem)) {
           return currentUserSecondMessage(message);
         } else {
           return currentUserFirstMessage(message);
@@ -136,7 +148,7 @@ class _ChatScreenState extends State<ChatScreen> {
       var previousItem = _listOfMessages[position - 1];
 
       if (previousItem is Message) {
-        if (previousItem.messageAuthorIsCurrentUser) {
+        if (_messageAuthorIsCurrentUser(previousItem)) {
           return otherUserFirstMessage(message);
         } else {
           return otherUserSecondMessage(message);
@@ -454,18 +466,22 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           Container(
-            margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
-            width: 56,
-            height: 56,
+              margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
+              width: 56,
+              height: 56,
               decoration: new BoxDecoration(
                   shape: BoxShape.circle,
                   image: new DecorationImage(
                       fit: BoxFit.cover,
-                      image: new NetworkImage("https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))
-          ),
+                      image: new NetworkImage(
+                          "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))),
         ],
       ),
     );
+  }
+
+  bool _messageAuthorIsCurrentUser(Message message) {
+    return message.from == "myUser";
   }
 
   BoxDecoration getRoundedWhiteDecoration() {
