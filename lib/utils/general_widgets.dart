@@ -2,9 +2,9 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:flutter/material.dart';
 
-Container buildLogo() {
+Container buildLogo(double marginTop) {
   return Container(
-    margin: const EdgeInsets.only(top: 100.0),
+    margin: EdgeInsets.only(top: marginTop),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -26,14 +26,12 @@ Container buildLogo() {
   );
 }
 
-Container buildTitle(String title) {
+Container buildTitle(String title, double marginTop) {
   return Container(
-    child: Container(
-      margin: const EdgeInsets.only(top: 49.0),
-      child: Text(
-        title,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-      ),
+    margin: EdgeInsets.only(top: marginTop),
+    child: Text(
+      title,
+      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
     ),
   );
 }
@@ -53,13 +51,15 @@ InputDecoration customInputDecoration(String hint, IconData icon) {
   );
 }
 
-Container customAccentButton(String textButton,Function onClickAction, ) {
+Container customAccentButton(
+  String textButton,
+  Function onClickAction,
+) {
   return Container(
-    margin: const EdgeInsets.only(top: 40.0),
     width: double.infinity,
     child: RaisedButton(
       onPressed: () {
-       onClickAction();
+        onClickAction();
       },
       color: ColorUtils.orangeAccent,
       shape: new RoundedRectangleBorder(
@@ -79,9 +79,9 @@ Container customAccentButton(String textButton,Function onClickAction, ) {
   );
 }
 
-GestureDetector buildTermsAndConditions(Function onClickAction){
+GestureDetector buildTermsAndConditions(Function onClickAction) {
   return GestureDetector(
-    onTap: (){
+    onTap: () {
       onClickAction();
     },
     child: Text(

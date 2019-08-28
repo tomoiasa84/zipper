@@ -71,11 +71,11 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       _buildBackButton(),
-                      buildLogo(),
-                      buildTitle(Strings.verificationCode),
+                      buildLogo(MediaQuery.of(context).size.height * 0.097),
+                      buildTitle(Strings.verificationCode, MediaQuery.of(context).size.height * 0.048),
                       _buildForm(),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
                         child: customAccentButton(Strings.login, () {
                           _login(context);
                         }),

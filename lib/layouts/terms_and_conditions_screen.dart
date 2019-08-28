@@ -6,9 +6,11 @@ class TermsAndConditions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      bottom: false,
+      top: false,
       child: Scaffold(
         body: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 31.0, vertical: 31.0),
+          margin: const EdgeInsets.symmetric(horizontal: 31.0, vertical: 39.0),
           child: Column(
             children: <Widget>[
               Text(

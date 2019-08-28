@@ -55,41 +55,41 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
   String _validatePhoneNumber(String value) {
     final RegExp phoneExp = RegExp(r'^\(\d\d\d\) \d\d\d\-\d\d\d\d$');
-    if (!phoneExp.hasMatch(value))
-      return Strings.phoneNumberValidation;
+    if (!phoneExp.hasMatch(value)) return Strings.phoneNumberValidation;
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      bottom: false,
+      top: false,
       child: Scaffold(
         backgroundColor: ColorUtils.white,
         body: Container(
-          height: MediaQuery.of(context).size.height,
-          padding: const EdgeInsets.only(
-            left: 24.0,
-            right: 24.0,
-            bottom: 31.0,
-          ),
-          child: SingleChildScrollView(
-            child: Container(
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                children: <Widget>[
-                  buildLogo(),
-                  buildTitle(Strings.createAnAccount),
-                  _buildSignUpForm(),
-                  customAccentButton(Strings.continueText, () {
-                    if (_formKey.currentState.validate()) {
-                      verifyPhone();
-                    }
-                  }),
-                  _buildBottomTexts()
-                ],
+          padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 31.0),
+          height: double.infinity,
+          child: LayoutBuilder(builder: (context, constraint) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraint.maxHeight),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    buildLogo(MediaQuery.of(context).size.height * 0.097),
+                    buildTitle(Strings.createAnAccount, 0),
+                    _buildSignUpForm(),
+                    customAccentButton(Strings.continueText, () {
+                      if (_formKey.currentState.validate()) {
+                        verifyPhone();
+                      }
+                    }),
+                    _buildBottomTexts()
+                  ],
+                ),
               ),
-            ),
-          ),
+            );
+          }),
         ),
       ),
     );
@@ -101,7 +101,6 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
       child: Column(
         children: <Widget>[
           Container(
-            margin: const EdgeInsets.only(top: 35.0),
             child: TextFormField(
               onChanged: (value) {
                 this.name = value;
@@ -151,26 +150,30 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     );
   }
 
-  Expanded _buildBottomTexts() {
-    return Expanded(
+  Container _buildBottomTexts() {
+    return Container(
+      alignment: Alignment.bottomRight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           GestureDetector(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (BuildContext context) => LoginScreen()));
+                  builder: (BuildContext context) =>
+                      LoginScreen()));
             },
             child: Text(
               Strings.alreadyHaveAnAccount,
-              style: TextStyle(color: ColorUtils.orangeAccent, fontSize: 11.0),
+              style: TextStyle(
+                  color: ColorUtils.orangeAccent,
+                  fontSize: 11.0),
             ),
           ),
           buildTermsAndConditions(() {
             Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => TermsAndConditions()));
-          })
+                builder: (BuildContext context) =>
+                    TermsAndConditions()));
+          }),
         ],
       ),
     );

@@ -16,6 +16,8 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      top: false,
+      bottom: false,
       child: Scaffold(
         backgroundColor: ColorUtils.white,
         body: Container(
@@ -30,11 +32,13 @@ class LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       _buildBackButton(),
-                      buildLogo(),
-                      buildTitle(Strings.login),
+                      buildLogo(MediaQuery.of(context).size.height * 0.097),
+                      buildTitle(Strings.login,
+                          MediaQuery.of(context).size.height * 0.048),
                       _buildForm(),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24.0, vertical: 40.0),
                         child: customAccentButton(Strings.continueText, () {}),
                       ),
                       Expanded(
@@ -65,7 +69,7 @@ class LoginScreenState extends State<LoginScreen> {
       child: Container(
         alignment: Alignment.topLeft,
         padding: const EdgeInsets.only(
-            left: 10.0, top: 16.0, right: 10.0, bottom: 10.0),
+            left: 10.0, top: 35.0, right: 10.0, bottom: 10.0),
         child: Icon(
           Icons.arrow_back,
           color: ColorUtils.darkGray,
