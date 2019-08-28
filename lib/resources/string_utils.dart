@@ -12,11 +12,13 @@ class Strings {
   static const String continueText = "Continue";
   static const String alreadyHaveAnAccount = "Already have an account?";
   static const String termsAndConditions = "Terms and Conditions";
+  static const String verificationCode = "Verification Code";
+  static const String login = "Login";
 
   //Sign up validations
   static const String nameValidation = "Please provide a valid name";
   static const String locationValidation = "Please provide a valid location";
   static const String phoneNumberValidation =
       "Please provide a valid phone number";
-
+  static const String verificationCodeValidation = "The verification code cannot be empty";
 }

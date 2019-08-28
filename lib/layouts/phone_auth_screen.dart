@@ -1,6 +1,7 @@
 import 'package:contractor_search/layouts/sms_code_verification.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -63,10 +64,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
       child: Scaffold(
         backgroundColor: ColorUtils.white,
         body: Container(
-          height: MediaQuery
-              .of(context)
-              .size
-              .height,
+          height: MediaQuery.of(context).size.height,
           padding: const EdgeInsets.only(
             left: 24.0,
             right: 24.0,
@@ -74,58 +72,23 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
           ),
           child: SingleChildScrollView(
             child: Container(
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height,
+              height: MediaQuery.of(context).size.height,
               child: Column(
                 children: <Widget>[
-                  _buildLogo(),
-                  _buildTitle(),
+                  buildLogo(),
+                  buildTitle(Strings.createAnAccount),
                   _buildSignUpForm(),
-                  _buildContinueButton(),
+                  customAccentButton(Strings.continueText, () {
+                    if (_formKey.currentState.validate()) {
+                      verifyPhone();
+                    }
+                  }),
                   _buildBottomTexts()
                 ],
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Container _buildTitle() {
-    return Container(
-      child: Container(
-        margin: const EdgeInsets.only(top: 49.0),
-        child: Text(
-          Strings.createAnAccount,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-        ),
-      ),
-    );
-  }
-
-  Container _buildLogo() {
-    return Container(
-      margin: const EdgeInsets.only(top: 100.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Image.asset(
-            "assets/images/ic_logo_orange.png",
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 4.5),
-            child: Text(
-              Strings.logo.toUpperCase(),
-              style: TextStyle(
-                  fontFamily: 'GothamRounded',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 35.0),
-            ),
-          )
-        ],
       ),
     );
   }
@@ -141,7 +104,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
               onChanged: (value) {
                 this.name = value;
               },
-              decoration: _customInputDecoration(Strings.name, Icons.person),
+              decoration: customInputDecoration(Strings.name, Icons.person),
               validator: (value) {
                 if (value.isEmpty) {
                   return Strings.nameValidation;
@@ -157,7 +120,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 this.location = value;
               },
               decoration:
-              _customInputDecoration(Strings.location, Icons.location_on),
+                  customInputDecoration(Strings.location, Icons.location_on),
               validator: (value) {
                 if (value.isEmpty) {
                   return Strings.locationValidation;
@@ -177,54 +140,11 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 WhitelistingTextInputFormatter.digitsOnly,
               ],
               decoration:
-              _customInputDecoration(Strings.phoneNumber, Icons.phone),
+                  customInputDecoration(Strings.phoneNumber, Icons.phone),
               validator: _validatePhoneNumber,
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  InputDecoration _customInputDecoration(String hint, IconData icon) {
-    return InputDecoration(
-      focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: ColorUtils.orangeAccent)),
-      enabledBorder: new UnderlineInputBorder(
-          borderSide: BorderSide(color: ColorUtils.lightBlue)),
-      prefixIcon: Icon(
-        icon,
-        color: ColorUtils.orangeAccent,
-      ),
-      hintText: hint,
-      hintStyle: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
-    );
-  }
-
-  Container _buildContinueButton() {
-    return Container(
-      margin: const EdgeInsets.only(top: 40.0),
-      width: double.infinity,
-      child: RaisedButton(
-        onPressed: () {
-          if (_formKey.currentState.validate()) {
-            verifyPhone();
-          }
-        },
-        color: ColorUtils.orangeAccent,
-        shape: new RoundedRectangleBorder(
-          borderRadius: new BorderRadius.circular(10.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Text(
-            Strings.continueText.toUpperCase(),
-            style: TextStyle(
-                color: ColorUtils.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 10.0),
-          ),
-        ),
       ),
     );
   }
@@ -242,12 +162,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
               style: TextStyle(color: ColorUtils.orangeAccent, fontSize: 11.0),
             ),
           ),
-          GestureDetector(
-            child: Text(
-              Strings.termsAndConditions,
-              style: TextStyle(color: ColorUtils.orangeAccent, fontSize: 11.0),
-            ),
-          )
+          buildTermsAndConditions()
         ],
       ),
     );
