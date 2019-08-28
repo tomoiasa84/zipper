@@ -1,3 +1,4 @@
+import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
@@ -66,26 +67,31 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                 constraints: BoxConstraints(minHeight: constraint.maxHeight),
                 child: IntrinsicHeight(
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
                       _buildBackButton(),
-                      buildLogo(),
-                      buildTitle(Strings.verificationCode),
-                      _buildForm(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: customAccentButton(Strings.login, () {
-                          _login(context);
-                        }),
-                      ),
-                      Expanded(
-                        child: Container(
-                            alignment: Alignment.bottomRight,
-                            padding: const EdgeInsets.only(
-                                right: 24.0, bottom: 31.0),
-                            child: buildTermsAndConditions()),
-                      ),
+                  buildLogo(),
+                  buildTitle(Strings.verificationCode),
+                  _buildForm(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: customAccentButton(Strings.login, () {
+                      _login(context);
+                    }),
+                  ),
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.bottomRight,
+                      padding: const EdgeInsets.only(
+                          right: 24.0, bottom: 31.0),
+                      child: buildTermsAndConditions(() {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                TermsAndConditions()));
+                      }),
+                    ),
+                  )
                     ],
                   ),
                 ),
@@ -128,7 +134,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
             WhitelistingTextInputFormatter.digitsOnly,
           ],
           decoration:
-              customInputDecoration(Strings.verificationCode, Icons.phone),
+          customInputDecoration(Strings.verificationCode, Icons.phone),
           validator: (value) {
             if (value.isEmpty) {
               return Strings.verificationCodeValidation;

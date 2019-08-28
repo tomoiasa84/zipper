@@ -79,9 +79,11 @@ Container customAccentButton(String textButton,Function onClickAction, ) {
   );
 }
 
-GestureDetector buildTermsAndConditions(){
+GestureDetector buildTermsAndConditions(Function onClickAction){
   return GestureDetector(
-    onTap: (){},
+    onTap: (){
+      onClickAction();
+    },
     child: Text(
       Strings.termsAndConditions,
       style: TextStyle(color: ColorUtils.orangeAccent, fontSize: 11.0),

@@ -1,4 +1,5 @@
 import 'package:contractor_search/layouts/sms_code_verification.dart';
+import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
@@ -162,7 +163,10 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
               style: TextStyle(color: ColorUtils.orangeAccent, fontSize: 11.0),
             ),
           ),
-          buildTermsAndConditions()
+          buildTermsAndConditions(() {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => TermsAndConditions()));
+          })
         ],
       ),
     );

@@ -51,6 +51,7 @@ flutter:
     - assets/images/ic_account_gray.png
     - assets/images/ic_contacts.png
     - assets/images/ic_logo_orange.png
+    - assets/images/ic_access_time.png
 
   fonts:
     - family: Arial
