@@ -3,6 +3,7 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class PhoneAuthScreen extends StatefulWidget {
   @override
@@ -18,73 +19,6 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   String location;
   String verificationId;
   final _formKey = GlobalKey<FormState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorUtils.white,
-        body: Container(
-          height: MediaQuery.of(context).size.height,
-          padding: const EdgeInsets.only(
-            left: 24.0,
-            right: 24.0,
-            bottom: 31.0,
-          ),
-          child: SingleChildScrollView(
-            child: Container(
-              height: MediaQuery.of(context).size.height - 40,
-              child: Column(
-                children: <Widget>[
-                  _buildLogo(),
-                  _buildTitle(),
-                  _buildSignUpForm(),
-                  _buildContinueButton(),
-                  _buildBottomTexts()
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Expanded _buildTitle() {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.only(top: 49.0),
-        child: Text(
-          Strings.createAnAccount,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-        ),
-      ),
-    );
-  }
-
-  Container _buildLogo() {
-    return Container(
-      margin: const EdgeInsets.only(top: 76.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Image.asset(
-            "assets/images/ic_logo_orange.png",
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 4.5),
-            child: Text(
-              Strings.logo.toUpperCase(),
-              style: TextStyle(
-                  fontFamily: 'GothamRounded',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 35.0),
-            ),
-          )
-        ],
-      ),
-    );
-  }
 
   Future<void> verifyPhone() async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -116,6 +50,86 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
         verificationFailed: veriFailed);
   }
 
+  String _validatePhoneNumber(String value) {
+    final RegExp phoneExp = RegExp(r'^\(\d\d\d\) \d\d\d\-\d\d\d\d$');
+    if (!phoneExp.hasMatch(value))
+      return '#### (###) ### - Enter a valid phone number.';
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: ColorUtils.white,
+        body: Container(
+          height: MediaQuery
+              .of(context)
+              .size
+              .height,
+          padding: const EdgeInsets.only(
+            left: 24.0,
+            right: 24.0,
+            bottom: 31.0,
+          ),
+          child: SingleChildScrollView(
+            child: Container(
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height,
+              child: Column(
+                children: <Widget>[
+                  _buildLogo(),
+                  _buildTitle(),
+                  _buildSignUpForm(),
+                  _buildContinueButton(),
+                  _buildBottomTexts()
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container _buildTitle() {
+    return Container(
+      child: Container(
+        margin: const EdgeInsets.only(top: 49.0),
+        child: Text(
+          Strings.createAnAccount,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+        ),
+      ),
+    );
+  }
+
+  Container _buildLogo() {
+    return Container(
+      margin: const EdgeInsets.only(top: 100.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Image.asset(
+            "assets/images/ic_logo_orange.png",
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.5),
+            child: Text(
+              Strings.logo.toUpperCase(),
+              style: TextStyle(
+                  fontFamily: 'GothamRounded',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 35.0),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Form _buildSignUpForm() {
     return Form(
       key: _formKey,
@@ -143,7 +157,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 this.location = value;
               },
               decoration:
-                  _customInputDecoration(Strings.location, Icons.location_on),
+              _customInputDecoration(Strings.location, Icons.location_on),
               validator: (value) {
                 if (value.isEmpty) {
                   return Strings.locationValidation;
@@ -158,14 +172,13 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
               onChanged: (value) {
                 this.phoneNo = value;
               },
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                WhitelistingTextInputFormatter.digitsOnly,
+              ],
               decoration:
-                  _customInputDecoration(Strings.phoneNumber, Icons.phone),
-              validator: (value) {
-                if (value.isEmpty) {
-                  return Strings.phoneNumberValidation;
-                }
-                return null;
-              },
+              _customInputDecoration(Strings.phoneNumber, Icons.phone),
+              validator: _validatePhoneNumber,
             ),
           ),
         ],
@@ -216,11 +229,11 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     );
   }
 
-  Container _buildBottomTexts() {
-    return Container(
-      margin: const EdgeInsets.only(top: 109.0),
+  Expanded _buildBottomTexts() {
+    return Expanded(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           GestureDetector(
             onTap: () {},
