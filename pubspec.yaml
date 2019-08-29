@@ -28,6 +28,7 @@ dependencies:
   shared_preferences: ^0.5.3+4
   firebase_auth:
   graphql_flutter: ^2.1.0
+  flutter_typeahead: ^1.6.1
 
 dev_dependencies:
   flutter_test:

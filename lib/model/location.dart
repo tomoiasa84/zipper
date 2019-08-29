@@ -1,5 +1,5 @@
-class Location {
-  Location.fromJson(Map<String, dynamic> json)
+class LocationModel {
+  LocationModel.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         city = json['city'];
   

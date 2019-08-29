@@ -20,7 +20,7 @@ class User {
 
   final int id;
   final String name;
-  final Location location;
+  final LocationModel location;
   final String phoneNumber;
   final bool isActive;
   final List<Card> card;

@@ -1,3 +1,4 @@
+import 'package:contractor_search/bloc/sign_up_bloc.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
@@ -10,6 +11,8 @@ import 'package:flutter/services.dart';
 class SmsCodeVerification extends StatefulWidget {
   String smsCode;
   String verificationId;
+  String name;
+  int location;
 
   SmsCodeVerification(this.smsCode, this.verificationId);
 
@@ -19,6 +22,13 @@ class SmsCodeVerification extends StatefulWidget {
 
 class SmsCodeVerificationState extends State<SmsCodeVerification> {
   final _formKey = GlobalKey<FormState>();
+  SignUpBloc _signUpBloc;
+
+  @override
+  void didChangeDependencies() {
+    _signUpBloc = SignUpBloc();
+    super.didChangeDependencies();
+  }
 
   signIn() async {
     final AuthCredential credential = PhoneAuthProvider.getCredential(
@@ -32,9 +42,14 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     assert(user.user.uid == currentUser.uid);
 
     if (user != null) {
-      saveAccessToken(user.user.uid);
-      Navigator.of(context).pushReplacementNamed('/homepage');
+//      saveAccessToken(user.user.uid);
+      _signUpBloc.createUser(widget.name, widget.location, user.user.uid, user.user.phoneNumber);
+      goToHomePage();
     }
+  }
+
+  goToHomePage() {
+    Navigator.of(context).pushReplacementNamed('/homepage');
   }
 
   Future saveAccessToken(String accessToken) async {
@@ -45,10 +60,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     FirebaseAuth.instance.currentUser().then((user) {
       if (user != null) {
         saveAccessToken(user.uid);
-        Navigator.of(context).pop();
-        Navigator.of(context).pushReplacementNamed('/homepage');
       } else {
-        Navigator.of(context).pop();
         signIn();
       }
     });
@@ -72,10 +84,12 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                     children: <Widget>[
                       _buildBackButton(),
                       buildLogo(MediaQuery.of(context).size.height * 0.097),
-                      buildTitle(Strings.verificationCode, MediaQuery.of(context).size.height * 0.048),
+                      buildTitle(Strings.verificationCode,
+                          MediaQuery.of(context).size.height * 0.048),
                       _buildForm(),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24.0, vertical: 40.0),
                         child: customAccentButton(Strings.login, () {
                           _login(context);
                         }),

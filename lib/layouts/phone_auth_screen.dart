@@ -1,3 +1,4 @@
+import 'package:contractor_search/bloc/sign_up_bloc.dart';
 import 'package:contractor_search/layouts/login_screen.dart';
 import 'package:contractor_search/layouts/sms_code_verification.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
@@ -7,6 +8,7 @@ import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class PhoneAuthScreen extends StatefulWidget {
   @override
@@ -21,7 +23,10 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   String name;
   String location;
   String verificationId;
+  List<String> locations = [];
+  SignUpBloc _signUpBloc;
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _typeAheadController = TextEditingController();
 
   Future<void> verifyPhone() async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -55,11 +60,22 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
   String _validatePhoneNumber(String value) {
     final RegExp phoneExp =
-    RegExp(r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$');
+        RegExp(r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$');
     if (value.length == 12 && phoneExp.hasMatch(value)) {
       return null;
     } else
       return Strings.phoneNumberValidation;
+  }
+
+  @override
+  void initState() {
+    _signUpBloc = SignUpBloc();
+    _signUpBloc.getLocations().then((snapshot) {
+      setState(() {
+        snapshot.forEach((location) => locations.add(location.city));
+      });
+    });
+    super.initState();
   }
 
   @override
@@ -79,10 +95,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    buildLogo(MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.097),
+                    buildLogo(MediaQuery.of(context).size.height * 0.097),
                     buildTitle(Strings.createAnAccount, 0),
                     _buildSignUpForm(),
                     customAccentButton(Strings.continueText, () {
@@ -122,18 +135,33 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
           ),
           Container(
             margin: const EdgeInsets.only(top: 35.0),
-            child: TextFormField(
-              onChanged: (value) {
-                this.location = value;
+            child:
+                TypeAheadFormField(
+              textFieldConfiguration: TextFieldConfiguration(
+                  controller: this._typeAheadController,
+                  decoration: customInputDecoration(
+                      Strings.location, Icons.location_on)),
+              suggestionsCallback: (pattern) {
+                return locations.where((it) => it.startsWith(pattern)).toList();
               },
-              decoration:
-              customInputDecoration(Strings.location, Icons.location_on),
+              itemBuilder: (context, suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                );
+              },
+              transitionBuilder: (context, suggestionsBox, controller) {
+                return suggestionsBox;
+              },
+              onSuggestionSelected: (suggestion) {
+                this._typeAheadController.text = suggestion;
+              },
               validator: (value) {
                 if (value.isEmpty) {
                   return Strings.locationValidation;
                 }
                 return null;
               },
+              onSaved: (value) => this.location = value,
             ),
           ),
           Container(
@@ -145,7 +173,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
               validator: _validatePhoneNumber,
               keyboardType: TextInputType.number,
               decoration:
-              customInputDecoration(Strings.phoneNumberHint, Icons.phone),
+                  customInputDecoration(Strings.phoneNumberHint, Icons.phone),
             ),
           ),
         ],
