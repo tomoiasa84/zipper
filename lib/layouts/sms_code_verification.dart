@@ -14,7 +14,8 @@ class SmsCodeVerification extends StatefulWidget {
   String name;
   int location;
 
-  SmsCodeVerification(this.smsCode, this.verificationId);
+  SmsCodeVerification(
+      this.smsCode, this.verificationId, this.name, this.location);
 
   @override
   SmsCodeVerificationState createState() => SmsCodeVerificationState();
@@ -42,9 +43,13 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     assert(user.user.uid == currentUser.uid);
 
     if (user != null) {
-//      saveAccessToken(user.user.uid);
-      _signUpBloc.createUser(widget.name, widget.location, user.user.uid, user.user.phoneNumber);
-      goToHomePage();
+      _signUpBloc
+          .createUser(widget.name, widget.location, user.user.uid,
+              user.user.phoneNumber)
+          .then((user) {
+        saveAccessToken(user.id.toString());
+        goToHomePage();
+      });
     }
   }
 
@@ -59,7 +64,8 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   void _login(BuildContext context) {
     FirebaseAuth.instance.currentUser().then((user) {
       if (user != null) {
-        saveAccessToken(user.uid);
+        saveAccessToken(user.uid.toString());
+        goToHomePage();
       } else {
         signIn();
       }

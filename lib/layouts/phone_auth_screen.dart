@@ -2,6 +2,7 @@ import 'package:contractor_search/bloc/sign_up_bloc.dart';
 import 'package:contractor_search/layouts/login_screen.dart';
 import 'package:contractor_search/layouts/sms_code_verification.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
+import 'package:contractor_search/model/location.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
@@ -23,7 +24,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   String name;
   String location;
   String verificationId;
-  List<String> locations = [];
+  List<LocationModel> locations = [];
   SignUpBloc _signUpBloc;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _typeAheadController = TextEditingController();
@@ -34,11 +35,15 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     };
     final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
       this.verificationId = verId;
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  SmsCodeVerification(smsCode, verificationId)));
+      var loc =
+      locations.firstWhere((location) => location.city == _typeAheadController.text);
+      if (loc != null) {
+        goToSmsVerificationPage(loc);
+      } else {
+        _signUpBloc.createLocation(this.location).then((value) {
+          goToSmsVerificationPage(value);
+        });
+      }
     };
 
     final PhoneVerificationCompleted verifiedSuccess = (AuthCredential user) {
@@ -58,6 +63,14 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
         verificationFailed: veriFailed);
   }
 
+  void goToSmsVerificationPage(LocationModel location) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                SmsCodeVerification(smsCode, verificationId, name, location.id)));
+  }
+
   String _validatePhoneNumber(String value) {
     final RegExp phoneExp =
         RegExp(r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$');
@@ -72,7 +85,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     _signUpBloc = SignUpBloc();
     _signUpBloc.getLocations().then((snapshot) {
       setState(() {
-        snapshot.forEach((location) => locations.add(location.city));
+        locations = snapshot;
       });
     });
     super.initState();
@@ -135,14 +148,19 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
           ),
           Container(
             margin: const EdgeInsets.only(top: 35.0),
-            child:
-                TypeAheadFormField(
+            child: TypeAheadFormField(
               textFieldConfiguration: TextFieldConfiguration(
+                  onChanged: (value) {
+                    this.location = value;
+                  },
                   controller: this._typeAheadController,
                   decoration: customInputDecoration(
                       Strings.location, Icons.location_on)),
               suggestionsCallback: (pattern) {
-                return locations.where((it) => it.startsWith(pattern)).toList();
+                List<String> list = [];
+                locations.where((it) => it.city.startsWith(pattern))
+                    .toList().forEach((loc)=> list.add(loc.city));
+                return list;
               },
               itemBuilder: (context, suggestion) {
                 return ListTile(
@@ -171,7 +189,6 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 this.phoneNo = value;
               },
               validator: _validatePhoneNumber,
-              keyboardType: TextInputType.number,
               decoration:
                   customInputDecoration(Strings.phoneNumberHint, Icons.phone),
             ),
