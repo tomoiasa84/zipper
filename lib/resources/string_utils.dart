@@ -9,6 +9,7 @@ class Strings {
   static const String name = "Name";
   static const String location = "Location";
   static const String phoneNumber = "Phone number";
+  static const String phoneNumberHint = "+xxxxxxxxxx";
   static const String continueText = "Continue";
   static const String alreadyHaveAnAccount = "Already have an account?";
   static const String termsAndConditions = "Terms and Conditions";

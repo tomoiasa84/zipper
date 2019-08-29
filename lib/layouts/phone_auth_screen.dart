@@ -54,9 +54,12 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   }
 
   String _validatePhoneNumber(String value) {
-    final RegExp phoneExp = RegExp(r'^\(\d\d\d\) \d\d\d\-\d\d\d\d$');
-    if (!phoneExp.hasMatch(value)) return Strings.phoneNumberValidation;
-    return null;
+    final RegExp phoneExp =
+    RegExp(r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$');
+    if (value.length == 12 && phoneExp.hasMatch(value)) {
+      return null;
+    } else
+      return Strings.phoneNumberValidation;
   }
 
   @override
@@ -76,7 +79,10 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    buildLogo(MediaQuery.of(context).size.height * 0.097),
+                    buildLogo(MediaQuery
+                        .of(context)
+                        .size
+                        .height * 0.097),
                     buildTitle(Strings.createAnAccount, 0),
                     _buildSignUpForm(),
                     customAccentButton(Strings.continueText, () {
@@ -121,7 +127,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 this.location = value;
               },
               decoration:
-                  customInputDecoration(Strings.location, Icons.location_on),
+              customInputDecoration(Strings.location, Icons.location_on),
               validator: (value) {
                 if (value.isEmpty) {
                   return Strings.locationValidation;
@@ -136,13 +142,10 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
               onChanged: (value) {
                 this.phoneNo = value;
               },
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                WhitelistingTextInputFormatter.digitsOnly,
-              ],
-              decoration:
-                  customInputDecoration(Strings.phoneNumber, Icons.phone),
               validator: _validatePhoneNumber,
+              keyboardType: TextInputType.number,
+              decoration:
+              customInputDecoration(Strings.phoneNumberHint, Icons.phone),
             ),
           ),
         ],
@@ -159,20 +162,16 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
           GestureDetector(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      LoginScreen()));
+                  builder: (BuildContext context) => LoginScreen()));
             },
             child: Text(
               Strings.alreadyHaveAnAccount,
-              style: TextStyle(
-                  color: ColorUtils.orangeAccent,
-                  fontSize: 11.0),
+              style: TextStyle(color: ColorUtils.orangeAccent, fontSize: 11.0),
             ),
           ),
           buildTermsAndConditions(() {
             Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) =>
-                    TermsAndConditions()));
+                builder: (BuildContext context) => TermsAndConditions()));
           }),
         ],
       ),
