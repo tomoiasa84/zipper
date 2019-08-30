@@ -9,6 +9,7 @@ import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'home_screen.dart';
 
 class SmsCodeVerification extends StatefulWidget {
   String smsCode;
@@ -52,8 +53,12 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
         if (result.data != null) {
           User newUser = User.fromJson(
               result.data['create_user']?.cast<Map<String, dynamic>>());
-          saveAccessToken(newUser.id.toString());
-          goToHomePage();
+          saveAccessToken(newUser.id).then((id) {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+                ModalRoute.withName("/homepage"));
+          });
         } else {
           showDialog(
             context: context,
@@ -68,19 +73,19 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     }
   }
 
-  goToHomePage() {
-    Navigator.of(context).pushReplacementNamed('/homepage');
-  }
-
   Future saveAccessToken(String accessToken) async {
     await SharedPreferencesHelper.saveAccessToken(accessToken);
   }
 
-  void _login(BuildContext context) {
+  void _loginWithPhoneNumber(BuildContext context) {
     FirebaseAuth.instance.currentUser().then((user) {
       if (user != null) {
-        saveAccessToken(user.uid.toString());
-        goToHomePage();
+        saveAccessToken(user.uid.toString()).then((id) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+              ModalRoute.withName("/homepage"));
+        });
       } else {
         signIn();
       }
@@ -112,7 +117,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24.0, vertical: 40.0),
                         child: customAccentButton(Strings.login, () {
-                          _login(context);
+                          _loginWithPhoneNumber(context);
                         }),
                       ),
                       Expanded(

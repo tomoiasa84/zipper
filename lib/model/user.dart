@@ -18,7 +18,7 @@ class User {
         cardsFeed = json['cardsFeed'],
         settings = json['settings'];
 
-  final int id;
+  final String id;
   final String name;
   final LocationModel location;
   final String phoneNumber;

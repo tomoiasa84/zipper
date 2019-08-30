@@ -1,9 +1,14 @@
+import 'package:contractor_search/bloc/login_bloc.dart';
+import 'package:contractor_search/layouts/home_screen.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
+import 'package:contractor_search/utils/helper.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,6 +17,61 @@ class LoginScreen extends StatefulWidget {
 
 class LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  var _autoValidate = false;
+  LoginBloc _loginBloc;
+  String phoneNumber;
+
+  @override
+  void didChangeDependencies() {
+    _loginBloc = LoginBloc();
+    super.didChangeDependencies();
+  }
+
+  void _login() {
+    List<User> usersList = [];
+    _loginBloc.getUsers().then((result) {
+      if (result.data != null) {
+        final List<Map<String, dynamic>> users =
+            result.data['get_users'].cast<Map<String, dynamic>>();
+        users.forEach((item) {
+          usersList.add(User.fromJson(item));
+        });
+        User user = usersList.firstWhere(
+            (user) => user.phoneNumber == this.phoneNumber,
+            orElse: () => null);
+        if (user != null) {
+          saveAccessToken(user.id).then((id) {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+                ModalRoute.withName("/homepage"));
+          });
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => CustomDialog(
+              title: Strings.error,
+              description: Strings.loginErrorMessage,
+              buttonText: Strings.ok,
+            ),
+          );
+        }
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: Strings.error,
+            description: Strings.loginErrorMessage,
+            buttonText: Strings.ok,
+          ),
+        );
+      }
+    });
+  }
+
+  Future saveAccessToken(String accessToken) async {
+    await SharedPreferencesHelper.saveAccessToken(accessToken);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +99,15 @@ class LoginScreenState extends State<LoginScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24.0, vertical: 40.0),
-                        child: customAccentButton(Strings.continueText, () {}),
+                        child: customAccentButton(Strings.continueText, () {
+                          if (_formKey.currentState.validate()) {
+                            _login();
+                          } else {
+                            setState(() {
+                              _autoValidate = true;
+                            });
+                          }
+                        }),
                       ),
                       Expanded(
                         child: Container(
@@ -83,22 +151,16 @@ class LoginScreenState extends State<LoginScreen> {
 
   Form _buildForm() {
     return Form(
+      autovalidate: _autoValidate,
       key: _formKey,
       child: Container(
         margin: const EdgeInsets.only(top: 35.0, left: 24.0, right: 24.0),
         child: TextFormField(
-          onChanged: (value) {},
-          keyboardType: TextInputType.phone,
-          inputFormatters: <TextInputFormatter>[
-            WhitelistingTextInputFormatter.digitsOnly,
-          ],
-          decoration: customInputDecoration(Strings.phoneNumber, Icons.phone),
-          validator: (value) {
-            if (value.isEmpty) {
-              return Strings.phoneNumberValidation;
-            }
-            return null;
+          validator: validatePhoneNumber,
+          onChanged: (value) {
+            this.phoneNumber = value;
           },
+          decoration: customInputDecoration(Strings.phoneNumber, Icons.phone),
         ),
       ),
     );

@@ -7,6 +7,7 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
+import 'package:contractor_search/utils/helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -37,8 +38,9 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     };
     final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
       this.verificationId = verId;
-      var loc = locations
-          .firstWhere((location) => location.city == _typeAheadController.text, orElse: ()=>  null);
+      var loc = locations.firstWhere(
+          (location) => location.city == _typeAheadController.text,
+          orElse: () => null);
       if (loc != null) {
         goToSmsVerificationPage(loc);
       } else {
@@ -84,33 +86,27 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 smsCode, verificationId, name, location.id)));
   }
 
-  String _validatePhoneNumber(String value) {
-    final RegExp phoneExp =
-        RegExp(r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$');
-    if (value.length == 12 && phoneExp.hasMatch(value)) {
-      return null;
-    } else
-      return Strings.phoneNumberValidation;
-  }
-
   @override
   void initState() {
     _signUpBloc = SignUpBloc();
     _signUpBloc.getLocations().then((result) {
-      if (result.data != null) {
-        setState(() {
-          (result.data['get_locations']?.cast<Map<String, dynamic>>())?.forEach(
-              (location) => locations.add(LocationModel.fromJson(location)));
-        });
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CustomDialog(
-            title: Strings.error,
-            description: result.errors[0].message,
-            buttonText: Strings.ok,
-          ),
-        );
+      if (this.mounted) {
+        if (result.data != null) {
+          setState(() {
+            (result.data['get_locations']?.cast<Map<String, dynamic>>())
+                ?.forEach((location) =>
+                    locations.add(LocationModel.fromJson(location)));
+          });
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => CustomDialog(
+              title: Strings.error,
+              description: result.errors[0].message,
+              buttonText: Strings.ok,
+            ),
+          );
+        }
       }
     });
     super.initState();
@@ -139,8 +135,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                     customAccentButton(Strings.continueText, () {
                       if (_formKey.currentState.validate()) {
                         verifyPhone();
-                      }
-                      else{
+                      } else {
                         setState(() {
                           _autoValidate = true;
                         });
@@ -221,7 +216,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
               onChanged: (value) {
                 this.phoneNo = value;
               },
-              validator: _validatePhoneNumber,
+              validator: validatePhoneNumber,
               decoration:
                   customInputDecoration(Strings.phoneNumberHint, Icons.phone),
             ),

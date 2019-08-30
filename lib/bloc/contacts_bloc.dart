@@ -24,8 +24,8 @@ class ContactsBloc {
               }''',
     ));
 
-    final List<Map<String, dynamic>> episodes =
+    final List<Map<String, dynamic>> users =
         data.data['get_users'].cast<Map<String, dynamic>>();
-    return episodes;
+    return users;
   }
 }

@@ -59,4 +59,17 @@ class SignUpBloc {
 
     return result;
   }
+
+  Future<QueryResult> getUsers() async {
+    final QueryResult result = await client.query(QueryOptions(
+      document: '''query {
+                     get_users{
+                        name
+                        phoneNumber
+                        id
+                    }
+              }''',
+    ));
+    return result;
+  }
 }
