@@ -36,7 +36,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
       this.verificationId = verId;
       var loc = locations
-          .firstWhere((location) => location.city == _typeAheadController.text);
+          .firstWhere((location) => location.city == _typeAheadController.text, orElse: ()=>  null);
       if (loc != null) {
         goToSmsVerificationPage(loc);
       } else {
