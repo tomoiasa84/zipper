@@ -29,6 +29,8 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _typeAheadController = TextEditingController();
 
+  bool _autoValidate = false;
+
   Future<void> verifyPhone() async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
       this.verificationId = verId;
@@ -138,6 +140,11 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       if (_formKey.currentState.validate()) {
                         verifyPhone();
                       }
+                      else{
+                        setState(() {
+                          _autoValidate = true;
+                        });
+                      }
                     }),
                     _buildBottomTexts()
                   ],
@@ -153,6 +160,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   Form _buildSignUpForm() {
     return Form(
       key: _formKey,
+      autovalidate: _autoValidate,
       child: Column(
         children: <Widget>[
           Container(
