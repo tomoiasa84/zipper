@@ -1,7 +1,9 @@
 import 'package:contractor_search/bloc/sign_up_bloc.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -46,9 +48,22 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       _signUpBloc
           .createUser(widget.name, widget.location, user.user.uid,
               user.user.phoneNumber)
-          .then((user) {
-        saveAccessToken(user.id.toString());
-        goToHomePage();
+          .then((result) {
+        if (result.data != null) {
+          User newUser = User.fromJson(
+              result.data['create_user']?.cast<Map<String, dynamic>>());
+          saveAccessToken(newUser.id.toString());
+          goToHomePage();
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => CustomDialog(
+              title: Strings.error,
+              description: result.errors[0].message,
+              buttonText: Strings.ok,
+            ),
+          );
+        }
       });
     }
   }

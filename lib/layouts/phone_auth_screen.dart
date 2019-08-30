@@ -5,10 +5,10 @@ import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/model/location.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class PhoneAuthScreen extends StatefulWidget {
@@ -35,13 +35,24 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     };
     final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
       this.verificationId = verId;
-      var loc =
-      locations.firstWhere((location) => location.city == _typeAheadController.text);
+      var loc = locations
+          .firstWhere((location) => location.city == _typeAheadController.text);
       if (loc != null) {
         goToSmsVerificationPage(loc);
       } else {
-        _signUpBloc.createLocation(this.location).then((value) {
-          goToSmsVerificationPage(value);
+        _signUpBloc.createLocation(this.location).then((result) {
+          if (result.data != null) {
+            goToSmsVerificationPage(LocationModel.fromJson(result.data));
+          } else {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => CustomDialog(
+                title: Strings.error,
+                description: result.errors[0].message,
+                buttonText: Strings.ok,
+              ),
+            );
+          }
         });
       }
     };
@@ -67,8 +78,8 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                SmsCodeVerification(smsCode, verificationId, name, location.id)));
+            builder: (context) => SmsCodeVerification(
+                smsCode, verificationId, name, location.id)));
   }
 
   String _validatePhoneNumber(String value) {
@@ -83,10 +94,22 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   @override
   void initState() {
     _signUpBloc = SignUpBloc();
-    _signUpBloc.getLocations().then((snapshot) {
-      setState(() {
-        locations = snapshot;
-      });
+    _signUpBloc.getLocations().then((result) {
+      if (result.data != null) {
+        setState(() {
+          (result.data['get_locations']?.cast<Map<String, dynamic>>())?.forEach(
+              (location) => locations.add(LocationModel.fromJson(location)));
+        });
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: Strings.error,
+            description: result.errors[0].message,
+            buttonText: Strings.ok,
+          ),
+        );
+      }
     });
     super.initState();
   }
@@ -158,8 +181,10 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       Strings.location, Icons.location_on)),
               suggestionsCallback: (pattern) {
                 List<String> list = [];
-                locations.where((it) => it.city.startsWith(pattern))
-                    .toList().forEach((loc)=> list.add(loc.city));
+                locations
+                    .where((it) => it.city.startsWith(pattern))
+                    .toList()
+                    .forEach((loc) => list.add(loc.city));
                 return list;
               },
               itemBuilder: (context, suggestion) {

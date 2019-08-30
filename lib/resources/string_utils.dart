@@ -17,6 +17,8 @@ class Strings {
   static const String login = "Login";
   static const String lastEdit = "Last Edit on June 2, 2017";
   static const String typeCodeHere = "Type code here";
+  static const String error = "Error";
+  static const String ok = "Ok";
 
   //Sign up validations
   static const String nameValidation = "Please provide a valid name";

@@ -6,6 +6,7 @@ import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:contractor_search/utils/contacts_search.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -74,7 +75,10 @@ class ContactsScreenState extends State<ContactsScreen> {
         centerTitle: true,
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.search, color: ColorUtils.darkerGray,),
+            icon: Icon(
+              Icons.search,
+              color: ColorUtils.darkerGray,
+            ),
             onPressed: () {
               showSearch(
                   context: context, delegate: ContactsSearch(widget.contacts));
@@ -157,7 +161,15 @@ class ContactsScreenState extends State<ContactsScreen> {
               );
             }
             if (snapshot.hasError) {
-              return Center(child: Text('Error : ${snapshot.error}'));
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => CustomDialog(
+                  title: Strings.error,
+                  description: snapshot.error.toString(),
+                  buttonText: Strings.ok,
+                ),
+              );
+              return Container();
             } else {
               return ListView(
                 shrinkWrap: true,
