@@ -4,7 +4,7 @@ import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'layouts/home_screen.dart';
+import 'layouts/home_page.dart';
 import 'layouts/phone_auth_screen.dart';
 
 class MyApp extends StatefulWidget {

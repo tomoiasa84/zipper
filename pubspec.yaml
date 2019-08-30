@@ -53,6 +53,9 @@ flutter:
     - assets/images/ic_contacts.png
     - assets/images/ic_logo_orange.png
     - assets/images/ic_access_time.png
+    - assets/images/ic_share_accent_bg.png
+    - assets/images/ic_contact_accent_bg.png
+    - assets/images/ic_message_accent_bg.png
 
   fonts:
     - family: Arial

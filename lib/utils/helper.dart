@@ -8,3 +8,13 @@ String validatePhoneNumber(String value) {
   } else
     return Strings.phoneNumberValidation;
 }
+
+getInitials(String name) {
+  var n = name.split(" "), it = "", i = 0;
+  int counter = n.length > 2 ? 2 : n.length;
+  while (i < counter) {
+    it += n[i][0];
+    i++;
+  }
+  return (it.toUpperCase());
+}

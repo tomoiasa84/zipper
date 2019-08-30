@@ -1,5 +1,5 @@
 import 'package:contractor_search/bloc/login_bloc.dart';
-import 'package:contractor_search/layouts/home_screen.dart';
+import 'package:contractor_search/layouts/home_page.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';

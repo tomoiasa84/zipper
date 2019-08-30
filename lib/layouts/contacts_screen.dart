@@ -2,11 +2,13 @@ import 'dart:typed_data';
 
 import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/bloc/contacts_bloc.dart';
+import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:contractor_search/utils/contacts_search.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
+import 'package:contractor_search/utils/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -134,7 +136,8 @@ class ContactsScreenState extends State<ContactsScreen> {
                 itemCount: widget.contacts?.length ?? 0,
                 itemBuilder: (BuildContext context, int index) {
                   Contact contact = widget.contacts.elementAt(index);
-                  return _buildListItem(contact.displayName, contact.avatar);
+                  return _buildListItem(
+                      contact.displayName, contact.avatar, null);
                 }),
           )
         : (_permissionStatus == PermissionStatus.granted
@@ -177,7 +180,7 @@ class ContactsScreenState extends State<ContactsScreen> {
                 children:
                     snapshot.data.map<Widget>((Map<String, dynamic> item) {
                   final User user = User.fromJson(item);
-                  return _buildListItem(user.name, Uint8List(0));
+                  return _buildListItem(user.name, Uint8List(0), user);
                 }).toList(),
               );
             }
@@ -187,7 +190,7 @@ class ContactsScreenState extends State<ContactsScreen> {
     );
   }
 
-  Container _buildListItem(String name, Uint8List image) {
+  Container _buildListItem(String name, Uint8List image, User user) {
     return Container(
       margin: const EdgeInsets.only(left: 16.0, right: 16.0),
       child: Card(
@@ -197,10 +200,16 @@ class ContactsScreenState extends State<ContactsScreen> {
         child: Container(
           padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
           child: ListTile(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UserDetailsScreen(user)));
+            },
             leading: (image != null && image.length > 0)
                 ? CircleAvatar(backgroundImage: MemoryImage(image))
                 : CircleAvatar(
-                    child: Text(_getInitials(name),
+                    child: Text(getInitials(name),
                         style: TextStyle(color: ColorUtils.darkerGray)),
                     backgroundColor: ColorUtils.lightLightGray,
                   ),
@@ -233,16 +242,6 @@ class ContactsScreenState extends State<ContactsScreen> {
         ),
       ),
     );
-  }
-
-  _getInitials(String name) {
-    var n = name.split(" "), it = "", i = 0;
-    int counter = n.length > 2 ? 2 : n.length;
-    while (i < counter) {
-      it += n[i][0];
-      i++;
-    }
-    return (it.toUpperCase());
   }
 
   List<Widget> _buildTabs() {

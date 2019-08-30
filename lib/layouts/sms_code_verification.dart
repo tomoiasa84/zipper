@@ -10,7 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'home_screen.dart';
+import 'home_page.dart';
 
 class SmsCodeVerification extends StatefulWidget {
   String smsCode;
