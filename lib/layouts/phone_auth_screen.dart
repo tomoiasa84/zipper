@@ -36,6 +36,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
       this.verificationId = verId;
     };
+
     final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
       this.verificationId = verId;
       var loc = locations.firstWhere(

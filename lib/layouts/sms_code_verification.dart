@@ -9,6 +9,7 @@ import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'home_screen.dart';
 
 class SmsCodeVerification extends StatefulWidget {
@@ -27,6 +28,8 @@ class SmsCodeVerification extends StatefulWidget {
 class SmsCodeVerificationState extends State<SmsCodeVerification> {
   final _formKey = GlobalKey<FormState>();
   SignUpBloc _signUpBloc;
+
+  var _autoValidate = false;
 
   @override
   void didChangeDependencies() {
@@ -52,7 +55,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
           .then((result) {
         if (result.data != null) {
           User newUser = User.fromJson(
-              result.data['create_user']?.cast<Map<String, dynamic>>());
+              result.data['create_user'].cast<Map<String, dynamic>>());
           saveAccessToken(newUser.id).then((id) {
             Navigator.pushAndRemoveUntil(
                 context,
@@ -117,7 +120,13 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24.0, vertical: 40.0),
                         child: customAccentButton(Strings.login, () {
-                          _loginWithPhoneNumber(context);
+                          if (_formKey.currentState.validate()) {
+                            _loginWithPhoneNumber(context);
+                          } else {
+                            setState(() {
+                              _autoValidate = true;
+                            });
+                          }
                         }),
                       ),
                       Expanded(
@@ -166,6 +175,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       child: Container(
         margin: const EdgeInsets.only(top: 35.0, left: 24.0, right: 24.0),
         child: TextFormField(
+          autovalidate: _autoValidate,
           onChanged: (value) {
             widget.smsCode = value;
           },
