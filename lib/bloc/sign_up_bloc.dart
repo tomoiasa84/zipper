@@ -31,10 +31,10 @@ class SignUpBloc {
       MutationOptions(
         document: '''mutation{
                         create_user(
-                            name: "Petrea Loredana", 
-                            location: 3, 
-                            id: "M0TvsVdiaGUnqUqu6rZJRBpw19b2", 
-                            phoneNumber: "123423243242") {
+                            name: "$name", 
+                            location: $location, 
+                            id: "$id", 
+                            phoneNumber: "$phoneNumber") {
                                   name
                                   id
                             }

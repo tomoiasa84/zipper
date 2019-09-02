@@ -42,6 +42,9 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   }
 
   signIn() async {
+    setState(() {
+      _saving = true;
+    });
     final AuthCredential credential = PhoneAuthProvider.getCredential(
       verificationId: widget.verificationId,
       smsCode: widget.smsCode,
@@ -53,9 +56,6 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     assert(user.user.uid == currentUser.uid);
 
     if (user != null) {
-      setState(() {
-        _saving = true;
-      });
       _signUpBloc
           .createUser(widget.name, widget.location, user.user.uid,
               user.user.phoneNumber)
