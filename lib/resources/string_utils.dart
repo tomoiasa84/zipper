@@ -32,4 +32,8 @@ class Strings {
   //Terms and conditions text
   static const String termsAndConditionsText =
       "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut ero labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco poriti laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in uienply voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat norin proident, sunt in culpa qui officia deserunt mollit anim id est laborum Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut ero labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud ex";
+
+  static const String accessAgenda = "We need to access your agenda";
+  static const String tutorialContent = "Have moving you midst above may. Is one tree likness was light. Green fifth I subdue dont't, good one was Creature bearing you signs years may. Seas kind second dry made lights his over two their spirit saying image.";
+  static const String tagYourFriends = "Tag your friends";
 }

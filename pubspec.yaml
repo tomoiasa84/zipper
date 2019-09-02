@@ -29,6 +29,7 @@ dependencies:
   firebase_auth:
   graphql_flutter: ^2.1.0
   flutter_typeahead: ^1.6.1
+  dots_indicator: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +57,9 @@ flutter:
     - assets/images/ic_share_accent_bg.png
     - assets/images/ic_contact_accent_bg.png
     - assets/images/ic_message_accent_bg.png
+    - assets/images/ic_contacts_gray_bg.png
+    - assets/images/ic_hourglass_gray_bg.png
+    - assets/images/ic_tag_gray_bg.png
 
   fonts:
     - family: Arial

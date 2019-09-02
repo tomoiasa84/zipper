@@ -1,5 +1,6 @@
 import 'package:contractor_search/bloc/sign_up_bloc.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
+import 'package:contractor_search/layouts/tutorial_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
@@ -59,7 +60,8 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
           saveAccessToken(newUser.id).then((id) {
             Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => HomePage()),
+                MaterialPageRoute(
+                    builder: (context) => TutorialScreen()),
                 ModalRoute.withName("/homepage"));
           });
         } else {
