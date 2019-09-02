@@ -9,6 +9,7 @@ import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/helper.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -20,6 +21,7 @@ class LoginScreenState extends State<LoginScreen> {
   var _autoValidate = false;
   LoginBloc _loginBloc;
   String phoneNumber;
+  bool _saving = false;
 
   @override
   void didChangeDependencies() {
@@ -28,8 +30,14 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void _login() {
+    setState(() {
+      _saving = true;
+    });
     List<User> usersList = [];
     _loginBloc.getUsers().then((result) {
+      setState(() {
+        _saving = false;
+      });
       if (result.data != null) {
         final List<Map<String, dynamic>> users =
             result.data['get_users'].cast<Map<String, dynamic>>();
@@ -78,55 +86,58 @@ class LoginScreenState extends State<LoginScreen> {
     return SafeArea(
       top: false,
       bottom: false,
-      child: Scaffold(
-        backgroundColor: ColorUtils.white,
-        body: Container(
-          height: double.infinity,
-          child: LayoutBuilder(builder: (context, constraint) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraint.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      _buildBackButton(),
-                      buildLogo(MediaQuery.of(context).size.height * 0.097),
-                      buildTitle(Strings.login,
-                          MediaQuery.of(context).size.height * 0.048),
-                      _buildForm(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24.0, vertical: 40.0),
-                        child: customAccentButton(Strings.continueText, () {
-                          if (_formKey.currentState.validate()) {
-                            _login();
-                          } else {
-                            setState(() {
-                              _autoValidate = true;
-                            });
-                          }
-                        }),
-                      ),
-                      Expanded(
-                        child: Container(
-                          alignment: Alignment.bottomRight,
-                          padding:
-                              const EdgeInsets.only(right: 24.0, bottom: 31.0),
-                          child: buildTermsAndConditions(() {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    TermsAndConditions()));
+      child: ModalProgressHUD(
+        inAsyncCall: _saving,
+        child: Scaffold(
+          backgroundColor: ColorUtils.white,
+          body: Container(
+            height: double.infinity,
+            child: LayoutBuilder(builder: (context, constraint) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraint.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        _buildBackButton(),
+                        buildLogo(MediaQuery.of(context).size.height * 0.097),
+                        buildTitle(Strings.login,
+                            MediaQuery.of(context).size.height * 0.048),
+                        _buildForm(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0, vertical: 40.0),
+                          child: customAccentButton(Strings.continueText, () {
+                            if (_formKey.currentState.validate()) {
+                              _login();
+                            } else {
+                              setState(() {
+                                _autoValidate = true;
+                              });
+                            }
                           }),
                         ),
-                      )
-                    ],
+                        Expanded(
+                          child: Container(
+                            alignment: Alignment.bottomRight,
+                            padding: const EdgeInsets.only(
+                                right: 24.0, bottom: 31.0),
+                            child: buildTermsAndConditions(() {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      TermsAndConditions()));
+                            }),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
       ),
     );

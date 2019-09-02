@@ -10,6 +10,7 @@ import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'home_page.dart';
 
@@ -32,6 +33,8 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
 
   var _autoValidate = false;
 
+  var _saving = false;
+
   @override
   void didChangeDependencies() {
     _signUpBloc = SignUpBloc();
@@ -50,18 +53,23 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     assert(user.user.uid == currentUser.uid);
 
     if (user != null) {
+      setState(() {
+        _saving = true;
+      });
       _signUpBloc
           .createUser(widget.name, widget.location, user.user.uid,
               user.user.phoneNumber)
           .then((result) {
+        setState(() {
+          _saving = false;
+        });
         if (result.data != null) {
           User newUser = User.fromJson(
               result.data['create_user'].cast<Map<String, dynamic>>());
           saveAccessToken(newUser.id).then((id) {
             Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => TutorialScreen()),
+                MaterialPageRoute(builder: (context) => TutorialScreen()),
                 ModalRoute.withName("/homepage"));
           });
         } else {
@@ -100,55 +108,58 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        backgroundColor: ColorUtils.white,
-        body: Container(
-          height: double.infinity,
-          child: LayoutBuilder(builder: (context, constraint) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraint.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      _buildBackButton(),
-                      buildLogo(MediaQuery.of(context).size.height * 0.097),
-                      buildTitle(Strings.verificationCode,
-                          MediaQuery.of(context).size.height * 0.048),
-                      _buildForm(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24.0, vertical: 40.0),
-                        child: customAccentButton(Strings.login, () {
-                          if (_formKey.currentState.validate()) {
-                            _loginWithPhoneNumber(context);
-                          } else {
-                            setState(() {
-                              _autoValidate = true;
-                            });
-                          }
-                        }),
-                      ),
-                      Expanded(
-                        child: Container(
-                          alignment: Alignment.bottomRight,
-                          padding:
-                              const EdgeInsets.only(right: 24.0, bottom: 31.0),
-                          child: buildTermsAndConditions(() {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    TermsAndConditions()));
+      child: ModalProgressHUD(
+        inAsyncCall: _saving,
+        child: Scaffold(
+          backgroundColor: ColorUtils.white,
+          body: Container(
+            height: double.infinity,
+            child: LayoutBuilder(builder: (context, constraint) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraint.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        _buildBackButton(),
+                        buildLogo(MediaQuery.of(context).size.height * 0.097),
+                        buildTitle(Strings.verificationCode,
+                            MediaQuery.of(context).size.height * 0.048),
+                        _buildForm(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0, vertical: 40.0),
+                          child: customAccentButton(Strings.login, () {
+                            if (_formKey.currentState.validate()) {
+                              _loginWithPhoneNumber(context);
+                            } else {
+                              setState(() {
+                                _autoValidate = true;
+                              });
+                            }
                           }),
                         ),
-                      )
-                    ],
+                        Expanded(
+                          child: Container(
+                            alignment: Alignment.bottomRight,
+                            padding: const EdgeInsets.only(
+                                right: 24.0, bottom: 31.0),
+                            child: buildTermsAndConditions(() {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      TermsAndConditions()));
+                            }),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
       ),
     );
