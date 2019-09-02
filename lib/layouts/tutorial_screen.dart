@@ -1,3 +1,4 @@
+import 'package:contractor_search/layouts/sync_contacts_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:dots_indicator/dots_indicator.dart';
@@ -126,7 +127,7 @@ class TutorialScreenState extends State<TutorialScreen> {
             } else {
               Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
+                  MaterialPageRoute(builder: (context) => SyncContactsScreen()),
                   ModalRoute.withName("/homepage"));
             }
           },
