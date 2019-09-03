@@ -3,8 +3,7 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
-
-import 'home_page.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class TutorialScreen extends StatefulWidget {
   @override
@@ -14,6 +13,7 @@ class TutorialScreen extends StatefulWidget {
 class TutorialScreenState extends State<TutorialScreen> {
   final _totalDots = 3;
   int _currentPosition = 0;
+  PermissionStatus _permissionStatus = PermissionStatus.unknown;
 
   void _updatePosition(int position) {
     setState(() => _currentPosition = _validPosition(position));
@@ -63,6 +63,19 @@ class TutorialScreenState extends State<TutorialScreen> {
     }
     return _builtContent(Strings.accessAgenda, Strings.tutorialContent,
         'assets/images/ic_contacts_gray_bg.png');
+  }
+
+  Future<void> requestPermission(PermissionGroup permission) async {
+    final List<PermissionGroup> permissions = <PermissionGroup>[permission];
+    final Map<PermissionGroup, PermissionStatus> permissionRequestResult =
+        await PermissionHandler().requestPermissions(permissions);
+
+    setState(() {
+      _permissionStatus = permissionRequestResult[permission];
+      if (_permissionStatus == PermissionStatus.granted) {
+        _updatePosition(++_currentPosition);
+      }
+    });
   }
 
   Container _builtContent(String title, String text, String imageAsset) {
@@ -122,13 +135,19 @@ class TutorialScreenState extends State<TutorialScreen> {
         alignment: Alignment.bottomCenter,
         child: RaisedButton(
           onPressed: () {
-            if (_currentPosition < 2) {
-              _updatePosition(++_currentPosition);
-            } else {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => SyncContactsScreen()),
-                  ModalRoute.withName("/homepage"));
+            switch (_currentPosition) {
+              case 0:
+                requestPermission(PermissionGroup.contacts);
+                break;
+              case 2:
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SyncContactsScreen()),
+                    ModalRoute.withName("/homepage"));
+                break;
+              default:
+                _updatePosition(++_currentPosition);
             }
           },
           color: ColorUtils.orangeAccent,

@@ -1,7 +1,10 @@
+import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/layouts/home_page.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SyncContactsScreen extends StatefulWidget {
   @override
@@ -10,17 +13,42 @@ class SyncContactsScreen extends StatefulWidget {
 
 class SyncContactsScreenState extends State<SyncContactsScreen>
     with SingleTickerProviderStateMixin {
-  AnimationController animationController;
-
+  AnimationController _animationController;
   @override
   void initState() {
-    super.initState();
-    animationController = new AnimationController(
+    _animationController = new AnimationController(
       vsync: this,
       duration: new Duration(seconds: 7),
     );
 
-    animationController.repeat();
+    _animationController.repeat();
+    _fetchContacts();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _fetchContacts() {
+    final Future<PermissionStatus> statusFuture =
+        PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
+
+    statusFuture.then((PermissionStatus status) {
+      if (status == PermissionStatus.granted)
+        getContacts().then((values) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+              ModalRoute.withName("/homepage"));
+        });
+    });
+  }
+
+  getContacts() async {
+    return ContactsService.getContacts();
   }
 
   @override
@@ -79,11 +107,11 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
 
   AnimatedBuilder _builtAnimatedSyncIcon() {
     return new AnimatedBuilder(
-      animation: animationController,
+      animation: _animationController,
       child: new Image.asset('assets/images/ic_sync_gray.png'),
       builder: (BuildContext context, Widget _widget) {
         return new Transform.rotate(
-          angle: animationController.value * 50.3,
+          angle: _animationController.value * 50.3,
           child: _widget,
         );
       },

@@ -17,7 +17,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   HomeBloc _homeBloc;
   Iterable<Contact> _contacts;
-  PermissionStatus _permissionStatus = PermissionStatus.unknown;
 
   @override
   void didChangeDependencies() {
@@ -33,9 +32,22 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _listenForPermissionStatus();
-    requestPermission(PermissionGroup.contacts);
+    _fetchContacts();
     super.initState();
+  }
+
+  void _fetchContacts() {
+    final Future<PermissionStatus> statusFuture =
+        PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
+
+    statusFuture.then((PermissionStatus status) {
+      if (status == PermissionStatus.granted)
+        _homeBloc.getContacts().then((values) {
+          setState(() {
+            _contacts = values;
+          });
+        });
+    });
   }
 
   @override
@@ -71,35 +83,6 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
-  }
-
-  void _listenForPermissionStatus() {
-    final Future<PermissionStatus> statusFuture =
-        PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
-
-    statusFuture.then((PermissionStatus status) {
-      setState(() {
-        _permissionStatus = status;
-      });
-    });
-  }
-
-  Future<void> requestPermission(PermissionGroup permission) async {
-    final List<PermissionGroup> permissions = <PermissionGroup>[permission];
-    final Map<PermissionGroup, PermissionStatus> permissionRequestResult =
-        await PermissionHandler().requestPermissions(permissions);
-
-    setState(() {
-      print(permissionRequestResult);
-      _permissionStatus = permissionRequestResult[permission];
-      if (_permissionStatus == PermissionStatus.granted) {
-        _homeBloc.getContacts().then((values) {
-          setState(() {
-            _contacts = values;
-          });
-        });
-      }
-    });
   }
 
   BottomNavigationBar _buildBottomNavigationBar(
