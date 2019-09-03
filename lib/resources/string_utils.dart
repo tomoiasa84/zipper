@@ -37,4 +37,5 @@ class Strings {
   static const String tutorialContent = "Have moving you midst above may. Is one tree likness was light. Green fifth I subdue dont't, good one was Creature bearing you signs years may. Seas kind second dry made lights his over two their spirit saying image.";
   static const String tagYourFriends = "Tag your friends";
   static const String syncContactsMessage = "Your phone agenda/recent calls are being synced to our database";
+  static const String myProfile = "My profile";
 }
