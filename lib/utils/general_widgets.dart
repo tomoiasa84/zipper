@@ -90,3 +90,20 @@ GestureDetector buildTermsAndConditions(Function onClickAction) {
     ),
   );
 }
+
+GestureDetector buildBackButton(Function onClickAction) {
+  return GestureDetector(
+    child: Container(
+      alignment: Alignment.topLeft,
+      padding: const EdgeInsets.only(
+          left: 10.0, top: 16.0, right: 10.0, bottom: 10.0),
+      child: Icon(
+        Icons.arrow_back,
+        color: ColorUtils.darkGray,
+      ),
+    ),
+    onTap: () {
+      onClickAction();
+    },
+  );
+}

@@ -74,7 +74,9 @@ class LoginScreenState extends State<LoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        _buildBackButton(),
+                        buildBackButton(() {
+                          Navigator.pop(context, true);
+                        }),
                         buildLogo(MediaQuery.of(context).size.height * 0.097),
                         buildTitle(Strings.login,
                             MediaQuery.of(context).size.height * 0.048),
@@ -90,23 +92,6 @@ class LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  GestureDetector _buildBackButton() {
-    return GestureDetector(
-      child: Container(
-        alignment: Alignment.topLeft,
-        padding: const EdgeInsets.only(
-            left: 10.0, top: 35.0, right: 10.0, bottom: 10.0),
-        child: Icon(
-          Icons.arrow_back,
-          color: ColorUtils.darkGray,
-        ),
-      ),
-      onTap: () {
-        Navigator.pop(context, true);
-      },
     );
   }
 

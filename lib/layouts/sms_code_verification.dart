@@ -138,7 +138,9 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        _buildBackButton(),
+                        buildBackButton((){
+                          Navigator.pop(context, true);
+                        }),
                         buildLogo(MediaQuery.of(context).size.height * 0.097),
                         buildTitle(Strings.verificationCode,
                             MediaQuery.of(context).size.height * 0.048),
@@ -154,23 +156,6 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
           ),
         ),
       ),
-    );
-  }
-
-  GestureDetector _buildBackButton() {
-    return GestureDetector(
-      child: Container(
-        alignment: Alignment.topLeft,
-        padding: const EdgeInsets.only(
-            left: 10.0, top: 16.0, right: 10.0, bottom: 10.0),
-        child: Icon(
-          Icons.arrow_back,
-          color: ColorUtils.darkGray,
-        ),
-      ),
-      onTap: () {
-        Navigator.pop(context, true);
-      },
     );
   }
 
