@@ -16,10 +16,26 @@ class ContactsBloc {
 
   Future<List<Map<String, dynamic>>> getUsers() async {
     final QueryResult data = await client.query(QueryOptions(
-      // query: readChars,
       document: '''query {
                      get_users{
                         name
+                        id
+                        phoneNumber
+                        location{
+                            id
+                            city
+                        }
+                        tags{
+                            name
+                        }
+                        cards{
+                            text
+                        }
+                        thread_messages{
+                            users{
+                                name
+                            }
+                        }
                     }
               }''',
     ));
