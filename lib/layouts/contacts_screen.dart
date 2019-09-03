@@ -150,6 +150,7 @@ class ContactsScreenState extends State<ContactsScreen> {
 
   ListView _buildUsersListView() {
     return ListView.builder(
+      itemCount: 1,
       itemBuilder: (BuildContext context, int index) {
         return FutureBuilder<List<Map<String, dynamic>>>(
           future: _contactsBloc.getUsers(),
