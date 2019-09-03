@@ -52,7 +52,7 @@ flutter:
   assets:
     - assets/images/ic_plus_accent_background.png
     - assets/images/ic_inbox_gray.png
-    - assets/images/ic_account_gray.png
+    - assets/images/ic_inbox_black.png
     - assets/images/ic_contacts.png
     - assets/images/ic_logo_orange.png
     - assets/images/ic_access_time.png

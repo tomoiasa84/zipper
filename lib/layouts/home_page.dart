@@ -117,20 +117,17 @@ class _HomePageState extends State<HomePage> {
               height: 0.0,
             )),
         BottomNavigationBarItem(
-            icon: Image.asset(
-              "assets/images/ic_inbox_gray.png",
-              color:
-                  (snapshot.data.index == 3) ? Colors.black : ColorUtils.gray,
-            ),
+            icon: (snapshot.data.index == 3)
+                ? Image.asset("assets/images/ic_inbox_black.png")
+                : Image.asset("assets/images/ic_inbox_gray.png"),
             title: Container(
               height: 0.0,
             )),
         BottomNavigationBarItem(
-            icon: Image.asset(
-              "assets/images/ic_account_gray.png",
-              color:
-                  (snapshot.data.index == 4) ? Colors.black : ColorUtils.gray,
-            ),
+            icon: new Icon(Icons.person,
+                color: (snapshot.data.index == 4)
+                    ? Colors.black
+                    : ColorUtils.gray),
             title: Container(
               height: 0.0,
             )),
