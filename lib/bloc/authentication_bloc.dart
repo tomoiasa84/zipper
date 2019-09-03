@@ -1,7 +1,6 @@
-import 'package:contractor_search/model/location.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-class SignUpBloc {
+class AuthenticationBloc {
   void dispose() {}
 
   static HttpLink link =

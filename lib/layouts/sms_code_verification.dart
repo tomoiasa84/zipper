@@ -1,4 +1,4 @@
-import 'package:contractor_search/bloc/sign_up_bloc.dart';
+import 'package:contractor_search/bloc/authentication_bloc.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/layouts/tutorial_screen.dart';
 import 'package:contractor_search/model/user.dart';
@@ -12,16 +12,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-import 'home_page.dart';
-
 class SmsCodeVerification extends StatefulWidget {
-  String smsCode;
-  String verificationId;
-  String name;
-  int location;
+  final String verificationId;
+  final String name;
+  final int location;
 
-  SmsCodeVerification(
-      this.smsCode, this.verificationId, this.name, this.location);
+  SmsCodeVerification(this.verificationId, this.name, this.location);
 
   @override
   SmsCodeVerificationState createState() => SmsCodeVerificationState();
@@ -29,7 +25,8 @@ class SmsCodeVerification extends StatefulWidget {
 
 class SmsCodeVerificationState extends State<SmsCodeVerification> {
   final _formKey = GlobalKey<FormState>();
-  SignUpBloc _signUpBloc;
+  AuthenticationBloc _authenticationBloc;
+  String smsCode;
 
   var _autoValidate = false;
 
@@ -37,7 +34,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
 
   @override
   void didChangeDependencies() {
-    _signUpBloc = SignUpBloc();
+    _authenticationBloc = AuthenticationBloc();
     super.didChangeDependencies();
   }
 
@@ -47,16 +44,15 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     });
     final AuthCredential credential = PhoneAuthProvider.getCredential(
       verificationId: widget.verificationId,
-      smsCode: widget.smsCode,
+      smsCode: smsCode,
     );
     FirebaseAuth _auth = FirebaseAuth.instance;
-
     final AuthResult user = await _auth.signInWithCredential(credential);
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.user.uid == currentUser.uid);
 
     if (user != null) {
-      _signUpBloc
+      _authenticationBloc
           .createUser(widget.name, widget.location, user.user.uid,
               user.user.phoneNumber)
           .then((result) {
@@ -64,41 +60,60 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
           _saving = false;
         });
         if (result.data != null) {
-          User newUser = User.fromJson(
-              result.data['create_user'].cast<Map<String, dynamic>>());
-          saveAccessToken(newUser.id).then((id) {
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => TutorialScreen()),
-                ModalRoute.withName("/homepage"));
-          });
+          _finishLogin(User.fromJson(result.data['create_user']));
         } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => CustomDialog(
-              title: Strings.error,
-              description: result.errors[0].message,
-              buttonText: Strings.ok,
-            ),
-          );
+          _showDialog(Strings.error, result.errors[0].message, Strings.ok);
         }
       });
     }
+  }
+
+  void _login(String phoneNumber) {
+    setState(() {
+      _saving = true;
+    });
+    List<User> usersList = [];
+    _authenticationBloc.getUsers().then((result) {
+      setState(() {
+        _saving = false;
+      });
+      if (result.data != null) {
+        final List<Map<String, dynamic>> users =
+            result.data['get_users'].cast<Map<String, dynamic>>();
+        users.forEach((item) {
+          usersList.add(User.fromJson(item));
+        });
+        User user = usersList.firstWhere(
+            (user) => user.phoneNumber == phoneNumber,
+            orElse: () => null);
+        if (user != null) {
+          _finishLogin(user);
+        } else {
+          _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
+        }
+      } else {
+        _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
+      }
+    });
+  }
+
+  void _finishLogin(User user) {
+    saveAccessToken(user.id).then((id) {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => TutorialScreen()),
+          ModalRoute.withName("/homepage"));
+    });
   }
 
   Future saveAccessToken(String accessToken) async {
     await SharedPreferencesHelper.saveAccessToken(accessToken);
   }
 
-  void _loginWithPhoneNumber(BuildContext context) {
+  void _authenticate(BuildContext context) {
     FirebaseAuth.instance.currentUser().then((user) {
       if (user != null) {
-        saveAccessToken(user.uid.toString()).then((id) {
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => HomePage()),
-              ModalRoute.withName("/homepage"));
-        });
+        _login(user.phoneNumber);
       } else {
         signIn();
       }
@@ -128,31 +143,8 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                         buildTitle(Strings.verificationCode,
                             MediaQuery.of(context).size.height * 0.048),
                         _buildForm(),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 24.0, vertical: 40.0),
-                          child: customAccentButton(Strings.login, () {
-                            if (_formKey.currentState.validate()) {
-                              _loginWithPhoneNumber(context);
-                            } else {
-                              setState(() {
-                                _autoValidate = true;
-                              });
-                            }
-                          }),
-                        ),
-                        Expanded(
-                          child: Container(
-                            alignment: Alignment.bottomRight,
-                            padding: const EdgeInsets.only(
-                                right: 24.0, bottom: 31.0),
-                            child: buildTermsAndConditions(() {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      TermsAndConditions()));
-                            }),
-                          ),
-                        )
+                        _buildButton(context),
+                        _buildTerms(context),
                       ],
                     ),
                   ),
@@ -190,7 +182,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
         child: TextFormField(
           autovalidate: _autoValidate,
           onChanged: (value) {
-            widget.smsCode = value;
+            smsCode = value;
           },
           keyboardType: TextInputType.number,
           inputFormatters: <TextInputFormatter>[
@@ -205,6 +197,45 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
             return null;
           },
         ),
+      ),
+    );
+  }
+
+  Padding _buildButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+      child: customAccentButton(Strings.login, () {
+        if (_formKey.currentState.validate()) {
+          _authenticate(context);
+        } else {
+          setState(() {
+            _autoValidate = true;
+          });
+        }
+      }),
+    );
+  }
+
+  Expanded _buildTerms(BuildContext context) {
+    return Expanded(
+      child: Container(
+        alignment: Alignment.bottomRight,
+        padding: const EdgeInsets.only(right: 24.0, bottom: 31.0),
+        child: buildTermsAndConditions(() {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (BuildContext context) => TermsAndConditions()));
+        }),
+      ),
+    );
+  }
+
+  void _showDialog(String title, String message, String buttonText) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText: buttonText,
       ),
     );
   }
