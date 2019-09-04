@@ -1,11 +1,13 @@
 import 'dart:ui';
 
 import 'package:contractor_search/bloc/account_bloc.dart';
+import 'package:contractor_search/layouts/phone_auth_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
 import 'package:contractor_search/utils/helper.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -34,6 +36,7 @@ class AccountScreenState extends State<AccountScreen> {
 
   static List<PopupMenuEntry<Object>> options = [
     PopupMenuItem(
+        value: 0,
         child: Container(
             width: 140.0,
             child: Text(
@@ -45,17 +48,25 @@ class AccountScreenState extends State<AccountScreen> {
       height: 1.0,
     ),
     PopupMenuItem(
+      value: 1,
       child: Text(choices[1].title),
       textStyle: TextStyle(color: ColorUtils.red, fontWeight: FontWeight.bold),
     ),
   ];
 
-  CustomPopupMenu _selectedChoices = choices[0];
-
-  void _select(CustomPopupMenu choice) {
-    setState(() {
-      _selectedChoices = choice;
-    });
+  void _select(Object item) {
+    widget.onChanged(false);
+    switch (item as int) {
+      case 0:
+        {
+          break;
+        }
+      case 1:
+        {
+          signOut();
+          break;
+        }
+    }
   }
 
   @override
@@ -148,7 +159,9 @@ class AccountScreenState extends State<AccountScreen> {
             onCanceled: () {
               widget.onChanged(false);
             },
-//            onSelected: _select,
+            onSelected: (_) {
+              _select(_);
+            },
             itemBuilder: (BuildContext context) {
               widget.onChanged(true);
               return options;
@@ -233,6 +246,26 @@ class AccountScreenState extends State<AccountScreen> {
         ],
       ),
     );
+  }
+
+  void signOut() {
+    setState(() {
+      _saving = true;
+    });
+    FirebaseAuth.instance.signOut().then((_) {
+      removeSharedPreferences().then((_) {
+        setState(() {
+          _saving = true;
+        });
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => PhoneAuthScreen()),
+            (Route<dynamic> route) => false);
+      });
+    });
+  }
+
+  Future removeSharedPreferences() async {
+    await SharedPreferencesHelper.clear();
   }
 }
 
