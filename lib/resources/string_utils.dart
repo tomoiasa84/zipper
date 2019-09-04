@@ -39,4 +39,6 @@ class Strings {
   static const String tagYourFriends = "Tag your friends";
   static const String syncContactsMessage = "Your phone agenda/recent calls are being synced to our database";
   static const String myProfile = "My profile";
+  static const String settings = "Settings";
+  static const String signOut = "Sign Out";
 }

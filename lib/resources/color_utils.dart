@@ -23,4 +23,7 @@ class ColorUtils {
 
   //Blue
   static const Color lightBlue = Color(0XFFBCE0FD);
+
+  //Red
+  static const Color red = Color(0XFFE12D2D);
 }

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -17,6 +19,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   HomeBloc _homeBloc;
   Iterable<Contact> _contacts;
+
+  bool blurred = false;
 
   @override
   void didChangeDependencies() {
@@ -52,36 +56,50 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: StreamBuilder<NavBarItem>(
-        stream: _homeBloc.itemStream,
-        initialData: _homeBloc.defaultItem,
-        builder: (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
-          return _buildBottomNavigationBar(snapshot);
-        },
-      ),
-      body: StreamBuilder<NavBarItem>(
-        stream: _homeBloc.itemStream,
-        initialData: _homeBloc.defaultItem,
-        builder: (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
-          switch (snapshot.data) {
-            case NavBarItem.HOME:
-              return Container();
-            case NavBarItem.CONTACTS:
-              return ContactsScreen(
-                contacts: _contacts,
-              );
-            case NavBarItem.PLUS:
-              return Container();
-            case NavBarItem.INBOX:
-              return Container();
-            case NavBarItem.ACCOUNT:
-              return AccountScreen();
-            default:
-              return Container();
-          }
-        },
-      ),
+    return Stack(
+      children: <Widget>[
+        Scaffold(
+          bottomNavigationBar: StreamBuilder<NavBarItem>(
+            stream: _homeBloc.itemStream,
+            initialData: _homeBloc.defaultItem,
+            builder:
+                (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
+              return _buildBottomNavigationBar(snapshot);
+            },
+          ),
+          body: StreamBuilder<NavBarItem>(
+            stream: _homeBloc.itemStream,
+            initialData: _homeBloc.defaultItem,
+            builder:
+                (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
+              switch (snapshot.data) {
+                case NavBarItem.HOME:
+                  return Container();
+                case NavBarItem.CONTACTS:
+                  return ContactsScreen(
+                    contacts: _contacts,
+                  );
+                case NavBarItem.PLUS:
+                  return Container();
+                case NavBarItem.INBOX:
+                  return Container();
+                case NavBarItem.ACCOUNT:
+                  return AccountScreen(
+                    onChanged: _onBlurredChanged,
+                  );
+                default:
+                  return Container();
+              }
+            },
+          ),
+        ),
+        (blurred)
+            ? new Container(
+                decoration:
+                    new BoxDecoration(color: Colors.black.withOpacity(0.6)),
+              )
+            : Container(),
+      ],
     );
   }
 
@@ -133,5 +151,11 @@ class _HomePageState extends State<HomePage> {
             )),
       ],
     );
+  }
+
+  void _onBlurredChanged(bool value) {
+    setState(() {
+      blurred = value;
+    });
   }
 }

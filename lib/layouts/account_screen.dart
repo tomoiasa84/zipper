@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:contractor_search/bloc/account_bloc.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -8,6 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AccountScreen extends StatefulWidget {
+  final ValueChanged<bool> onChanged;
+
+  const AccountScreen({Key key, this.onChanged}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return AccountScreenState();
@@ -19,11 +25,29 @@ class AccountScreenState extends State<AccountScreen> {
 
   User _user;
   bool _saving = false;
+  var list = List<PopupMenuEntry<Object>>();
 
   static List<CustomPopupMenu> choices = <CustomPopupMenu>[
-    CustomPopupMenu(title: 'Home', icon: Icons.home),
-    CustomPopupMenu(title: 'Bookmarks', icon: Icons.bookmark),
-    CustomPopupMenu(title: 'Settings', icon: Icons.settings),
+    CustomPopupMenu(title: Strings.settings),
+    CustomPopupMenu(title: Strings.signOut),
+  ];
+
+  static List<PopupMenuEntry<Object>> options = [
+    PopupMenuItem(
+        child: Container(
+            width: 140.0,
+            child: Text(
+              choices[0].title,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: ColorUtils.darkGray),
+            ))),
+    PopupMenuDivider(
+      height: 1.0,
+    ),
+    PopupMenuItem(
+      child: Text(choices[1].title),
+      textStyle: TextStyle(color: ColorUtils.red, fontWeight: FontWeight.bold),
+    ),
   ];
 
   CustomPopupMenu _selectedChoices = choices[0];
@@ -64,6 +88,7 @@ class AccountScreenState extends State<AccountScreen> {
         child: Scaffold(
             appBar: _buildAppBar(context),
             body: SafeArea(
+              top: true,
               child: _user != null
                   ? Container(
                       padding: const EdgeInsets.all(16.0),
@@ -113,30 +138,23 @@ class AccountScreenState extends State<AccountScreen> {
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
       ),
       actions: <Widget>[
-        PopupMenuButton<CustomPopupMenu>(
-          elevation: 3.2,
-          initialValue: choices[1],
-          onCanceled: () {
-            print('You have not chossed anything');
-          },
-          tooltip: 'This is tooltip',
-          onSelected: _select,
-          itemBuilder: (BuildContext context) {
-            return choices.map((CustomPopupMenu choice) {
-              return PopupMenuItem<CustomPopupMenu>(
-                value: choice,
-                child: Text(choice.title),
-              );
-            }).toList();
-          },
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.more_vert,
-            color: ColorUtils.darkGray,
+        Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(10.0))),
+          child: PopupMenuButton<Object>(
+            elevation: 13.2,
+            offset: Offset(100, 110),
+            initialValue: choices[1],
+            onCanceled: () {
+              widget.onChanged(false);
+            },
+//            onSelected: _select,
+            itemBuilder: (BuildContext context) {
+              widget.onChanged(true);
+              return options;
+            },
           ),
-          onPressed: () {},
-        )
+        ),
       ],
       automaticallyImplyLeading: false,
     );
@@ -219,8 +237,7 @@ class AccountScreenState extends State<AccountScreen> {
 }
 
 class CustomPopupMenu {
-  CustomPopupMenu({this.title, this.icon});
+  CustomPopupMenu({this.title});
 
   String title;
-  IconData icon;
 }

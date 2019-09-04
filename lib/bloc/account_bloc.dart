@@ -13,7 +13,7 @@ class AccountBloc {
   Future<QueryResult> getCurrentUser(String userId) async {
     final QueryResult result = await client.query(QueryOptions(
       document: '''query{
-                     get_user(userId:"8dfcebc7-54ff-4d34-b740-22a78bbfe39a"){
+                     get_user(userId:"$userId"){
                         name
                         phoneNumber
                         id
