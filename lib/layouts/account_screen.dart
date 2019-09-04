@@ -20,6 +20,20 @@ class AccountScreenState extends State<AccountScreen> {
   User _user;
   bool _saving = false;
 
+  static List<CustomPopupMenu> choices = <CustomPopupMenu>[
+    CustomPopupMenu(title: 'Home', icon: Icons.home),
+    CustomPopupMenu(title: 'Bookmarks', icon: Icons.bookmark),
+    CustomPopupMenu(title: 'Settings', icon: Icons.settings),
+  ];
+
+  CustomPopupMenu _selectedChoices = choices[0];
+
+  void _select(CustomPopupMenu choice) {
+    setState(() {
+      _selectedChoices = choice;
+    });
+  }
+
   @override
   void initState() {
     _accountBloc = AccountBloc();
@@ -99,6 +113,23 @@ class AccountScreenState extends State<AccountScreen> {
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
       ),
       actions: <Widget>[
+        PopupMenuButton<CustomPopupMenu>(
+          elevation: 3.2,
+          initialValue: choices[1],
+          onCanceled: () {
+            print('You have not chossed anything');
+          },
+          tooltip: 'This is tooltip',
+          onSelected: _select,
+          itemBuilder: (BuildContext context) {
+            return choices.map((CustomPopupMenu choice) {
+              return PopupMenuItem<CustomPopupMenu>(
+                value: choice,
+                child: Text(choice.title),
+              );
+            }).toList();
+          },
+        ),
         IconButton(
           icon: Icon(
             Icons.more_vert,
@@ -185,4 +216,11 @@ class AccountScreenState extends State<AccountScreen> {
       ),
     );
   }
+}
+
+class CustomPopupMenu {
+  CustomPopupMenu({this.title, this.icon});
+
+  String title;
+  IconData icon;
 }

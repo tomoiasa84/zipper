@@ -28,6 +28,7 @@ class Strings {
   static const String verificationCodeValidation =
       "The verification code cannot be empty";
   static const String loginErrorMessage = "There is no user associated with this phone number.";
+  static const String alreadySignedUp = "There is already an account associated with this phone number.";
 
   //Terms and conditions text
   static const String termsAndConditionsText =

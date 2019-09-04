@@ -1,7 +1,11 @@
+import 'package:contractor_search/bloc/authentication_bloc.dart';
 import 'package:contractor_search/layouts/sms_code_verification.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/utils/auth_type.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,6 +23,7 @@ class LoginScreenState extends State<LoginScreen> {
   String phoneNumber;
   bool _saving = false;
   String verificationId;
+  AuthenticationBloc _authenticationBloc;
 
   Future<void> verifyPhone() async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -34,7 +39,7 @@ class LoginScreenState extends State<LoginScreen> {
           context,
           MaterialPageRoute(
               builder: (context) =>
-                  SmsCodeVerification(verificationId, "", 0)));
+                  SmsCodeVerification(verificationId, "", 0, phoneNumber, AuthType.login)));
     };
 
     final PhoneVerificationCompleted verifiedSuccess = (AuthCredential user) {
@@ -52,6 +57,44 @@ class LoginScreenState extends State<LoginScreen> {
         timeout: const Duration(seconds: 5),
         verificationCompleted: verifiedSuccess,
         verificationFailed: veriFailed);
+  }
+
+  void _login() {
+    setState(() {
+      _saving = true;
+    });
+    List<User> usersList = [];
+    _authenticationBloc.getUsers().then((result) {
+      if (result.data != null) {
+        final List<Map<String, dynamic>> users =
+        result.data['get_users'].cast<Map<String, dynamic>>();
+        users.forEach((item) {
+          usersList.add(User.fromJson(item));
+        });
+        User user = usersList.firstWhere(
+                (user) => user.phoneNumber == phoneNumber,
+            orElse: () => null);
+        if (user != null) {
+          verifyPhone();
+        } else {
+          _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
+          setState(() {
+            _saving = false;
+          });
+        }
+      } else {
+        _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
+        setState(() {
+          _saving = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    _authenticationBloc = AuthenticationBloc();
+    super.initState();
   }
 
   @override
@@ -130,16 +173,24 @@ class LoginScreenState extends State<LoginScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
       child: customAccentButton(Strings.continueText, () {
         if (_formKey.currentState.validate()) {
-          setState(() {
-            _saving = true;
-          });
-          verifyPhone();
+          _login();
         } else {
           setState(() {
             _autoValidate = true;
           });
         }
       }),
+    );
+  }
+
+  void _showDialog(String title, String message, String buttonText) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText: buttonText,
+      ),
     );
   }
 }

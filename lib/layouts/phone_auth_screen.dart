@@ -3,8 +3,10 @@ import 'package:contractor_search/layouts/login_screen.dart';
 import 'package:contractor_search/layouts/sms_code_verification.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/model/location.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/utils/auth_type.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/helper.dart';
@@ -31,7 +33,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   bool _autoValidate = false;
   bool _saving = false;
   List<LocationModel> locations = [];
-  AuthenticationBloc _signUpBloc;
+  AuthenticationBloc _authenticateBloc;
 
   Future<void> verifyPhone() async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -49,7 +51,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
       if (loc != null) {
         goToSmsVerificationPage(loc);
       } else {
-        _signUpBloc.createLocation(this.location).then((result) {
+        _authenticateBloc.createLocation(this.location).then((result) {
           if (result.data != null) {
             goToSmsVerificationPage(
                 LocationModel.fromJson(result.data['create_location']));
@@ -88,14 +90,41 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                SmsCodeVerification(verificationId, name, location.id)));
+            builder: (context) => SmsCodeVerification(verificationId, name,
+                location.id, phoneNumber, AuthType.signUp)));
+  }
+
+  void checkPhoneNumber() {
+    setState(() {
+      _saving = true;
+    });
+    List<User> usersList = [];
+    _authenticateBloc.getUsers().then((result) {
+      if (result.data != null) {
+        final List<Map<String, dynamic>> users =
+            result.data['get_users'].cast<Map<String, dynamic>>();
+        users.forEach((item) {
+          usersList.add(User.fromJson(item));
+        });
+        User user = usersList.firstWhere(
+            (user) => user.phoneNumber == phoneNumber,
+            orElse: () => null);
+        if (user == null) {
+          verifyPhone();
+        } else {
+          _showDialog(Strings.error, Strings.alreadySignedUp, Strings.ok);
+          setState(() {
+            _saving = false;
+          });
+        }
+      }
+    });
   }
 
   @override
   void initState() {
-    _signUpBloc = AuthenticationBloc();
-    _signUpBloc.getLocations().then((result) {
+    _authenticateBloc = AuthenticationBloc();
+    _authenticateBloc.getLocations().then((result) {
       if (this.mounted) {
         if (result.data != null) {
           setState(() {
@@ -143,10 +172,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       _buildSignUpForm(),
                       customAccentButton(Strings.continueText, () {
                         if (_formKey.currentState.validate()) {
-                          setState(() {
-                            _saving = true;
-                          });
-                          verifyPhone();
+                          checkPhoneNumber();
                         } else {
                           setState(() {
                             _autoValidate = true;
@@ -161,6 +187,17 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
             }),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showDialog(String title, String message, String buttonText) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText: buttonText,
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:contractor_search/layouts/tutorial_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/utils/auth_type.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
@@ -16,8 +17,11 @@ class SmsCodeVerification extends StatefulWidget {
   final String verificationId;
   final String name;
   final int location;
+  final String phoneNumber;
+  final int authType;
 
-  SmsCodeVerification(this.verificationId, this.name, this.location);
+  SmsCodeVerification(this.verificationId, this.name, this.location,
+      this.phoneNumber, this.authType);
 
   @override
   SmsCodeVerificationState createState() => SmsCodeVerificationState();
@@ -27,10 +31,8 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   final _formKey = GlobalKey<FormState>();
   AuthenticationBloc _authenticationBloc;
   String smsCode;
-
-  var _autoValidate = false;
-
-  var _saving = false;
+  bool _autoValidate = false;
+  bool _saving = false;
 
   @override
   void didChangeDependencies() {
@@ -52,53 +54,35 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     assert(user.user.uid == currentUser.uid);
 
     if (user != null) {
-      _authenticationBloc
-          .createUser(widget.name, widget.location, user.user.uid,
-              user.user.phoneNumber)
-          .then((result) {
-        setState(() {
-          _saving = false;
+      if(widget.authType == AuthType.signUp) {
+        _authenticationBloc
+            .createUser(widget.name, widget.location, user.user.uid,
+            user.user.phoneNumber)
+            .then((result) {
+          setState(() {
+            _saving = false;
+          });
+          if (result.data != null) {
+            _finishLogin(User
+                .fromJson(result.data['create_user'])
+                .id);
+          } else {
+            _showDialog(Strings.error, result.errors[0].message, Strings.ok);
+          }
         });
-        if (result.data != null) {
-          _finishLogin(User.fromJson(result.data['create_user']));
-        } else {
-          _showDialog(Strings.error, result.errors[0].message, Strings.ok);
-        }
-      });
+      }
+      else{
+        _finishLogin(user.user.uid);
+      }
+    }
+    else{
+      _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
+
     }
   }
 
-  void _login(String phoneNumber) {
-    setState(() {
-      _saving = true;
-    });
-    List<User> usersList = [];
-    _authenticationBloc.getUsers().then((result) {
-      setState(() {
-        _saving = false;
-      });
-      if (result.data != null) {
-        final List<Map<String, dynamic>> users =
-            result.data['get_users'].cast<Map<String, dynamic>>();
-        users.forEach((item) {
-          usersList.add(User.fromJson(item));
-        });
-        User user = usersList.firstWhere(
-            (user) => user.phoneNumber == phoneNumber,
-            orElse: () => null);
-        if (user != null) {
-          _finishLogin(user);
-        } else {
-          _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
-        }
-      } else {
-        _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
-      }
-    });
-  }
-
-  void _finishLogin(User user) {
-    saveAccessToken(user.id).then((id) {
+  void _finishLogin(String userId) {
+    saveAccessToken(userId).then((id) {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => TutorialScreen()),
@@ -108,16 +92,6 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
 
   Future saveAccessToken(String accessToken) async {
     await SharedPreferencesHelper.saveAccessToken(accessToken);
-  }
-
-  void _authenticate(BuildContext context) {
-    FirebaseAuth.instance.currentUser().then((user) {
-      if (user != null) {
-        _login(user.phoneNumber);
-      } else {
-        signIn();
-      }
-    });
   }
 
   @override
@@ -138,7 +112,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        buildBackButton((){
+                        buildBackButton(() {
                           Navigator.pop(context, true);
                         }),
                         buildLogo(MediaQuery.of(context).size.height * 0.097),
@@ -191,7 +165,9 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
       child: customAccentButton(Strings.login, () {
         if (_formKey.currentState.validate()) {
-          _authenticate(context);
+          FirebaseAuth.instance.currentUser().then((user) {
+            signIn();
+          });
         } else {
           setState(() {
             _autoValidate = true;

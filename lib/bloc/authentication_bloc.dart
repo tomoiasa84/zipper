@@ -29,15 +29,30 @@ class AuthenticationBloc {
     final QueryResult queryResult = await client.mutate(
       MutationOptions(
         document: '''mutation{
-                        create_user(
+                           create_user(id: "$id",
                             name: "$name", 
-                            location: $location, 
-                            id: "$id", 
+                            location: $location,  
                             phoneNumber: "$phoneNumber") {
-                                  name
-                                  id
-                            }
-                        }''',
+                                 	name
+                        					id
+                        					phoneNumber
+                        					location{
+                           						 id
+                           						 city
+                       						 }
+                                  tags{
+                                      name
+                                  }
+                                  cards{
+                                      text
+                                  }
+                                  thread_messages{
+                                      users{
+                                          name
+                                        }
+                                }
+                    }
+                  }''',
       ),
     );
 
@@ -64,8 +79,23 @@ class AuthenticationBloc {
       document: '''query {
                      get_users{
                         name
-                        phoneNumber
                         id
+                        phoneNumber
+                        location{
+                            id
+                            city
+                        }
+                        tags{
+                            name
+                        }
+                        cards{
+                            text
+                        }
+                        thread_messages{
+                            users{
+                                name
+                            }
+                        }
                     }
               }''',
     ));
