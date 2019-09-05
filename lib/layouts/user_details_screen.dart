@@ -1,6 +1,6 @@
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/helper.dart';
 import 'package:flutter/material.dart';
 
@@ -74,7 +74,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     return Container(
       padding: const EdgeInsets.only(top: 16.0),
       child: Text(
-        Strings.termsAndConditionsText,
+        Localization.of(context).getString('termsAndConditionsText'),
         style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
       ),
     );

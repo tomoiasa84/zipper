@@ -1,5 +1,5 @@
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -14,10 +14,13 @@ class TermsAndConditions extends StatelessWidget {
           margin: const EdgeInsets.symmetric(vertical: 39.0),
           child: Column(
             children: <Widget>[
-              _buildFirstTitle(context),
-              _buildSecondTitle(),
-              _buildDescription(),
-              _buildBottomText()
+              _buildFirstTitle(context,
+                  Localization.of(context).getString('termsAndConditions')),
+              _buildSecondTitle(
+                  Localization.of(context).getString('termsAndConditions')),
+              _buildDescription(
+                  Localization.of(context).getString('termsAndConditionsText')),
+              _buildBottomText(Localization.of(context).getString('lastEdit'))
             ],
           ),
         ),
@@ -25,7 +28,7 @@ class TermsAndConditions extends StatelessWidget {
     );
   }
 
-  Row _buildFirstTitle(BuildContext context) {
+  Row _buildFirstTitle(BuildContext context, String text) {
     return Row(
       children: <Widget>[
         buildBackButton(() {
@@ -34,36 +37,36 @@ class TermsAndConditions extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 75.0, top: 8.0),
           child: Text(
-            Strings.termsAndConditions,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
+            text,
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0),
           ),
         ),
       ],
     );
   }
 
-  Container _buildSecondTitle() {
+  Container _buildSecondTitle(String text) {
     return Container(
       margin: const EdgeInsets.only(top: 29.0, left: 32.0, right: 32.0),
       child: Text(
-        Strings.termsAndConditions,
+        text,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40.0),
       ),
     );
   }
 
-  Container _buildDescription() {
+  Container _buildDescription(String description) {
     return Container(
       margin: const EdgeInsets.only(top: 17.0, left: 32.0, right: 32.0),
       child: Text(
-        Strings.termsAndConditionsText,
+        description,
         style: TextStyle(
             fontSize: 14.0, color: ColorUtils.darkerGray, height: 1.5),
       ),
     );
   }
 
-  Container _buildBottomText() {
+  Container _buildBottomText(String text) {
     return Container(
       margin: const EdgeInsets.only(top: 24.0, left: 32.0, right: 32.0),
       child: Row(
@@ -75,7 +78,7 @@ class TermsAndConditions extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: Text(
-              Strings.lastEdit,
+              text,
               style: TextStyle(fontSize: 14.0, color: ColorUtils.textGray),
             ),
           )

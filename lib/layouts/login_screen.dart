@@ -3,7 +3,7 @@ import 'package:contractor_search/layouts/sms_code_verification.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/auth_type.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
@@ -38,8 +38,8 @@ class LoginScreenState extends State<LoginScreen> {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  SmsCodeVerification(verificationId, "", 0, phoneNumber, AuthType.login)));
+              builder: (context) => SmsCodeVerification(
+                  verificationId, "", 0, phoneNumber, AuthType.login)));
     };
 
     final PhoneVerificationCompleted verifiedSuccess = (AuthCredential user) {
@@ -67,23 +67,29 @@ class LoginScreenState extends State<LoginScreen> {
     _authenticationBloc.getUsers().then((result) {
       if (result.data != null) {
         final List<Map<String, dynamic>> users =
-        result.data['get_users'].cast<Map<String, dynamic>>();
+            result.data['get_users'].cast<Map<String, dynamic>>();
         users.forEach((item) {
           usersList.add(User.fromJson(item));
         });
         User user = usersList.firstWhere(
-                (user) => user.phoneNumber == phoneNumber,
+            (user) => user.phoneNumber == phoneNumber,
             orElse: () => null);
         if (user != null) {
           verifyPhone();
         } else {
-          _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
+          _showDialog(
+              Localization.of(context).getString('error'),
+              Localization.of(context).getString('loginErrorMessage'),
+              Localization.of(context).getString('ok'));
           setState(() {
             _saving = false;
           });
         }
       } else {
-        _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
+        _showDialog(
+            Localization.of(context).getString('error'),
+            Localization.of(context).getString('loginErrorMessage'),
+            Localization.of(context).getString('ok'));
         setState(() {
           _saving = false;
         });
@@ -120,8 +126,8 @@ class LoginScreenState extends State<LoginScreen> {
                         buildBackButton(() {
                           Navigator.pop(context, true);
                         }),
-                        buildLogo(MediaQuery.of(context).size.height * 0.097),
-                        buildTitle(Strings.login,
+                        buildLogo(context),
+                        buildTitle(Localization.of(context).getString('login'),
                             MediaQuery.of(context).size.height * 0.048),
                         _buildForm(),
                         _buildButton(),
@@ -145,11 +151,15 @@ class LoginScreenState extends State<LoginScreen> {
       child: Container(
         margin: const EdgeInsets.only(top: 35.0, left: 24.0, right: 24.0),
         child: TextFormField(
-          validator: validatePhoneNumber,
+          validator: (value) {
+            return validatePhoneNumber(value,
+                Localization.of(context).getString('phoneNumberValidation'));
+          },
           onChanged: (value) {
             this.phoneNumber = value;
           },
-          decoration: customInputDecoration(Strings.phoneNumber, Icons.phone),
+          decoration: customInputDecoration(
+              Localization.of(context).getString('phoneNumber'), Icons.phone),
         ),
       ),
     );
@@ -163,7 +173,7 @@ class LoginScreenState extends State<LoginScreen> {
         child: buildTermsAndConditions(() {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) => TermsAndConditions()));
-        }),
+        }, Localization.of(context).getString('termsAndConditions')),
       ),
     );
   }
@@ -171,7 +181,8 @@ class LoginScreenState extends State<LoginScreen> {
   Padding _buildButton() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
-      child: customAccentButton(Strings.continueText, () {
+      child: customAccentButton(Localization.of(context).getString('continue'),
+          () {
         if (_formKey.currentState.validate()) {
           _login();
         } else {

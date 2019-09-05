@@ -3,7 +3,7 @@ import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/layouts/tutorial_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/auth_type.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
@@ -56,26 +56,34 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       assert(user.user.uid == currentUser.uid);
 
       if (user != null) {
-        switch(widget.authType){
-          case AuthType.signUp : {
+        switch (widget.authType) {
+          case AuthType.signUp:
+            {
+              _signUp(user);
+              break;
+            }
+          case AuthType.update:
+            {
+              _updateUser(user);
+              break;
+            }
+          case AuthType.login:
+            {
+              _finishLogin(user.user.uid);
+              break;
+            }
+          default:
             _signUp(user);
-            break;
-          }
-          case AuthType.update:{
-            _updateUser(user);
-            break;
-          }
-          case AuthType.login: {
-            _finishLogin(user.user.uid);
-            break;
-          }
-          default: _signUp(user);
         }
       } else {
-        _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
+        _showDialog(
+            Localization.of(context).getString('error'),
+            Localization.of(context).getString('loginErrorMessage'),
+            Localization.of(context).getString('ok'));
       }
     } on PlatformException catch (e) {
-      _showDialog(Strings.error, e.message, Strings.ok);
+      _showDialog(Localization.of(context).getString('error'), e.message,
+          Localization.of(context).getString('ok'));
       setState(() {
         _saving = false;
       });
@@ -84,8 +92,8 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
 
   void _signUp(AuthResult user) {
     _authenticationBloc
-        .createUser(widget.name, widget.location, user.user.uid,
-            user.user.phoneNumber)
+        .createUser(
+            widget.name, widget.location, user.user.uid, user.user.phoneNumber)
         .then((result) {
       setState(() {
         _saving = false;
@@ -93,7 +101,8 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       if (result.data != null) {
         _finishLogin(User.fromJson(result.data['create_user']).id);
       } else {
-        _showDialog(Strings.error, result.errors[0].message, Strings.ok);
+        _showDialog(Localization.of(context).getString('error'),
+            result.errors[0].message, Localization.of(context).getString('ok'));
       }
     });
   }
@@ -101,7 +110,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   void _updateUser(AuthResult user) {
     _authenticationBloc
         .updateUser(widget.name, widget.location, user.user.uid,
-        user.user.phoneNumber, true)
+            user.user.phoneNumber, true)
         .then((result) {
       setState(() {
         _saving = false;
@@ -109,7 +118,8 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       if (result.data != null) {
         _finishLogin(User.fromJson(result.data['update_user']).id);
       } else {
-        _showDialog(Strings.error, result.errors[0].message, Strings.ok);
+        _showDialog(Localization.of(context).getString('error'),
+            result.errors[0].message, Localization.of(context).getString('ok'));
       }
     });
   }
@@ -148,8 +158,10 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                         buildBackButton(() {
                           Navigator.pop(context, true);
                         }),
-                        buildLogo(MediaQuery.of(context).size.height * 0.097),
-                        buildTitle(Strings.verificationCode,
+                        buildLogo(context),
+                        buildTitle(
+                            Localization.of(context)
+                                .getString('verificationCode'),
                             MediaQuery.of(context).size.height * 0.048),
                         _buildForm(),
                         _buildButton(context),
@@ -180,11 +192,13 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
           inputFormatters: <TextInputFormatter>[
             WhitelistingTextInputFormatter.digitsOnly,
           ],
-          decoration:
-              customInputDecoration(Strings.typeCodeHere, Icons.dialpad),
+          decoration: customInputDecoration(
+              Localization.of(context).getString('typeCodeHere'),
+              Icons.dialpad),
           validator: (value) {
             if (value.isEmpty) {
-              return Strings.verificationCodeValidation;
+              return Localization.of(context)
+                  .getString('verificationCodeValidation');
             }
             return null;
           },
@@ -196,7 +210,8 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   Padding _buildButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
-      child: customAccentButton(Strings.login, () {
+      child:
+          customAccentButton(Localization.of(context).getString('login'), () {
         if (_formKey.currentState.validate()) {
           FirebaseAuth.instance.currentUser().then((user) {
             signIn();
@@ -218,7 +233,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
         child: buildTermsAndConditions(() {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) => TermsAndConditions()));
-        }),
+        }, Localization.of(context).getString('termsAndConditions')),
       ),
     );
   }

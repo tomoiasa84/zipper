@@ -5,7 +5,7 @@ import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/model/location.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/auth_type.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
@@ -60,9 +60,9 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
             showDialog(
               context: context,
               builder: (BuildContext context) => CustomDialog(
-                title: Strings.error,
+                title: Localization.of(context).getString('error'),
                 description: result.errors[0].message,
-                buttonText: Strings.ok,
+                buttonText: Localization.of(context).getString('ok'),
               ),
             );
           }
@@ -71,6 +71,9 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     };
 
     final PhoneVerificationCompleted verifiedSuccess = (AuthCredential user) {
+      setState(() {
+        _saving = false;
+      });
       print('verified');
     };
 
@@ -115,7 +118,10 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
         } else if (!user.isActive) {
           verifyPhone(AuthType.update);
         } else {
-          _showDialog(Strings.error, Strings.alreadySignedUp, Strings.ok);
+          _showDialog(
+              Localization.of(context).getString('error'),
+              Localization.of(context).getString('alreadySignedUp'),
+              Localization.of(context).getString('ok'));
           setState(() {
             _saving = false;
           });
@@ -139,9 +145,9 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
           showDialog(
             context: context,
             builder: (BuildContext context) => CustomDialog(
-              title: Strings.error,
+              title: Localization.of(context).getString('error'),
               description: result.errors[0].message,
-              buttonText: Strings.ok,
+              buttonText: Localization.of(context).getString('ok'),
             ),
           );
         }
@@ -170,10 +176,13 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      buildLogo(MediaQuery.of(context).size.height * 0.097),
-                      buildTitle(Strings.createAnAccount, 0),
+                      buildLogo(context),
+                      buildTitle(
+                          Localization.of(context).getString('createAnAccount'),
+                          0),
                       _buildSignUpForm(),
-                      customAccentButton(Strings.continueText, () {
+                      customAccentButton(
+                          Localization.of(context).getString('continue'), () {
                         if (_formKey.currentState.validate()) {
                           checkPhoneNumber();
                         } else {
@@ -225,10 +234,11 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
         onChanged: (value) {
           this.name = value;
         },
-        decoration: customInputDecoration(Strings.name, Icons.person),
+        decoration: customInputDecoration(
+            Localization.of(context).getString('name'), Icons.person),
         validator: (value) {
           if (value.isEmpty) {
-            return Strings.nameValidation;
+            return Localization.of(context).getString('nameValidation');
           }
           return null;
         },
@@ -245,8 +255,9 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
               this.location = value;
             },
             controller: this._typeAheadController,
-            decoration:
-                customInputDecoration(Strings.location, Icons.location_on)),
+            decoration: customInputDecoration(
+                Localization.of(context).getString('location'),
+                Icons.location_on)),
         suggestionsCallback: (pattern) {
           List<String> list = [];
           locations
@@ -268,7 +279,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
         },
         validator: (value) {
           if (value.isEmpty) {
-            return Strings.locationValidation;
+            return Localization.of(context).getString('locationValidation');
           }
           return null;
         },
@@ -284,8 +295,12 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
         onChanged: (value) {
           this.phoneNumber = value;
         },
-        validator: validatePhoneNumber,
-        decoration: customInputDecoration(Strings.phoneNumberHint, Icons.phone),
+        validator: (value) {
+          return validatePhoneNumber(value,
+              Localization.of(context).getString('phoneNumberValidation'));
+        },
+        decoration: customInputDecoration(
+            Localization.of(context).getString('phoneNumberHint'), Icons.phone),
       ),
     );
   }
@@ -302,14 +317,14 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                   builder: (BuildContext context) => LoginScreen()));
             },
             child: Text(
-              Strings.alreadyHaveAnAccount,
+              Localization.of(context).getString('alreadyRegisteredQuestion'),
               style: TextStyle(color: ColorUtils.orangeAccent, fontSize: 11.0),
             ),
           ),
           buildTermsAndConditions(() {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (BuildContext context) => TermsAndConditions()));
-          }),
+          }, Localization.of(context).getString('termsAndConditions')),
         ],
       ),
     );

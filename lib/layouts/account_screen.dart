@@ -4,7 +4,7 @@ import 'package:contractor_search/bloc/account_bloc.dart';
 import 'package:contractor_search/layouts/phone_auth_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/helper.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,30 +29,28 @@ class AccountScreenState extends State<AccountScreen> {
   bool _saving = false;
   var list = List<PopupMenuEntry<Object>>();
 
-  static List<CustomPopupMenu> choices = <CustomPopupMenu>[
-    CustomPopupMenu(title: Strings.settings),
-    CustomPopupMenu(title: Strings.signOut),
-  ];
-
-  static List<PopupMenuEntry<Object>> options = [
-    PopupMenuItem(
-        value: 0,
-        child: Container(
-            width: 140.0,
-            child: Text(
-              choices[0].title,
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: ColorUtils.darkGray),
-            ))),
-    PopupMenuDivider(
-      height: 1.0,
-    ),
-    PopupMenuItem(
-      value: 1,
-      child: Text(choices[1].title),
-      textStyle: TextStyle(color: ColorUtils.red, fontWeight: FontWeight.bold),
-    ),
-  ];
+  static List<PopupMenuEntry<Object>> getOptions(BuildContext context) {
+    return [
+      PopupMenuItem(
+          value: 0,
+          child: Container(
+              width: 140.0,
+              child: Text(
+                Localization.of(context).getString('settings'),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: ColorUtils.darkGray),
+              ))),
+      PopupMenuDivider(
+        height: 1.0,
+      ),
+      PopupMenuItem(
+        value: 1,
+        child: Text(Localization.of(context).getString('signOut')),
+        textStyle:
+            TextStyle(color: ColorUtils.red, fontWeight: FontWeight.bold),
+      ),
+    ];
+  }
 
   void _select(Object item) {
     widget.onChanged(false);
@@ -145,8 +143,8 @@ class AccountScreenState extends State<AccountScreen> {
     return AppBar(
       centerTitle: true,
       title: Text(
-        Strings.myProfile,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
+        Localization.of(context).getString('myProfile'),
+        style: TextStyle(fontWeight: FontWeight.bold),
       ),
       actions: <Widget>[
         Container(
@@ -155,7 +153,8 @@ class AccountScreenState extends State<AccountScreen> {
           child: PopupMenuButton<Object>(
             elevation: 13.2,
             offset: Offset(100, 110),
-            initialValue: choices[1],
+            initialValue: CustomPopupMenu(
+                title: Localization.of(context).getString('settings')),
             onCanceled: () {
               widget.onChanged(false);
             },
@@ -164,7 +163,7 @@ class AccountScreenState extends State<AccountScreen> {
             },
             itemBuilder: (BuildContext context) {
               widget.onChanged(true);
-              return options;
+              return getOptions(context);
             },
           ),
         ),
@@ -177,7 +176,7 @@ class AccountScreenState extends State<AccountScreen> {
     return Container(
       padding: const EdgeInsets.only(top: 16.0),
       child: Text(
-        Strings.termsAndConditionsText,
+        Localization.of(context).getString('termsAndConditionsText'),
         style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
       ),
     );

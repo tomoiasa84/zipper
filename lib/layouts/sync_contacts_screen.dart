@@ -1,7 +1,7 @@
 import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/layouts/home_page.dart';
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -14,6 +14,7 @@ class SyncContactsScreen extends StatefulWidget {
 class SyncContactsScreenState extends State<SyncContactsScreen>
     with SingleTickerProviderStateMixin {
   AnimationController _animationController;
+
   @override
   void initState() {
     _animationController = new AnimationController(
@@ -72,7 +73,7 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
                 Container(
                   padding: const EdgeInsets.only(top: 16.0),
                   child: Text(
-                    Strings.syncContactsMessage,
+                    Localization.of(context).getString('syncContactsMessage'),
                     textAlign: TextAlign.center,
                     style:
                         TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),

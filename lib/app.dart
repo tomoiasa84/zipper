@@ -1,7 +1,9 @@
 import 'package:contractor_search/resources/color_utils.dart';
+import 'package:contractor_search/resources/localization_delegate.dart';
 import 'package:contractor_search/utils/auth_status.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'layouts/home_page.dart';
@@ -28,6 +30,15 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        localizationsDelegates: [
+          const LocalizationDelegate(),
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: [
+          const Locale('en', ''),
+          const Locale('ro', ''),
+        ],
         title: 'Flutter Demo',
         theme: ThemeData(primaryColor: ColorUtils.white, fontFamily: "Arial"),
         home: Builder(

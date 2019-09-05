@@ -5,7 +5,7 @@ import 'package:contractor_search/bloc/contacts_bloc.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/contacts_search.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/helper.dart';
@@ -71,7 +71,7 @@ class ContactsScreenState extends State<ContactsScreen> {
   AppBar _buildAppBar() {
     return AppBar(
         title: Text(
-          Strings.contacts,
+          Localization.of(context).getString('contacts'),
           style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -168,9 +168,9 @@ class ContactsScreenState extends State<ContactsScreen> {
               showDialog(
                 context: context,
                 builder: (BuildContext context) => CustomDialog(
-                  title: Strings.error,
+                  title: Localization.of(context).getString('error'),
                   description: snapshot.error.toString(),
-                  buttonText: Strings.ok,
+                  buttonText: Localization.of(context).getString('ok'),
                 ),
               );
               return Container();
@@ -248,13 +248,13 @@ class ContactsScreenState extends State<ContactsScreen> {
   List<Widget> _buildTabs() {
     return <Widget>[
       Tab(
-        text: Strings.all.toUpperCase(),
+        text: Localization.of(context).getString('all').toUpperCase(),
       ),
       Tab(
-        text: Strings.lastAccessed.toUpperCase(),
+        text: Localization.of(context).getString('lastAccessed').toUpperCase(),
       ),
       Tab(
-        text: Strings.favorites.toUpperCase(),
+        text: Localization.of(context).getString('favorites').toUpperCase(),
       ),
     ];
   }

@@ -1,6 +1,6 @@
 import 'package:contractor_search/layouts/sync_contacts_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -52,16 +52,24 @@ class TutorialScreenState extends State<TutorialScreen> {
   Widget _builtContainer() {
     switch (_currentPosition) {
       case 0:
-        return _builtContent(Strings.accessAgenda, Strings.tutorialContent,
+        return _builtContent(
+            Localization.of(context).getString('accessAgenda'),
+            Localization.of(context).getString('tutorialContent'),
             'assets/images/ic_contacts_gray_bg.png');
       case 1:
-        return _builtContent('Lorem ipsum dolor sit', Strings.tutorialContent,
+        return _builtContent(
+            'Lorem ipsum dolor sit',
+            Localization.of(context).getString('tutorialContent'),
             'assets/images/ic_hourglass_gray_bg.png');
       case 2:
-        return _builtContent(Strings.tagYourFriends, Strings.tutorialContent,
+        return _builtContent(
+            Localization.of(context).getString('tagYourFriends'),
+            Localization.of(context).getString('tutorialContent'),
             'assets/images/ic_tag_gray_bg.png');
     }
-    return _builtContent(Strings.accessAgenda, Strings.tutorialContent,
+    return _builtContent(
+        Localization.of(context).getString('accessAgenda'),
+        Localization.of(context).getString('tutorialContent'),
         'assets/images/ic_contacts_gray_bg.png');
   }
 
@@ -104,9 +112,11 @@ class TutorialScreenState extends State<TutorialScreen> {
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(top: 44.0),
+              padding:
+                  const EdgeInsets.only(top: 44.0, left: 16.0, right: 16.0),
               child: Text(
                 title,
+                textAlign: TextAlign.center,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
               ),
             ),
@@ -157,7 +167,7 @@ class TutorialScreenState extends State<TutorialScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 36.0),
             child: Text(
-              Strings.continueText.toUpperCase(),
+              Localization.of(context).getString('continue').toUpperCase(),
               style: TextStyle(
                   color: ColorUtils.white,
                   fontWeight: FontWeight.bold,

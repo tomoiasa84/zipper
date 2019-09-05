@@ -1,10 +1,10 @@
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
 
-Container buildLogo(double marginTop) {
+Container buildLogo(BuildContext context) {
   return Container(
-    margin: EdgeInsets.only(top: marginTop),
+    margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.097),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -14,7 +14,7 @@ Container buildLogo(double marginTop) {
         Padding(
           padding: const EdgeInsets.only(left: 4.5),
           child: Text(
-            Strings.logo.toUpperCase(),
+            Localization.of(context).getString('logo').toUpperCase(),
             style: TextStyle(
                 fontFamily: 'GothamRounded',
                 fontWeight: FontWeight.bold,
@@ -68,7 +68,7 @@ Container customAccentButton(
       child: Padding(
         padding: const EdgeInsets.all(18.0),
         child: Text(
-          Strings.continueText.toUpperCase(),
+          textButton.toUpperCase(),
           style: TextStyle(
               color: ColorUtils.white,
               fontWeight: FontWeight.bold,
@@ -79,13 +79,13 @@ Container customAccentButton(
   );
 }
 
-GestureDetector buildTermsAndConditions(Function onClickAction) {
+GestureDetector buildTermsAndConditions(Function onClickAction, String text) {
   return GestureDetector(
     onTap: () {
       onClickAction();
     },
     child: Text(
-      Strings.termsAndConditions,
+      text,
       style: TextStyle(color: ColorUtils.orangeAccent, fontSize: 11.0),
     ),
   );
