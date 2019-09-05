@@ -59,6 +59,43 @@ class AuthenticationBloc {
     return queryResult;
   }
 
+  Future<QueryResult> updateUser(
+      String name, int location, String id, String phoneNumber, bool isActive) async {
+    final QueryResult queryResult = await client.mutate(
+      MutationOptions(
+        document: '''mutation{
+                           update_user(userId: "$id",
+                            name: "$name", 
+                            location: $location,  
+                            phoneNumber: "$phoneNumber",
+                            isActive: $isActive) {
+                                 	name
+                        					id
+                        					phoneNumber
+                        					isActive
+                        					location{
+                           						 id
+                           						 city
+                       						 }
+                                  tags{
+                                      name
+                                  }
+                                  cards{
+                                      text
+                                  }
+                                  thread_messages{
+                                      users{
+                                          name
+                                        }
+                                }
+                    }
+                  }''',
+      ),
+    );
+
+    return queryResult;
+  }
+
   Future<QueryResult> createLocation(String city) async {
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -81,6 +118,7 @@ class AuthenticationBloc {
                         name
                         id
                         phoneNumber
+                        isActive
                         location{
                             id
                             city

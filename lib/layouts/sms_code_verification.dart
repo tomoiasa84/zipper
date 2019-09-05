@@ -49,36 +49,69 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       smsCode: smsCode,
     );
     FirebaseAuth _auth = FirebaseAuth.instance;
-    final AuthResult user = await _auth.signInWithCredential(credential);
-    final FirebaseUser currentUser = await _auth.currentUser();
-    assert(user.user.uid == currentUser.uid);
+    try {
+      final AuthResult user = await _auth.signInWithCredential(credential);
 
-    if (user != null) {
-      if(widget.authType == AuthType.signUp) {
-        _authenticationBloc
-            .createUser(widget.name, widget.location, user.user.uid,
-            user.user.phoneNumber)
-            .then((result) {
-          setState(() {
-            _saving = false;
-          });
-          if (result.data != null) {
-            _finishLogin(User
-                .fromJson(result.data['create_user'])
-                .id);
-          } else {
-            _showDialog(Strings.error, result.errors[0].message, Strings.ok);
+      final FirebaseUser currentUser = await _auth.currentUser();
+      assert(user.user.uid == currentUser.uid);
+
+      if (user != null) {
+        switch(widget.authType){
+          case AuthType.signUp : {
+            _signUp(user);
+            break;
           }
-        });
+          case AuthType.update:{
+            _updateUser(user);
+            break;
+          }
+          case AuthType.login: {
+            _finishLogin(user.user.uid);
+            break;
+          }
+          default: _signUp(user);
+        }
+      } else {
+        _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
       }
-      else{
-        _finishLogin(user.user.uid);
-      }
+    } on PlatformException catch (e) {
+      _showDialog(Strings.error, e.message, Strings.ok);
+      setState(() {
+        _saving = false;
+      });
     }
-    else{
-      _showDialog(Strings.error, Strings.loginErrorMessage, Strings.ok);
+  }
 
-    }
+  void _signUp(AuthResult user) {
+    _authenticationBloc
+        .createUser(widget.name, widget.location, user.user.uid,
+            user.user.phoneNumber)
+        .then((result) {
+      setState(() {
+        _saving = false;
+      });
+      if (result.data != null) {
+        _finishLogin(User.fromJson(result.data['create_user']).id);
+      } else {
+        _showDialog(Strings.error, result.errors[0].message, Strings.ok);
+      }
+    });
+  }
+
+  void _updateUser(AuthResult user) {
+    _authenticationBloc
+        .updateUser(widget.name, widget.location, user.user.uid,
+        user.user.phoneNumber, true)
+        .then((result) {
+      setState(() {
+        _saving = false;
+      });
+      if (result.data != null) {
+        _finishLogin(User.fromJson(result.data['update_user']).id);
+      } else {
+        _showDialog(Strings.error, result.errors[0].message, Strings.ok);
+      }
+    });
   }
 
   void _finishLogin(String userId) {

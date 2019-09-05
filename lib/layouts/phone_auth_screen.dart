@@ -35,7 +35,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   List<LocationModel> locations = [];
   AuthenticationBloc _authenticateBloc;
 
-  Future<void> verifyPhone() async {
+  Future<void> verifyPhone(int authType) async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
       this.verificationId = verId;
     };
@@ -49,12 +49,13 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
           (location) => location.city == _typeAheadController.text,
           orElse: () => null);
       if (loc != null) {
-        goToSmsVerificationPage(loc);
+        goToSmsVerificationPage(loc, authType);
       } else {
         _authenticateBloc.createLocation(this.location).then((result) {
           if (result.data != null) {
             goToSmsVerificationPage(
-                LocationModel.fromJson(result.data['create_location']));
+                LocationModel.fromJson(result.data['create_location']),
+                authType);
           } else {
             showDialog(
               context: context,
@@ -86,12 +87,12 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
         verificationFailed: veriFailed);
   }
 
-  void goToSmsVerificationPage(LocationModel location) {
+  void goToSmsVerificationPage(LocationModel location, int authType) {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => SmsCodeVerification(verificationId, name,
-                location.id, phoneNumber, AuthType.signUp)));
+            builder: (context) => SmsCodeVerification(
+                verificationId, name, location.id, phoneNumber, authType)));
   }
 
   void checkPhoneNumber() {
@@ -110,7 +111,9 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
             (user) => user.phoneNumber == phoneNumber,
             orElse: () => null);
         if (user == null) {
-          verifyPhone();
+          verifyPhone(AuthType.signUp);
+        } else if (!user.isActive) {
+          verifyPhone(AuthType.update);
         } else {
           _showDialog(Strings.error, Strings.alreadySignedUp, Strings.ok);
           setState(() {
