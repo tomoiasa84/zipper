@@ -25,6 +25,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   TextEditingController _nameTextEditingController = TextEditingController();
   TextEditingController _mainTextEditingController = TextEditingController();
   TextEditingController _bioTextEditingController = TextEditingController();
+  TextEditingController _addSkillsTextEditingController =
+      TextEditingController();
   String name;
   List<String> skills = [
     '#babysitter',
@@ -370,6 +372,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       alignment: const Alignment(1.0, 0.0),
       children: <Widget>[
         TextFormField(
+          controller: _addSkillsTextEditingController,
           decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(6.0),
@@ -390,10 +393,21 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         ),
         Container(
           padding: const EdgeInsets.all(16.0),
-          child: Text(
-            Localization.of(context).getString('add'),
-            style: TextStyle(
-                color: ColorUtils.orangeAccent, fontWeight: FontWeight.bold),
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                if (_addSkillsTextEditingController.text.isNotEmpty) {
+                  setState(() {
+                    skills.add(_addSkillsTextEditingController.text);
+                  });
+                }
+              });
+            },
+            child: Text(
+              Localization.of(context).getString('add'),
+              style: TextStyle(
+                  color: ColorUtils.orangeAccent, fontWeight: FontWeight.bold),
+            ),
           ),
         )
       ],
