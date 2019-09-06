@@ -36,7 +36,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _fetchContacts();
+    if (this.mounted) {
+      _fetchContacts();
+    }
     super.initState();
   }
 

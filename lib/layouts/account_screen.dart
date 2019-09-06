@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:contractor_search/bloc/account_bloc.dart';
 import 'package:contractor_search/layouts/phone_auth_screen.dart';
+import 'package:contractor_search/layouts/profile_settings_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -67,8 +68,33 @@ class AccountScreenState extends State<AccountScreen> {
     }
   }
 
+  void signOut() {
+    setState(() {
+      _saving = true;
+    });
+    FirebaseAuth.instance.signOut().then((_) {
+      removeSharedPreferences().then((_) {
+        setState(() {
+          _saving = true;
+        });
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => PhoneAuthScreen()),
+            (Route<dynamic> route) => false);
+      });
+    });
+  }
+
+  Future removeSharedPreferences() async {
+    await SharedPreferencesHelper.clear();
+  }
+
   @override
   void initState() {
+    _getCurrentUserInfo();
+    super.initState();
+  }
+
+  void _getCurrentUserInfo() {
     _accountBloc = AccountBloc();
     getCurrentUserId().then((userId) {
       setState(() {
@@ -83,7 +109,6 @@ class AccountScreenState extends State<AccountScreen> {
         }
       });
     });
-    super.initState();
   }
 
   Future<String> getCurrentUserId() async {
@@ -95,19 +120,19 @@ class AccountScreenState extends State<AccountScreen> {
     return ModalProgressHUD(
         inAsyncCall: _saving,
         child: Scaffold(
-            appBar: _buildAppBar(context),
+            appBar:
+                _buildAppBar(Localization.of(context).getString('settings')),
             body: SafeArea(
               top: true,
               child: _user != null
                   ? Container(
                       padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: <Widget>[
-                          Stack(
-                            children: <Widget>[
-                              Container(
-                                padding: const EdgeInsets.only(bottom: 15.0),
-                                child: Card(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: <Widget>[
+                            Stack(
+                              children: <Widget>[
+                                Card(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
@@ -125,21 +150,17 @@ class AccountScreenState extends State<AccountScreen> {
                                     ),
                                   ),
                                 ),
-                              ),
-                              Positioned(
-                                  bottom: 0.0,
-                                  right: 0.0,
-                                  child: _buildActionsButtons()),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     )
                   : Container(),
             )));
   }
 
-  AppBar _buildAppBar(BuildContext context) {
+  AppBar _buildAppBar(String popupInitialValue) {
     return AppBar(
       centerTitle: true,
       title: Text(
@@ -153,8 +174,7 @@ class AccountScreenState extends State<AccountScreen> {
           child: PopupMenuButton<Object>(
             elevation: 13.2,
             offset: Offset(100, 110),
-            initialValue: CustomPopupMenu(
-                title: Localization.of(context).getString('settings')),
+            initialValue: CustomPopupMenu(title: popupInitialValue),
             onCanceled: () {
               widget.onChanged(false);
             },
@@ -221,50 +241,24 @@ class AccountScreenState extends State<AccountScreen> {
               )
             ],
           ),
+        ),
+        new Spacer(),
+        GestureDetector(
+          child: Image.asset('assets/images/ic_edit_accent_bg.png'),
+          onTap: () {
+            _goToSettingsScreen();
+          },
         )
       ],
     );
   }
 
-  Container _buildActionsButtons() {
-    return Container(
-      alignment: Alignment.bottomRight,
-      padding: const EdgeInsets.only(right: 20.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          Image.asset('assets/images/ic_share_accent_bg.png'),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: Image.asset('assets/images/ic_contact_accent_bg.png'),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: Image.asset('assets/images/ic_message_accent_bg.png'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void signOut() {
-    setState(() {
-      _saving = true;
-    });
-    FirebaseAuth.instance.signOut().then((_) {
-      removeSharedPreferences().then((_) {
-        setState(() {
-          _saving = true;
-        });
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => PhoneAuthScreen()),
-            (Route<dynamic> route) => false);
-      });
-    });
-  }
-
-  Future removeSharedPreferences() async {
-    await SharedPreferencesHelper.clear();
+  Future _goToSettingsScreen() async {
+    bool received = await Navigator.push(context,
+        MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
+    if (received != null && received) {
+      _getCurrentUserInfo();
+    }
   }
 }
 
