@@ -65,27 +65,27 @@ class Localization {
       'lastAccessed': 'Recente',
       'favorites': 'Favorite',
       'logo': 'Logo',
-      'createAnAccount': 'Crează un cont',
+      'createAnAccount': 'Creaza un cont',
       'name': 'Nume',
-      'location': 'Locație',
-      'phoneNumber': 'Număr de telefon',
+      'location': 'Locatie',
+      'phoneNumber': 'Numar de telefon',
       'phoneNumberHint': '+x xxx-xxx-xxxx',
-      'continue': 'Continuă',
-      'alreadyRegisteredQuestion': 'Intră în cont',
-      'termsAndConditions': 'Termeni \și Condiții',
+      'continue': 'Continua',
+      'alreadyRegisteredQuestion': 'Intra in cont',
+      'termsAndConditions': 'Termeni \si Conditii',
       'verificationCode': 'Cod de Verificare',
       'login': 'Login',
-      'lastEdit': 'Data ultimei actualizări: 2 Iunie, 2017',
-      'typeCodeHere': 'Introduceți codul aici',
+      'lastEdit': 'Data ultimei actualizari: 2 Iunie, 2017',
+      'typeCodeHere': 'Introduceti codul aici',
       'ok': 'Ok',
-      'nameValidation': 'Introduceți un nume valid',
-      'locationValidation': 'Introduceți o locatie validă',
+      'nameValidation': 'Introduceti un nume valid',
+      'locationValidation': 'Introduceti o locatie valida',
       'phoneNumberValidation':
-          '#### (###) ### - Introduceți un număr de telefon valid',
-      'verificationCodeValidation': 'Introduceți codul de verificare',
+          '#### (###) ### - Introduceti un numar de telefon valid',
+      'verificationCodeValidation': 'Introduceti codul de verificare',
       'loginErrorMessage':
-          'Nu există nici un cont asociat cu acest număr de telefon.',
-      'alreadySignedUp': 'Există un cont asociat cu acest număr de telefon.',
+          'Nu exista nici un cont asociat cu acest numar de telefon.',
+      'alreadySignedUp': 'Exista un cont asociat cu acest numar de telefon.',
       'termsAndConditionsText': 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod '
           'tempor incididunt ut ero labore et dolore magna aliqua.'
           ' Ut enim ad minim veniam, quis nostrud exercitation ullamco poriti '
@@ -96,14 +96,14 @@ class Localization {
           'amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut ero '
           'labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud ex',
       'accessAgenda':
-          'Pentru a funcționa corect, aplicația are nevoie să acceseze lista de contacte',
+          'Pentru a functiona corect, aplicatia are nevoie sa acceseze lista de contacte',
       'tutorialContent':
           'Have moving you midst above may. Is one tree likness was light. Green fifth I subdue dont\'t, good one was Creature bearing you signs years may. Seas kind second dry made lights his over two their spirit saying image.',
-      'tagYourFriends': 'Etichetează prieteni',
+      'tagYourFriends': 'Eticheteaza prieteni',
       'syncContactsMessage':
-          'Agenda telefonică/apelurile recente se sincronizează cu baza noastră de date.',
+          'Agenda telefonica/apelurile recente se sincronizeaza cu baza noastra de date.',
       'myProfile': 'Profilul meu',
-      'settings': 'Setări',
+      'settings': 'Setari',
       'signOut': 'Deconectare',
     },
   };
