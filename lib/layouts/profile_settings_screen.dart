@@ -4,7 +4,7 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
-import 'package:contractor_search/utils/helper.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 

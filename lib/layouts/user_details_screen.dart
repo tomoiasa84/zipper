@@ -1,7 +1,7 @@
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/helper.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:flutter/material.dart';
 
 class UserDetailsScreen extends StatefulWidget {
