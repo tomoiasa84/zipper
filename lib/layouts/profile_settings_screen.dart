@@ -402,6 +402,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                   });
                 }
               });
+              _addSkillsTextEditingController.clear();
+              FocusScope.of(context).requestFocus(FocusNode());
             },
             child: Text(
               Localization.of(context).getString('add'),

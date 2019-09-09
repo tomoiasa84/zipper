@@ -58,6 +58,9 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
           });
         });
       } else {
+        setState(() {
+          _saving = false;
+        });
         _showDialog(
             Localization.of(context).getString('error'),
             Localization.of(context).getString('loginErrorMessage'),
@@ -174,9 +177,9 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     _authenticationBloc.getLocations().then((result) {
       setState(() {
         (result.data['get_locations']?.cast<Map<String, dynamic>>())?.forEach(
-                (location) => locations.add(LocationModel.fromJson(location)));
+            (location) => locations.add(LocationModel.fromJson(location)));
         var loc = locations.firstWhere(
-                (location) => location.city == widget.location,
+            (location) => location.city == widget.location,
             orElse: () => null);
         if (loc != null) {
           _updateUserData(user, loc.id);
@@ -201,10 +204,10 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     });
   }
 
-  void _updateUserData(AuthResult user, int locationId){
+  void _updateUserData(AuthResult user, int locationId) {
     _authenticationBloc
-        .updateUser(widget.name, locationId, user.user.uid,
-        user.user.phoneNumber, true)
+        .updateUser(
+            widget.name, locationId, user.user.uid, user.user.phoneNumber, true)
         .then((result) {
       setState(() {
         _saving = false;
