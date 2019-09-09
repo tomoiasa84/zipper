@@ -112,7 +112,7 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   Future<String> getCurrentUserId() async {
-    return await SharedPreferencesHelper.getAccessToken();
+    return await SharedPreferencesHelper.getCurrentUserId();
   }
 
   @override

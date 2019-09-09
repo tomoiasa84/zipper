@@ -1,4 +1,5 @@
 import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class ContactsBloc {
@@ -8,10 +9,15 @@ class ContactsBloc {
     return ContactsService.getContacts();
   }
 
-  static HttpLink link = HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+  static HttpLink link =
+  HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+
+  static final AuthLink _authLink = AuthLink(
+      getToken: () async => await SharedPreferencesHelper.getAccessToken());
+
   GraphQLClient client = GraphQLClient(
     cache: InMemoryCache(),
-    link: link,
+    link: _authLink.concat(link),
   );
 
   Future<List<Map<String, dynamic>>> getUsers() async {

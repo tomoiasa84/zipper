@@ -1,6 +1,7 @@
 import 'package:contractor_search/bloc/authentication_bloc.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/layouts/tutorial_screen.dart';
+import 'package:contractor_search/model/location.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -16,7 +17,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 class SmsCodeVerification extends StatefulWidget {
   final String verificationId;
   final String name;
-  final int location;
+  final String location;
   final String phoneNumber;
   final int authType;
 
@@ -34,12 +35,6 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   bool _autoValidate = false;
   bool _saving = false;
 
-  @override
-  void didChangeDependencies() {
-    _authenticationBloc = AuthenticationBloc();
-    super.didChangeDependencies();
-  }
-
   signIn() async {
     setState(() {
       _saving = true;
@@ -56,25 +51,12 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       assert(user.user.uid == currentUser.uid);
 
       if (user != null) {
-        switch (widget.authType) {
-          case AuthType.signUp:
-            {
-              _signUp(user);
-              break;
-            }
-          case AuthType.update:
-            {
-              _updateUser(user);
-              break;
-            }
-          case AuthType.login:
-            {
-              _finishLogin(user.user.uid);
-              break;
-            }
-          default:
-            _signUp(user);
-        }
+        user.user.getIdToken().then((token) {
+          saveAccessToken(token.token).then((token) {
+            _authenticationBloc = AuthenticationBloc();
+            _checkUser(user);
+          });
+        });
       } else {
         _showDialog(
             Localization.of(context).getString('error'),
@@ -90,42 +72,158 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     }
   }
 
-  void _signUp(AuthResult user) {
-    _authenticationBloc
-        .createUser(
-            widget.name, widget.location, user.user.uid, user.user.phoneNumber)
-        .then((result) {
-      setState(() {
-        _saving = false;
-      });
+  void _checkUser(AuthResult authResult) {
+    List<User> usersList = [];
+    _authenticationBloc.getUsers().then((result) {
       if (result.data != null) {
-        _finishLogin(User.fromJson(result.data['create_user']).id);
-      } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message, Localization.of(context).getString('ok'));
+        final List<Map<String, dynamic>> users =
+            result.data['get_users'].cast<Map<String, dynamic>>();
+        users.forEach((item) {
+          usersList.add(User.fromJson(item));
+        });
+        User user = usersList.firstWhere(
+            (user) => user.phoneNumber == widget.phoneNumber,
+            orElse: () => null);
+        if (widget.authType == AuthType.signUp) {
+          if (user == null) {
+            _signUp(authResult);
+          } else if (!user.isActive) {
+            _doUpdateUser(authResult);
+          } else {
+            SharedPreferencesHelper.clear().then((_) {
+              _showDialog(
+                  Localization.of(context).getString('error'),
+                  Localization.of(context).getString('alreadySignedUp'),
+                  Localization.of(context).getString('ok'));
+              setState(() {
+                _saving = false;
+              });
+            });
+          }
+        } else if (widget.authType == AuthType.login) {
+          if (user == null) {
+            SharedPreferencesHelper.clear().then((_) {
+              _showDialog(
+                  Localization.of(context).getString('error'),
+                  Localization.of(context).getString('loginErrorMessage'),
+                  Localization.of(context).getString('ok'));
+            });
+          } else {
+            _finishLogin(authResult.user.uid);
+          }
+        }
       }
     });
   }
 
-  void _updateUser(AuthResult user) {
+  void _signUp(AuthResult user) {
+    List<LocationModel> locations = [];
+    _authenticationBloc.getLocations().then((result) {
+      setState(() {
+        (result.data['get_locations']?.cast<Map<String, dynamic>>())?.forEach(
+            (location) => locations.add(LocationModel.fromJson(location)));
+        var loc = locations.firstWhere(
+            (location) => location.city == widget.location,
+            orElse: () => null);
+        if (loc != null) {
+          _createUser(user, loc.id);
+        } else {
+          _authenticationBloc.createLocation(widget.location).then((result) {
+            if (result.data != null) {
+              _createUser(user,
+                  LocationModel.fromJson(result.data['create_location']).id);
+            } else {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => CustomDialog(
+                  title: Localization.of(context).getString('error'),
+                  description: result.errors[0].message,
+                  buttonText: Localization.of(context).getString('ok'),
+                ),
+              );
+            }
+          });
+        }
+      });
+    });
+  }
+
+  void _createUser(AuthResult user, int locationId) {
     _authenticationBloc
-        .updateUser(widget.name, widget.location, user.user.uid,
-            user.user.phoneNumber, true)
+        .createUser(
+            widget.name, locationId, user.user.uid, user.user.phoneNumber)
         .then((result) {
       setState(() {
         _saving = false;
       });
       if (result.data != null) {
-        _finishLogin(User.fromJson(result.data['update_user']).id);
+        _finishLogin(user.user.uid);
       } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message, Localization.of(context).getString('ok'));
+        SharedPreferencesHelper.clear().then((_) {
+          _showDialog(
+              Localization.of(context).getString('error'),
+              result.errors[0].message,
+              Localization.of(context).getString('ok'));
+        });
+      }
+    });
+  }
+
+  void _doUpdateUser(AuthResult user) {
+    List<LocationModel> locations = [];
+    _authenticationBloc.getLocations().then((result) {
+      setState(() {
+        (result.data['get_locations']?.cast<Map<String, dynamic>>())?.forEach(
+                (location) => locations.add(LocationModel.fromJson(location)));
+        var loc = locations.firstWhere(
+                (location) => location.city == widget.location,
+            orElse: () => null);
+        if (loc != null) {
+          _updateUserData(user, loc.id);
+        } else {
+          _authenticationBloc.createLocation(widget.location).then((result) {
+            if (result.data != null) {
+              _updateUserData(user,
+                  LocationModel.fromJson(result.data['create_location']).id);
+            } else {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => CustomDialog(
+                  title: Localization.of(context).getString('error'),
+                  description: result.errors[0].message,
+                  buttonText: Localization.of(context).getString('ok'),
+                ),
+              );
+            }
+          });
+        }
+      });
+    });
+  }
+
+  void _updateUserData(AuthResult user, int locationId){
+    _authenticationBloc
+        .updateUser(widget.name, locationId, user.user.uid,
+        user.user.phoneNumber, true)
+        .then((result) {
+      setState(() {
+        _saving = false;
+      });
+      if (result.data != null) {
+        _finishLogin(user.user.uid);
+      } else {
+        SharedPreferencesHelper.clear().then((_) {
+          _showDialog(
+              Localization.of(context).getString('error'),
+              result.errors[0].message,
+              Localization.of(context).getString('ok'));
+        });
       }
     });
   }
 
   void _finishLogin(String userId) {
-    saveAccessToken(userId).then((id) {
+    saveCurrentUserId(userId).then((userId) {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => TutorialScreen()),
@@ -135,6 +233,10 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
 
   Future saveAccessToken(String accessToken) async {
     await SharedPreferencesHelper.saveAccessToken(accessToken);
+  }
+
+  Future saveCurrentUserId(String userId) async {
+    await SharedPreferencesHelper.saveCurrentUserId(userId);
   }
 
   @override

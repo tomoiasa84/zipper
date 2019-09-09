@@ -1,17 +1,22 @@
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class ProfileSettingsBloc {
   void dispose() {}
 
   static HttpLink link =
-  HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+      HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+
+  static final AuthLink _authLink = AuthLink(
+      getToken: () async => await SharedPreferencesHelper.getAccessToken());
+
   GraphQLClient client = GraphQLClient(
     cache: InMemoryCache(),
-    link: link,
+    link: _authLink.concat(link),
   );
 
-  Future<QueryResult> updateUser(
-      String name, int location, String id, String phoneNumber, bool isActive) async {
+  Future<QueryResult> updateUser(String name, int location, String id,
+      String phoneNumber, bool isActive) async {
     final QueryResult queryResult = await client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -46,5 +51,4 @@ class ProfileSettingsBloc {
 
     return queryResult;
   }
-
 }

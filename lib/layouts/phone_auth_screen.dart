@@ -1,18 +1,13 @@
-import 'package:contractor_search/bloc/authentication_bloc.dart';
 import 'package:contractor_search/layouts/login_screen.dart';
 import 'package:contractor_search/layouts/sms_code_verification.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
-import 'package:contractor_search/model/location.dart';
-import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/auth_type.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class PhoneAuthScreen extends StatefulWidget {
@@ -24,16 +19,12 @@ class PhoneAuthScreen extends StatefulWidget {
 
 class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _typeAheadController = TextEditingController();
-
   String phoneNumber;
   String name;
   String location;
   String verificationId;
   bool _autoValidate = false;
   bool _saving = false;
-  List<LocationModel> locations = [];
-  AuthenticationBloc _authenticateBloc;
 
   Future<void> verifyPhone(int authType) async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -45,29 +36,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
         _saving = false;
       });
       this.verificationId = verId;
-      var loc = locations.firstWhere(
-          (location) => location.city == _typeAheadController.text,
-          orElse: () => null);
-      if (loc != null) {
-        goToSmsVerificationPage(loc, authType);
-      } else {
-        _authenticateBloc.createLocation(this.location).then((result) {
-          if (result.data != null) {
-            goToSmsVerificationPage(
-                LocationModel.fromJson(result.data['create_location']),
-                authType);
-          } else {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) => CustomDialog(
-                title: Localization.of(context).getString('error'),
-                description: result.errors[0].message,
-                buttonText: Localization.of(context).getString('ok'),
-              ),
-            );
-          }
-        });
-      }
+      goToSmsVerificationPage(authType);
     };
 
     final PhoneVerificationCompleted verifiedSuccess = (AuthCredential user) {
@@ -90,70 +59,12 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
         verificationFailed: veriFailed);
   }
 
-  void goToSmsVerificationPage(LocationModel location, int authType) {
+  void goToSmsVerificationPage(int authType) {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => SmsCodeVerification(
-                verificationId, name, location.id, phoneNumber, authType)));
-  }
-
-  void checkPhoneNumber() {
-    setState(() {
-      _saving = true;
-    });
-    List<User> usersList = [];
-    _authenticateBloc.getUsers().then((result) {
-      if (result.data != null) {
-        final List<Map<String, dynamic>> users =
-            result.data['get_users'].cast<Map<String, dynamic>>();
-        users.forEach((item) {
-          usersList.add(User.fromJson(item));
-        });
-        User user = usersList.firstWhere(
-            (user) => user.phoneNumber == phoneNumber,
-            orElse: () => null);
-        if (user == null) {
-          verifyPhone(AuthType.signUp);
-        } else if (!user.isActive) {
-          verifyPhone(AuthType.update);
-        } else {
-          _showDialog(
-              Localization.of(context).getString('error'),
-              Localization.of(context).getString('alreadySignedUp'),
-              Localization.of(context).getString('ok'));
-          setState(() {
-            _saving = false;
-          });
-        }
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    _authenticateBloc = AuthenticationBloc();
-    _authenticateBloc.getLocations().then((result) {
-      if (this.mounted) {
-        if (result.data != null) {
-          setState(() {
-            (result.data['get_locations']?.cast<Map<String, dynamic>>())
-                ?.forEach((location) =>
-                    locations.add(LocationModel.fromJson(location)));
-          });
-        } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => CustomDialog(
-              title: Localization.of(context).getString('error'),
-              description: result.errors[0].message,
-              buttonText: Localization.of(context).getString('ok'),
-            ),
-          );
-        }
-      }
-    });
-    super.initState();
+                verificationId, name, location, phoneNumber, authType)));
   }
 
   @override
@@ -184,7 +95,10 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       customAccentButton(
                           Localization.of(context).getString('continue'), () {
                         if (_formKey.currentState.validate()) {
-                          checkPhoneNumber();
+                          setState(() {
+                            _saving = true;
+                          });
+                          verifyPhone(AuthType.signUp);
                         } else {
                           setState(() {
                             _autoValidate = true;
@@ -199,17 +113,6 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
             }),
           ),
         ),
-      ),
-    );
-  }
-
-  void _showDialog(String title, String message, String buttonText) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: message,
-        buttonText: buttonText,
       ),
     );
   }
@@ -248,44 +151,22 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
   Container _buildLocationTextField() {
     return Container(
-      margin: const EdgeInsets.only(top: 35.0),
-      child: TypeAheadFormField(
-        textFieldConfiguration: TextFieldConfiguration(
-            onChanged: (value) {
-              this.location = value;
-            },
-            controller: this._typeAheadController,
-            decoration: customInputDecoration(
-                Localization.of(context).getString('location'),
-                Icons.location_on)),
-        suggestionsCallback: (pattern) {
-          List<String> list = [];
-          locations
-              .where((it) => it.city.startsWith(pattern))
-              .toList()
-              .forEach((loc) => list.add(loc.city));
-          return list;
-        },
-        itemBuilder: (context, suggestion) {
-          return ListTile(
-            title: Text(suggestion),
-          );
-        },
-        transitionBuilder: (context, suggestionsBox, controller) {
-          return suggestionsBox;
-        },
-        onSuggestionSelected: (suggestion) {
-          this._typeAheadController.text = suggestion;
-        },
-        validator: (value) {
-          if (value.isEmpty) {
-            return Localization.of(context).getString('locationValidation');
-          }
-          return null;
-        },
-        onSaved: (value) => this.location = value,
-      ),
-    );
+        margin: const EdgeInsets.only(top: 35.0),
+        child:
+            TextFormField(
+          onChanged: (value) {
+            this.location = value;
+          },
+          decoration: customInputDecoration(
+              Localization.of(context).getString('location'),
+              Icons.location_on),
+          validator: (value) {
+            if (value.isEmpty) {
+              return Localization.of(context).getString('locationValidation');
+            }
+            return null;
+          },
+        ));
   }
 
   Container _buildPhoneNoTextField() {

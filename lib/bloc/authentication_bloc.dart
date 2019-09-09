@@ -1,3 +1,4 @@
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class AuthenticationBloc {
@@ -5,10 +6,15 @@ class AuthenticationBloc {
 
   static HttpLink link =
       HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+
+  static final AuthLink _authLink = AuthLink(
+      getToken: () async => await SharedPreferencesHelper.getAccessToken());
+
   GraphQLClient client = GraphQLClient(
     cache: InMemoryCache(),
-    link: link,
+    link: _authLink.concat(link),
   );
+
 
   Future<QueryResult> getLocations() async {
     final QueryResult queryResult = await client.query(QueryOptions(
