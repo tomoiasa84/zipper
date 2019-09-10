@@ -5,8 +5,8 @@ class Message {
   Message.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         text = json['text'],
-        messageThread = json['messageThread'],
-        from = json['from'];
+        messageThread = ThreadMessage.fromJson(json['messageThread']),
+        from = User.fromJson(json['from']);
 
   final int id;
   final String text;

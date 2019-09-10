@@ -2,9 +2,13 @@ import 'dart:typed_data';
 
 import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/bloc/contacts_bloc.dart';
+import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/string_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/contacts_search.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -37,7 +41,7 @@ class ContactsScreenState extends State<ContactsScreen> {
 
   void _listenForPermissionStatus() {
     final Future<PermissionStatus> statusFuture =
-    PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
+        PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
 
     statusFuture.then((PermissionStatus status) {
       setState(() {
@@ -66,20 +70,31 @@ class ContactsScreenState extends State<ContactsScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: Text(
-        Strings.contacts,
-        style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
-      ),
-      centerTitle: true,
-    );
+        title: Text(
+          Localization.of(context).getString('contacts'),
+          style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.search,
+              color: ColorUtils.darkerGray,
+            ),
+            onPressed: () {
+              showSearch(
+                  context: context, delegate: ContactsSearch(widget.contacts));
+            },
+          )
+        ]);
   }
 
   Column _buildTabBar() {
     return Column(
       children: <Widget>[
         new TabBar(
-          labelStyle: TextStyle(
-              fontFamily: "Arial", fontWeight: FontWeight.bold),
+          labelStyle:
+              TextStyle(fontFamily: "Arial", fontWeight: FontWeight.bold),
           isScrollable: true,
           labelColor: ColorUtils.messageOrange,
           unselectedLabelColor: ColorUtils.darkerGray,
@@ -87,7 +102,7 @@ class ContactsScreenState extends State<ContactsScreen> {
           tabs: _buildTabs(),
         ),
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 21.0),
+          margin: const EdgeInsets.only(left: 21.0, right: 21.0, bottom: 12.0),
           // Add top border
           decoration: BoxDecoration(
             border: Border(
@@ -117,25 +132,25 @@ class ContactsScreenState extends State<ContactsScreen> {
   Widget _buildContactsListView() {
     return widget.contacts != null
         ? Container(
-      child: Scrollbar(
-        child: ListView.builder(
-            itemCount: widget.contacts?.length ?? 0,
-            itemBuilder: (BuildContext context, int index) {
-              Contact contact = widget.contacts.elementAt(index);
-              return _buildListItem(contact.displayName, contact.avatar);
-            }),
-      ),
-    )
+            child: ListView.builder(
+                itemCount: widget.contacts?.length ?? 0,
+                itemBuilder: (BuildContext context, int index) {
+                  Contact contact = widget.contacts.elementAt(index);
+                  return _buildListItem(
+                      contact.displayName, contact.avatar, null);
+                }),
+          )
         : (_permissionStatus == PermissionStatus.granted
-        ? Center(
-      child: CircularProgressIndicator(),
-    )
-        : Center(
-        child: Text("This app requires contacts access to function.")));
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : Center(
+                child: Text("This app requires contacts access to function.")));
   }
 
   ListView _buildUsersListView() {
     return ListView.builder(
+      itemCount: 1,
       itemBuilder: (BuildContext context, int index) {
         return FutureBuilder<List<Map<String, dynamic>>>(
           future: _contactsBloc.getUsers(),
@@ -143,25 +158,30 @@ class ContactsScreenState extends State<ContactsScreen> {
               AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SizedBox(
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height * 2,
+                height: MediaQuery.of(context).size.height * 2,
                 child: const Align(
                     alignment: Alignment.topCenter,
                     child: CircularProgressIndicator()),
               );
             }
             if (snapshot.hasError) {
-              return Center(child: Text('Error : ${snapshot.error}'));
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => CustomDialog(
+                  title: Localization.of(context).getString('error'),
+                  description: snapshot.error.toString(),
+                  buttonText: Localization.of(context).getString('ok'),
+                ),
+              );
+              return Container();
             } else {
               return ListView(
                 shrinkWrap: true,
                 primary: false,
                 children:
-                snapshot.data.map<Widget>((Map<String, dynamic> item) {
+                    snapshot.data.map<Widget>((Map<String, dynamic> item) {
                   final User user = User.fromJson(item);
-                  return _buildListItem(user.name, Uint8List(0));
+                  return _buildListItem(user.name, Uint8List(0), user);
                 }).toList(),
               );
             }
@@ -171,47 +191,70 @@ class ContactsScreenState extends State<ContactsScreen> {
     );
   }
 
-  Container _buildListItem(String name, Uint8List image) {
+  Container _buildListItem(String name, Uint8List image, User user) {
     return Container(
-      margin: const EdgeInsets.only(left: 12.0, right: 12.0),
+      margin: const EdgeInsets.only(left: 16.0, right: 16.0),
       child: Card(
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundImage: MemoryImage(image),
-            backgroundColor: ColorUtils.lightLightGray,
-            child: (image != null && image.length > 0)
-                ? Text("")
-                : Text(_getInitials(name),
-                style: TextStyle(color: ColorUtils.darkerGray)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Container(
+          padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+          child: ListTile(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UserDetailsScreen(user)));
+            },
+            leading: (image != null && image.length > 0)
+                ? CircleAvatar(backgroundImage: MemoryImage(image))
+                : CircleAvatar(
+                    child: Text(getInitials(name),
+                        style: TextStyle(color: ColorUtils.darkerGray)),
+                    backgroundColor: ColorUtils.lightLightGray,
+                  ),
+            title: Row(
+              children: <Widget>[
+                Flexible(
+                  child: Container(
+                      child: Text(
+                    name ?? "",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontFamily: 'Arial', fontWeight: FontWeight.bold),
+                  )),
+                ),
+                Container(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Image.asset(
+                    "assets/images/ic_contacts.png",
+                    height: 16.0,
+                    width: 16.0,
+                  ),
+                )
+              ],
+            ),
+            subtitle: Text(
+              "#installer",
+              style: TextStyle(color: ColorUtils.messageOrange),
+            ),
           ),
-          title: Text(name ?? ""),
         ),
       ),
     );
   }
 
-  _getInitials(String name) {
-    var n = name.split(" "),
-        it = "",
-        i = 0;
-    int counter = n.length > 2 ? 2 : n.length;
-    while (i < counter) {
-      it += n[i][0];
-      i++;
-    }
-    return (it.toUpperCase());
-  }
-
   List<Widget> _buildTabs() {
     return <Widget>[
       Tab(
-        text: Strings.all.toUpperCase(),
+        text: Localization.of(context).getString('all').toUpperCase(),
       ),
       Tab(
-        text: Strings.lastAccessed.toUpperCase(),
+        text: Localization.of(context).getString('lastAccessed').toUpperCase(),
       ),
       Tab(
-        text: Strings.favorites.toUpperCase(),
+        text: Localization.of(context).getString('favorites').toUpperCase(),
       ),
     ];
   }

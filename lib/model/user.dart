@@ -9,18 +9,18 @@ class User {
   User.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],
-        location = json['location'],
+        location = LocationModel.fromJson(json['location']),
         phoneNumber = json['phoneNumber'],
         isActive = json['isActive'],
-        card = json['card'],
-        tags = json['tags'],
-        threadMessages = json['threadMessage'],
-        cardsFeed = json['cardsFeed'],
-        settings = json['settings'];
+        card = (json['cards'] as List)?.map((i)=> Card.fromJson(i))?.toList(),
+        tags = (json['tags'] as List)?.map((i)=> Tag.fromJson(i))?.toList(),
+        threadMessages = (json['thread_messages'] as List)?.map((i)=> ThreadMessage.fromJson(i))?.toList(),
+        cardsFeed = (json['cards_feed'] as List)?.map((i)=> Card.fromJson(i))?.toList(),
+        settings = (json['settings'] as List)?.map((i)=> Setting.fromJson(i))?.toList();
 
-  final int id;
+  final String id;
   final String name;
-  final Location location;
+  final LocationModel location;
   final String phoneNumber;
   final bool isActive;
   final List<Card> card;
