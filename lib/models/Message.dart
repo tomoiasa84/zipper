@@ -2,14 +2,15 @@ class Message {
   String _message;
   DateTime _timestamp;
   String _from;
+  String _stringTimestamp;
 
   Message(this._message, this._timestamp, this._from);
-
-  String get stringTimestamp => _timestamp.toIso8601String();
 
   String get message => _message;
 
   String get from => _from;
+
+  String get stringTimestamp => _stringTimestamp;
 
   Map<String, dynamic> toJson() => {
         'message': _message,
@@ -19,6 +20,7 @@ class Message {
 
   Message.fromJson(Map<String, dynamic> json)
       : _message = json['message'],
-        _timestamp = json['timestamp'],
+        _timestamp = DateTime.parse(json['timestamp']),
+        _stringTimestamp = json['timestamp'],
         _from = json['from'];
 }
