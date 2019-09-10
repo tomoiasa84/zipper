@@ -40,7 +40,6 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.trim().length > 0) {
       _textEditingController.clear();
       setState(() {
-        _listOfMessages.add(new Message(text, DateTime.now(), "myUser"));
         _chatBloc.sendMessage("1", new Message(text, DateTime.now(), "myUser"));
         scrollToBottom();
       });
@@ -60,7 +59,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _chatBloc.getHistoryMessages("1");
     _chatBloc.subscribeToChannel("1");
   }
-
 
 
   @override

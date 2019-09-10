@@ -17,7 +17,7 @@ class ChatBloc {
     var response = await _client.get(url);
 
     if (response.statusCode == 200) {
-      addHistoryMessagesToList(response);
+      _addHistoryMessagesToList(response);
     } else {
       print("Request failed with status: ${response.statusCode}.");
     }
@@ -40,23 +40,33 @@ class ChatBloc {
     var url =
         "$_baseUrl/subscribe/$_subscribeKey/$channelName/0/$_timestamp?uuid=12345";
     var response = await _client.get(url);
+
     if (response.statusCode == 200) {
       var myString = response.body.substring(response.body.length - 19);
-      print(response.body);
-      print(myString.substring(0, myString.length - 2));
       _timestamp = myString.substring(0, myString.length - 2);
+      _addMessageToList(response);
       subscribeToChannel(channelName);
     } else {
       print("Subscribe request failed with status: ${response.body}.");
     }
   }
 
-  void addHistoryMessagesToList(http.Response response) {
+  void _addHistoryMessagesToList(http.Response response) {
     List<dynamic> responseList = convert.jsonDecode(response.body);
     List<dynamic> messagesList = responseList[0];
 
     for (var i = 0; i < messagesList.length; i++) {
       Message message = Message.fromJson(messagesList[i]);
+      _messagesList.add(message);
+    }
+  }
+
+  void _addMessageToList(http.Response response) {
+    List<dynamic> messageListenerResponse = convert.jsonDecode(response.body);
+    List<dynamic> messagesList = messageListenerResponse[0];
+
+    if (messagesList.length > 0) {
+      Message message = Message.fromJson(messagesList[0]);
       _messagesList.add(message);
     }
   }
