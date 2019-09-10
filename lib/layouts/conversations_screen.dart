@@ -99,7 +99,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                     ),
                     Text("#housekeeper",
                         style: TextStyle(
-                            fontSize: 12, color: ColorUtils.strongOrange))
+                            fontSize: 12, color: ColorUtils.orangeAccent))
                   ],
                 ),
               ),
