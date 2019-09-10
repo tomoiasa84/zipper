@@ -17,7 +17,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textEditingController =
       new TextEditingController();
 
-  final List<Object> _listOfMessages = new List();
+  List<Object> _listOfMessages = new List();
 
 //  [
 //    new MessageHeader(DateTime.now()),
@@ -56,10 +56,15 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _chatBloc.getHistoryMessages("1");
+    _chatBloc.getHistoryMessages("1").then((historyMessages) {
+      setState(() {
+        for (var i = 0; i < historyMessages.length; i++) {
+          _listOfMessages.add(historyMessages[i]);
+        }
+      });
+    });
     _chatBloc.subscribeToChannel("1");
   }
-
 
   @override
   Widget build(BuildContext context) {

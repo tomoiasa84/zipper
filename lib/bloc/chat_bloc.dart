@@ -11,7 +11,7 @@ class ChatBloc {
   String _timestamp = "0";
   List<Message> _messagesList = new List();
 
-  Future<Null> getHistoryMessages(String channelName) async {
+  Future<List<Message>> getHistoryMessages(String channelName) async {
     var url =
         "$_baseUrl/v2/history/sub-key/$_subscribeKey/channel/$channelName";
     var response = await _client.get(url);
@@ -21,6 +21,7 @@ class ChatBloc {
     } else {
       print("Request failed with status: ${response.statusCode}.");
     }
+    return _messagesList;
   }
 
   Future<Null> sendMessage(String channelName, Message message) async {
