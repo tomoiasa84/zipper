@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/bloc/home_bloc.dart';
+import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -84,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                 case NavBarItem.PLUS:
                   return Container();
                 case NavBarItem.INBOX:
-                  return Container();
+                  return ConversationsScreen();
                 case NavBarItem.ACCOUNT:
                   return AccountScreen(
                     onChanged: _onBlurredChanged,
