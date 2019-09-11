@@ -11,11 +11,25 @@ class ChatBloc {
   final http.Client _client = new http.Client();
   final StreamController ctrl = StreamController();
   final List<Message> _messagesList = new List();
+  final int _messagesCount = 30;
+  int _historyStart;
   String _timestamp = "0";
 
   Future<List<Message>> getHistoryMessages(String channelName) async {
-    var url =
-        "$_baseUrl/v2/history/sub-key/$_subscribeKey/channel/$channelName";
+    var url;
+
+    if (_historyStart == 0) {
+      return List();
+    }
+
+    if (_historyStart == null) {
+      url =
+          "$_baseUrl/v2/history/sub-key/$_subscribeKey/channel/$channelName?count=$_messagesCount";
+    } else {
+      url =
+          "$_baseUrl/v2/history/sub-key/$_subscribeKey/channel/$channelName?count=$_messagesCount&start=$_historyStart";
+    }
+
     var response = await _client.get(url);
 
     if (response.statusCode == 200) {
@@ -29,6 +43,7 @@ class ChatBloc {
   void _addHistoryMessagesToList(http.Response response) {
     List<dynamic> responseList = convert.jsonDecode(response.body);
     List<dynamic> messagesList = responseList[0];
+    _historyStart = responseList[1];
 
     for (var item in messagesList) {
       Message message = Message.fromJson(item);

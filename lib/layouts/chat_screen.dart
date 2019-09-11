@@ -19,6 +19,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatBloc _chatBloc = ChatBloc();
   final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
+  final String _channelID = "2";
   final TextEditingController _textEditingController =
       new TextEditingController();
 
@@ -26,16 +27,10 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.trim().length > 0) {
       _textEditingController.clear();
       setState(() {
-        _chatBloc.sendMessage("1", new Message(text, DateTime.now(), "myUser"));
+        _chatBloc.sendMessage(
+            _channelID, new Message(text, DateTime.now(), "myUser"));
       });
     }
-  }
-
-  void scrollToBottom() {
-    _listScrollController.animateTo(
-        _listScrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOut);
   }
 
   @override
@@ -53,21 +48,18 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _getHistoryMessages() {
-    _chatBloc.getHistoryMessages("1").then((historyMessages) {
+    _chatBloc.getHistoryMessages(_channelID).then((historyMessages) {
       setState(() {
-        _listOfMessages.addAll(historyMessages);
-        scrollToBottom();
+        _listOfMessages.addAll(historyMessages.reversed);
       });
     });
   }
 
   void _setMessagesListener() {
-    _chatBloc.subscribeToChannel("1");
-    _subscription = _chatBloc.ctrl.stream.listen((data) {
+    _chatBloc.subscribeToChannel(_channelID);
+    _subscription = _chatBloc.ctrl.stream.listen((message) {
       setState(() {
-        _listOfMessages.add(data);
-        print("asd");
-        scrollToBottom();
+        _listOfMessages.insert(0, message);
       });
     });
   }
@@ -125,6 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget getListView(List<Object> listOfMessages) {
     var listView = ListView.builder(
+      reverse: true,
       padding: EdgeInsets.all(0),
       itemBuilder: (context, position) {
         var item = listOfMessages[position];
