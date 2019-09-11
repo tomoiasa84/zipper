@@ -6,8 +6,8 @@ import 'message.dart';
 class ThreadMessage {
   ThreadMessage.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        users = (json['users'] as List)?.map((i)=> User.fromJson(i))?.toList(),
-        messages = (json['messages'] as List)?.map((i)=> Message.fromJson(i))?.toList(),
+        users =  json['users'] !=null ? (json['users'] as List)?.map((i)=> User.fromJson(i))?.toList(): null,
+        messages = json['messages'] !=null ? (json['messages'] as List)?.map((i)=> Message.fromJson(i))?.toList() : null,
         recommandCard = json['recommandCard'];
 
   final int id;
