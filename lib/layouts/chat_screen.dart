@@ -6,6 +6,7 @@ import 'package:contractor_search/models/MessageHeader.dart';
 import 'package:contractor_search/models/SharedContact.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:loadmore/loadmore.dart';
 
 class ChatScreen extends StatefulWidget {
   ChatScreen({Key key}) : super(key: key);
@@ -19,7 +20,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatBloc _chatBloc = ChatBloc();
   final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
-  final String _channelID = "2";
+  final String _channelID = "5";
   final TextEditingController _textEditingController =
       new TextEditingController();
 
@@ -43,16 +44,20 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _getHistoryMessages();
     _setMessagesListener();
   }
 
-  void _getHistoryMessages() {
-    _chatBloc.getHistoryMessages(_channelID).then((historyMessages) {
-      setState(() {
-        _listOfMessages.addAll(historyMessages.reversed);
+  Future<bool> _loadMore() async {
+    if (_chatBloc.historyStart != 0) {
+      print("_loadMore()");
+      await _chatBloc.getHistoryMessages(_channelID).then((historyMessages) {
+        setState(() {
+          _listOfMessages.addAll(historyMessages.reversed);
+        });
       });
-    });
+      return true;
+    }
+    return false;
   }
 
   void _setMessagesListener() {
@@ -116,25 +121,31 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget getListView(List<Object> listOfMessages) {
-    var listView = ListView.builder(
-      reverse: true,
-      padding: EdgeInsets.all(0),
-      itemBuilder: (context, position) {
-        var item = listOfMessages[position];
-        if (item is Message) {
-          if (_messageAuthorIsCurrentUser(item)) {
-            return currentUserMessage(position, item);
-          } else {
-            return otherUserMessage(position, item);
+    var listView = LoadMore(
+      textBuilder: DefaultLoadMoreTextBuilder.english,
+      delegate: DefaultLoadMoreDelegate(),
+      isFinish: _chatBloc.historyStart == 0,
+      onLoadMore: _loadMore,
+      child: ListView.builder(
+        reverse: true,
+        padding: EdgeInsets.all(0),
+        itemBuilder: (context, position) {
+          var item = listOfMessages[position];
+          if (item is Message) {
+            if (_messageAuthorIsCurrentUser(item)) {
+              return currentUserMessage(position, item);
+            } else {
+              return otherUserMessage(position, item);
+            }
           }
-        }
-        if (item is SharedContact) {
-          return getSharedContactUI(item);
-        }
-        return getMessageHeaderUI(item as MessageHeader);
-      },
-      itemCount: listOfMessages.length,
-      controller: _listScrollController,
+          if (item is SharedContact) {
+            return getSharedContactUI(item);
+          }
+          return getMessageHeaderUI(item as MessageHeader);
+        },
+        itemCount: listOfMessages.length,
+        controller: _listScrollController,
+      ),
     );
     return listView;
   }
@@ -271,6 +282,7 @@ class _ChatScreenState extends State<ChatScreen> {
       )
     ]);
   }
+
 
   Widget otherUserSecondMessage(Message message) {
     return Row(
