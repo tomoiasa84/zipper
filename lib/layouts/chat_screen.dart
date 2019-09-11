@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:contractor_search/bloc/chat_bloc.dart';
 import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
 import 'package:contractor_search/models/SharedContact.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class ChatScreen extends StatefulWidget {
   ChatScreen({Key key}) : super(key: key);
@@ -14,34 +15,18 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  StreamSubscription _subscription;
+  final ChatBloc _chatBloc = ChatBloc();
+  final List<Object> _listOfMessages = new List();
+  final ScrollController _listScrollController = new ScrollController();
   final TextEditingController _textEditingController =
       new TextEditingController();
 
-  List<Object> _listOfMessages = new List();
-
-//  [
-//    new MessageHeader(DateTime.now()),
-//    new Message("Bah Liviu", DateTime.now(), ""),
-//    new Message("Ce faci?", DateTime.now(), ""),
-//    new Message(":))", DateTime.now(), ""),
-//    new SharedContact("Name Surname", "#nanny", 4.8, "+40751811008")
-//  ];
-
-  final ScrollController _listScrollController = new ScrollController();
-  final ChatBloc _chatBloc = ChatBloc();
-
-  final String _publishKey = "pub-c-202b96b5-ebbe-4a3a-94fd-dc45b0bd382e";
-  final String _subscribeKey = "sub-c-e742fad6-c8a5-11e9-9d00-8a58a5558306";
-  final String _baseUrl = " https://ps.pndsn.com";
-  var _client = new http.Client();
-  var _timestamp = "0";
-
-  void _handleSubmit(String text) {
+  void _handleMessageSubmit(String text) {
     if (text.trim().length > 0) {
       _textEditingController.clear();
       setState(() {
         _chatBloc.sendMessage("1", new Message(text, DateTime.now(), "myUser"));
-        scrollToBottom();
       });
     }
   }
@@ -54,16 +39,37 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   @override
+  void dispose() {
+    _chatBloc.dispose();
+    _subscription.cancel();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
+    _getHistoryMessages();
+    _setMessagesListener();
+  }
+
+  void _getHistoryMessages() {
     _chatBloc.getHistoryMessages("1").then((historyMessages) {
       setState(() {
-        for (var i = 0; i < historyMessages.length; i++) {
-          _listOfMessages.add(historyMessages[i]);
-        }
+        _listOfMessages.addAll(historyMessages);
+        scrollToBottom();
       });
     });
+  }
+
+  void _setMessagesListener() {
     _chatBloc.subscribeToChannel("1");
+    _subscription = _chatBloc.ctrl.stream.listen((data) {
+      setState(() {
+        _listOfMessages.add(data);
+        print("asd");
+        scrollToBottom();
+      });
+    });
   }
 
   @override
@@ -352,7 +358,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _handleSubmit(_textEditingController.text)),
+          onPressed: () => _handleMessageSubmit(_textEditingController.text)),
     );
   }
 
@@ -367,7 +373,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _handleSubmit(_textEditingController.text)),
+          onPressed: () => _handleMessageSubmit(_textEditingController.text)),
     );
   }
 
@@ -382,7 +388,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _handleSubmit(_textEditingController.text)),
+          onPressed: () => _handleMessageSubmit(_textEditingController.text)),
     );
   }
 
@@ -397,7 +403,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.messageOrange,
             size: 24,
           ),
-          onPressed: () => _handleSubmit(_textEditingController.text)),
+          onPressed: () => _handleMessageSubmit(_textEditingController.text)),
     );
   }
 
