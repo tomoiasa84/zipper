@@ -11,7 +11,7 @@ class ChatBloc {
   final http.Client _client = new http.Client();
   final StreamController ctrl = StreamController();
   final List<Message> _messagesList = new List();
-  final int _messagesCount = 20;
+  final int _numberOfMessagesToFetch = 50;
   int historyStart;
   String _timestamp = "0";
 
@@ -20,10 +20,10 @@ class ChatBloc {
 
     if (historyStart == null) {
       url =
-          "$_baseUrl/v2/history/sub-key/$_subscribeKey/channel/$channelName?count=$_messagesCount";
+          "$_baseUrl/v2/history/sub-key/$_subscribeKey/channel/$channelName?count=$_numberOfMessagesToFetch";
     } else {
       url =
-          "$_baseUrl/v2/history/sub-key/$_subscribeKey/channel/$channelName?count=$_messagesCount&start=$historyStart";
+          "$_baseUrl/v2/history/sub-key/$_subscribeKey/channel/$channelName?count=$_numberOfMessagesToFetch&start=$historyStart";
     }
 
     var response = await _client.get(url);

@@ -5,6 +5,7 @@ import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
 import 'package:contractor_search/models/SharedContact.dart';
 import 'package:contractor_search/resources/color_utils.dart';
+import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:flutter/material.dart';
 import 'package:loadmore/loadmore.dart';
 
@@ -122,8 +123,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget getListView(List<Object> listOfMessages) {
     var listView = LoadMore(
-      textBuilder: DefaultLoadMoreTextBuilder.english,
-      delegate: DefaultLoadMoreDelegate(),
+      delegate: CustomLoadMoreDelegate(context),
       isFinish: _chatBloc.historyStart == 0,
       onLoadMore: _loadMore,
       child: ListView.builder(
@@ -282,7 +282,6 @@ class _ChatScreenState extends State<ChatScreen> {
       )
     ]);
   }
-
 
   Widget otherUserSecondMessage(Message message) {
     return Row(

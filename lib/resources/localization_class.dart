@@ -69,6 +69,8 @@ class Localization {
       'skills': 'Skills',
       'addMoreSkills': 'Add more skills',
       'add': 'Add',
+      'LoadMoreStatus.loading': 'Loading messages',
+      'LoadMoreStatus.fail': 'Could not load messages',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -128,6 +130,8 @@ class Localization {
       'skills': 'Abilitati',
       'addMoreSkills': 'Adauga abilitati',
       'add': 'Adauga',
+      'LoadMoreStatus.loading': 'Se incarca mesajele',
+      'LoadMoreStatus.fail': 'Mesajele nu au putut fi incarcate',
     },
   };
 
