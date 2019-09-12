@@ -1,5 +1,6 @@
 import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/layouts/home_page.dart';
+import 'package:contractor_search/layouts/sync_results_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +43,7 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
         getContacts().then((values) {
           Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => HomePage()),
+              MaterialPageRoute(builder: (context) => SyncResultsScreen()),
               ModalRoute.withName("/homepage"));
         });
     });

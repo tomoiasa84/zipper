@@ -70,6 +70,12 @@ class Localization {
       'addMoreSkills': 'Add more skills',
       'add': 'Add',
       'viewAllReviews': 'View all reviews',
+      'syncResults': 'Sync Results',
+      'skip': 'Skip',
+      'tagsFoundInYourPhone': 'Tags found in your phone',
+      'publicTags': 'Public Tags',
+      'untaggedContacts': 'Contacte Neetichetate',
+      'shareSelected': 'Share Selected',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -130,7 +136,12 @@ class Localization {
       'addMoreSkills': 'Adauga abilitati',
       'add': 'Adauga',
       'viewAllReviews': 'Vezi toate recenziile',
-
+      'syncResults': 'Rezultate sincronizare',
+      'skip': 'Inainte',
+      'tagsFoundInYourPhone': 'Etichete gasite in telefon',
+      'publicTags': 'Etichete Publice',
+      'untaggedContacts': 'Untagged Contacts',
+      'shareSelected': 'Partajeaza selectia ',
     },
   };
 
