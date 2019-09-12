@@ -69,6 +69,7 @@ class Localization {
       'skills': 'Skills',
       'addMoreSkills': 'Add more skills',
       'add': 'Add',
+      'viewAllReviews': 'View all reviews',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -128,6 +129,8 @@ class Localization {
       'skills': 'Abilitati',
       'addMoreSkills': 'Adauga abilitati',
       'add': 'Adauga',
+      'viewAllReviews': 'Vezi toate recenziile',
+
     },
   };
 
