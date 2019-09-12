@@ -38,11 +38,6 @@ class ProfileSettingsBloc {
                                   cards{
                                       text
                                   }
-                                  thread_messages{
-                                      users{
-                                          name
-                                        }
-                                }
                     }
                   }''',
       ),

@@ -50,11 +50,6 @@ class AuthenticationBloc {
                                   cards{
                                       text
                                   }
-                                  thread_messages{
-                                      users{
-                                          name
-                                        }
-                                }
                     }
                   }''',
       ),
@@ -87,11 +82,6 @@ class AuthenticationBloc {
                                   cards{
                                       text
                                   }
-                                  thread_messages{
-                                      users{
-                                          name
-                                        }
-                                }
                     }
                   }''',
       ),
@@ -132,11 +122,6 @@ class AuthenticationBloc {
                         }
                         cards{
                             text
-                        }
-                        thread_messages{
-                            users{
-                                name
-                            }
                         }
                     }
               }''',

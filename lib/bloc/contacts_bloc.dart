@@ -21,28 +21,19 @@ class ContactsBloc {
 
   Future<List<Map<String, dynamic>>> getUsers() async {
     final QueryResult data = await client.query(QueryOptions(
-      document: '''query {
-                     get_users{
-                        name
+      document: '''get_users {
                         id
-                        phoneNumber
+                        name
                         location{
-                            id
-                            city
+                          id
+                          city
                         }
-                        tags{
-                            name
+                        phoneNumber
+                        isActive
+                        connections{
+                          name
                         }
-                        cards{
-                            text
-                        }
-                        thread_messages{
-                            users{
-                                name
-                            }
-                        }
-                    }
-              }''',
+                      }''',
       fetchPolicy: FetchPolicy.networkOnly,
       errorPolicy: ErrorPolicy.all,
     ));
