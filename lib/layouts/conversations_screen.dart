@@ -1,3 +1,4 @@
+import 'package:contractor_search/bloc/conversations_bloc.dart';
 import 'package:contractor_search/models/Conversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:flutter/material.dart';
@@ -12,11 +13,18 @@ class ConversationsScreen extends StatefulWidget {
 }
 
 class _ConversationsScreenState extends State<ConversationsScreen> {
-  final List<Conversation> _conversations = [
-    new Conversation("", "", ""),
-    new Conversation("", "", ""),
-    new Conversation("", "", "")
-  ];
+  List<Conversation> _conversations = List();
+  final ConversationsBloc _conversationsBloc = ConversationsBloc();
+
+  @override
+  void initState() {
+    super.initState();
+    _conversationsBloc.getConversations().then((conversations) {
+      setState(() {
+        _conversations = conversations;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +64,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       padding: EdgeInsets.all(0),
       itemBuilder: (context, position) {
         return GestureDetector(
-          child: getConversationUI(),
+          child: getConversationUI(conversations[position]),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => ChatScreen()),
@@ -68,7 +76,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     return listView;
   }
 
-  Widget getConversationUI() {
+  Widget getConversationUI(Conversation conversation) {
     return Container(
       child: Row(
         children: <Widget>[
@@ -89,7 +97,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                     Container(
                       margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
                       child: Text(
-                        "Name Surname",
+                        conversation.name,
                         style: TextStyle(
                             fontSize: 14,
                             color: ColorUtils.almostBlack,
@@ -103,7 +111,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                   ],
                 ),
               ),
-              Text("Here is just a last message you sent",
+              Text(conversation.lastMessage.message.message,
                   style: TextStyle(fontSize: 12, color: ColorUtils.darkerGray))
             ],
           )

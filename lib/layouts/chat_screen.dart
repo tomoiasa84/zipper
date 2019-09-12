@@ -21,7 +21,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatBloc _chatBloc = ChatBloc();
   final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
-  final String _channelID = "5";
+  final String _channelID = "15";
   final TextEditingController _textEditingController =
       new TextEditingController();
 
