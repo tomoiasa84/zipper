@@ -18,7 +18,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   HomeBloc _homeBloc;
-  Iterable<Contact> _contacts;
 
   bool blurred = false;
 
@@ -32,28 +31,6 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _homeBloc.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    if (this.mounted) {
-      _fetchContacts();
-    }
-    super.initState();
-  }
-
-  void _fetchContacts() {
-    final Future<PermissionStatus> statusFuture =
-        PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
-
-    statusFuture.then((PermissionStatus status) {
-      if (status == PermissionStatus.granted)
-        _homeBloc.getContacts().then((values) {
-          setState(() {
-            _contacts = values;
-          });
-        });
-    });
   }
 
   @override
@@ -79,7 +56,6 @@ class _HomePageState extends State<HomePage> {
                   return Container();
                 case NavBarItem.CONTACTS:
                   return ContactsScreen(
-                    contacts: _contacts,
                   );
                 case NavBarItem.PLUS:
                   return Container();
