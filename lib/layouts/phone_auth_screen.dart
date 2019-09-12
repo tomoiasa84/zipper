@@ -4,8 +4,8 @@ import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/auth_type.dart';
-import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -94,6 +94,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       _buildSignUpForm(),
                       customAccentButton(
                           Localization.of(context).getString('continue'), () {
+                        FocusScope.of(context).requestFocus(FocusNode());
                         if (_formKey.currentState.validate()) {
                           setState(() {
                             _saving = true;
@@ -152,8 +153,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   Container _buildLocationTextField() {
     return Container(
         margin: const EdgeInsets.only(top: 35.0),
-        child:
-            TextFormField(
+        child: TextFormField(
           onChanged: (value) {
             this.location = value;
           },
