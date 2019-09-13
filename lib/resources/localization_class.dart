@@ -74,9 +74,10 @@ class Localization {
       'skip': 'Skip',
       'tagsFoundInYourPhone': 'Tags found in your phone',
       'publicTags': 'Public Tags',
-      'untaggedContacts': 'Contacte Neetichetate',
+      'untaggedContacts': 'Untagged Contacts',
       'shareSelected': 'Share Selected',
       'selectedTagsWillBeShared': 'Selected tags will be shared',
+      'addTagsToPromoteYourFriends': 'Add tags to promote your friends',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -141,9 +142,10 @@ class Localization {
       'skip': 'Inainte',
       'tagsFoundInYourPhone': 'Etichete gasite in telefon',
       'publicTags': 'Etichete Publice',
-      'untaggedContacts': 'Untagged Contacts',
+      'untaggedContacts': 'Contacte neetichetate',
       'shareSelected': 'Partajeaza selectia ',
       'selectedTagsWillBeShared': 'Etichetele selectate vor fi distribuite',
+      'addTagsToPromoteYourFriends': 'Adauga etichete pentru a-ti promova prietenii',
     },
   };
 

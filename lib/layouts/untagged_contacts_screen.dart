@@ -4,12 +4,12 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 
-class PublicTagsScreen extends StatefulWidget {
+class UntaggedContactsScreen extends StatefulWidget {
   @override
-  PublicTagsScreenState createState() => PublicTagsScreenState();
+  UntaggedContactsScreenState createState() => UntaggedContactsScreenState();
 }
 
-class PublicTagsScreenState extends State<PublicTagsScreen> {
+class UntaggedContactsScreenState extends State<UntaggedContactsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,12 +22,13 @@ class PublicTagsScreenState extends State<PublicTagsScreen> {
             Padding(
               padding: const EdgeInsets.only(left: 16.0, top: 24.0),
               child: Text(
-                Localization.of(context).getString("selectedTagsWillBeShared"),
+                Localization.of(context)
+                    .getString("addTagsToPromoteYourFriends"),
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
               ),
             ),
             Expanded(
-              child: _buildTagsList(),
+              child: _buildUntaggedContactsList(),
             )
           ],
         ),
@@ -38,26 +39,17 @@ class PublicTagsScreenState extends State<PublicTagsScreen> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       title: Text(
-        Localization.of(context).getString("publicTags"),
+        Localization.of(context).getString("untaggedContacts"),
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
       ),
       centerTitle: true,
       leading: buildBackButton(() {
         Navigator.pop(context, true);
       }),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.search,
-            color: ColorUtils.darkerGray,
-          ),
-          onPressed: () {},
-        )
-      ],
     );
   }
 
-  ListView _buildTagsList() {
+  ListView _buildUntaggedContactsList() {
     return ListView.builder(
         itemCount: 5,
         itemBuilder: (BuildContext context, int index) {
@@ -85,11 +77,11 @@ class PublicTagsScreenState extends State<PublicTagsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    "#housekeeper",
+                    "Name Surname",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    "Name Surname",
+                    "Add #",
                     style: TextStyle(color: ColorUtils.orangeAccent),
                   )
                 ],
