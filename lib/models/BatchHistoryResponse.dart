@@ -31,6 +31,9 @@ class BatchHistoryResponse {
   List<Conversation> getConversations(_channels) {
     var list = List<Conversation>();
     _channels.forEach((k, v) => list.add(_mapConversation(k, v)));
+    list.sort((a, b) {
+      return b.lastMessage.timeToken.compareTo(a.lastMessage.timeToken);
+    });
     return list;
   }
 
