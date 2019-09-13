@@ -78,6 +78,8 @@ class Localization {
       'shareSelected': 'Share Selected',
       'selectedTagsWillBeShared': 'Selected tags will be shared',
       'addTagsToPromoteYourFriends': 'Add tags to promote your friends',
+      'addMoreTagsTotThePerson': 'Add more tags to the person',
+      'tags': 'Tags',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -146,6 +148,8 @@ class Localization {
       'shareSelected': 'Partajeaza selectia ',
       'selectedTagsWillBeShared': 'Etichetele selectate vor fi distribuite',
       'addTagsToPromoteYourFriends': 'Adauga etichete pentru a-ti promova prietenii',
+      'addMoreTagsTotThePerson': 'Adauga mai multe etichete persoanei',
+      'tags': 'Etichete',
     },
   };
 

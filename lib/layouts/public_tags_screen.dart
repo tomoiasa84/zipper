@@ -1,3 +1,4 @@
+import 'package:contractor_search/layouts/add_more_tags_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -13,7 +14,7 @@ class PublicTagsScreenState extends State<PublicTagsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
@@ -35,7 +36,7 @@ class PublicTagsScreenState extends State<PublicTagsScreen> {
     );
   }
 
-  AppBar _buildAppBar(BuildContext context) {
+  AppBar _buildAppBar() {
     return AppBar(
       title: Text(
         Localization.of(context).getString("publicTags"),
@@ -97,7 +98,10 @@ class PublicTagsScreenState extends State<PublicTagsScreen> {
             ),
             Expanded(
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AddMoreTagsScreen()));
+                },
                 child: Container(
                   alignment: Alignment.centerRight,
                   child: Icon(

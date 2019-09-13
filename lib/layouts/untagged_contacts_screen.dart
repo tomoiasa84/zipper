@@ -4,6 +4,8 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 
+import 'add_more_tags_screen.dart';
+
 class UntaggedContactsScreen extends StatefulWidget {
   @override
   UntaggedContactsScreenState createState() => UntaggedContactsScreenState();
@@ -13,7 +15,7 @@ class UntaggedContactsScreenState extends State<UntaggedContactsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
@@ -36,7 +38,7 @@ class UntaggedContactsScreenState extends State<UntaggedContactsScreen> {
     );
   }
 
-  AppBar _buildAppBar(BuildContext context) {
+  AppBar _buildAppBar() {
     return AppBar(
       title: Text(
         Localization.of(context).getString("untaggedContacts"),
@@ -89,7 +91,10 @@ class UntaggedContactsScreenState extends State<UntaggedContactsScreen> {
             ),
             Expanded(
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AddMoreTagsScreen()));
+                },
                 child: Container(
                   alignment: Alignment.centerRight,
                   child: Icon(
