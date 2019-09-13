@@ -1,4 +1,4 @@
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class ProfileSettingsBloc {
@@ -7,8 +7,7 @@ class ProfileSettingsBloc {
   static HttpLink link =
       HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
 
-  static final AuthLink _authLink = AuthLink(
-      getToken: () async => await SharedPreferencesHelper.getAccessToken());
+  static final CustomAuthLink _authLink = CustomAuthLink();
 
   GraphQLClient client = GraphQLClient(
     cache: InMemoryCache(),
@@ -39,11 +38,6 @@ class ProfileSettingsBloc {
                                   cards{
                                       text
                                   }
-                                  thread_messages{
-                                      users{
-                                          name
-                                        }
-                                }
                     }
                   }''',
       ),

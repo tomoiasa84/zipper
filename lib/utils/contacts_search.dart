@@ -1,11 +1,11 @@
-import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:flutter/material.dart';
 
-class ContactsSearch extends SearchDelegate<String> {
-  Iterable<Contact> _recentSearchedContacts = [];
-  Iterable<Contact> _contacts = [];
+class UserSearch extends SearchDelegate<String> {
+  Iterable<User> _recentSearchedUsers = [];
+  List<User> _users = [];
 
-  ContactsSearch(this._contacts);
+  UserSearch(this._users);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -38,27 +38,29 @@ class ContactsSearch extends SearchDelegate<String> {
   @override
   Widget buildSuggestions(BuildContext context) {
     final suggestionList = query.isEmpty
-        ? _recentSearchedContacts
-        : _contacts.where((contact) =>
-        contact.displayName.toLowerCase().startsWith(query.toLowerCase()));
+        ? _recentSearchedUsers
+        : _users.where(
+            (user) => user.name.toLowerCase().startsWith(query.toLowerCase()));
 
     return ListView.builder(
       itemBuilder: (context, index) => ListTile(
-        onTap: (){showResults(context);},
+        onTap: () {
+          showResults(context);
+        },
         leading: Icon(Icons.contacts),
         title: RichText(
           text: TextSpan(
               text: suggestionList
                   .elementAt(index)
-                  .displayName
+                  .name
                   .substring(0, query.length),
               style:
-              TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               children: [
                 TextSpan(
                     text: suggestionList
                         .elementAt(index)
-                        .displayName
+                        .name
                         .substring(query.length),
                     style: TextStyle(color: Colors.grey))
               ]),

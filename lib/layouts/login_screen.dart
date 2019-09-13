@@ -3,8 +3,8 @@ import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/auth_type.dart';
-import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -40,6 +40,9 @@ class LoginScreenState extends State<LoginScreen> {
 
     final PhoneVerificationCompleted verifiedSuccess = (AuthCredential user) {
       print('verified');
+      setState(() {
+        _saving = false;
+      });
     };
 
     final PhoneVerificationFailed veriFailed = (AuthException exception) {
@@ -65,6 +68,7 @@ class LoginScreenState extends State<LoginScreen> {
         child: Scaffold(
           backgroundColor: ColorUtils.white,
           body: Container(
+            margin: const EdgeInsets.only(top: 25.0),
             height: double.infinity,
             child: LayoutBuilder(builder: (context, constraint) {
               return SingleChildScrollView(
@@ -135,6 +139,7 @@ class LoginScreenState extends State<LoginScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
       child: customAccentButton(Localization.of(context).getString('continue'),
           () {
+        FocusScope.of(context).requestFocus(FocusNode());
         if (_formKey.currentState.validate()) {
           setState(() {
             _saving = true;

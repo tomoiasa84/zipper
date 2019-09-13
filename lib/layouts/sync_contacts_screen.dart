@@ -1,7 +1,9 @@
-import 'package:contacts_service/contacts_service.dart';
-import 'package:contractor_search/layouts/home_page.dart';
+import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
+import 'package:contractor_search/layouts/sync_results_screen.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -14,6 +16,7 @@ class SyncContactsScreen extends StatefulWidget {
 class SyncContactsScreenState extends State<SyncContactsScreen>
     with SingleTickerProviderStateMixin {
   AnimationController _animationController;
+  SyncContactsBloc _syncContactsBloc;
 
   @override
   void initState() {
@@ -23,7 +26,8 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
     );
 
     _animationController.repeat();
-    _fetchContacts();
+    _syncContactsBloc = SyncContactsBloc();
+    _loadContacts();
     super.initState();
   }
 
@@ -33,23 +37,51 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
     super.dispose();
   }
 
-  void _fetchContacts() {
+  Future<String> getCurrentUserId() async {
+    return await SharedPreferencesHelper.getCurrentUserId();
+  }
+
+  void _loadContacts() {
     final Future<PermissionStatus> statusFuture =
         PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
 
     statusFuture.then((PermissionStatus status) {
       if (status == PermissionStatus.granted)
-        getContacts().then((values) {
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => HomePage()),
-              ModalRoute.withName("/homepage"));
+        getCurrentUserId().then((userId) {
+          _syncContactsBloc.getCurrentUser(userId).then((result) {
+            if (result.data != null) {
+              setState(() {
+                String countryCode = User.fromJson(result.data['get_user']).phoneNumber.substring(0,2);
+
+                _syncContactsBloc.getContacts().then((contacts) {
+                  List<String> phoneContacts = [];
+                  contacts.forEach((item) {
+                    if (item.phones != null && item.phones.toList().isNotEmpty) {
+                      if (item.phones
+                          .toList()
+                          .elementAt(0)
+                          .value
+                          .toString()
+                          .startsWith("+")) {
+                        phoneContacts.add(item.phones.toList().elementAt(0).value);
+                      } else {
+                        phoneContacts
+                            .add(countryCode + item.phones.toList().elementAt(0).value);
+                      }
+                    }
+                  });
+                  _syncContactsBloc.loadContacts(phoneContacts).then((values) {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => SyncResultsScreen()),
+                        ModalRoute.withName("/homepage"));
+                  });
+                });
+              });
+            }
+          });
         });
     });
-  }
-
-  getContacts() async {
-    return ContactsService.getContacts();
   }
 
   @override

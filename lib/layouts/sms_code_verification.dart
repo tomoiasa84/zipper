@@ -245,12 +245,15 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      top: false,
+      bottom: false,
       child: ModalProgressHUD(
         inAsyncCall: _saving,
         child: Scaffold(
           backgroundColor: ColorUtils.white,
           body: Container(
             height: double.infinity,
+            margin: const EdgeInsets.only(top: 25.0),
             child: LayoutBuilder(builder: (context, constraint) {
               return SingleChildScrollView(
                 child: ConstrainedBox(
@@ -317,6 +320,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
       child:
           customAccentButton(Localization.of(context).getString('login'), () {
+        FocusScope.of(context).requestFocus(FocusNode());
         if (_formKey.currentState.validate()) {
           FirebaseAuth.instance.currentUser().then((user) {
             signIn();

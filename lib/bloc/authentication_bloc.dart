@@ -1,4 +1,4 @@
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class AuthenticationBloc {
@@ -7,14 +7,12 @@ class AuthenticationBloc {
   static HttpLink link =
       HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
 
-  static final AuthLink _authLink = AuthLink(
-      getToken: () async => await SharedPreferencesHelper.getAccessToken());
+  static final CustomAuthLink _authLink = CustomAuthLink();
 
   GraphQLClient client = GraphQLClient(
     cache: InMemoryCache(),
     link: _authLink.concat(link),
   );
-
 
   Future<QueryResult> getLocations() async {
     final QueryResult queryResult = await client.query(QueryOptions(
@@ -52,11 +50,6 @@ class AuthenticationBloc {
                                   cards{
                                       text
                                   }
-                                  thread_messages{
-                                      users{
-                                          name
-                                        }
-                                }
                     }
                   }''',
       ),
@@ -65,8 +58,8 @@ class AuthenticationBloc {
     return queryResult;
   }
 
-  Future<QueryResult> updateUser(
-      String name, int location, String id, String phoneNumber, bool isActive) async {
+  Future<QueryResult> updateUser(String name, int location, String id,
+      String phoneNumber, bool isActive) async {
     final QueryResult queryResult = await client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -89,11 +82,6 @@ class AuthenticationBloc {
                                   cards{
                                       text
                                   }
-                                  thread_messages{
-                                      users{
-                                          name
-                                        }
-                                }
                     }
                   }''',
       ),
@@ -134,11 +122,6 @@ class AuthenticationBloc {
                         }
                         cards{
                             text
-                        }
-                        thread_messages{
-                            users{
-                                name
-                            }
                         }
                     }
               }''',

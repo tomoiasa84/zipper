@@ -1,8 +1,8 @@
 import 'package:contacts_service/contacts_service.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-class ContactsBloc {
+class UsersBloc {
   void dispose() {}
 
   getContacts() async {
@@ -10,23 +10,23 @@ class ContactsBloc {
   }
 
   static HttpLink link =
-  HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+      HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
 
-  static final AuthLink _authLink = AuthLink(
-      getToken: () async => await SharedPreferencesHelper.getAccessToken());
+  static final CustomAuthLink _authLink = CustomAuthLink();
 
   GraphQLClient client = GraphQLClient(
     cache: InMemoryCache(),
     link: _authLink.concat(link),
   );
 
-  Future<List<Map<String, dynamic>>> getUsers() async {
-    final QueryResult data = await client.query(QueryOptions(
+  Future<QueryResult> getUsers() async {
+    final QueryResult result = await client.query(QueryOptions(
       document: '''query {
                      get_users{
                         name
                         id
                         phoneNumber
+                        isActive
                         location{
                             id
                             city
@@ -37,17 +37,10 @@ class ContactsBloc {
                         cards{
                             text
                         }
-                        thread_messages{
-                            users{
-                                name
-                            }
-                        }
                     }
               }''',
     ));
 
-    final List<Map<String, dynamic>> users =
-        data.data['get_users'].cast<Map<String, dynamic>>();
-    return users;
+    return result;
   }
 }

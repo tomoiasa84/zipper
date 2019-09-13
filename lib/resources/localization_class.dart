@@ -71,6 +71,13 @@ class Localization {
       'add': 'Add',
       'LoadMoreStatus.loading': 'Loading messages',
       'LoadMoreStatus.fail': 'Could not load messages',
+      'viewAllReviews': 'View all reviews',
+      'syncResults': 'Sync Results',
+      'skip': 'Skip',
+      'tagsFoundInYourPhone': 'Tags found in your phone',
+      'publicTags': 'Public Tags',
+      'untaggedContacts': 'Contacte Neetichetate',
+      'shareSelected': 'Share Selected',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -132,6 +139,13 @@ class Localization {
       'add': 'Adauga',
       'LoadMoreStatus.loading': 'Se incarca mesajele',
       'LoadMoreStatus.fail': 'Mesajele nu au putut fi incarcate',
+      'viewAllReviews': 'Vezi toate recenziile',
+      'syncResults': 'Rezultate sincronizare',
+      'skip': 'Inainte',
+      'tagsFoundInYourPhone': 'Etichete gasite in telefon',
+      'publicTags': 'Etichete Publice',
+      'untaggedContacts': 'Untagged Contacts',
+      'shareSelected': 'Partajeaza selectia ',
     },
   };
 

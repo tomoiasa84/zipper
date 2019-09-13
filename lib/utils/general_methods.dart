@@ -8,13 +8,16 @@ String validatePhoneNumber(String value, String validationMessage) {
 }
 
 getInitials(String name) {
-  var n = name.split(" "), it = "", i = 0;
-  int counter = n.length > 2 ? 2 : n.length;
-  while (i < counter) {
-    if (n[i].isNotEmpty) {
-      it += n[i][0];
+  if (name != null) {
+    var n = name.split(" "), it = "", i = 0;
+    int counter = n.length > 2 ? 2 : n.length;
+    while (i < counter) {
+      if (n[i].isNotEmpty) {
+        it += n[i][0];
+      }
+      i++;
     }
-    i++;
-  }
-  return (it.toUpperCase());
+    return (it.toUpperCase());
+  } else
+    return "";
 }
