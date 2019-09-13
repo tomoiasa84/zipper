@@ -86,34 +86,39 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
             height: 40,
             color: Colors.red,
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                      child: Text(
-                        conversation.name,
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: ColorUtils.almostBlack,
-                            fontFamily: 'Arial',
-                            fontWeight: FontWeight.bold),
+          Flexible(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                        child: Text(
+                          conversation.name,
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: ColorUtils.almostBlack,
+                              fontFamily: 'Arial',
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                    Text("#housekeeper",
-                        style: TextStyle(
-                            fontSize: 12, color: ColorUtils.orangeAccent))
-                  ],
+                      Text("#housekeeper",
+                          style: TextStyle(
+                              fontSize: 12, color: ColorUtils.orangeAccent))
+                    ],
+                  ),
                 ),
-              ),
-              Text(conversation.lastMessage.message.message,
-                  style: TextStyle(fontSize: 12, color: ColorUtils.darkerGray))
-            ],
+                Text(conversation.lastMessage.message.message,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        TextStyle(fontSize: 12, color: ColorUtils.darkerGray))
+              ],
+            ),
           )
         ],
       ),

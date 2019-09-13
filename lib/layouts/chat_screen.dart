@@ -181,28 +181,30 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _currentUserMessageLayout(Message message) {
-    return new Row(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
-        new Card(
-          margin: EdgeInsets.fromLTRB(15, 16, 8, 0),
-          color: ColorUtils.messageOrange,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: new Padding(
-            padding: EdgeInsets.all(8),
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                new Text(
-                  message.message,
-                  textWidthBasis: TextWidthBasis.longestLine,
-                  style: TextStyle(color: Colors.white, fontSize: 14),
-                  softWrap: true,
-                ),
-              ],
+        Flexible(
+          child: Card(
+            margin: EdgeInsets.fromLTRB(15, 16, 8, 0),
+            color: ColorUtils.messageOrange,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: new Padding(
+              padding: EdgeInsets.all(8),
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  new Text(
+                    message.message,
+                    textWidthBasis: TextWidthBasis.longestLine,
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                    softWrap: true,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -245,23 +247,25 @@ class _ChatScreenState extends State<ChatScreen> {
                   image: new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
         ),
       ),
-      new Card(
-        margin: EdgeInsets.fromLTRB(8, 16, 15, 0),
-        color: ColorUtils.messageGray,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: new Padding(
-          padding: EdgeInsets.all(8),
-          child: new Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              new Text(
-                message.message,
-                textWidthBasis: TextWidthBasis.longestLine,
-                style: TextStyle(color: Colors.black, fontSize: 14),
-              ),
-            ],
+      Flexible(
+        child: Card(
+          margin: EdgeInsets.fromLTRB(8, 16, 15, 0),
+          color: ColorUtils.messageGray,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: new Padding(
+            padding: EdgeInsets.all(8),
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                new Text(
+                  message.message,
+                  textWidthBasis: TextWidthBasis.longestLine,
+                  style: TextStyle(color: Colors.black, fontSize: 14),
+                ),
+              ],
+            ),
           ),
         ),
       )
