@@ -102,19 +102,19 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
           backgroundColor: Colors.white,
         ),
-        showMessagesUI(),
-        showUserInputUI()
+        _showMessagesUI(),
+        _showUserInputUI()
       ]),
     );
   }
 
-  Widget showMessagesUI() {
+  Widget _showMessagesUI() {
     return Expanded(
       child: Container(
         color: ColorUtils.messageGray,
         child: new Container(
           margin: EdgeInsets.fromLTRB(16, 16, 16, 8),
-          decoration: getRoundedWhiteDecoration(),
+          decoration: _getRoundedWhiteDecoration(),
           child: getListView(_listOfMessages),
         ),
       ),
@@ -131,17 +131,7 @@ class _ChatScreenState extends State<ChatScreen> {
         padding: EdgeInsets.all(0),
         itemBuilder: (context, position) {
           var item = listOfMessages[position];
-          if (item is Message) {
-            if (_messageAuthorIsCurrentUser(item)) {
-              return currentUserMessage(position, item);
-            } else {
-              return otherUserMessage(position, item);
-            }
-          }
-          if (item is SharedContact) {
-            return getSharedContactUI(item);
-          }
-          return getMessageHeaderUI(item as MessageHeader);
+          return _selectMessageLayout(item, position);
         },
         itemCount: listOfMessages.length,
         controller: _listScrollController,
@@ -150,37 +140,47 @@ class _ChatScreenState extends State<ChatScreen> {
     return listView;
   }
 
-  Widget currentUserMessage(int position, Message message) {
-    if (position > 0) {
-      var previousItem = _listOfMessages[position - 1];
-
-      if (previousItem is Message) {
-        if (_messageAuthorIsCurrentUser(previousItem)) {
-          return currentUserSecondMessage(message);
-        } else {
-          return currentUserFirstMessage(message);
-        }
+  Widget _selectMessageLayout(Object item, int position) {
+    if (item is Message) {
+      if (_messageAuthorIsCurrentUser(item)) {
+        return _currentUserMessage(position, item);
+      } else {
+        return _otherUserMessage(position, item);
       }
     }
-    return currentUserFirstMessage(message);
+    if (item is SharedContact) {
+      return _getSharedContactUI(item);
+    }
+    return _getMessageHeaderUI(item as MessageHeader);
   }
 
-  Widget otherUserMessage(int position, Message message) {
-    if (position > 0) {
-      var previousItem = _listOfMessages[position - 1];
+  Widget _currentUserMessage(int position, Message message) {
+    if (_listOfMessages.length > 0 && position < _listOfMessages.length - 1) {
+      var nextItem = _listOfMessages[position + 1];
+      _showHideUserIcon(nextItem, message);
+    }
+    return _currentUserMessageLayout(message);
+  }
 
-      if (previousItem is Message) {
-        if (_messageAuthorIsCurrentUser(previousItem)) {
-          return otherUserFirstMessage(message);
-        } else {
-          return otherUserSecondMessage(message);
-        }
+  Widget _otherUserMessage(int position, Message message) {
+    if (_listOfMessages.length > 0 && position < _listOfMessages.length - 1) {
+      var nextItem = _listOfMessages[position + 1];
+      _showHideUserIcon(nextItem, message);
+    }
+    return _otherUserMessageLayout(message);
+  }
+
+  void _showHideUserIcon(Object nextItem, Message message) {
+    if (nextItem is Message) {
+      if (_messageAuthorIsCurrentUser(nextItem)) {
+        message.showUserIcon = false;
+      } else {
+        message.showUserIcon = true;
       }
     }
-    return otherUserFirstMessage(message);
   }
 
-  Widget currentUserFirstMessage(Message message) {
+  Widget _currentUserMessageLayout(Message message) {
     return new Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.end,
@@ -206,8 +206,36 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ),
-        Container(
-          margin: EdgeInsets.fromLTRB(0, 16, 15, 0),
+        Visibility(
+          maintainState: true,
+          maintainAnimation: true,
+          maintainSize: true,
+          visible: message.showUserIcon,
+          child: Container(
+            margin: EdgeInsets.fromLTRB(0, 16, 15, 0),
+            width: 32,
+            height: 32,
+            decoration: new BoxDecoration(
+                shape: BoxShape.circle,
+                image: new DecorationImage(
+                    fit: BoxFit.cover,
+                    image:
+                        new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _otherUserMessageLayout(Message message) {
+    return new Row(children: <Widget>[
+      Visibility(
+        maintainState: true,
+        maintainAnimation: true,
+        maintainSize: true,
+        visible: message.showUserIcon,
+        child: Container(
+          margin: EdgeInsets.fromLTRB(15, 16, 0, 0),
           width: 32,
           height: 32,
           decoration: new BoxDecoration(
@@ -215,50 +243,7 @@ class _ChatScreenState extends State<ChatScreen> {
               image: new DecorationImage(
                   fit: BoxFit.cover,
                   image: new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
-        )
-      ],
-    );
-  }
-
-  Widget currentUserSecondMessage(Message message) {
-    return Row(
-      children: <Widget>[
-        new Card(
-          margin: EdgeInsets.fromLTRB(15, 8, 55, 0),
-          color: ColorUtils.messageOrange,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: new Padding(
-            padding: EdgeInsets.all(8),
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                new Text(
-                  message.message,
-                  textWidthBasis: TextWidthBasis.longestLine,
-                  style: TextStyle(color: Colors.white, fontSize: 14),
-                ),
-              ],
-            ),
-          ),
-        )
-      ],
-      mainAxisAlignment: MainAxisAlignment.end,
-    );
-  }
-
-  Widget otherUserFirstMessage(Message message) {
-    return new Row(children: <Widget>[
-      Container(
-        margin: EdgeInsets.fromLTRB(15, 16, 0, 0),
-        width: 32,
-        height: 32,
-        decoration: new BoxDecoration(
-            shape: BoxShape.circle,
-            image: new DecorationImage(
-                fit: BoxFit.cover,
-                image: new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
+        ),
       ),
       new Card(
         margin: EdgeInsets.fromLTRB(8, 16, 15, 0),
@@ -283,49 +268,22 @@ class _ChatScreenState extends State<ChatScreen> {
     ]);
   }
 
-  Widget otherUserSecondMessage(Message message) {
-    return Row(
-      children: <Widget>[
-        new Card(
-          margin: EdgeInsets.fromLTRB(55, 8, 15, 0),
-          color: ColorUtils.messageGray,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: new Padding(
-            padding: EdgeInsets.all(8),
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                new Text(
-                  message.message,
-                  textWidthBasis: TextWidthBasis.longestLine,
-                  style: TextStyle(color: Colors.black, fontSize: 14),
-                ),
-              ],
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget showUserInputUI() {
+  Widget _showUserInputUI() {
     return Container(
       color: ColorUtils.messageGray,
       child: Container(
         margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
         height: 50,
-        decoration: getRoundedWhiteDecoration(),
+        decoration: _getRoundedWhiteDecoration(),
         child: Row(
           children: <Widget>[
-            getUserInputTextField(),
+            _getUserInputTextField(),
             new Row(
               children: <Widget>[
-                getContactsButton(),
-                getImageButton(),
-                getCameraButton(),
-                getSendButton(),
+                _getContactsButton(),
+                _getImageButton(),
+                _getCameraButton(),
+                _getSendButton(),
               ],
             ),
           ],
@@ -334,7 +292,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Flexible getUserInputTextField() {
+  Flexible _getUserInputTextField() {
     return new Flexible(
         child: new Padding(
       padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
@@ -351,7 +309,7 @@ class _ChatScreenState extends State<ChatScreen> {
     ));
   }
 
-  SizedBox getContactsButton() {
+  SizedBox _getContactsButton() {
     return new SizedBox(
       height: 50,
       width: 32,
@@ -366,7 +324,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  SizedBox getImageButton() {
+  SizedBox _getImageButton() {
     return new SizedBox(
       height: 50,
       width: 36,
@@ -381,7 +339,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  SizedBox getCameraButton() {
+  SizedBox _getCameraButton() {
     return new SizedBox(
       height: 50,
       width: 36.5,
@@ -396,7 +354,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  SizedBox getSendButton() {
+  SizedBox _getSendButton() {
     return new SizedBox(
       height: 50,
       width: 44.5,
@@ -411,7 +369,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget getMessageHeaderUI(MessageHeader messageHeader) {
+  Widget _getMessageHeaderUI(MessageHeader messageHeader) {
     return Container(
       margin: EdgeInsets.fromLTRB(0, 22, 00, 0),
       child: Text(messageHeader.timestamp.toIso8601String(),
@@ -420,7 +378,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget getSharedContactUI(SharedContact sharedContact) {
+  Widget _getSharedContactUI(SharedContact sharedContact) {
     return Container(
       height: 72,
       margin: EdgeInsets.fromLTRB(15, 16, 15, 0),
@@ -428,7 +386,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: <Widget>[
           Container(
             margin: EdgeInsets.fromLTRB(28, 0, 0, 0),
-            decoration: getRoundedOrangeDecoration(),
+            decoration: _getRoundedOrangeDecoration(),
             child: Container(
               height: 80,
               margin: EdgeInsets.fromLTRB(40, 0, 0, 0),
@@ -472,7 +430,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   Container(
-                    decoration: getRoundWhiteCircle(),
+                    decoration: _getRoundWhiteCircle(),
                     child: new IconButton(
                       icon: Image.asset(
                         "assets/images/ic_inbox_orange.png",
@@ -506,19 +464,19 @@ class _ChatScreenState extends State<ChatScreen> {
     return message.from == "myUser";
   }
 
-  BoxDecoration getRoundedWhiteDecoration() {
+  BoxDecoration _getRoundedWhiteDecoration() {
     return BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(8)));
   }
 
-  BoxDecoration getRoundWhiteCircle() {
+  BoxDecoration _getRoundWhiteCircle() {
     return BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(20)));
   }
 
-  BoxDecoration getRoundedOrangeDecoration() {
+  BoxDecoration _getRoundedOrangeDecoration() {
     return BoxDecoration(
         color: ColorUtils.messageOrange,
         borderRadius: BorderRadius.all(Radius.circular(8)));

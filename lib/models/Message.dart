@@ -3,6 +3,7 @@ class Message {
   DateTime _timestamp;
   String _from;
   String _stringTimestamp;
+  bool showUserIcon = true;
 
   Message(this._message, this._timestamp, this._from);
 
