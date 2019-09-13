@@ -1,4 +1,5 @@
 import 'package:contractor_search/layouts/public_tags_screen.dart';
+import 'package:contractor_search/layouts/share_selected_screen.dart';
 import 'package:contractor_search/layouts/untagged_contacts_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -183,7 +184,13 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
       margin: const EdgeInsets.only(top: 89.0),
       child: RaisedButton(
         onPressed: () {
-          if (_publicTags || _untaggedContacts) {}
+          if (_publicTags || _untaggedContacts) {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ShareSelectedContactsScreen()),
+                ModalRoute.withName("/homepage"));
+          }
         },
         color: (_publicTags || _untaggedContacts)
             ? ColorUtils.orangeAccent

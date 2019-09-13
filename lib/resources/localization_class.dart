@@ -80,6 +80,7 @@ class Localization {
       'addTagsToPromoteYourFriends': 'Add tags to promote your friends',
       'addMoreTagsTotThePerson': 'Add more tags to the person',
       'tags': 'Tags',
+      'selectedContactsWillBeShared': 'The selected contacts will be shared behind the scene.',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -146,10 +147,11 @@ class Localization {
       'publicTags': 'Etichete Publice',
       'untaggedContacts': 'Contacte neetichetate',
       'shareSelected': 'Partajeaza selectia ',
-      'selectedTagsWillBeShared': 'Etichetele selectate vor fi distribuite',
+      'selectedTagsWillBeShared': 'Etichetele selectate vor fi partajate',
       'addTagsToPromoteYourFriends': 'Adauga etichete pentru a-ti promova prietenii',
       'addMoreTagsTotThePerson': 'Adauga mai multe etichete persoanei',
       'tags': 'Etichete',
+      'selectedContactsWillBeShared': 'Contactele selectate vor fi partajate in spatele scenei.',
     },
   };
 

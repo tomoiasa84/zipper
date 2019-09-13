@@ -66,6 +66,7 @@ flutter:
     - assets/images/ic_tag_gray_bg.png
     - assets/images/ic_sync_gray.png
     - assets/images/ic_edit_accent_bg.png
+    - assets/images/ic_share_gray_bg.png
 
   fonts:
     - family: Arial
