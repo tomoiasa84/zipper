@@ -19,7 +19,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   @override
   void initState() {
     super.initState();
-    _conversationsBloc.getConversations().then((conversations) {
+    _conversationsBloc.getPubNubConversations().then((conversations) {
       setState(() {
         _conversations = conversations;
       });
