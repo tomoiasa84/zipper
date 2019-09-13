@@ -10,7 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:loadmore/loadmore.dart';
 
 class ChatScreen extends StatefulWidget {
-  ChatScreen({Key key}) : super(key: key);
+
+  final String channelId;
+
+  ChatScreen({Key key, @required this.channelId}) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -21,7 +24,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatBloc _chatBloc = ChatBloc();
   final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
-  final String _channelID = "14";
+
   final TextEditingController _textEditingController =
       new TextEditingController();
 
@@ -30,7 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _textEditingController.clear();
       setState(() {
         _chatBloc.sendMessage(
-            _channelID, new Message(text, DateTime.now(), "myUser"));
+            widget.channelId, new Message(text, DateTime.now(), "myUser"));
       });
     }
   }
@@ -51,7 +54,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<bool> _loadMore() async {
     if (_chatBloc.historyStart != 0) {
       print("_loadMore()");
-      await _chatBloc.getHistoryMessages(_channelID).then((historyMessages) {
+      await _chatBloc.getHistoryMessages(widget.channelId).then((historyMessages) {
         setState(() {
           _listOfMessages.addAll(historyMessages.reversed);
         });
@@ -62,7 +65,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _setMessagesListener() {
-    _chatBloc.subscribeToChannel(_channelID);
+    _chatBloc.subscribeToChannel(widget.channelId);
     _subscription = _chatBloc.ctrl.stream.listen((message) {
       setState(() {
         _listOfMessages.insert(0, message);

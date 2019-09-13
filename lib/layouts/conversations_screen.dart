@@ -67,7 +67,9 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           child: getConversationUI(conversations[position]),
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ChatScreen()),
+            MaterialPageRoute(
+                builder: (context) =>
+                    ChatScreen(channelId: conversations[position].id)),
           ),
         );
       },

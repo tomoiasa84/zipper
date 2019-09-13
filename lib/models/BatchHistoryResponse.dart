@@ -44,6 +44,6 @@ class BatchHistoryResponse {
     LastMessage lastMessage = LastMessage(
         hashMap['timetoken'], Message(messageMap['message'], null, null));
 
-    return Conversation("", k.toString(), "", "", lastMessage);
+    return Conversation(k.toString(), k.toString(), "", "", lastMessage);
   }
 }
