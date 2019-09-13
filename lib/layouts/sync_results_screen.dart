@@ -1,3 +1,4 @@
+import 'package:contractor_search/layouts/public_tags_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +94,10 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
             ),
             _buildCardTitle(
                 Localization.of(context).getString("publicTags"), "100 tags"),
-            _buildForwardArrow(() {}),
+            _buildForwardArrow(() {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => PublicTagsScreen()));
+            }),
           ],
         ),
       ),
