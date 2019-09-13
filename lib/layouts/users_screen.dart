@@ -1,23 +1,23 @@
 import 'dart:typed_data';
 
-import 'package:contractor_search/bloc/contacts_bloc.dart';
+import 'package:contractor_search/bloc/users_bloc.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/contacts_search.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/search_users_util.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class ContactsScreen extends StatefulWidget {
+class UsersScreen extends StatefulWidget {
   @override
-  ContactsScreenState createState() {
-    return ContactsScreenState();
+  UsersScreenState createState() {
+    return UsersScreenState();
   }
 }
 
-class ContactsScreenState extends State<ContactsScreen> {
+class UsersScreenState extends State<UsersScreen> {
   UsersBloc _contactsBloc;
   List<User> _usersList = [];
 
@@ -129,11 +129,11 @@ class ContactsScreenState extends State<ContactsScreen> {
         itemCount: _usersList?.length ?? 0,
         itemBuilder: (BuildContext context, int index) {
           User user = _usersList.elementAt(index);
-          return _buildListItem(user.name, Uint8List(0), null);
+          return _buildListItem(Uint8List(0), user);
         });
   }
 
-  Container _buildListItem(String name, Uint8List image, User user) {
+  Container _buildListItem(Uint8List image, User user) {
     return Container(
       margin: const EdgeInsets.only(left: 16.0, right: 16.0),
       child: Card(
@@ -152,7 +152,7 @@ class ContactsScreenState extends State<ContactsScreen> {
             leading: (image != null && image.length > 0)
                 ? CircleAvatar(backgroundImage: MemoryImage(image))
                 : CircleAvatar(
-                    child: Text(getInitials(name),
+                    child: Text(getInitials(user.name),
                         style: TextStyle(color: ColorUtils.darkerGray)),
                     backgroundColor: ColorUtils.lightLightGray,
                   ),
@@ -161,7 +161,7 @@ class ContactsScreenState extends State<ContactsScreen> {
                 Flexible(
                   child: Container(
                       child: Text(
-                    name ?? "",
+                    user.name ?? "",
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         fontFamily: 'Arial', fontWeight: FontWeight.bold),

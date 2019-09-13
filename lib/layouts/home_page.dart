@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'account_screen.dart';
-import 'contacts_screen.dart';
+import 'users_screen.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
                 case NavBarItem.HOME:
                   return Container();
                 case NavBarItem.CONTACTS:
-                  return ContactsScreen(
+                  return UsersScreen(
                   );
                 case NavBarItem.PLUS:
                   return Container();
