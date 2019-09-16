@@ -1,31 +1,34 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:contractor_search/bloc/chat_bloc.dart';
+import 'package:contractor_search/models/Conversation.dart';
 import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
 import 'package:contractor_search/models/SharedContact.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/utils/custom_load_more_delegate.dart';
+import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loadmore/loadmore.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String channelId;
+  final PubNubConversation pubNubConversation;
 
-  ChatScreen({Key key, @required this.channelId}) : super(key: key);
+  ChatScreen({Key key, @required this.pubNubConversation}) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  String _interlocutor;
+  String _currentUserId;
   StreamSubscription _subscription;
   final ChatBloc _chatBloc = ChatBloc();
   final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
-  File _image;
 
   final TextEditingController _textEditingController =
       new TextEditingController();
@@ -33,19 +36,23 @@ class _ChatScreenState extends State<ChatScreen> {
   void _handleMessageSubmit(String text) {
     if (text.trim().length > 0) {
       _textEditingController.clear();
-      setState(() {
-        _chatBloc.sendMessage(
-            widget.channelId, new Message(text, DateTime.now(), "myUser"));
+      _getCurrentUserId().then((userId) {
+        _chatBloc.sendMessage(widget.pubNubConversation.id,
+            new Message(text, DateTime.now(), userId));
       });
     }
+  }
+
+  Future<String> _getCurrentUserId() async {
+    return await SharedPreferencesHelper.getCurrentUserId();
   }
 
   Future _getImage(ImageSource imageSource) async {
     await ImagePicker.pickImage(source: imageSource).then((image) {
       _chatBloc.uploadPic(image).then((imageDownloadUrl) {
         Message message =
-            Message.withImage(DateTime.now(), imageDownloadUrl, "myUser");
-        _chatBloc.sendMessage(widget.channelId, message);
+            Message.withImage(DateTime.now(), imageDownloadUrl, _currentUserId);
+        _chatBloc.sendMessage(widget.pubNubConversation.id, message);
       });
     });
   }
@@ -60,14 +67,20 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _setMessagesListener();
+    _getCurrentUserId().then((currentUserId) {
+      setState(() {
+        _currentUserId = currentUserId;
+        _interlocutor = getInterlocutorName(widget.pubNubConversation.user1,
+            widget.pubNubConversation.user2, _currentUserId);
+        _setMessagesListener();
+      });
+    });
   }
 
   Future<bool> _loadMore() async {
     if (_chatBloc.historyStart != 0) {
-      print("_loadMore()");
       await _chatBloc
-          .getHistoryMessages(widget.channelId)
+          .getHistoryMessages(widget.pubNubConversation.id)
           .then((historyMessages) {
         setState(() {
           _listOfMessages.addAll(historyMessages.reversed);
@@ -79,7 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _setMessagesListener() {
-    _chatBloc.subscribeToChannel(widget.channelId);
+    _chatBloc.subscribeToChannel(widget.pubNubConversation.id);
     _subscription = _chatBloc.ctrl.stream.listen((message) {
       setState(() {
         _listOfMessages.insert(0, message);
@@ -93,7 +106,7 @@ class _ChatScreenState extends State<ChatScreen> {
       body: new Column(children: <Widget>[
         AppBar(
           title: Text(
-            'Message to Name Surname',
+            'Message to $_interlocutor',
             style: TextStyle(
                 color: ColorUtils.textBlack,
                 fontSize: 14,
@@ -174,7 +187,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _currentUserMessage(int position, Message message) {
     if (_listOfMessages.length > 0 && position < _listOfMessages.length - 1) {
       var nextItem = _listOfMessages[position + 1];
-      _showHideUserIcon(nextItem, message);
+      _showHideCurrentUserIcon(nextItem, message);
     }
     return _currentUserMessageLayout(message);
   }
@@ -182,14 +195,24 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _otherUserMessage(int position, Message message) {
     if (_listOfMessages.length > 0 && position < _listOfMessages.length - 1) {
       var nextItem = _listOfMessages[position + 1];
-      _showHideUserIcon(nextItem, message);
+      _showHideOtherUserIcon(nextItem, message);
     }
     return _otherUserMessageLayout(message);
   }
 
-  void _showHideUserIcon(Object nextItem, Message message) {
+  void _showHideCurrentUserIcon(Object nextItem, Message message) {
     if (nextItem is Message) {
       if (_messageAuthorIsCurrentUser(nextItem)) {
+        message.showUserIcon = false;
+      } else {
+        message.showUserIcon = true;
+      }
+    }
+  }
+
+  void _showHideOtherUserIcon(Object nextItem, Message message) {
+    if (nextItem is Message) {
+      if (!_messageAuthorIsCurrentUser(nextItem)) {
         message.showUserIcon = false;
       } else {
         message.showUserIcon = true;
@@ -503,7 +526,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   bool _messageAuthorIsCurrentUser(Message message) {
-    return message.from == "myUser";
+    return message.from == _currentUserId;
   }
 
   BoxDecoration _getRoundedWhiteDecoration() {

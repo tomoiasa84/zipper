@@ -44,7 +44,7 @@ class MyAppState extends State<MyApp> {
         home: Builder(
           builder: (context) => authStatus == AuthStatus.LOGGED_IN
               ? HomePage()
-              : HomePage(),
+              : PhoneAuthScreen(),
         ),
         routes: <String, WidgetBuilder>{
           '/phoneAuthScreen': (BuildContext context) => PhoneAuthScreen(),

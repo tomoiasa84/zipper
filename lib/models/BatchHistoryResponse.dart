@@ -20,7 +20,7 @@ class BatchHistoryResponse {
 
   String get errorMessage => _errorMessage;
 
-  List<Conversation> get conversations => getConversations(_channels);
+  List<PubNubConversation> get conversations => getConversations(_channels);
 
   BatchHistoryResponse.fromJson(Map<String, dynamic> json)
       : _channels = json['channels'],
@@ -28,8 +28,8 @@ class BatchHistoryResponse {
         _error = json['error'],
         _errorMessage = json['error_message'];
 
-  List<Conversation> getConversations(_channels) {
-    var list = List<Conversation>();
+  List<PubNubConversation> getConversations(_channels) {
+    var list = List<PubNubConversation>();
     _channels.forEach((k, v) => list.add(_mapConversation(k, v)));
     list.sort((a, b) {
       return b.lastMessage.timeToken.compareTo(a.lastMessage.timeToken);
@@ -37,13 +37,13 @@ class BatchHistoryResponse {
     return list;
   }
 
-  Conversation _mapConversation(dynamic k, dynamic v) {
+  PubNubConversation _mapConversation(dynamic k, dynamic v) {
     LinkedHashMap hashMap = v[0];
     LinkedHashMap messageMap = hashMap['message'];
 
     LastMessage lastMessage = LastMessage(
         hashMap['timetoken'], Message(messageMap['message'], null, null));
 
-    return Conversation(k.toString(), k.toString(), "", "", lastMessage);
+    return PubNubConversation(k.toString(), k.toString(), "", "", lastMessage);
   }
 }

@@ -1,6 +1,8 @@
 import 'package:contractor_search/bloc/conversations_bloc.dart';
 import 'package:contractor_search/models/Conversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
+import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 
 import 'chat_screen.dart';
@@ -13,15 +15,19 @@ class ConversationsScreen extends StatefulWidget {
 }
 
 class _ConversationsScreenState extends State<ConversationsScreen> {
-  List<Conversation> _conversations = List();
+  String _currentUserId;
+  List<PubNubConversation> _pubNubConversations = List();
   final ConversationsBloc _conversationsBloc = ConversationsBloc();
 
   @override
   void initState() {
     super.initState();
+    _getCurrentUserId().then((currentUserId) {
+      _currentUserId = currentUserId;
+    });
     _conversationsBloc.getPubNubConversations().then((conversations) {
       setState(() {
-        _conversations = conversations;
+        _pubNubConversations = conversations;
       });
     });
   }
@@ -47,38 +53,42 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     );
   }
 
+  Future<String> _getCurrentUserId() async {
+    return await SharedPreferencesHelper.getCurrentUserId();
+  }
+
   Widget showConversationsUI() {
     return Expanded(
       child: Container(
         color: ColorUtils.messageGray,
         child: new Container(
           margin: EdgeInsets.fromLTRB(16, 16, 16, 16),
-          child: getListView(_conversations),
+          child: getListView(_pubNubConversations),
         ),
       ),
     );
   }
 
-  Widget getListView(List<Conversation> conversations) {
+  Widget getListView(List<PubNubConversation> pubNubConversations) {
     var listView = ListView.builder(
       padding: EdgeInsets.all(0),
       itemBuilder: (context, position) {
         return GestureDetector(
-          child: getConversationUI(conversations[position]),
+          child: getConversationUI(pubNubConversations[position]),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    ChatScreen(channelId: conversations[position].id)),
+                builder: (context) => ChatScreen(
+                    pubNubConversation: pubNubConversations[position])),
           ),
         );
       },
-      itemCount: conversations.length,
+      itemCount: pubNubConversations.length,
     );
     return listView;
   }
 
-  Widget getConversationUI(Conversation conversation) {
+  Widget getConversationUI(PubNubConversation conversation) {
     return Container(
       child: Row(
         children: <Widget>[
@@ -100,7 +110,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       Container(
                         margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
                         child: Text(
-                          conversation.name,
+                          getInterlocutorName(conversation.user1,
+                              conversation.user2, _currentUserId),
                           style: TextStyle(
                               fontSize: 14,
                               color: ColorUtils.almostBlack,
@@ -108,7 +119,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                               fontWeight: FontWeight.bold),
                         ),
                       ),
-                      Text("#housekeeper",
+                      Text("",
                           style: TextStyle(
                               fontSize: 12, color: ColorUtils.orangeAccent))
                     ],
