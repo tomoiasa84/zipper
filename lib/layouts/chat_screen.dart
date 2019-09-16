@@ -12,6 +12,7 @@ import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loadmore/loadmore.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class ChatScreen extends StatefulWidget {
   final PubNubConversation pubNubConversation;
@@ -23,6 +24,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  bool _loading = false;
   String _interlocutor;
   String _currentUserId;
   StreamSubscription _subscription;
@@ -102,39 +104,42 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      body: new Column(children: <Widget>[
-        AppBar(
-          title: Text(
-            'Message to $_interlocutor',
-            style: TextStyle(
-                color: ColorUtils.textBlack,
-                fontSize: 14,
-                fontFamily: 'Arial',
-                fontWeight: FontWeight.bold),
-          ),
-          centerTitle: true,
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: ColorUtils.almostBlack,
+    return ModalProgressHUD(
+      inAsyncCall: _loading,
+      child: Scaffold(
+        body: new Column(children: <Widget>[
+          AppBar(
+            title: Text(
+              'Message to $_interlocutor',
+              style: TextStyle(
+                  color: ColorUtils.textBlack,
+                  fontSize: 14,
+                  fontFamily: 'Arial',
+                  fontWeight: FontWeight.bold),
             ),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-          actions: <Widget>[
-            IconButton(
+            centerTitle: true,
+            leading: IconButton(
               icon: Icon(
-                Icons.more_vert,
+                Icons.arrow_back,
                 color: ColorUtils.almostBlack,
               ),
-              tooltip: "More actions",
-            )
-          ],
-          backgroundColor: Colors.white,
-        ),
-        _showMessagesUI(),
-        _showUserInputUI()
-      ]),
+              onPressed: () => Navigator.pop(context, false),
+            ),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.more_vert,
+                  color: ColorUtils.almostBlack,
+                ),
+                tooltip: "More actions",
+              )
+            ],
+            backgroundColor: Colors.white,
+          ),
+          _showMessagesUI(),
+          _showUserInputUI()
+        ]),
+      ),
     );
   }
 
@@ -158,7 +163,7 @@ class _ChatScreenState extends State<ChatScreen> {
       onLoadMore: _loadMore,
       child: ListView.builder(
         reverse: true,
-        padding: EdgeInsets.all(0),
+        padding: EdgeInsets.fromLTRB(0, 0, 0, 8),
         itemBuilder: (context, position) {
           var item = listOfMessages[position];
           return _selectMessageLayout(item, position);

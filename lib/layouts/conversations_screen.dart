@@ -4,6 +4,7 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'chat_screen.dart';
 
@@ -15,6 +16,7 @@ class ConversationsScreen extends StatefulWidget {
 }
 
 class _ConversationsScreenState extends State<ConversationsScreen> {
+  bool _loading = true;
   String _currentUserId;
   List<PubNubConversation> _pubNubConversations = List();
   final ConversationsBloc _conversationsBloc = ConversationsBloc();
@@ -28,28 +30,32 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     _conversationsBloc.getPubNubConversations().then((conversations) {
       setState(() {
         _pubNubConversations = conversations;
+        _loading = false;
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      body: new Column(children: <Widget>[
-        AppBar(
-          title: Text(
-            'Messages',
-            style: TextStyle(
-                color: ColorUtils.textBlack,
-                fontSize: 14,
-                fontFamily: 'Arial',
-                fontWeight: FontWeight.bold),
+    return ModalProgressHUD(
+      inAsyncCall: _loading,
+      child: Scaffold(
+        body: new Column(children: <Widget>[
+          AppBar(
+            title: Text(
+              'Messages',
+              style: TextStyle(
+                  color: ColorUtils.textBlack,
+                  fontSize: 14,
+                  fontFamily: 'Arial',
+                  fontWeight: FontWeight.bold),
+            ),
+            centerTitle: true,
+            backgroundColor: Colors.white,
           ),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-        ),
-        showConversationsUI(),
-      ]),
+          showConversationsUI(),
+        ]),
+      ),
     );
   }
 
