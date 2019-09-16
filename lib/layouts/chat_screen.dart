@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:contractor_search/bloc/chat_bloc.dart';
 import 'package:contractor_search/models/Message.dart';
@@ -7,10 +8,10 @@ import 'package:contractor_search/models/SharedContact.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:loadmore/loadmore.dart';
 
 class ChatScreen extends StatefulWidget {
-
   final String channelId;
 
   ChatScreen({Key key, @required this.channelId}) : super(key: key);
@@ -24,6 +25,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatBloc _chatBloc = ChatBloc();
   final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
+  File _image;
 
   final TextEditingController _textEditingController =
       new TextEditingController();
@@ -36,6 +38,16 @@ class _ChatScreenState extends State<ChatScreen> {
             widget.channelId, new Message(text, DateTime.now(), "myUser"));
       });
     }
+  }
+
+  Future _getImage(ImageSource imageSource) async {
+    await ImagePicker.pickImage(source: imageSource).then((image) {
+      _chatBloc.uploadPic(image).then((imageDownloadUrl) {
+        Message message =
+            Message.withImage(DateTime.now(), imageDownloadUrl, "myUser");
+        _chatBloc.sendMessage(widget.channelId, message);
+      });
+    });
   }
 
   @override
@@ -54,7 +66,9 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<bool> _loadMore() async {
     if (_chatBloc.historyStart != 0) {
       print("_loadMore()");
-      await _chatBloc.getHistoryMessages(widget.channelId).then((historyMessages) {
+      await _chatBloc
+          .getHistoryMessages(widget.channelId)
+          .then((historyMessages) {
         setState(() {
           _listOfMessages.addAll(historyMessages.reversed);
         });
@@ -200,12 +214,33 @@ class _ChatScreenState extends State<ChatScreen> {
               child: new Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
-                  new Text(
-                    message.message,
-                    textWidthBasis: TextWidthBasis.longestLine,
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                    softWrap: true,
+                  Visibility(
+                    visible: message.imageDownloadUrl == null,
+                    child: Text(
+                      message.message,
+                      textWidthBasis: TextWidthBasis.longestLine,
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      softWrap: true,
+                    ),
                   ),
+                  Visibility(
+                    visible: message.imageDownloadUrl != null,
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(0, 16, 15, 0),
+                      width: 160,
+                      height: 80,
+                      decoration: new BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          image: message.imageDownloadUrl == null
+                              ? null
+                              : DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: new NetworkImage(
+                                      message.imageDownloadUrl == null
+                                          ? null
+                                          : message.imageDownloadUrl))),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -342,7 +377,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _handleMessageSubmit(_textEditingController.text)),
+          onPressed: () => _getImage(ImageSource.gallery)),
     );
   }
 
@@ -357,7 +392,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _handleMessageSubmit(_textEditingController.text)),
+          onPressed: () => _getImage(ImageSource.camera)),
     );
   }
 

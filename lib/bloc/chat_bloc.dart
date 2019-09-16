@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:convert' as convert;
+import 'dart:io';
 
 import 'package:contractor_search/models/Message.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 class ChatBloc {
   final String _publishKey = "pub-c-202b96b5-ebbe-4a3a-94fd-dc45b0bd382e";
@@ -14,6 +17,7 @@ class ChatBloc {
   final int _numberOfMessagesToFetch = 50;
   int historyStart;
   String _timestamp = "0";
+  FirebaseStorage _storage = FirebaseStorage.instance;
 
   Future<List<Message>> getHistoryMessages(String channelName) async {
     var url;
@@ -34,6 +38,14 @@ class ChatBloc {
       print("Request failed with status: ${response.statusCode}.");
     }
     return _messagesList;
+  }
+
+  Future<String> uploadPic(File image) async {
+    final StorageReference reference = _storage.ref().child(DateTime.now().toIso8601String());
+    final StorageUploadTask uploadTask = reference.putFile(image);
+    final StorageTaskSnapshot downloadUrl = (await uploadTask.onComplete);
+    final String url = (await downloadUrl.ref.getDownloadURL());
+    return url;
   }
 
   void _addHistoryMessagesToList(http.Response response) {
