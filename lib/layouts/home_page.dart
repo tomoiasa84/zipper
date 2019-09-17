@@ -1,10 +1,8 @@
 import 'dart:ui';
 
-import 'package:contacts_service/contacts_service.dart';
-import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/resources/color_utils.dart';
+import 'package:contractor_search/utils/tab_navigation_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import 'account_screen.dart';
 import 'users_screen.dart';
@@ -17,59 +15,49 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  HomeBloc _homeBloc;
-
   bool blurred = false;
 
-  @override
-  void didChangeDependencies() {
-    _homeBloc = HomeBloc();
-    super.didChangeDependencies();
-  }
+  final _tabNavigator = GlobalKey<TabNavigatorState>();
+  final _tab1 = GlobalKey<NavigatorState>();
+  final _tab2 = GlobalKey<NavigatorState>();
+  final _tab3 = GlobalKey<NavigatorState>();
+  final _tab4 = GlobalKey<NavigatorState>();
+  final _tab5 = GlobalKey<NavigatorState>();
 
-  @override
-  void dispose() {
-    _homeBloc.dispose();
-    super.dispose();
+  var _tabSelectedIndex = 0;
+  var _tabPopStack = false;
+
+  void _setIndex(index) {
+    setState(() {
+      _tabPopStack = _tabSelectedIndex == index;
+      _tabSelectedIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        Scaffold(
-          bottomNavigationBar: StreamBuilder<NavBarItem>(
-            stream: _homeBloc.itemStream,
-            initialData: _homeBloc.defaultItem,
-            builder:
-                (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
-              return _buildBottomNavigationBar(snapshot);
-            },
-          ),
-          body: StreamBuilder<NavBarItem>(
-            stream: _homeBloc.itemStream,
-            initialData: _homeBloc.defaultItem,
-            builder:
-                (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
-              switch (snapshot.data) {
-                case NavBarItem.HOME:
-                  return Container();
-                case NavBarItem.CONTACTS:
-                  return UsersScreen(
-                  );
-                case NavBarItem.PLUS:
-                  return Container();
-                case NavBarItem.INBOX:
-                  return Container();
-                case NavBarItem.ACCOUNT:
-                  return AccountScreen(
-                    onChanged: _onBlurredChanged,
-                  );
-                default:
-                  return Container();
-              }
-            },
-          ),
+        WillPopScope(
+          onWillPop: () async => await _tabNavigator.currentState.maybePop(),
+          child: Scaffold(
+              body: TabNavigator(
+                key: _tabNavigator,
+                tabs: <TabItem>[
+                  TabItem(_tab1, Container()),
+                  TabItem(_tab2, UsersScreen()),
+                  TabItem(_tab3, Container()),
+                  TabItem(_tab4, Container()),
+                  TabItem(
+                      _tab5,
+                      AccountScreen(
+                        onChanged: _onBlurredChanged,
+                      )),
+                ],
+                selectedIndex: _tabSelectedIndex,
+                popStack: _tabPopStack,
+              ),
+              bottomNavigationBar: _buildBottomNavigationBar()),
         ),
         (blurred)
             ? new Container(
@@ -81,27 +69,23 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  BottomNavigationBar _buildBottomNavigationBar(
-      AsyncSnapshot<NavBarItem> snapshot) {
+  BottomNavigationBar _buildBottomNavigationBar() {
     return BottomNavigationBar(
-      onTap: _homeBloc.pickItem,
-      selectedItemColor: Colors.black,
+      currentIndex: _tabSelectedIndex,
       type: BottomNavigationBarType.fixed,
-      currentIndex: snapshot.data.index,
+      onTap: _setIndex,
       items: [
         BottomNavigationBarItem(
             icon: new Icon(Icons.home,
-                color: (snapshot.data.index == 0)
-                    ? Colors.black
-                    : ColorUtils.gray),
+                color:
+                    (_tabSelectedIndex == 0) ? Colors.black : ColorUtils.gray),
             title: Container(
               height: 0.0,
             )),
         BottomNavigationBarItem(
             icon: new Icon(Icons.people,
-                color: (snapshot.data.index == 1)
-                    ? Colors.black
-                    : ColorUtils.gray),
+                color:
+                    (_tabSelectedIndex == 1) ? Colors.black : ColorUtils.gray),
             title: Container(
               height: 0.0,
             )),
@@ -113,7 +97,7 @@ class _HomePageState extends State<HomePage> {
               height: 0.0,
             )),
         BottomNavigationBarItem(
-            icon: (snapshot.data.index == 3)
+            icon: (_tabSelectedIndex == 3)
                 ? Image.asset("assets/images/ic_inbox_black.png")
                 : Image.asset("assets/images/ic_inbox_gray.png"),
             title: Container(
@@ -121,9 +105,8 @@ class _HomePageState extends State<HomePage> {
             )),
         BottomNavigationBarItem(
             icon: new Icon(Icons.person,
-                color: (snapshot.data.index == 4)
-                    ? Colors.black
-                    : ColorUtils.gray),
+                color:
+                    (_tabSelectedIndex == 4) ? Colors.black : ColorUtils.gray),
             title: Container(
               height: 0.0,
             )),
