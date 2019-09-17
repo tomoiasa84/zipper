@@ -27,6 +27,24 @@ class ShareSelectedContactsScreenState
   @override
   void initState() {
     _bloc = ShareSelectedBloc();
+    List<String> phoneContactsToBeLoaded = _generateContactsToBeLoaded();
+
+    _bloc.loadContacts(phoneContactsToBeLoaded).then((result) {
+      if (result.errors != null) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: Localization.of(context).getString("error"),
+            description: result.errors.elementAt(0).message,
+            buttonText: Localization.of(context).getString("ok"),
+          ),
+        );
+      }
+    });
+    super.initState();
+  }
+
+  List<String> _generateContactsToBeLoaded() {
     List<String> phoneContactsToBeLoaded = [];
     widget.unjoinedContacts.forEach((contact) {
       if (contact.selected) {
@@ -47,19 +65,7 @@ class ShareSelectedContactsScreenState
         }
       }
     });
-    _bloc.loadContacts(phoneContactsToBeLoaded).then((result) {
-      if (result.errors != null) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CustomDialog(
-            title: Localization.of(context).getString("error"),
-            description: result.errors.elementAt(0).message,
-            buttonText: Localization.of(context).getString("ok"),
-          ),
-        );
-      }
-    });
-    super.initState();
+    return phoneContactsToBeLoaded;
   }
 
   @override
@@ -82,43 +88,51 @@ class ShareSelectedContactsScreenState
                 Image.asset(
                   "assets/images/ic_share_gray_bg.png",
                 ),
-                Container(
-                  padding: const EdgeInsets.only(top: 16.0),
-                  child: Text(
-                    Localization.of(context)
-                        .getString('selectedContactsWillBeShared'),
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 16.0),
-                  child: RaisedButton(
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => HomePage()),
-                          ModalRoute.withName("/homepage"));
-                    },
-                    color: ColorUtils.orangeAccent,
-                    shape: new RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(10.0),
-                    ),
-                    child: Text(
-                      Localization.of(context).getString("continue"),
-                      style: TextStyle(
-                        color: ColorUtils.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                )
+                _buildDescription(context),
+                _buildContinueButton(),
               ],
             ),
           )),
         ),
       ),
     );
+  }
+
+  Container _buildDescription(BuildContext context) {
+    return Container(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Text(
+                  Localization.of(context)
+                      .getString('selectedContactsWillBeShared'),
+                  textAlign: TextAlign.center,
+                  style:
+                      TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+                ),
+              );
+  }
+
+  Container _buildContinueButton() {
+    return Container(
+                margin: const EdgeInsets.only(top: 16.0),
+                child: RaisedButton(
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomePage()),
+                        ModalRoute.withName("/homepage"));
+                  },
+                  color: ColorUtils.orangeAccent,
+                  shape: new RoundedRectangleBorder(
+                    borderRadius: new BorderRadius.circular(10.0),
+                  ),
+                  child: Text(
+                    Localization.of(context).getString("continue"),
+                    style: TextStyle(
+                      color: ColorUtils.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              );
   }
 }

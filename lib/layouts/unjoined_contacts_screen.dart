@@ -6,9 +6,9 @@ import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 
 class UnjoinedContactsScreen extends StatefulWidget {
-  final List<UnjoinedContactsModel> unjoiedContacts;
+  final List<UnjoinedContactsModel> unjoinedContacts;
 
-  const UnjoinedContactsScreen({Key key, this.unjoiedContacts})
+  const UnjoinedContactsScreen({Key key, this.unjoinedContacts})
       : super(key: key);
 
   @override
@@ -57,9 +57,9 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
 
   ListView _buildUntaggedContactsList() {
     return ListView.builder(
-        itemCount: widget.unjoiedContacts.length,
+        itemCount: widget.unjoinedContacts.length,
         itemBuilder: (BuildContext context, int index) {
-          return _buildListItem(widget.unjoiedContacts.elementAt(index));
+          return _buildListItem(widget.unjoinedContacts.elementAt(index));
         });
   }
 

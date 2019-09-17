@@ -23,7 +23,7 @@ class ShareSelectedBloc {
       MutationOptions(
         document: '''mutation{
                          load_contacts(phoneContacts: $phoneContactsJson) {
-                                 name
+                           name
                            id
                            phoneNumber
                            location{
