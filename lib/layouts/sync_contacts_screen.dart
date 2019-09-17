@@ -2,6 +2,7 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
 import 'package:contractor_search/layouts/sync_results_screen.dart';
 import 'package:contractor_search/model/contact_model.dart';
+import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -19,6 +20,8 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
     with SingleTickerProviderStateMixin {
   AnimationController _animationController;
   SyncContactsBloc _syncContactsBloc;
+
+  String countryCode;
 
   @override
   void initState() {
@@ -52,7 +55,7 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
         getCurrentUserId().then((userId) {
           _syncContactsBloc.getCurrentUser(userId).then((result) {
             if (result.errors == null) {
-              String countryCode = User.fromJson(result.data['get_user'])
+               countryCode = User.fromJson(result.data['get_user'])
                   .phoneNumber
                   .substring(0, 2);
               _syncContactsBloc.getContacts().then((contactsResult) {
@@ -77,7 +80,7 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
                     .checkContacts(phoneContacts.toSet().toList())
                     .then((result) {
                   if (result.errors == null) {
-                    List<Contact> unjoinedContacts = [];
+                    List<UnjoinedContactsModel> unjoinedContacts = [];
                     List<Contact> joinedContacts = [];
                     final List<Map<String, dynamic>> checkContactsResult =
                         result.data['check_contacts']
@@ -85,24 +88,33 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
                     checkContactsResult.forEach((item) {
                       ContactModel contactModel = ContactModel.fromJson(item);
 
-                      Contact contact =contactsResult.firstWhere(
-                              (contact) =>  (contact.phones != null && contact.phones.toList().isNotEmpty)? contact.phones.toList().elementAt(0).value == contactModel.number: false,
+                      Contact contact = contactsResult.firstWhere(
+                          (contact) => (contact.phones != null &&
+                                  contact.phones.toList().isNotEmpty)
+                              ? (contact.phones.toList().elementAt(0).value ==
+                                      contactModel.number ||
+                                  countryCode +
+                                          contact.phones
+                                              .toList()
+                                              .elementAt(0)
+                                              .value ==
+                                      contactModel.number)
+                              : false,
                           orElse: () => null);
-                      if(contact!=null)
-                        if(contactModel.exists){
-                          joinedContacts.add(contact);
-                        }
-                      else {
-                          unjoinedContacts.add(contact);
-                        }
+                      if (contact != null) if (contactModel.exists) {
+                        joinedContacts.add(contact);
+                      } else {
+                        unjoinedContacts.add(UnjoinedContactsModel(contact, true));
+                      }
                     });
 
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
                             builder: (context) => SyncResultsScreen(
-                                  unjoinedContacts: unjoinedContacts, joinedContacts: joinedContacts
-                                )),
+                                unjoinedContacts: unjoinedContacts,
+                                joinedContacts: joinedContacts,
+                            countryCode: countryCode,)),
                         ModalRoute.withName("/homepage"));
                   }
                 });

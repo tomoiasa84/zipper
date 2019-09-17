@@ -1,24 +1,25 @@
 import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/layouts/share_selected_screen.dart';
 import 'package:contractor_search/layouts/unjoined_contacts_screen.dart';
+import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
 
 class SyncResultsScreen extends StatefulWidget {
-
-  final List<Contact> unjoinedContacts;
+  final List<UnjoinedContactsModel> unjoinedContacts;
   final List<Contact> joinedContacts;
+  final String countryCode;
 
-  const SyncResultsScreen({Key key, this.unjoinedContacts, this.joinedContacts}) : super(key: key);
-
+  const SyncResultsScreen(
+      {Key key, this.unjoinedContacts, this.joinedContacts, this.countryCode})
+      : super(key: key);
 
   @override
   SyncResultsScreenState createState() => SyncResultsScreenState();
 }
 
 class SyncResultsScreenState extends State<SyncResultsScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,15 +94,21 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
                         .getString("contacts")
                         .toLowerCase()),
             _buildForwardArrow(() {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => UnjoinedContactsScreen(unjoiedContacts: widget.unjoinedContacts,)));
+              _navigateAndDisplayUnjoinedUsers();
             })
           ],
         ),
       ),
     );
+  }
+
+  void _navigateAndDisplayUnjoinedUsers() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => UnjoinedContactsScreen(
+                  unjoiedContacts: widget.unjoinedContacts,
+                )));
   }
 
   Padding _buildCardTitle(String title, String subtitle) {
@@ -148,7 +155,10 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                  builder: (context) => ShareSelectedContactsScreen()),
+                  builder: (context) => ShareSelectedContactsScreen(
+                        unjoinedContacts: widget.unjoinedContacts,
+                        countryCode: widget.countryCode,
+                      )),
               ModalRoute.withName("/homepage"));
         },
         color: ColorUtils.orangeAccent,
