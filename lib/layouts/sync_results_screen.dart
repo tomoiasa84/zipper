@@ -1,17 +1,23 @@
+import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/layouts/share_selected_screen.dart';
+import 'package:contractor_search/layouts/unjoined_contacts_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
 
-import 'home_page.dart';
-
 class SyncResultsScreen extends StatefulWidget {
+
+  final List<Contact> unjoinedContacts;
+  final List<Contact> joinedContacts;
+
+  const SyncResultsScreen({Key key, this.unjoinedContacts, this.joinedContacts}) : super(key: key);
+
+
   @override
   SyncResultsScreenState createState() => SyncResultsScreenState();
 }
 
 class SyncResultsScreenState extends State<SyncResultsScreen> {
-  bool _publicTags = true;
-  bool _untaggedContacts = true;
 
   @override
   Widget build(BuildContext context) {
@@ -26,25 +32,6 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
       title: Text(Localization.of(context).getString("syncResults"),
           style: TextStyle(fontWeight: FontWeight.bold)),
       centerTitle: true,
-      actions: <Widget>[
-        Container(
-          alignment: Alignment.center,
-          margin: const EdgeInsets.only(right: 15.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                  ModalRoute.withName("/homepage"));
-            },
-            child: Text(Localization.of(context).getString("skip"),
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: ColorUtils.orangeAccent)),
-          ),
-        )
-      ],
     );
   }
 
@@ -57,7 +44,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
             child: Text(
-              Localization.of(context).getString("tagsFoundInYourPhone"),
+              Localization.of(context).getString("usersFoundInYourPhone"),
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -78,22 +65,11 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 21.0),
         child: Row(
           children: <Widget>[
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _publicTags = !_publicTags;
-                });
-              },
-              child: Icon(
-                Icons.check_box,
-                color: _publicTags
-                    ? ColorUtils.orangeAccent
-                    : ColorUtils.lightLightGray,
-              ),
-            ),
             _buildCardTitle(
-                Localization.of(context).getString("publicTags"), "100 tags"),
-            _buildForwardArrow(() {}),
+                Localization.of(context).getString("existingUsers"),
+                widget.joinedContacts.length.toString() +
+                    " " +
+                    Localization.of(context).getString("users").toLowerCase()),
           ],
         ),
       ),
@@ -109,23 +85,19 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 21.0),
         child: Row(
           children: <Widget>[
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _untaggedContacts = !_untaggedContacts;
-                });
-              },
-              child: Icon(
-                Icons.check_box,
-                color: _untaggedContacts
-                    ? ColorUtils.orangeAccent
-                    : ColorUtils.lightLightGray,
-              ),
-            ),
             _buildCardTitle(
-                Localization.of(context).getString("untaggedContacts"),
-                "55 contacts"),
-            _buildForwardArrow(() {})
+                Localization.of(context).getString("unjoinedContacts"),
+                widget.unjoinedContacts.length.toString() +
+                    " " +
+                    Localization.of(context)
+                        .getString("contacts")
+                        .toLowerCase()),
+            _buildForwardArrow(() {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UnjoinedContactsScreen(unjoiedContacts: widget.unjoinedContacts,)));
+            })
           ],
         ),
       ),
@@ -173,11 +145,13 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
       margin: const EdgeInsets.only(top: 89.0),
       child: RaisedButton(
         onPressed: () {
-          if (_publicTags || _untaggedContacts) {}
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ShareSelectedContactsScreen()),
+              ModalRoute.withName("/homepage"));
         },
-        color: (_publicTags || _untaggedContacts)
-            ? ColorUtils.orangeAccent
-            : ColorUtils.lightLightGray,
+        color: ColorUtils.orangeAccent,
         shape: new RoundedRectangleBorder(
           borderRadius: new BorderRadius.circular(10.0),
         ),

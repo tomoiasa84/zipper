@@ -1,7 +1,9 @@
+import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 
 class UserDetailsScreen extends StatefulWidget {
@@ -14,40 +16,55 @@ class UserDetailsScreen extends StatefulWidget {
 }
 
 class UserDetailsScreenState extends State<UserDetailsScreen> {
+  List<Review> reviews = [];
+
+  @override
+  void initState() {
+    reviews.add(Review(1, widget.user, 3, "#babysitter"));
+    reviews.add(Review(1, widget.user, 4, "#nanny"));
+    reviews.add(Review(1, widget.user, 5, "#housekeeper"));
+    reviews.add(Review(1, widget.user, 5, "#nanny"));
+    reviews.add(Review(1, widget.user, 1, "#babysitter"));
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
       body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: <Widget>[
-              Stack(
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.only(bottom: 15.0),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.only(
-                            left: 16.0, right: 16.0, top: 24.0, bottom: 44.0),
-                        child: Column(
-                          children: <Widget>[
-                            _buildNameRow(),
-                            _buildDescription(),
-                          ],
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: <Widget>[
+                Stack(
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                              left: 16.0, right: 16.0, top: 24.0, bottom: 44.0),
+                          child: Column(
+                            children: <Widget>[
+                              _buildNameRow(),
+                              _buildDescription(),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                      bottom: 0.0, right: 0.0, child: _buildActionsButtons()),
-                ],
-              ),
-            ],
+                    Positioned(
+                        bottom: 0.0, right: 0.0, child: _buildActionsButtons()),
+                  ],
+                ),
+                _buildSkillsCard(),
+              ],
+            ),
           ),
         ),
       ),
@@ -143,5 +160,35 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         ],
       ),
     );
+  }
+
+  Card _buildSkillsCard() {
+    return Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Container(
+          padding: const EdgeInsets.only(
+              left: 16.0, right: 16.0, top: 24.0, bottom: 44.0),
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    Localization.of(context).getString("skills"),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(Localization.of(context).getString("viewAllReviews"))
+                ],
+              ),
+              Container(
+                child: Column(
+                  children: generateSkills(reviews),
+                ),
+              )
+            ],
+          ),
+        ));
   }
 }

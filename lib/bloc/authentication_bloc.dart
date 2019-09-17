@@ -29,16 +29,17 @@ class AuthenticationBloc {
   }
 
   Future<QueryResult> createUser(
-      String name, int location, String id, String phoneNumber) async {
+      String name, int location, String firebaseId, String phoneNumber) async {
     final QueryResult queryResult = await client.mutate(
       MutationOptions(
         document: '''mutation{
-                           create_user(id: "$id",
+                           create_user(firebaseId: "$firebaseId",
                             name: "$name", 
                             location: $location,  
                             phoneNumber: "$phoneNumber") {
                                  	name
                         					id
+                        					firebaseId
                         					phoneNumber
                         					location{
                            						 id
@@ -70,6 +71,7 @@ class AuthenticationBloc {
                             isActive: $isActive) {
                                  	name
                         					id
+                        					firebaseId
                         					phoneNumber
                         					isActive
                         					location{
@@ -111,6 +113,7 @@ class AuthenticationBloc {
                      get_users{
                         name
                         id
+                        firebaseId
                         phoneNumber
                         isActive
                         location{

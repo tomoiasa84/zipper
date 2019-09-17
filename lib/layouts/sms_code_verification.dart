@@ -112,7 +112,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                   Localization.of(context).getString('ok'));
             });
           } else {
-            _finishLogin(authResult.user.uid);
+            _finishLogin(user.id);
           }
         }
       }
@@ -160,7 +160,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
         _saving = false;
       });
       if (result.data != null) {
-        _finishLogin(user.user.uid);
+        _finishLogin(User.fromJson(result.data['create_user']).id);
       } else {
         SharedPreferencesHelper.clear().then((_) {
           _showDialog(
@@ -213,7 +213,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
         _saving = false;
       });
       if (result.data != null) {
-        _finishLogin(user.user.uid);
+        _finishLogin(User.fromJson(result.data['update_user']).id);
       } else {
         SharedPreferencesHelper.clear().then((_) {
           _showDialog(
@@ -228,9 +228,9 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   void _finishLogin(String userId) {
     saveCurrentUserId(userId).then((userId) {
       Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => TutorialScreen()),
-          ModalRoute.withName("/homepage"));
+            context,
+            MaterialPageRoute(builder: (context) => TutorialScreen()),
+            ModalRoute.withName("/homepage"));
     });
   }
 
@@ -241,6 +241,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   Future saveCurrentUserId(String userId) async {
     await SharedPreferencesHelper.saveCurrentUserId(userId);
   }
+
 
   @override
   Widget build(BuildContext context) {

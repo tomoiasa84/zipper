@@ -8,6 +8,7 @@ import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:contractor_search/utils/star_display.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -284,49 +285,12 @@ class AccountScreenState extends State<AccountScreen> {
               ),
               Container(
                 child: Column(
-                  children: _generateSkills(),
+                  children: generateSkills(reviews),
                 ),
               )
             ],
           ),
         ));
-  }
-
-  List<Widget> _generateSkills() {
-    List<Widget> skills = [];
-    reviews.forEach((item) {
-      skills.add(Container(
-        padding: const EdgeInsets.symmetric(vertical: 10.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                  border: Border.all(color: ColorUtils.lightLightGray),
-                  borderRadius: BorderRadius.all(Radius.circular(6.0))),
-              padding: const EdgeInsets.only(
-                  top: 8.0, bottom: 8.0, left: 16.0, right: 10.0),
-              child: Text(item.text),
-            ),
-            Row(
-              children: <Widget>[
-                StarDisplay(
-                  value: item.stars,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    item.stars.toString(),
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                )
-              ],
-            ),
-          ],
-        ),
-      ));
-    });
-    return skills;
   }
 
   Future _goToSettingsScreen() async {
