@@ -1,3 +1,4 @@
+import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
 import 'package:contractor_search/layouts/sync_results_screen.dart';
 import 'package:contractor_search/model/contact_model.dart';
@@ -76,19 +77,31 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
                     .checkContacts(phoneContacts.toSet().toList())
                     .then((result) {
                   if (result.errors == null) {
-                    List<ContactModel> contacts = [];
+                    List<Contact> unjoinedContacts = [];
+                    List<Contact> joinedContacts = [];
                     final List<Map<String, dynamic>> checkContactsResult =
                         result.data['check_contacts']
                             .cast<Map<String, dynamic>>();
                     checkContactsResult.forEach((item) {
-                      contacts.add(ContactModel.fromJson(item));
+                      ContactModel contactModel = ContactModel.fromJson(item);
+
+                      Contact contact =contactsResult.firstWhere(
+                              (contact) =>  (contact.phones != null && contact.phones.toList().isNotEmpty)? contact.phones.toList().elementAt(0).value == contactModel.number: false,
+                          orElse: () => null);
+                      if(contact!=null)
+                        if(contactModel.exists){
+                          joinedContacts.add(contact);
+                        }
+                      else {
+                          unjoinedContacts.add(contact);
+                        }
                     });
 
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
                             builder: (context) => SyncResultsScreen(
-                                  contactsList: contacts,
+                                  unjoinedContacts: unjoinedContacts, joinedContacts: joinedContacts
                                 )),
                         ModalRoute.withName("/homepage"));
                   }

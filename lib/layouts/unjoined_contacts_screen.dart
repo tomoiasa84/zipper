@@ -1,17 +1,21 @@
+import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 
-import 'add_more_tags_screen.dart';
+class UnjoinedContactsScreen extends StatefulWidget {
+  final List<Contact> unjoiedContacts;
 
-class UntaggedContactsScreen extends StatefulWidget {
+  const UnjoinedContactsScreen({Key key, this.unjoiedContacts})
+      : super(key: key);
+
   @override
-  UntaggedContactsScreenState createState() => UntaggedContactsScreenState();
+  UnjoinedContactsScreenState createState() => UnjoinedContactsScreenState();
 }
 
-class UntaggedContactsScreenState extends State<UntaggedContactsScreen> {
+class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +45,7 @@ class UntaggedContactsScreenState extends State<UntaggedContactsScreen> {
   AppBar _buildAppBar() {
     return AppBar(
       title: Text(
-        Localization.of(context).getString("untaggedContacts"),
+        Localization.of(context).getString("unjoinedContacts"),
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
       ),
       centerTitle: true,
@@ -53,13 +57,13 @@ class UntaggedContactsScreenState extends State<UntaggedContactsScreen> {
 
   ListView _buildUntaggedContactsList() {
     return ListView.builder(
-        itemCount: 5,
+        itemCount: widget.unjoiedContacts.length,
         itemBuilder: (BuildContext context, int index) {
-          return _buildListItem();
+          return _buildListItem(widget.unjoiedContacts.elementAt(index));
         });
   }
 
-  Card _buildListItem() {
+  Card _buildListItem(Contact contact) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -69,7 +73,7 @@ class UntaggedContactsScreenState extends State<UntaggedContactsScreen> {
         child: Row(
           children: <Widget>[
             CircleAvatar(
-              child: Text(getInitials("Name Surname"),
+              child: Text(getInitials(contact.displayName),
                   style: TextStyle(color: ColorUtils.darkerGray)),
               backgroundColor: ColorUtils.lightLightGray,
             ),
@@ -79,7 +83,7 @@ class UntaggedContactsScreenState extends State<UntaggedContactsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    "Name Surname",
+                    contact.displayName,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
@@ -92,15 +96,11 @@ class UntaggedContactsScreenState extends State<UntaggedContactsScreen> {
             Expanded(
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AddMoreTagsScreen()));
+                  setState(() {});
                 },
-                child: Container(
-                  alignment: Alignment.centerRight,
-                  child: Icon(
-                    Icons.add,
-                    color: ColorUtils.orangeAccent,
-                  ),
+                child: Icon(
+                  Icons.check_box,
+                  color: ColorUtils.orangeAccent,
                 ),
               ),
             )

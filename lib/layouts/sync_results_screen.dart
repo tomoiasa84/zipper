@@ -1,30 +1,23 @@
+import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/layouts/share_selected_screen.dart';
-import 'package:contractor_search/layouts/untagged_contacts_screen.dart';
-import 'package:contractor_search/model/contact_model.dart';
+import 'package:contractor_search/layouts/unjoined_contacts_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
 
 class SyncResultsScreen extends StatefulWidget {
-  final List<ContactModel> contactsList;
 
-  const SyncResultsScreen({Key key, this.contactsList}) : super(key: key);
+  final List<Contact> unjoinedContacts;
+  final List<Contact> joinedContacts;
+
+  const SyncResultsScreen({Key key, this.unjoinedContacts, this.joinedContacts}) : super(key: key);
+
 
   @override
   SyncResultsScreenState createState() => SyncResultsScreenState();
 }
 
 class SyncResultsScreenState extends State<SyncResultsScreen> {
-  List<ContactModel> joinedContacts = [];
-  List<ContactModel> unjoinedContacts = [];
-
-  @override
-  void initState() {
-    widget.contactsList.forEach((item) {
-      item.exists ? joinedContacts.add(item) : unjoinedContacts.add(item);
-    });
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +67,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
           children: <Widget>[
             _buildCardTitle(
                 Localization.of(context).getString("existingUsers"),
-                joinedContacts.length.toString() +
+                widget.joinedContacts.length.toString() +
                     " " +
                     Localization.of(context).getString("users").toLowerCase()),
           ],
@@ -94,7 +87,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
           children: <Widget>[
             _buildCardTitle(
                 Localization.of(context).getString("unjoinedContacts"),
-                unjoinedContacts.length.toString() +
+                widget.unjoinedContacts.length.toString() +
                     " " +
                     Localization.of(context)
                         .getString("contacts")
@@ -103,7 +96,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => UntaggedContactsScreen()));
+                      builder: (context) => UnjoinedContactsScreen(unjoiedContacts: widget.unjoinedContacts,)));
             })
           ],
         ),

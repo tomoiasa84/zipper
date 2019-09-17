@@ -24,6 +24,7 @@ class UsersBloc {
       document: '''query {
                      get_users{
                         name
+                        firebaseId
                         id
                         phoneNumber
                         isActive
