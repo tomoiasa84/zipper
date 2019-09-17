@@ -131,7 +131,10 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                     ],
                   ),
                 ),
-                Text(conversation.lastMessage.message.message,
+                Text(
+                    conversation.lastMessage.message.message == null
+                        ? "Image"
+                        : conversation.lastMessage.message.message,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style:

@@ -52,8 +52,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Future _getImage(ImageSource imageSource) async {
     await ImagePicker.pickImage(source: imageSource).then((image) {
       _chatBloc.uploadPic(image).then((imageDownloadUrl) {
-        Message message =
-            Message.withImage(DateTime.now(), imageDownloadUrl, _currentUserId);
+        Message message = Message.withImage(DateTime.now(),
+            escapeJsonCharacters(imageDownloadUrl), _currentUserId);
         _chatBloc.sendMessage(widget.pubNubConversation.id, message);
       });
     });
@@ -194,6 +194,9 @@ class _ChatScreenState extends State<ChatScreen> {
       var nextItem = _listOfMessages[position + 1];
       _showHideCurrentUserIcon(nextItem, message);
     }
+    if (message.imageDownloadUrl != null) {
+      return _currentUserImageMessageLayout(message);
+    }
     return _currentUserMessageLayout(message);
   }
 
@@ -201,6 +204,9 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_listOfMessages.length > 0 && position < _listOfMessages.length - 1) {
       var nextItem = _listOfMessages[position + 1];
       _showHideOtherUserIcon(nextItem, message);
+    }
+    if (message.imageDownloadUrl != null) {
+      return _otherUserImageMessageLayout(message);
     }
     return _otherUserMessageLayout(message);
   }
@@ -295,47 +301,153 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _otherUserMessageLayout(Message message) {
-    return new Row(children: <Widget>[
-      Visibility(
-        maintainState: true,
-        maintainAnimation: true,
-        maintainSize: true,
-        visible: message.showUserIcon,
-        child: Container(
-          margin: EdgeInsets.fromLTRB(15, 16, 0, 0),
-          width: 32,
-          height: 32,
-          decoration: new BoxDecoration(
-              shape: BoxShape.circle,
-              image: new DecorationImage(
-                  fit: BoxFit.cover,
-                  image: new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
-        ),
-      ),
-      Flexible(
-        child: Card(
-          margin: EdgeInsets.fromLTRB(8, 16, 15, 0),
-          color: ColorUtils.messageGray,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: new Padding(
-            padding: EdgeInsets.all(8),
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                new Text(
-                  message.message,
-                  textWidthBasis: TextWidthBasis.longestLine,
-                  style: TextStyle(color: Colors.black, fontSize: 14),
-                ),
-              ],
+  Widget _currentUserImageMessageLayout(Message message) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        Flexible(
+          child: Card(
+            margin: EdgeInsets.fromLTRB(8, 16, 15, 0),
+            color: ColorUtils.messageGray,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: new BorderRadius.circular(8.0),
+              child: Container(
+                width: 120,
+                height: 80,
+                decoration: new BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    image: message.imageDownloadUrl == null
+                        ? null
+                        : DecorationImage(
+                            fit: BoxFit.cover,
+                            image: new NetworkImage(
+                                message.imageDownloadUrl == null
+                                    ? null
+                                    : message.imageDownloadUrl))),
+              ),
             ),
           ),
         ),
-      )
-    ]);
+        Visibility(
+          maintainState: true,
+          maintainAnimation: true,
+          maintainSize: true,
+          visible: message.showUserIcon,
+          child: Container(
+            margin: EdgeInsets.fromLTRB(0, 16, 15, 0),
+            width: 32,
+            height: 32,
+            decoration: new BoxDecoration(
+                shape: BoxShape.circle,
+                image: new DecorationImage(
+                    fit: BoxFit.cover,
+                    image:
+                        new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _otherUserMessageLayout(Message message) {
+    return new Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Visibility(
+            maintainState: true,
+            maintainAnimation: true,
+            maintainSize: true,
+            visible: message.showUserIcon,
+            child: Container(
+              margin: EdgeInsets.fromLTRB(15, 16, 0, 0),
+              width: 32,
+              height: 32,
+              decoration: new BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: new DecorationImage(
+                      fit: BoxFit.cover,
+                      image:
+                          new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
+            ),
+          ),
+          Flexible(
+            child: Card(
+              margin: EdgeInsets.fromLTRB(8, 16, 15, 0),
+              color: ColorUtils.messageGray,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: new Padding(
+                padding: EdgeInsets.all(8),
+                child: new Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      message.message,
+                      textWidthBasis: TextWidthBasis.longestLine,
+                      style: TextStyle(color: Colors.black, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        ]);
+  }
+
+  Widget _otherUserImageMessageLayout(Message message) {
+    return new Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Visibility(
+            maintainState: true,
+            maintainAnimation: true,
+            maintainSize: true,
+            visible: message.showUserIcon,
+            child: Container(
+              margin: EdgeInsets.fromLTRB(15, 16, 0, 0),
+              width: 32,
+              height: 32,
+              decoration: new BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: new DecorationImage(
+                      fit: BoxFit.cover,
+                      image:
+                          new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
+            ),
+          ),
+          Flexible(
+            child: Card(
+              margin: EdgeInsets.fromLTRB(8, 16, 15, 0),
+              color: ColorUtils.messageGray,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ClipRRect(
+                borderRadius: new BorderRadius.circular(8.0),
+                child: Container(
+                  width: 120,
+                  height: 80,
+                  decoration: new BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      image: message.imageDownloadUrl == null
+                          ? null
+                          : DecorationImage(
+                              fit: BoxFit.cover,
+                              image: new NetworkImage(
+                                  message.imageDownloadUrl == null
+                                      ? null
+                                      : message.imageDownloadUrl))),
+                ),
+              ),
+            ),
+          )
+        ]);
   }
 
   Widget _showUserInputUI() {

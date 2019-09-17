@@ -31,3 +31,7 @@ String getInterlocutorName(User user1, User user2, String currentUserId) {
     return user1.name;
   }
 }
+
+String escapeJsonCharacters(String imageUrlDownload){
+  return imageUrlDownload.replaceAll("?", "%3F");
+}
