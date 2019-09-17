@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:contractor_search/bloc/chat_bloc.dart';
+import 'package:contractor_search/layouts/image_preview_screen.dart';
 import 'package:contractor_search/models/Conversation.dart';
 import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
@@ -166,13 +167,28 @@ class _ChatScreenState extends State<ChatScreen> {
         padding: EdgeInsets.fromLTRB(0, 0, 0, 8),
         itemBuilder: (context, position) {
           var item = listOfMessages[position];
-          return _selectMessageLayout(item, position);
+          return GestureDetector(
+            child: _selectMessageLayout(item, position),
+            onTap: () => _goToImagePreview(item),
+          );
         },
         itemCount: listOfMessages.length,
         controller: _listScrollController,
       ),
     );
     return listView;
+  }
+
+  void _goToImagePreview(Object item) {
+    if (item is Message) {
+      if (item.imageDownloadUrl != null) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ImagePreviewScreen(
+                    imageDownloadUrl: item.imageDownloadUrl)));
+      }
+    }
   }
 
   Widget _selectMessageLayout(Object item, int position) {
