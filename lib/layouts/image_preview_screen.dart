@@ -1,4 +1,5 @@
 import 'package:contractor_search/resources/color_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
 
 class ImagePreviewScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class ImagePreviewScreenState extends State<ImagePreviewScreen> {
     return Scaffold(
       body: new Column(children: <Widget>[
         AppBar(
-          title: Text("Image Preview",
+          title: Text(Localization.of(context).getString('imagePreview'),
               style: TextStyle(
                   color: ColorUtils.textBlack,
                   fontSize: 14,

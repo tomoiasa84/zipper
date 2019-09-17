@@ -78,6 +78,7 @@ class Localization {
       'publicTags': 'Public Tags',
       'untaggedContacts': 'Contacte Neetichetate',
       'shareSelected': 'Share Selected',
+      'imagePreview': 'Image Preview'
     },
     'ro': {
       'contacts': 'Contacte',
@@ -146,6 +147,7 @@ class Localization {
       'publicTags': 'Etichete Publice',
       'untaggedContacts': 'Untagged Contacts',
       'shareSelected': 'Partajeaza selectia ',
+      'imagePreview': 'Vizualizare Imagine'
     },
   };
 
