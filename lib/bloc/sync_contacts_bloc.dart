@@ -21,28 +21,17 @@ class SyncContactsBloc {
     return await ContactsService.getContacts();
   }
 
-  Future<QueryResult> loadContacts(List<String> phoneContacts) async {
+  Future<QueryResult> checkContacts(List<String> phoneContacts) async {
     var phoneContactsJson = jsonEncode(phoneContacts);
 
     final QueryResult queryResult = await client.mutate(
       MutationOptions(
-        document: '''mutation{
-                           load_contacts(phoneContacts: $phoneContactsJson) {
-                                 	name
-                        					id
-                        					phoneNumber
-                        					location{
-                           						 id
-                           						 city
-                       						 }
-                                  tags{
-                                      name
-                                  }
-                                  cards{
-                                      text
-                                  }
-                           }
-                    }''',
+        document: '''query{
+                    check_contacts(contactsList: $phoneContactsJson){
+                      number
+                      exists
+                    }
+                  }''',
       ),
     );
 

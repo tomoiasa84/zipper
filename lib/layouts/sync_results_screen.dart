@@ -1,6 +1,7 @@
 import 'package:contractor_search/layouts/public_tags_screen.dart';
 import 'package:contractor_search/layouts/share_selected_screen.dart';
 import 'package:contractor_search/layouts/untagged_contacts_screen.dart';
+import 'package:contractor_search/model/contact_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,11 @@ import 'package:flutter/material.dart';
 import 'home_page.dart';
 
 class SyncResultsScreen extends StatefulWidget {
+
+  final List<ContactModel> contactsList;
+
+  const SyncResultsScreen({Key key, this.contactsList}) : super(key: key);
+
   @override
   SyncResultsScreenState createState() => SyncResultsScreenState();
 }

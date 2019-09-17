@@ -1,5 +1,6 @@
 import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
 import 'package:contractor_search/layouts/sync_results_screen.dart';
+import 'package:contractor_search/model/contact_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -46,41 +47,57 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
         PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
 
     statusFuture.then((PermissionStatus status) {
-      if (status == PermissionStatus.granted)
+      if (status == PermissionStatus.granted) {
         getCurrentUserId().then((userId) {
           _syncContactsBloc.getCurrentUser(userId).then((result) {
-            if (result.data != null) {
-              setState(() {
-                String countryCode = User.fromJson(result.data['get_user']).phoneNumber.substring(0,2);
-
-                _syncContactsBloc.getContacts().then((contacts) {
-                  List<String> phoneContacts = [];
-                  contacts.forEach((item) {
-                    if (item.phones != null && item.phones.toList().isNotEmpty) {
-                      if (item.phones
-                          .toList()
-                          .elementAt(0)
-                          .value
-                          .toString()
-                          .startsWith("+")) {
-                        phoneContacts.add(item.phones.toList().elementAt(0).value);
-                      } else {
-                        phoneContacts
-                            .add(countryCode + item.phones.toList().elementAt(0).value);
-                      }
+            if (result.errors == null) {
+              String countryCode = User.fromJson(result.data['get_user'])
+                  .phoneNumber
+                  .substring(0, 2);
+              _syncContactsBloc.getContacts().then((contactsResult) {
+                List<String> phoneContacts = [];
+                contactsResult.forEach((item) {
+                  if (item.phones != null && item.phones.toList().isNotEmpty) {
+                    if (item.phones
+                        .toList()
+                        .elementAt(0)
+                        .value
+                        .toString()
+                        .startsWith("+")) {
+                      phoneContacts
+                          .add(item.phones.toList().elementAt(0).value);
+                    } else {
+                      phoneContacts.add(countryCode +
+                          item.phones.toList().elementAt(0).value);
                     }
-                  });
-                  _syncContactsBloc.loadContacts(phoneContacts).then((values) {
+                  }
+                });
+                _syncContactsBloc
+                    .checkContacts(phoneContacts.toSet().toList())
+                    .then((result) {
+                  if (result.errors == null) {
+                    List<ContactModel> contacts = [];
+                    final List<Map<String, dynamic>> checkContactsResult =
+                        result.data['check_contacts']
+                            .cast<Map<String, dynamic>>();
+                    checkContactsResult.forEach((item) {
+                      contacts.add(ContactModel.fromJson(item));
+                    });
+
                     Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => SyncResultsScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => SyncResultsScreen(
+                                  contactsList: contacts,
+                                )),
                         ModalRoute.withName("/homepage"));
-                  });
+                  }
                 });
               });
             }
           });
         });
+      }
     });
   }
 
