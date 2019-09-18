@@ -1,4 +1,4 @@
-import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/bloc/sync_contacts_model.dart';
 import 'package:contractor_search/layouts/share_selected_screen.dart';
 import 'package:contractor_search/layouts/unjoined_contacts_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -6,19 +6,15 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
 
 class SyncResultsScreen extends StatefulWidget {
+  final SyncContactsModel syncResult;
 
-  final List<Contact> unjoinedContacts;
-  final List<Contact> joinedContacts;
-
-  const SyncResultsScreen({Key key, this.unjoinedContacts, this.joinedContacts}) : super(key: key);
-
+  const SyncResultsScreen({Key key, this.syncResult}) : super(key: key);
 
   @override
   SyncResultsScreenState createState() => SyncResultsScreenState();
 }
 
 class SyncResultsScreenState extends State<SyncResultsScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,7 +63,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
           children: <Widget>[
             _buildCardTitle(
                 Localization.of(context).getString("existingUsers"),
-                widget.joinedContacts.length.toString() +
+                widget.syncResult.existingUsers.length.toString() +
                     " " +
                     Localization.of(context).getString("users").toLowerCase()),
           ],
@@ -87,21 +83,27 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
           children: <Widget>[
             _buildCardTitle(
                 Localization.of(context).getString("unjoinedContacts"),
-                widget.unjoinedContacts.length.toString() +
+                widget.syncResult.unjoinedContacts.length.toString() +
                     " " +
                     Localization.of(context)
                         .getString("contacts")
                         .toLowerCase()),
             _buildForwardArrow(() {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => UnjoinedContactsScreen(unjoiedContacts: widget.unjoinedContacts,)));
+              _navigateAndDisplayUnjoinedUsers();
             })
           ],
         ),
       ),
     );
+  }
+
+  void _navigateAndDisplayUnjoinedUsers() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => UnjoinedContactsScreen(
+                  unjoinedContacts: widget.syncResult.unjoinedContacts,
+                )));
   }
 
   Padding _buildCardTitle(String title, String subtitle) {
@@ -148,7 +150,10 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                  builder: (context) => ShareSelectedContactsScreen()),
+                  builder: (context) => ShareSelectedContactsScreen(
+                        unjoinedContacts: widget.syncResult.unjoinedContacts,
+                        countryCode: widget.syncResult.countryCode,
+                      )),
               ModalRoute.withName("/homepage"));
         },
         color: ColorUtils.orangeAccent,

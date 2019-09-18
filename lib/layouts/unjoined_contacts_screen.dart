@@ -1,4 +1,4 @@
-import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -6,9 +6,9 @@ import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 
 class UnjoinedContactsScreen extends StatefulWidget {
-  final List<Contact> unjoiedContacts;
+  final List<UnjoinedContactsModel> unjoinedContacts;
 
-  const UnjoinedContactsScreen({Key key, this.unjoiedContacts})
+  const UnjoinedContactsScreen({Key key, this.unjoinedContacts})
       : super(key: key);
 
   @override
@@ -57,13 +57,13 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
 
   ListView _buildUntaggedContactsList() {
     return ListView.builder(
-        itemCount: widget.unjoiedContacts.length,
+        itemCount: widget.unjoinedContacts.length,
         itemBuilder: (BuildContext context, int index) {
-          return _buildListItem(widget.unjoiedContacts.elementAt(index));
+          return _buildListItem(widget.unjoinedContacts.elementAt(index));
         });
   }
 
-  Card _buildListItem(Contact contact) {
+  Card _buildListItem(UnjoinedContactsModel unjoinedContact) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -73,7 +73,7 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
         child: Row(
           children: <Widget>[
             CircleAvatar(
-              child: Text(getInitials(contact.displayName),
+              child: Text(getInitials(unjoinedContact.contact.displayName),
                   style: TextStyle(color: ColorUtils.darkerGray)),
               backgroundColor: ColorUtils.lightLightGray,
             ),
@@ -83,7 +83,7 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    contact.displayName,
+                    unjoinedContact.contact.displayName,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
@@ -94,13 +94,20 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
               ),
             ),
             Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {});
-                },
-                child: Icon(
-                  Icons.check_box,
-                  color: ColorUtils.orangeAccent,
+              child: Container(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      unjoinedContact.selected = !unjoinedContact.selected;
+                    });
+                  },
+                  child: Icon(
+                    Icons.check_box,
+                    color: unjoinedContact.selected
+                        ? ColorUtils.orangeAccent
+                        : ColorUtils.lightLightGray,
+                  ),
                 ),
               ),
             )

@@ -1,8 +1,5 @@
-import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
 import 'package:contractor_search/layouts/sync_results_screen.dart';
-import 'package:contractor_search/model/contact_model.dart';
-import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
@@ -29,7 +26,7 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
 
     _animationController.repeat();
     _syncContactsBloc = SyncContactsBloc();
-    _loadContacts();
+    _syncContacts();
     super.initState();
   }
 
@@ -43,71 +40,19 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
     return await SharedPreferencesHelper.getCurrentUserId();
   }
 
-  void _loadContacts() {
+  void _syncContacts() {
     final Future<PermissionStatus> statusFuture =
         PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
 
     statusFuture.then((PermissionStatus status) {
       if (status == PermissionStatus.granted) {
         getCurrentUserId().then((userId) {
-          _syncContactsBloc.getCurrentUser(userId).then((result) {
-            if (result.errors == null) {
-              String countryCode = User.fromJson(result.data['get_user'])
-                  .phoneNumber
-                  .substring(0, 2);
-              _syncContactsBloc.getContacts().then((contactsResult) {
-                List<String> phoneContacts = [];
-                contactsResult.forEach((item) {
-                  if (item.phones != null && item.phones.toList().isNotEmpty) {
-                    if (item.phones
-                        .toList()
-                        .elementAt(0)
-                        .value
-                        .toString()
-                        .startsWith("+")) {
-                      phoneContacts
-                          .add(item.phones.toList().elementAt(0).value);
-                    } else {
-                      phoneContacts.add(countryCode +
-                          item.phones.toList().elementAt(0).value);
-                    }
-                  }
-                });
-                _syncContactsBloc
-                    .checkContacts(phoneContacts.toSet().toList())
-                    .then((result) {
-                  if (result.errors == null) {
-                    List<Contact> unjoinedContacts = [];
-                    List<Contact> joinedContacts = [];
-                    final List<Map<String, dynamic>> checkContactsResult =
-                        result.data['check_contacts']
-                            .cast<Map<String, dynamic>>();
-                    checkContactsResult.forEach((item) {
-                      ContactModel contactModel = ContactModel.fromJson(item);
-
-                      Contact contact =contactsResult.firstWhere(
-                              (contact) =>  (contact.phones != null && contact.phones.toList().isNotEmpty)? contact.phones.toList().elementAt(0).value == contactModel.number: false,
-                          orElse: () => null);
-                      if(contact!=null)
-                        if(contactModel.exists){
-                          joinedContacts.add(contact);
-                        }
-                      else {
-                          unjoinedContacts.add(contact);
-                        }
-                    });
-
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => SyncResultsScreen(
-                                  unjoinedContacts: unjoinedContacts, joinedContacts: joinedContacts
-                                )),
-                        ModalRoute.withName("/homepage"));
-                  }
-                });
-              });
-            }
+          _syncContactsBloc.syncContacts(userId).then((syncResult) {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SyncResultsScreen(syncResult: syncResult,)),
+                ModalRoute.withName("/homepage"));
           });
         });
       }
@@ -132,40 +77,52 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 _builtAnimatedSyncIcon(),
-                Container(
-                  padding: const EdgeInsets.only(top: 16.0),
-                  child: Text(
-                    Localization.of(context).getString('syncContactsMessage'),
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 27.5),
-                  child: LinearPercentIndicator(
-                    lineHeight: 2.0,
-                    percent: 0.5,
-                    backgroundColor: ColorUtils.lightLightGray,
-                    progressColor: ColorUtils.orangeAccent,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 8.5,
-                  ),
-                  child: Text(
-                    '123/155 Contacts synced',
-                    style:
-                        TextStyle(color: ColorUtils.darkerGray, fontSize: 12.0),
-                  ),
-                )
+                _buildDescription(context),
+                _buildLinearIndicator(),
+                _buildProgressDescription()
               ],
             ),
           )),
         ),
       ),
     );
+  }
+
+  Container _buildDescription(BuildContext context) {
+    return Container(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Text(
+                  Localization.of(context).getString('syncContactsMessage'),
+                  textAlign: TextAlign.center,
+                  style:
+                      TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+                ),
+              );
+  }
+
+  Padding _buildProgressDescription() {
+    return Padding(
+                padding: const EdgeInsets.only(
+                  top: 8.5,
+                ),
+                child: Text(
+                  '123/155 Contacts synced',
+                  style:
+                      TextStyle(color: ColorUtils.darkerGray, fontSize: 12.0),
+                ),
+              );
+  }
+
+  Padding _buildLinearIndicator() {
+    return Padding(
+                padding: const EdgeInsets.only(top: 27.5),
+                child: LinearPercentIndicator(
+                  lineHeight: 2.0,
+                  percent: 0.5,
+                  backgroundColor: ColorUtils.lightLightGray,
+                  progressColor: ColorUtils.orangeAccent,
+                ),
+              );
   }
 
   AnimatedBuilder _builtAnimatedSyncIcon() {
