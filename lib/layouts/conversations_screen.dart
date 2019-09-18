@@ -1,6 +1,8 @@
 import 'package:contractor_search/bloc/conversations_bloc.dart';
+import 'package:contractor_search/layouts/select_contact_screen.dart';
 import 'package:contractor_search/models/Conversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +37,20 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     });
   }
 
+  void _goToSelectContactScreen() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => SelectContactScreen()));
+  }
+
+  void _goToChatScreen(PubNubConversation pubNubConversation) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
@@ -43,7 +59,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
         body: new Column(children: <Widget>[
           AppBar(
             title: Text(
-              'Messages',
+              Localization.of(context).getString('messages'),
               style: TextStyle(
                   color: ColorUtils.textBlack,
                   fontSize: 14,
@@ -53,8 +69,23 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
             centerTitle: true,
             backgroundColor: Colors.white,
           ),
-          showConversationsUI(),
+          _showConversationsUI(),
         ]),
+        floatingActionButton: Container(
+          height: 42,
+          width: 42,
+          child: FittedBox(
+            child: FloatingActionButton(
+              onPressed: () {
+                _goToSelectContactScreen();
+              },
+              child: Image.asset(
+                "assets/images/ic_plus_accent_background.png",
+              ),
+              backgroundColor: ColorUtils.orangeAccent,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -63,30 +94,25 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     return await SharedPreferencesHelper.getCurrentUserId();
   }
 
-  Widget showConversationsUI() {
+  Widget _showConversationsUI() {
     return Expanded(
       child: Container(
         color: ColorUtils.messageGray,
         child: new Container(
           margin: EdgeInsets.fromLTRB(16, 16, 16, 16),
-          child: getListView(_pubNubConversations),
+          child: _getListView(_pubNubConversations),
         ),
       ),
     );
   }
 
-  Widget getListView(List<PubNubConversation> pubNubConversations) {
+  Widget _getListView(List<PubNubConversation> pubNubConversations) {
     var listView = ListView.builder(
       padding: EdgeInsets.all(0),
       itemBuilder: (context, position) {
         return GestureDetector(
-          child: getConversationUI(pubNubConversations[position]),
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                    pubNubConversation: pubNubConversations[position])),
-          ),
+          child: _getConversationUI(pubNubConversations[position]),
+          onTap: () => _goToChatScreen(pubNubConversations[position]),
         );
       },
       itemCount: pubNubConversations.length,
@@ -94,7 +120,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     return listView;
   }
 
-  Widget getConversationUI(PubNubConversation conversation) {
+  Widget _getConversationUI(PubNubConversation conversation) {
     return Container(
       child: Row(
         children: <Widget>[
@@ -145,12 +171,12 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
         ],
       ),
       margin: EdgeInsets.fromLTRB(0, 0, 0, 4),
-      decoration: getRoundedWhiteDecoration(),
+      decoration: _getRoundedWhiteDecoration(),
       height: 73,
     );
   }
 
-  BoxDecoration getRoundedWhiteDecoration() {
+  BoxDecoration _getRoundedWhiteDecoration() {
     return BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(8)));

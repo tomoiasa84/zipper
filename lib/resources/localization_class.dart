@@ -13,6 +13,8 @@ class Localization {
 
   static Map<String, Map<String, String>> _localizedValues = {
     'en': {
+      'shareContact': 'Share Contact',
+      'messages': 'Messages',
       'contacts': 'Contacts',
       'users': 'Users',
       'all': 'All',
@@ -83,10 +85,13 @@ class Localization {
       'addTagsToPromoteYourFriends': 'Add tags to promote your friends',
       'addMoreTagsTotThePerson': 'Add more tags to the person',
       'tags': 'Tags',
-      'selectedContactsWillBeShared': 'The selected contacts will be shared behind the scene.',
+      'selectedContactsWillBeShared':
+          'The selected contacts will be shared behind the scene.',
       'imagePreview': 'Image Preview'
     },
     'ro': {
+      'shareContact': 'Distribuie Contact',
+      'messages': 'Mesaje',
       'contacts': 'Contacte',
       'users': 'Utilizatori',
       'all': 'Toate',
@@ -155,10 +160,12 @@ class Localization {
       'unjoinedContacts': 'Contacte care nu s-au alaturat aplicatiei',
       'shareSelected': 'Partajeaza selectia ',
       'selectedTagsWillBeShared': 'Etichetele selectate vor fi partajate',
-      'addTagsToPromoteYourFriends': 'Adauga etichete pentru a-ti promova prietenii',
+      'addTagsToPromoteYourFriends':
+          'Adauga etichete pentru a-ti promova prietenii',
       'addMoreTagsTotThePerson': 'Adauga mai multe etichete persoanei',
       'tags': 'Etichete',
-      'selectedContactsWillBeShared': 'Contactele selectate vor fi partajate in spatele scenei.',
+      'selectedContactsWillBeShared':
+          'Contactele selectate vor fi partajate in spatele scenei.',
       'imagePreview': 'Vizualizare Imagine'
     },
   };
