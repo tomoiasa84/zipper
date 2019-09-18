@@ -4,7 +4,6 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SyncContactsScreen extends StatefulWidget {
@@ -51,7 +50,9 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
             Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => SyncResultsScreen(syncResult: syncResult,)),
+                    builder: (context) => SyncResultsScreen(
+                          syncResult: syncResult,
+                        )),
                 ModalRoute.withName("/homepage"));
           });
         });
@@ -79,7 +80,6 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
                 _builtAnimatedSyncIcon(),
                 _buildDescription(context),
                 _buildLinearIndicator(),
-                _buildProgressDescription()
               ],
             ),
           )),
@@ -90,39 +90,26 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
 
   Container _buildDescription(BuildContext context) {
     return Container(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Text(
-                  Localization.of(context).getString('syncContactsMessage'),
-                  textAlign: TextAlign.center,
-                  style:
-                      TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
-                ),
-              );
-  }
-
-  Padding _buildProgressDescription() {
-    return Padding(
-                padding: const EdgeInsets.only(
-                  top: 8.5,
-                ),
-                child: Text(
-                  '123/155 Contacts synced',
-                  style:
-                      TextStyle(color: ColorUtils.darkerGray, fontSize: 12.0),
-                ),
-              );
+      padding: const EdgeInsets.only(top: 16.0),
+      child: Text(
+        Localization.of(context).getString('syncContactsMessage'),
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+      ),
+    );
   }
 
   Padding _buildLinearIndicator() {
     return Padding(
-                padding: const EdgeInsets.only(top: 27.5),
-                child: LinearPercentIndicator(
-                  lineHeight: 2.0,
-                  percent: 0.5,
-                  backgroundColor: ColorUtils.lightLightGray,
-                  progressColor: ColorUtils.orangeAccent,
-                ),
-              );
+      padding: const EdgeInsets.only(top: 27.5),
+      child: SizedBox(
+        height: 2.0,
+        child: LinearProgressIndicator(
+          backgroundColor: ColorUtils.lightLightGray,
+          valueColor: AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        ),
+      ),
+    );
   }
 
   AnimatedBuilder _builtAnimatedSyncIcon() {
