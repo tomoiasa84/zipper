@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/utils/tab_navigation_utils.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class _HomePageState extends State<HomePage> {
                   TabItem(_tab1, Container()),
                   TabItem(_tab2, UsersScreen()),
                   TabItem(_tab3, Container()),
-                  TabItem(_tab4, Container()),
+                  TabItem(_tab4, ConversationsScreen()),
                   TabItem(
                       _tab5,
                       AccountScreen(

@@ -6,7 +6,7 @@ class ConversationModel{
         user1 = User.fromJson(json['user1']),
         user2 = User.fromJson(json['user2']);
 
-  final int id;
+  final String id;
   final User user1;
   final User user2;
 }
