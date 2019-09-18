@@ -70,6 +70,8 @@ class Localization {
       'skills': 'Skills',
       'addMoreSkills': 'Add more skills',
       'add': 'Add',
+      'LoadMoreStatus.loading': 'Loading messages',
+      'LoadMoreStatus.fail': 'Could not load messages',
       'viewAllReviews': 'View all reviews',
       'syncResults': 'Sync Results',
       'skip': 'Skip',
@@ -82,6 +84,7 @@ class Localization {
       'addMoreTagsTotThePerson': 'Add more tags to the person',
       'tags': 'Tags',
       'selectedContactsWillBeShared': 'The selected contacts will be shared behind the scene.',
+      'imagePreview': 'Image Preview'
     },
     'ro': {
       'contacts': 'Contacte',
@@ -142,6 +145,8 @@ class Localization {
       'skills': 'Abilitati',
       'addMoreSkills': 'Adauga abilitati',
       'add': 'Adauga',
+      'LoadMoreStatus.loading': 'Se incarca mesajele',
+      'LoadMoreStatus.fail': 'Mesajele nu au putut fi incarcate',
       'viewAllReviews': 'Vezi toate recenziile',
       'syncResults': 'Rezultate sincronizare',
       'skip': 'Inainte',
@@ -154,6 +159,7 @@ class Localization {
       'addMoreTagsTotThePerson': 'Adauga mai multe etichete persoanei',
       'tags': 'Etichete',
       'selectedContactsWillBeShared': 'Contactele selectate vor fi partajate in spatele scenei.',
+      'imagePreview': 'Vizualizare Imagine'
     },
   };
 

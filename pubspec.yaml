@@ -34,6 +34,9 @@ dependencies:
   dots_indicator: ^1.0.0
   percent_indicator: ^2.1.1+1
   modal_progress_hud: ^0.1.3
+  loadmore: ^1.0.4
+  image_picker: ^0.6.1+4
+  firebase_storage: ^3.0.6
 
 dev_dependencies:
   flutter_test:
@@ -67,6 +70,7 @@ flutter:
     - assets/images/ic_sync_gray.png
     - assets/images/ic_edit_accent_bg.png
     - assets/images/ic_share_gray_bg.png
+    - assets/images/ic_inbox_orange.png
 
   fonts:
     - family: Arial

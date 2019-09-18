@@ -1,3 +1,5 @@
+import 'package:contractor_search/model/user.dart';
+
 String validatePhoneNumber(String value, String validationMessage) {
   final RegExp phoneExp =
       RegExp(r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$');
@@ -20,4 +22,16 @@ getInitials(String name) {
     return (it.toUpperCase());
   } else
     return "";
+}
+
+String getInterlocutorName(User user1, User user2, String currentUserId) {
+  if (user1.id == currentUserId) {
+    return user2.name;
+  } else {
+    return user1.name;
+  }
+}
+
+String escapeJsonCharacters(String imageUrlDownload){
+  return imageUrlDownload.replaceAll("?", "%3F");
 }
