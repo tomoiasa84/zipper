@@ -61,5 +61,6 @@ class MyAppState extends State<MyApp> {
         authStatus = AuthStatus.LOGGED_IN;
       });
     }
+    print("ACCESS TOKEN: $accessToken");
   }
 }
