@@ -77,11 +77,7 @@ class ConversationsBloc {
     String channelIds = "";
 
     for (var item in listOfConversation) {
-      channelIds = channelIds + item.id.toString();
-    }
-
-    if (listOfConversation.length > 1) {
-      channelIds.substring(1, channelIds.length - 1);
+      channelIds = channelIds + item.id.toString() + ",";
     }
 
     return channelIds;
