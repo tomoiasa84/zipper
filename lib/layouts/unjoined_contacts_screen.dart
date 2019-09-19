@@ -20,24 +20,13 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, top: 24.0),
-              child: Text(
-                Localization.of(context)
-                    .getString("addTagsToPromoteYourFriends"),
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
-              ),
-            ),
-            Expanded(
-              child: _buildUntaggedContactsList(),
-            )
-          ],
-        ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            child: _buildUntaggedContactsList(),
+          ),
+        ],
       ),
     );
   }
@@ -59,7 +48,15 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
     return ListView.builder(
         itemCount: widget.unjoinedContacts.length,
         itemBuilder: (BuildContext context, int index) {
-          return _buildListItem(widget.unjoinedContacts.elementAt(index));
+          return Container(
+              margin: EdgeInsets.only(
+                  top: (index == 0) ? 24.0 : 0.0,
+                  bottom: (index == widget.unjoinedContacts.length - 1)
+                      ? 24.0
+                      : 0.0,
+                  left: 16.0,
+                  right: 16.0),
+              child: _buildListItem(widget.unjoinedContacts.elementAt(index)));
         });
   }
 
@@ -69,45 +66,45 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Container(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 16.0),
         child: Row(
           children: <Widget>[
-            CircleAvatar(
-              child: Text(getInitials(unjoinedContact.contact.displayName),
-                  style: TextStyle(color: ColorUtils.darkerGray)),
-              backgroundColor: ColorUtils.lightLightGray,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    unjoinedContact.contact.displayName,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+            (unjoinedContact.contact.avatar != null &&
+                    unjoinedContact.contact.avatar.length > 0)
+                ? CircleAvatar(
+                    backgroundImage:
+                        MemoryImage(unjoinedContact.contact.avatar))
+                : CircleAvatar(
+                    child: Text(
+                        getInitials(unjoinedContact.contact.displayName),
+                        style: TextStyle(color: ColorUtils.darkerGray)),
+                    backgroundColor: ColorUtils.lightLightGray,
                   ),
-                  Text(
-                    "Add #",
-                    style: TextStyle(color: ColorUtils.orangeAccent),
-                  )
-                ],
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  unjoinedContact.contact.displayName,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-            Expanded(
-              child: Container(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      unjoinedContact.selected = !unjoinedContact.selected;
-                    });
-                  },
-                  child: Icon(
-                    Icons.check_box,
-                    color: unjoinedContact.selected
-                        ? ColorUtils.orangeAccent
-                        : ColorUtils.lightLightGray,
-                  ),
+            Container(
+              padding: const EdgeInsets.only(
+                  right: 16.0, left: 16.0, top: 8.0, bottom: 8.0),
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    unjoinedContact.selected = !unjoinedContact.selected;
+                  });
+                },
+                child: Icon(
+                  Icons.check_box,
+                  color: unjoinedContact.selected
+                      ? ColorUtils.orangeAccent
+                      : ColorUtils.lightLightGray,
                 ),
               ),
             )
