@@ -88,7 +88,8 @@ class Localization {
       'imagePreview': 'Image Preview',
       'verificationCodeDescription':
           'A text message with a 6-digit verification code was just sent to ',
-      'resendCode':'Resend code',
+      'resendCode': 'Resend code',
+      'cantRetry': 'You can\'t retry yet!',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -168,7 +169,8 @@ class Localization {
       'imagePreview': 'Vizualizare Imagine',
       'verificationCodeDescription':
           'Un mesaj text cu un code de verificare din 6 cifre a fost trimis catre ',
-      'resendCode':'Retrimite codul',
+      'resendCode': 'Retrimite codul',
+      'cantRetry': 'Inca nu puteti retrimite codul!',
     },
   };
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:contractor_search/bloc/authentication_bloc.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/layouts/tutorial_screen.dart';
@@ -34,7 +36,11 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   String smsCode;
   bool _autoValidate = false;
   bool _saving = false;
+  Timer _codeTimer;
+  Duration _timeOut = const Duration(minutes: 1);
   String verificationId;
+  bool _codeTimedOut = false;
+  TextEditingController _codeTextEditingController = TextEditingController();
 
   signIn() async {
     setState(() {
@@ -246,6 +252,11 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   @override
   void initState() {
     verificationId = widget.verificationId;
+    _codeTimer = Timer(_timeOut, () {
+      setState(() {
+        _codeTimedOut = true;
+      });
+    });
     super.initState();
   }
 
@@ -301,6 +312,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       child: Container(
         margin: const EdgeInsets.only(top: 35.0, left: 24.0, right: 24.0),
         child: TextFormField(
+          controller: _codeTextEditingController,
           autovalidate: _autoValidate,
           onChanged: (value) {
             smsCode = value;
@@ -397,48 +409,52 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
               color: ColorUtils.orangeAccent, fontWeight: FontWeight.bold),
         ),
       ),
-      onTap: () {
+      onTap: () async {
         FocusScope.of(context).requestFocus(FocusNode());
-        if (_formKey.currentState.validate()) {
-          _resendVerificationCode();
+
+        setState(() {
+          _saving = true;
+        });
+
+        if (_codeTimedOut) {
+          await _resendVerificationCode();
         } else {
-          setState(() {
-            _autoValidate = true;
-          });
+          _showDialog(Localization.of(context).getString("error"), Localization.of(context).getString("cantRetry"),Localization.of(context).getString("ok"),);
         }
+        _resendVerificationCode();
       },
     );
   }
 
-    Future<void> _resendVerificationCode() async {
-      final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
-        verificationId = verId;
-      };
+  Future<void> _resendVerificationCode() async {
+    final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
+      verificationId = verId;
+    };
 
-      final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
-        this.verificationId = verId;
-        setState(() {
-          _saving = false;
-        });
-      };
+    final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
+      this.verificationId = verId;
+      setState(() {
+        _saving = false;
+      });
+    };
 
-      final PhoneVerificationCompleted verifiedSuccess = (AuthCredential user) {
-        print('verified');
-        setState(() {
-          _saving = false;
-        });
-      };
+    final PhoneVerificationCompleted verifiedSuccess = (AuthCredential user) {
+      print('verified');
+      setState(() {
+        _saving = false;
+      });
+    };
 
-      final PhoneVerificationFailed veriFailed = (AuthException exception) {
-        print('${exception.message}');
-      };
+    final PhoneVerificationFailed veriFailed = (AuthException exception) {
+      print('${exception.message}');
+    };
 
-      await FirebaseAuth.instance.verifyPhoneNumber(
-          phoneNumber: widget.phoneNumber,
-          codeAutoRetrievalTimeout: autoRetrieve,
-          codeSent: smsCodeSent,
-          timeout: const Duration(seconds: 5),
-          verificationCompleted: verifiedSuccess,
-          verificationFailed: veriFailed);
-    }
+    await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: widget.phoneNumber,
+        codeAutoRetrievalTimeout: autoRetrieve,
+        codeSent: smsCodeSent,
+        timeout: const Duration(seconds: 5),
+        verificationCompleted: verifiedSuccess,
+        verificationFailed: veriFailed);
   }
+}

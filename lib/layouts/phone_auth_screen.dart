@@ -5,6 +5,7 @@ import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/auth_type.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,6 +30,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   final TextEditingController _typeAheadController = TextEditingController();
   List<String> locations = [];
   SignUpBloc _signUpBloc;
+  Duration _timeOut = const Duration(minutes: 1);
 
   Future<void> verifyPhone(int authType) async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -52,13 +54,24 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
     final PhoneVerificationFailed veriFailed = (AuthException exception) {
       print('${exception.message}');
+      setState(() {
+        _saving = false;
+      });
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => CustomDialog(
+          title: Localization.of(context).getString("error"),
+          description: exception.message,
+          buttonText: Localization.of(context).getString("ok"),
+        ),
+      );
     };
 
     await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: this.phoneNumber,
         codeAutoRetrievalTimeout: autoRetrieve,
         codeSent: smsCodeSent,
-        timeout: const Duration(seconds: 5),
+        timeout: _timeOut,
         verificationCompleted: verifiedSuccess,
         verificationFailed: veriFailed);
   }
@@ -67,8 +80,8 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => SmsCodeVerification(
-                verificationId, name, _typeAheadController.text, phoneNumber, authType)));
+            builder: (context) => SmsCodeVerification(verificationId, name,
+                _typeAheadController.text, phoneNumber, authType)));
   }
 
   @override
