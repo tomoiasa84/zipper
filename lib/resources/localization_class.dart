@@ -77,13 +77,14 @@ class Localization {
       'skip': 'Skip',
       'usersFoundInYourPhone': 'Users found in your phone',
       'existingUsers': 'Existing Users',
-      'unjoinedContacts': 'Contacts that haven\'t joined the app',
+      'unjoinedContacts': 'Contacts that haven\'t joined',
       'shareSelected': 'Share Selected',
       'selectedTagsWillBeShared': 'Selected tags will be shared',
       'addTagsToPromoteYourFriends': 'Add tags to promote your friends',
       'addMoreTagsTotThePerson': 'Add more tags to the person',
       'tags': 'Tags',
-      'selectedContactsWillBeShared': 'The selected contacts will be shared behind the scene.',
+      'selectedContactsWillBeShared':
+          'The selected contacts will be shared behind the scene.',
       'imagePreview': 'Image Preview'
     },
     'ro': {
@@ -155,10 +156,12 @@ class Localization {
       'unjoinedContacts': 'Contacte care nu s-au alaturat aplicatiei',
       'shareSelected': 'Partajeaza selectia ',
       'selectedTagsWillBeShared': 'Etichetele selectate vor fi partajate',
-      'addTagsToPromoteYourFriends': 'Adauga etichete pentru a-ti promova prietenii',
+      'addTagsToPromoteYourFriends':
+          'Adauga etichete pentru a-ti promova prietenii',
       'addMoreTagsTotThePerson': 'Adauga mai multe etichete persoanei',
       'tags': 'Etichete',
-      'selectedContactsWillBeShared': 'Contactele selectate vor fi partajate in spatele scenei.',
+      'selectedContactsWillBeShared':
+          'Contactele selectate vor fi partajate in spatele scenei.',
       'imagePreview': 'Vizualizare Imagine'
     },
   };
