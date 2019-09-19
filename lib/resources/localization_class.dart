@@ -85,7 +85,10 @@ class Localization {
       'tags': 'Tags',
       'selectedContactsWillBeShared':
           'The selected contacts will be shared behind the scene.',
-      'imagePreview': 'Image Preview'
+      'imagePreview': 'Image Preview',
+      'verificationCodeDescription':
+          'A text message with a 6-digit verification code was just sent to ',
+      'resendCode':'Resend code',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -162,7 +165,10 @@ class Localization {
       'tags': 'Etichete',
       'selectedContactsWillBeShared':
           'Contactele selectate vor fi partajate in spatele scenei.',
-      'imagePreview': 'Vizualizare Imagine'
+      'imagePreview': 'Vizualizare Imagine',
+      'verificationCodeDescription':
+          'Un mesaj text cu un code de verificare din 6 cifre a fost trimis catre ',
+      'resendCode':'Retrimite codul',
     },
   };
 
