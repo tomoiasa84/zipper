@@ -1,3 +1,4 @@
+import 'package:contractor_search/bloc/sign_up_bloc.dart';
 import 'package:contractor_search/layouts/login_screen.dart';
 import 'package:contractor_search/layouts/sms_code_verification.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
@@ -8,6 +9,7 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class PhoneAuthScreen extends StatefulWidget {
@@ -21,10 +23,12 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   final _formKey = GlobalKey<FormState>();
   String phoneNumber;
   String name;
-  String location;
   String verificationId;
   bool _autoValidate = false;
   bool _saving = false;
+  final TextEditingController _typeAheadController = TextEditingController();
+  List<String> locations = [];
+  SignUpBloc _signUpBloc;
 
   Future<void> verifyPhone(int authType) async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -64,7 +68,18 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => SmsCodeVerification(
-                verificationId, name, location, phoneNumber, authType)));
+                verificationId, name, _typeAheadController.text, phoneNumber, authType)));
+  }
+
+  @override
+  void initState() {
+    _signUpBloc = SignUpBloc();
+    _signUpBloc.getLocations().then((snapshot) {
+      setState(() {
+        snapshot.forEach((location) => locations.add(location.city));
+      });
+    });
+    super.initState();
   }
 
   @override
@@ -152,21 +167,40 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
   Container _buildLocationTextField() {
     return Container(
-        margin: const EdgeInsets.only(top: 35.0),
-        child: TextFormField(
-          onChanged: (value) {
-            this.location = value;
-          },
-          decoration: customInputDecoration(
-              Localization.of(context).getString('location'),
-              Icons.location_on),
-          validator: (value) {
-            if (value.isEmpty) {
-              return Localization.of(context).getString('locationValidation');
-            }
-            return null;
-          },
-        ));
+      margin: const EdgeInsets.only(top: 35.0),
+      child: TypeAheadFormField(
+        textFieldConfiguration: TextFieldConfiguration(
+            controller: this._typeAheadController,
+            decoration: customInputDecoration(
+                Localization.of(context).getString('location'),
+                Icons.location_on)),
+        suggestionsCallback: (pattern) {
+          List<String> list = [];
+          locations
+              .where((it) => it.startsWith(pattern))
+              .toList()
+              .forEach((loc) => list.add(loc));
+          return list;
+        },
+        itemBuilder: (context, suggestion) {
+          return ListTile(
+            title: Text(suggestion),
+          );
+        },
+        transitionBuilder: (context, suggestionsBox, controller) {
+          return suggestionsBox;
+        },
+        onSuggestionSelected: (suggestion) {
+          this._typeAheadController.text = suggestion;
+        },
+        validator: (value) {
+          if (value.isEmpty) {
+            return Localization.of(context).getString('locationValidation');
+          }
+          return null;
+        },
+      ),
+    );
   }
 
   Container _buildPhoneNoTextField() {
