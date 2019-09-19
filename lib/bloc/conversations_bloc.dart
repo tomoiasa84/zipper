@@ -4,7 +4,7 @@ import 'dart:convert' as convert;
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/BatchHistoryResponse.dart';
-import 'package:contractor_search/models/Conversation.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';

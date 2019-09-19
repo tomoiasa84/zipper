@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:contractor_search/bloc/chat_bloc.dart';
 import 'package:contractor_search/layouts/image_preview_screen.dart';
-import 'package:contractor_search/models/Conversation.dart';
+import 'package:contractor_search/layouts/select_contact_screen.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
 import 'package:contractor_search/models/SharedContact.dart';
@@ -58,6 +59,17 @@ class _ChatScreenState extends State<ChatScreen> {
         _chatBloc.sendMessage(widget.pubNubConversation.id, message);
       });
     });
+  }
+
+  void _shareContact(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => SelectContactScreen(shareContactScreen: true)),
+    );
+
+    //Do something with the result
+    print('RESULT IS: $result');
   }
 
   @override
@@ -509,7 +521,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _handleMessageSubmit(_textEditingController.text)),
+          onPressed: () => _shareContact(context)),
     );
   }
 

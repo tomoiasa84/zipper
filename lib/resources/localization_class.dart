@@ -13,6 +13,7 @@ class Localization {
 
   static Map<String, Map<String, String>> _localizedValues = {
     'en': {
+      'startNewConversation': 'Start a new conversation',
       'shareContact': 'Share Contact',
       'messages': 'Messages',
       'contacts': 'Contacts',
@@ -90,6 +91,7 @@ class Localization {
       'imagePreview': 'Image Preview'
     },
     'ro': {
+      'startNewConversation': 'Creeaza o noua conversatie',
       'shareContact': 'Distribuie Contact',
       'messages': 'Mesaje',
       'contacts': 'Contacte',

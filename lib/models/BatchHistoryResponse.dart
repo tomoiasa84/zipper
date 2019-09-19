@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:contractor_search/models/Conversation.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/LastMessage.dart';
 import 'package:contractor_search/models/Message.dart';
 

@@ -1,6 +1,6 @@
 import 'package:contractor_search/bloc/conversations_bloc.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
-import 'package:contractor_search/models/Conversation.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -37,9 +37,9 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     });
   }
 
-  void _goToSelectContactScreen() {
+  void _startNewConversation() {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => SelectContactScreen()));
+        MaterialPageRoute(builder: (context) => SelectContactScreen(shareContactScreen: false)));
   }
 
   void _goToChatScreen(PubNubConversation pubNubConversation) {
@@ -77,7 +77,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           child: FittedBox(
             child: FloatingActionButton(
               onPressed: () {
-                _goToSelectContactScreen();
+                _startNewConversation();
               },
               child: Image.asset(
                 "assets/images/ic_plus_accent_background.png",
