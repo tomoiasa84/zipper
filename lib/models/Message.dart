@@ -1,4 +1,7 @@
+import 'package:contractor_search/model/user.dart';
+
 class Message {
+  User _sharedContact;
   String _message;
   DateTime _timestamp;
   String _from;
@@ -14,6 +17,14 @@ class Message {
     this._from = from;
   }
 
+  Message.withSharedContact(DateTime timestamp, String from, User user) {
+    this._timestamp = timestamp;
+    this._from = from;
+    this._sharedContact = user;
+  }
+
+  User get sharedContact => _sharedContact;
+
   String get imageDownloadUrl => _imageDownloadUrl;
 
   String get message => _message;
@@ -26,7 +37,8 @@ class Message {
         'message': _message,
         'timestamp': _timestamp.toIso8601String(),
         'from': _from,
-        'imageDownloadUrl': _imageDownloadUrl
+        'imageDownloadUrl': _imageDownloadUrl,
+        'sharedContact': _sharedContact
       };
 
   Message.fromJson(Map<String, dynamic> json)
@@ -34,5 +46,8 @@ class Message {
         _timestamp = DateTime.parse(json['timestamp']),
         _stringTimestamp = json['timestamp'],
         _from = json['from'],
-        _imageDownloadUrl = json['imageDownloadUrl'];
+        _imageDownloadUrl = json['imageDownloadUrl'],
+        _sharedContact = json['sharedContact'] != null
+            ? User.fromJson(json['sharedContact'])
+            : null;
 }

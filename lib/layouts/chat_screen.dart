@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:contractor_search/bloc/chat_bloc.dart';
 import 'package:contractor_search/layouts/image_preview_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
-import 'package:contractor_search/models/PubNubConversation.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
-import 'package:contractor_search/models/SharedContact.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -62,14 +62,16 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _shareContact(BuildContext context) async {
-    final result = await Navigator.push(
+    final sharedContact = await Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => SelectContactScreen(shareContactScreen: true)),
     );
-
     //Do something with the result
-    print('RESULT IS: $result');
+    _getCurrentUserId().then((userId) {
+      _chatBloc.sendMessage(widget.pubNubConversation.id,
+          new Message.withSharedContact(DateTime.now(), userId, sharedContact));
+    });
   }
 
   @override
@@ -196,14 +198,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _selectMessageLayout(Object item, int position) {
     if (item is Message) {
+      if (item.sharedContact != null) {
+        return _getSharedContactUI(item.sharedContact);
+      }
+
       if (_messageAuthorIsCurrentUser(item)) {
         return _currentUserMessage(position, item);
       } else {
         return _otherUserMessage(position, item);
       }
-    }
-    if (item is SharedContact) {
-      return _getSharedContactUI(item);
     }
     return _getMessageHeaderUI(item as MessageHeader);
   }
@@ -270,7 +273,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Visibility(
                     visible: message.imageDownloadUrl == null,
                     child: Text(
-                      message.message,
+                      message.message != null? message.message : "",
                       textWidthBasis: TextWidthBasis.longestLine,
                       style: TextStyle(color: Colors.white, fontSize: 14),
                       softWrap: true,
@@ -579,7 +582,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _getSharedContactUI(SharedContact sharedContact) {
+  Widget _getSharedContactUI(User user) {
     return Container(
       height: 72,
       margin: EdgeInsets.fromLTRB(15, 16, 15, 0),
@@ -598,7 +601,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Text(sharedContact.name,
+                        Text(user.name,
                             style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.white,
@@ -609,7 +612,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           child: Row(
                             children: <Widget>[
                               Text(
-                                sharedContact.hashtag,
+                                "#hardcoded tag",
                                 style: TextStyle(
                                     fontSize: 12, color: Colors.white),
                               ),

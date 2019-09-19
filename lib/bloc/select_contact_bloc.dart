@@ -32,15 +32,8 @@ class SelectContactBloc {
                         id
                         phoneNumber
                         isActive
-                        location{
-                            id
-                            city
-                        }
                         tags{
                             name
-                        }
-                        cards{
-                            text
                         }
                     }
               }''',
