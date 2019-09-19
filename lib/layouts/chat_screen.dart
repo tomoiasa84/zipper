@@ -8,6 +8,8 @@ import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
@@ -30,7 +32,6 @@ class _ChatScreenState extends State<ChatScreen> {
   String _interlocutor;
   String _currentUserId;
   StreamSubscription _subscription;
-  MessageHeader _messageHeader;
   final ChatBloc _chatBloc = ChatBloc();
   final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
@@ -52,13 +53,30 @@ class _ChatScreenState extends State<ChatScreen> {
     return await SharedPreferencesHelper.getCurrentUserId();
   }
 
-  Future _getImage(ImageSource imageSource) async {
+  Future _uploadImage(ImageSource imageSource) async {
     await ImagePicker.pickImage(source: imageSource).then((image) {
-      _chatBloc.uploadPic(image).then((imageDownloadUrl) {
-        Message message = Message.withImage(DateTime.now(),
-            escapeJsonCharacters(imageDownloadUrl), _currentUserId);
-        _chatBloc.sendMessage(widget.pubNubConversation.id, message);
-      });
+      if (image != null) {
+        setState(() {
+          _loading = true;
+        });
+        _chatBloc.uploadPic(image).then((imageDownloadUrl) {
+          Message message = Message.withImage(DateTime.now(),
+              escapeJsonCharacters(imageDownloadUrl), _currentUserId);
+          _chatBloc
+              .sendMessage(widget.pubNubConversation.id, message)
+              .then((messageSent) {
+            if (!messageSent) {
+              _showDialog(
+                  Localization.of(context).getString('error'),
+                  Localization.of(context).getString('somethingWentWrong'),
+                  Localization.of(context).getString('ok'));
+            }
+            setState(() {
+              _loading = false;
+            });
+          });
+        });
+      }
     });
   }
 
@@ -151,6 +169,17 @@ class _ChatScreenState extends State<ChatScreen> {
           currentItem.timestamp.year == nextItem.timestamp.year);
     }
     return false;
+  }
+
+  void _showDialog(String title, String message, String buttonText) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText: buttonText,
+      ),
+    );
   }
 
   @override
@@ -575,7 +604,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _getImage(ImageSource.gallery)),
+          onPressed: () => _uploadImage(ImageSource.gallery)),
     );
   }
 
@@ -590,7 +619,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _getImage(ImageSource.camera)),
+          onPressed: () => _uploadImage(ImageSource.camera)),
     );
   }
 

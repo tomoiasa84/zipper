@@ -85,14 +85,17 @@ class ChatBloc {
     }
   }
 
-  void sendMessage(String channelName, Message message) async {
+  Future<bool> sendMessage(String channelName, Message message) async {
     var encodedMessage = convert.jsonEncode(message.toJson());
     var url =
         "$_baseUrl/publish/$_publishKey/$_subscribeKey/0/$channelName/myCallback/$encodedMessage";
 
     var response = await _client.get(url);
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return true;
+    } else {
       print("Request failed with status: ${response.body}.");
+      return false;
     }
   }
 
