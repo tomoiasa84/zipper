@@ -33,6 +33,8 @@ class Message {
 
   String get stringTimestamp => _stringTimestamp;
 
+  DateTime get timestamp => _timestamp;
+
   Map<String, dynamic> toJson() => {
         'message': _message,
         'timestamp': _timestamp.toIso8601String(),

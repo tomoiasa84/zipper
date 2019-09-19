@@ -30,6 +30,7 @@ class _ChatScreenState extends State<ChatScreen> {
   String _interlocutor;
   String _currentUserId;
   StreamSubscription _subscription;
+  MessageHeader _messageHeader;
   final ChatBloc _chatBloc = ChatBloc();
   final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
@@ -101,6 +102,7 @@ class _ChatScreenState extends State<ChatScreen> {
           .then((historyMessages) {
         setState(() {
           _listOfMessages.addAll(historyMessages.reversed);
+          _addHeadersIfNecessary();
         });
       });
       return true;
@@ -113,8 +115,42 @@ class _ChatScreenState extends State<ChatScreen> {
     _subscription = _chatBloc.ctrl.stream.listen((message) {
       setState(() {
         _listOfMessages.insert(0, message);
+        _addHeadersIfNecessary();
       });
     });
+  }
+
+  void _addHeadersIfNecessary() {
+    var lastItem = _listOfMessages[_listOfMessages.length - 1];
+    if (lastItem is Message) {
+      setState(() {
+        _listOfMessages.insert(
+            _listOfMessages.length, MessageHeader(lastItem.timestamp));
+      });
+    }
+
+    for (var i = 0; i < _listOfMessages.length - 1; i++) {
+      var currentItem = _listOfMessages[i];
+      var nextItem = _listOfMessages[i + 1];
+      if (currentItem is Message) {
+        if (_datesDontMatch(currentItem, nextItem)) {
+          _listOfMessages.insert(i + 1, MessageHeader(currentItem.timestamp));
+        }
+      }
+    }
+  }
+
+  bool _datesDontMatch(Message currentItem, Object nextItem) {
+    if (nextItem is Message) {
+      return !(currentItem.timestamp.day == nextItem.timestamp.day &&
+          currentItem.timestamp.month == nextItem.timestamp.month &&
+          currentItem.timestamp.year == nextItem.timestamp.year);
+    } else if (nextItem is MessageHeader) {
+      return !(currentItem.timestamp.day == nextItem.timestamp.day &&
+          currentItem.timestamp.month == nextItem.timestamp.month &&
+          currentItem.timestamp.year == nextItem.timestamp.year);
+    }
+    return false;
   }
 
   @override
@@ -273,7 +309,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Visibility(
                     visible: message.imageDownloadUrl == null,
                     child: Text(
-                      message.message != null? message.message : "",
+                      message.message != null ? message.message : "",
                       textWidthBasis: TextWidthBasis.longestLine,
                       style: TextStyle(color: Colors.white, fontSize: 14),
                       softWrap: true,
@@ -576,7 +612,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _getMessageHeaderUI(MessageHeader messageHeader) {
     return Container(
       margin: EdgeInsets.fromLTRB(0, 22, 00, 0),
-      child: Text(messageHeader.timestamp.toIso8601String(),
+      child: Text(getFormattedDateTime(messageHeader.timestamp),
           textAlign: TextAlign.center,
           style: TextStyle(color: ColorUtils.textGray, fontSize: 14)),
     );
