@@ -93,6 +93,14 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  void _startConversation(User user) {
+    _chatBloc.createConversation(user).then((pubNubConversation) {
+      Navigator.of(context).pushReplacement(new MaterialPageRoute(
+          builder: (BuildContext context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)));
+    });
+  }
+
   @override
   void dispose() {
     _chatBloc.dispose();
@@ -139,20 +147,22 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _addHeadersIfNecessary() {
-    var lastItem = _listOfMessages[_listOfMessages.length - 1];
-    if (lastItem is Message) {
-      setState(() {
-        _listOfMessages.insert(
-            _listOfMessages.length, MessageHeader(lastItem.timestamp));
-      });
-    }
+    if (_listOfMessages.length > 0) {
+      var lastItem = _listOfMessages[_listOfMessages.length - 1];
+      if (lastItem is Message) {
+        setState(() {
+          _listOfMessages.insert(
+              _listOfMessages.length, MessageHeader(lastItem.timestamp));
+        });
+      }
 
-    for (var i = 0; i < _listOfMessages.length - 1; i++) {
-      var currentItem = _listOfMessages[i];
-      var nextItem = _listOfMessages[i + 1];
-      if (currentItem is Message) {
-        if (_datesDontMatch(currentItem, nextItem)) {
-          _listOfMessages.insert(i + 1, MessageHeader(currentItem.timestamp));
+      for (var i = 0; i < _listOfMessages.length - 1; i++) {
+        var currentItem = _listOfMessages[i];
+        var nextItem = _listOfMessages[i + 1];
+        if (currentItem is Message) {
+          if (_datesDontMatch(currentItem, nextItem)) {
+            _listOfMessages.insert(i + 1, MessageHeader(currentItem.timestamp));
+          }
         }
       }
     }
@@ -701,6 +711,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Container(
                     decoration: _getRoundWhiteCircle(),
                     child: new IconButton(
+                      onPressed: () => _startConversation(user),
                       icon: Image.asset(
                         "assets/images/ic_inbox_orange.png",
                         color: ColorUtils.messageOrange,

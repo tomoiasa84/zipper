@@ -38,8 +38,11 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   }
 
   void _startNewConversation() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => SelectContactScreen(shareContactScreen: false)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                SelectContactScreen(shareContactScreen: false)));
   }
 
   void _goToChatScreen(PubNubConversation pubNubConversation) {
@@ -157,10 +160,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                     ],
                   ),
                 ),
-                Text(
-                    conversation.lastMessage.message.message == null
-                        ? "Image"
-                        : conversation.lastMessage.message.message,
+                Text(_showConversationLastMessage(conversation),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style:
@@ -174,6 +174,20 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       decoration: _getRoundedWhiteDecoration(),
       height: 73,
     );
+  }
+
+  String _showConversationLastMessage(PubNubConversation pubNubConversation) {
+    if (pubNubConversation.lastMessage.message.imageDownloadUrl != null) {
+      return Localization.of(context).getString('image');
+    }
+    if (pubNubConversation.lastMessage.message.sharedContact != null) {
+      return Localization.of(context).getString('sharedContact');
+    }
+    if (pubNubConversation.lastMessage.message.message != null) {
+      return pubNubConversation.lastMessage.message.message;
+    } else {
+      return "";
+    }
   }
 
   BoxDecoration _getRoundedWhiteDecoration() {

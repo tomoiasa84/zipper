@@ -39,10 +39,9 @@ class BatchHistoryResponse {
 
   PubNubConversation _mapConversation(dynamic k, dynamic v) {
     LinkedHashMap hashMap = v[0];
-    LinkedHashMap messageMap = hashMap['message'];
 
     LastMessage lastMessage = LastMessage(
-        hashMap['timetoken'], Message(messageMap['message'], null, null));
+        hashMap['timetoken'], Message.fromJson(hashMap['message']));
 
     return PubNubConversation(k.toString(), k.toString(), "", "", lastMessage);
   }
