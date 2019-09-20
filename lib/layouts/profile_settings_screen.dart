@@ -3,8 +3,8 @@ import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
-import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -347,7 +347,12 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(item),
+              Flexible(
+                child: Text(
+                  item,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
               GestureDetector(
                 onTap: () {
                   setState(() {

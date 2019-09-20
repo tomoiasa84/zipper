@@ -19,7 +19,7 @@ class AddPostScreenState extends State<AddPostScreen> {
   TextEditingController _addTagsTextEditingController = TextEditingController();
   bool _saving = false;
   User _user;
-  List<String> skills = [
+  List<String> tags = [
     '#babysitter',
     '#keeper',
   ];
@@ -151,7 +151,7 @@ class AddPostScreenState extends State<AddPostScreen> {
 
   List<Widget> _buildSkillsItems() {
     List<Widget> lines = []; // this will hold Rows according to available lines
-    skills.forEach((item) {
+    tags.forEach((item) {
       lines.add(
         Container(
           margin: const EdgeInsets.only(bottom: 8.0, right: 10.0),
@@ -163,11 +163,16 @@ class AddPostScreenState extends State<AddPostScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(item),
+              Flexible(
+                child: Text(
+                  item,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    skills.remove(item);
+                    tags.remove(item);
                   });
                 },
                 child: Icon(
@@ -262,7 +267,7 @@ class AddPostScreenState extends State<AddPostScreen> {
               setState(() {
                 if (_addTagsTextEditingController.text.isNotEmpty) {
                   setState(() {
-                    skills.add(_addTagsTextEditingController.text);
+                    tags.add(_addTagsTextEditingController.text);
                   });
                 }
               });
