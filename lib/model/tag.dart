@@ -3,6 +3,10 @@ class Tag {
       : id = json['id'],
         name = json['name'];
 
-  final int id;
+   int id;
   final String name;
+
+  Tag(this.name);
+
+
 }

@@ -1,4 +1,5 @@
 import 'package:contractor_search/bloc/add_post_bloc.dart';
+import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -7,6 +8,7 @@ import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AddPostScreen extends StatefulWidget {
@@ -19,19 +21,30 @@ class AddPostScreenState extends State<AddPostScreen> {
   TextEditingController _addTagsTextEditingController = TextEditingController();
   bool _saving = false;
   User _user;
-  List<String> tags = [
-    '#babysitter',
-    '#keeper',
-  ];
+  Tag tag;
+  List<Tag> tagsList = [];
 
   @override
   void initState() {
+    _addPostBloc = AddPostBloc();
     _getCurrentUserInfo();
+    getTags();
     super.initState();
   }
 
+  void getTags() {
+    _addPostBloc.getTags().then((result) {
+      if (result.data != null) {
+        final List<Map<String, dynamic>> tags =
+            result.data['get_tags'].cast<Map<String, dynamic>>();
+        tags.forEach((item) {
+          tagsList.add(Tag.fromJson(item));
+        });
+      }
+    });
+  }
+
   void _getCurrentUserInfo() {
-    _addPostBloc = AddPostBloc();
     setState(() {
       _saving = true;
     });
@@ -135,10 +148,7 @@ class AddPostScreenState extends State<AddPostScreen> {
               Container(
                 width: double.infinity,
                 margin: const EdgeInsets.only(top: 16.0),
-                child: Wrap(
-                  direction: Axis.horizontal,
-                  children: _buildSkillsItems(),
-                ),
+                child: _buildSkillsItem(),
               ),
               _buildAddTagsCard(),
               _buildDetailsTextFiled()
@@ -149,43 +159,39 @@ class AddPostScreenState extends State<AddPostScreen> {
     );
   }
 
-  List<Widget> _buildSkillsItems() {
-    List<Widget> lines = []; // this will hold Rows according to available lines
-    tags.forEach((item) {
-      lines.add(
-        Container(
-          margin: const EdgeInsets.only(bottom: 8.0, right: 10.0),
-          decoration: BoxDecoration(
-              border: Border.all(color: ColorUtils.lightLightGray),
-              borderRadius: BorderRadius.all(Radius.circular(6.0))),
-          padding: const EdgeInsets.only(
-              top: 8.0, bottom: 8.0, left: 16.0, right: 10.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Flexible(
-                child: Text(
-                  item,
-                  overflow: TextOverflow.ellipsis,
+  Widget _buildSkillsItem() {
+    return tag != null
+        ? Container(
+            margin: const EdgeInsets.only(bottom: 8.0, right: 10.0),
+            decoration: BoxDecoration(
+                border: Border.all(color: ColorUtils.lightLightGray),
+                borderRadius: BorderRadius.all(Radius.circular(6.0))),
+            padding: const EdgeInsets.only(
+                top: 8.0, bottom: 8.0, left: 16.0, right: 10.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Flexible(
+                  child: Text(
+                    tag.name,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    tags.remove(item);
-                  });
-                },
-                child: Icon(
-                  Icons.close,
-                  color: ColorUtils.orangeAccent,
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      tag = null;
+                    });
+                  },
+                  child: Icon(
+                    Icons.close,
+                    color: ColorUtils.orangeAccent,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      );
-    });
-    return lines;
+              ],
+            ),
+          )
+        : Container();
   }
 
   Padding _buildNameRow() {
@@ -221,7 +227,7 @@ class AddPostScreenState extends State<AddPostScreen> {
                     ),
                   ),
                   Text(
-                    "#babysitter #keeper",
+                    tag != null ? tag.name : "",
                     style: TextStyle(
                         color: ColorUtils.orangeAccent,
                         fontWeight: FontWeight.bold),
@@ -239,26 +245,53 @@ class AddPostScreenState extends State<AddPostScreen> {
     return Stack(
       alignment: const Alignment(1.0, 0.0),
       children: <Widget>[
-        TextFormField(
-          controller: _addTagsTextEditingController,
-          decoration: InputDecoration(
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6.0),
-                borderSide:
-                    BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6.0),
-                borderSide:
-                    BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
-              ),
-              hintText:
-                  Localization.of(context).getString('tagsYouAreLookingFor'),
-              hintStyle: TextStyle(
-                fontSize: 14.0,
-                color: ColorUtils.darkerGray,
-              ),
-              suffix: Text('          ')),
+        TypeAheadFormField(
+          textFieldConfiguration: TextFieldConfiguration(
+            controller: _addTagsTextEditingController,
+            decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                  borderSide:
+                      BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                  borderSide:
+                      BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
+                ),
+                hintText:
+                    Localization.of(context).getString('tagsYouAreLookingFor'),
+                hintStyle: TextStyle(
+                  fontSize: 14.0,
+                  color: ColorUtils.darkerGray,
+                ),
+                suffix: Text('          ')),
+          ),
+          suggestionsCallback: (pattern) {
+            List<String> list = [];
+            tagsList
+                .where((it) => it.name.startsWith(pattern))
+                .toList()
+                .forEach((tag) => list.add(tag.name));
+            return list;
+          },
+          itemBuilder: (context, suggestion) {
+            return ListTile(
+              title: Text(suggestion),
+            );
+          },
+          transitionBuilder: (context, suggestionsBox, controller) {
+            return suggestionsBox;
+          },
+          onSuggestionSelected: (suggestion) {
+            this._addTagsTextEditingController.text = suggestion;
+          },
+          validator: (value) {
+            if (value.isEmpty) {
+              return Localization.of(context).getString('locationValidation');
+            }
+            return null;
+          },
         ),
         Container(
           padding: const EdgeInsets.all(16.0),
@@ -267,7 +300,7 @@ class AddPostScreenState extends State<AddPostScreen> {
               setState(() {
                 if (_addTagsTextEditingController.text.isNotEmpty) {
                   setState(() {
-                    tags.add(_addTagsTextEditingController.text);
+                    tag = Tag(_addTagsTextEditingController.text);
                   });
                 }
               });

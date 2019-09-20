@@ -93,8 +93,8 @@ class Localization {
       'addPost': 'Add Post',
       'isLookingFor': ' is looking for',
       'preview': 'Preview',
-      'selectTagsYouAreLookingFor': 'Select tags you are looking for...',
-      'tagsYouAreLookingFor': 'Tags you are looking for',
+      'selectTagsYouAreLookingFor': 'Select tag you are looking for...',
+      'tagsYouAreLookingFor': 'Tag you are looking for',
       'addMoreDetails': 'Add more details (optional)...',
     },
     'ro': {
@@ -180,8 +180,8 @@ class Localization {
       'addPost': 'Adauga o postare',
       'isLookingFor': ' cauta',
       'preview': 'Previzualizare',
-      'selectTagsYouAreLookingFor': 'Selecteaza etichetele pe care le cauti',
-      'tagsYouAreLookingFor': 'Etichetele pe care le cauti...',
+      'selectTagsYouAreLookingFor': 'Selecteaza etichetea pe care le cauti',
+      'tagsYouAreLookingFor': 'Eticheta pe care o cauti...',
       'addMoreDetails': 'Adauga mai multe detalii (optional)...',
     },
   };

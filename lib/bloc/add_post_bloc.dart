@@ -51,4 +51,18 @@ class AddPostBloc {
 
     return result;
   }
+
+  Future<QueryResult> getTags() async {
+    final QueryResult result = await client.query(QueryOptions(
+      document: '''query{
+                      get_tags{
+                        id
+                        name
+                      }
+                    }''',
+    ));
+
+    return result;
+  }
+
 }
