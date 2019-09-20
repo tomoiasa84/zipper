@@ -7,10 +7,10 @@ import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 
 import 'account_screen.dart';
+import 'add_post_screen.dart';
 import 'users_screen.dart';
 
 class HomePage extends StatefulWidget {
-
   final bool syncContactsFlagRequired;
 
   HomePage({Key key, this.syncContactsFlagRequired}) : super(key: key);
@@ -26,10 +26,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     _homeBloc = HomeBloc();
-    if (widget.syncContactsFlagRequired){
+    if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
     }
-      super.initState();
+    super.initState();
   }
 
   @override
@@ -84,7 +84,14 @@ class _HomePageState extends State<HomePage> {
     return BottomNavigationBar(
       currentIndex: snapshot.data.index,
       type: BottomNavigationBarType.fixed,
-      onTap: _homeBloc.pickItem,
+      onTap: (index) {
+        if (index == 2) {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (BuildContext context) => AddPostScreen()));
+        } else {
+          _homeBloc.pickItem(index);
+        }
+      },
       selectedItemColor: Colors.black,
       items: [
         BottomNavigationBarItem(

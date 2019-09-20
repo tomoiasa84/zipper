@@ -90,6 +90,12 @@ class Localization {
           'A text message with a 6-digit verification code was just sent to ',
       'resendCode': 'Resend code',
       'cantRetry': 'You can\'t retry yet!',
+      'addPost': 'Add Post',
+      'isLookingFor': ' is looking for',
+      'preview': 'Preview',
+      'selectTagsYouAreLookingFor': 'Select tags you are looking for...',
+      'tagsYouAreLookingFor': 'Tags you are looking for',
+      'addMoreDetails': 'Add more details (optional)...',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -171,6 +177,12 @@ class Localization {
           'Un mesaj text cu un code de verificare din 6 cifre a fost trimis catre ',
       'resendCode': 'Retrimite codul',
       'cantRetry': 'Inca nu puteti retrimite codul!',
+      'addPost': 'Adauga o postare',
+      'isLookingFor': ' cauta',
+      'preview': 'Previzualizare',
+      'selectTagsYouAreLookingFor': 'Selecteaza etichetele pe care le cauti',
+      'tagsYouAreLookingFor': 'Etichetele pe care le cauti...',
+      'addMoreDetails': 'Adauga mai multe detalii (optional)...',
     },
   };
 

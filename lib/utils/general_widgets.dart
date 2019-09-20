@@ -93,14 +93,14 @@ GestureDetector buildTermsAndConditions(Function onClickAction, String text) {
   );
 }
 
-GestureDetector buildBackButton(Function onClickAction) {
+GestureDetector buildBackButton(IconData iconData, Function onClickAction) {
   return GestureDetector(
     child: Container(
       alignment: Alignment.topLeft,
       padding: const EdgeInsets.only(
           left: 10.0, top: 16.0, right: 10.0, bottom: 10.0),
       child: Icon(
-        Icons.arrow_back,
+        iconData,
         color: ColorUtils.darkGray,
       ),
     ),

@@ -87,11 +87,13 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   @override
   void initState() {
     _signUpBloc = SignUpBloc();
-    _signUpBloc.getLocations().then((snapshot) {
-      setState(() {
-        snapshot.forEach((location) => locations.add(location.city));
+    if(this.mounted) {
+      _signUpBloc.getLocations().then((snapshot) {
+        setState(() {
+          snapshot.forEach((location) => locations.add(location.city));
+        });
       });
-    });
+    }
     super.initState();
   }
 

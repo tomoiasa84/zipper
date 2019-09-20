@@ -37,7 +37,7 @@ class JoinedContactsScreenState extends State<JoinedContactsScreen> {
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
       ),
       centerTitle: true,
-      leading: buildBackButton(() {
+      leading: buildBackButton(Icons.arrow_back,() {
         Navigator.pop(context, true);
       }),
     );

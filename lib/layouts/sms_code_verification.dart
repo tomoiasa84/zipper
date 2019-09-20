@@ -281,7 +281,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        buildBackButton(() {
+                        buildBackButton(Icons.arrow_back, () {
                           Navigator.pop(context, true);
                         }),
                         buildLogo(context),

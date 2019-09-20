@@ -100,7 +100,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         Localization.of(context).getString('myProfile'),
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
-      leading: buildBackButton(() {
+      leading: buildBackButton(Icons.arrow_back, () {
         Navigator.pop(context, false);
       }),
       actions: <Widget>[
