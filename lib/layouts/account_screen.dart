@@ -10,6 +10,7 @@ import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
@@ -57,6 +58,20 @@ class AccountScreenState extends State<AccountScreen> {
         textStyle:
             TextStyle(color: ColorUtils.red, fontWeight: FontWeight.bold),
       ),
+    ];
+  }
+
+  static List<PopupMenuEntry<Object>> getPostOptions(BuildContext context) {
+    return [
+      PopupMenuItem(
+          value: 0,
+          child: Container(
+              width: 140.0,
+              child: Text(
+                Localization.of(context).getString('deletePost'),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: ColorUtils.red),
+              ))),
     ];
   }
 
@@ -175,6 +190,8 @@ class AccountScreenState extends State<AccountScreen> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(10.0))),
           child: PopupMenuButton<Object>(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0)),
             elevation: 13.2,
             offset: Offset(100, 110),
             initialValue: CustomPopupMenu(title: popupInitialValue),
@@ -358,16 +375,28 @@ class AccountScreenState extends State<AccountScreen> {
             Positioned(
               top: 0.0,
               right: 0.0,
-              child: GestureDetector(
-                onTap: () {},
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 13.0, horizontal: 11.0),
-                  child: Icon(
-                    Icons.more_vert,
-                    color: ColorUtils.lightGray30Opacity,
-                  ),
+              child: PopupMenuButton<Object>(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0)),
+                elevation: 13.2,
+                offset: Offset(0, 110),
+                initialValue: CustomPopupMenu(
+                    title: Localization.of(context).getString('deletePost')),
+                onCanceled: () {
+                  widget.onChanged(false);
+                },
+                onSelected: (_) {
+                  widget.onChanged(false);
+                  _deletePost(card);
+                },
+                icon: Icon(
+                  Icons.more_vert,
+                  color: ColorUtils.lightGray30Opacity,
                 ),
+                itemBuilder: (BuildContext context) {
+                  widget.onChanged(true);
+                  return getPostOptions(context);
+                },
               ),
             )
           ],
@@ -439,6 +468,29 @@ class AccountScreenState extends State<AccountScreen> {
         ],
       ),
     );
+  }
+
+  void _deletePost(CardModel card) {
+    setState(() {
+      _saving = true;
+    });
+    _accountBloc.deleteCard(card.id).then((result) {
+      if (result.errors == null) {
+        setState(() {
+          _saving = false;
+          _user.cards.remove(card);
+        });
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: Localization.of(context).getString("error"),
+            description: result.errors[0].message,
+            buttonText: Localization.of(context).getString('ok'),
+          ),
+        );
+      }
+    });
   }
 }
 

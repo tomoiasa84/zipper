@@ -107,6 +107,7 @@ class Localization {
       'yourPostHasBeenSuccessfullyAdded': 'Your post has been successfully added!',
       'addDescription': 'Add a description',
       'addATag': 'Add a tag',
+      'deletePost': 'Delete Post',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -206,6 +207,7 @@ class Localization {
       'yourPostHasBeenSuccessfullyAdded': 'Postarea a fost adaugata cu succes!',
       'addDescription': 'Adauga o descriere',
       'addATag': 'Adauga un tag',
+      'deletePost': 'Sterge Postarea',
     },
   };
 

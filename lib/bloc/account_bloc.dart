@@ -59,4 +59,14 @@ class AccountBloc {
 
     return result;
   }
+
+  Future<QueryResult> deleteCard(int cardId) async {
+    final QueryResult result = await client.query(QueryOptions(
+      document: '''mutation{
+                      delete_card(cardId:$cardId)
+                    }''',
+    ));
+
+    return result;
+  }
 }
