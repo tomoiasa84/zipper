@@ -1,5 +1,6 @@
 import 'package:contractor_search/bloc/profile_settings_bloc.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
@@ -26,7 +27,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   TextEditingController _mainTextEditingController = TextEditingController();
   TextEditingController _bioTextEditingController = TextEditingController();
   TextEditingController _addSkillsTextEditingController =
-      TextEditingController();
+  TextEditingController();
   String name;
   List<String> skills = [
     '#babysitter',
@@ -42,7 +43,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     });
     _profileSettingsBloc
         .updateUser(_nameTextEditingController.text, widget.user.location.id,
-            widget.user.id, widget.user.phoneNumber, true)
+        widget.user.id, widget.user.phoneNumber, true)
         .then((result) {
       setState(() {
         _saving = false;
@@ -58,10 +59,18 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
   @override
   void initState() {
+    UserTag userTag;
+    if (widget.user.tags != null) {
+      userTag = widget.user.tags.firstWhere(
+              (tag) => tag.defaultTag,
+          orElse: () => null);
+    }
     _nameTextEditingController.value =
-        new TextEditingValue(text: widget.user.name);
-    _mainTextEditingController.value =
-        new TextEditingValue(text: '#housekeeper');
+    new TextEditingValue(text: widget.user.name);
+    _mainTextEditingController.value = new TextEditingValue(
+        text: (userTag != null)
+            ? '#' + userTag.tag.name
+            : "");
     _bioTextEditingController.value = new TextEditingValue(
         text: widget.user.description != null ? widget.user.description : "");
     _profileSettingsBloc = ProfileSettingsBloc();
@@ -125,11 +134,12 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   void _showDialog(String title, String message, String buttonText) {
     showDialog(
       context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: message,
-        buttonText: buttonText,
-      ),
+      builder: (BuildContext context) =>
+          CustomDialog(
+            title: title,
+            description: message,
+            buttonText: buttonText,
+          ),
     );
   }
 
@@ -204,7 +214,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                     borderSide: BorderSide(color: ColorUtils.lightGray)),
                 hintText: Localization.of(context).getString('nameSurname'),
                 hintStyle:
-                    TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
+                TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
               ),
               validator: (value) {
                 if (value.isEmpty) {
@@ -245,9 +255,9 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                     borderSide: BorderSide(color: ColorUtils.orangeAccent)),
                 enabledBorder: new UnderlineInputBorder(
                     borderSide: BorderSide(color: ColorUtils.lightGray)),
-                hintText: Localization.of(context).getString('housekeeper'),
+                hintText: Localization.of(context).getString('addATag'),
                 hintStyle:
-                    TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
+                TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
               ),
               validator: (value) {
                 if (value.isEmpty) {
@@ -382,12 +392,12 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(6.0),
                 borderSide:
-                    BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
+                BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(6.0),
                 borderSide:
-                    BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
+                BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
               ),
               hintText: Localization.of(context).getString('addMoreSkills'),
               hintStyle: TextStyle(

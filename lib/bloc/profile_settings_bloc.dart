@@ -45,4 +45,38 @@ class ProfileSettingsBloc {
 
     return queryResult;
   }
+
+  Future<QueryResult> createUserTag(String userId, int tagId) async {
+    final QueryResult queryResult = await client.mutate(
+      MutationOptions(
+        document: '''mutation{
+                          create_userTag(userId:"$userId",
+                          tagId: $tagId){
+                            id
+                            user{
+                              name
+                            }
+                            tag{
+                              name
+                            }
+                            default
+                          }
+                        }''',
+      ),
+    );
+
+    return queryResult;
+  }
+
+  Future<QueryResult> deleteUserTag(int userTagId) async {
+    final QueryResult queryResult = await client.mutate(
+      MutationOptions(
+        document: '''mutation{
+                       delete_userTag(userTagId:2 )
+                      }''',
+      ),
+    );
+
+    return queryResult;
+  }
 }

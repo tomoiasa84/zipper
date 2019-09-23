@@ -39,9 +39,11 @@ class UsersScreenState extends State<UsersScreen> {
             _usersList.add(user);
           }
         });
-        setState(() {
-          _saving = false;
-        });
+        if(mounted) {
+          setState(() {
+            _saving = false;
+          });
+        }
       }
     });
     super.initState();

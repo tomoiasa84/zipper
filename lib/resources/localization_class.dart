@@ -100,6 +100,7 @@ class Localization {
       'success': 'Success',
       'yourPostHasBeenSuccessfullyAdded': 'Your post has been successfully added!',
       'addDescription': 'Add a description',
+      'addATag': 'Add a tag',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -191,6 +192,7 @@ class Localization {
       'success': 'Succes',
       'yourPostHasBeenSuccessfullyAdded': 'Postarea a fost adaugata cu succes!',
       'addDescription': 'Adauga o descriere',
+      'addATag': 'Adauga un tag',
     },
   };
 

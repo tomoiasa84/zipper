@@ -44,7 +44,12 @@ class AccountBloc {
                         description
                         tags{
                           id
+                          default
                           user{
+                            name
+                          }
+                          tag{
+                            id
                             name
                           }
                         }
