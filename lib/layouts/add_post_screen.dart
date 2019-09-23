@@ -1,8 +1,10 @@
 import 'package:contractor_search/bloc/add_post_bloc.dart';
+import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
@@ -19,6 +21,8 @@ class AddPostScreen extends StatefulWidget {
 class AddPostScreenState extends State<AddPostScreen> {
   AddPostBloc _addPostBloc;
   TextEditingController _addTagsTextEditingController = TextEditingController();
+  TextEditingController _addDetailsTextEditingController =
+      TextEditingController();
   bool _saving = false;
   User _user;
   Tag tag;
@@ -98,11 +102,42 @@ class AddPostScreenState extends State<AddPostScreen> {
             color: ColorUtils.darkGray,
           ),
           onPressed: () {
-            Navigator.pop(context, false);
+            if (tag != null) {
+              createPost();
+            } else {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => CustomDialog(
+                  title: Localization.of(context).getString("error"),
+                  description:
+                      Localization.of(context).getString("createPostError"),
+                  buttonText: Localization.of(context).getString("ok"),
+                ),
+              );
+            }
           },
         )
       ],
     );
+  }
+
+  void createPost() {
+    _addPostBloc
+        .createPost(_user.id, tag.id, _addDetailsTextEditingController.text)
+        .then((result) {
+      if (result.errors == null) {
+        Navigator.pop(context, CardModel.fromJson(result.data['create_card']));
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: Localization.of(context).getString("error"),
+            description: result.errors[0].message,
+            buttonText: Localization.of(context).getString("ok"),
+          ),
+        );
+      }
+    });
   }
 
   Container _buildPreviewCard() {
@@ -148,7 +183,12 @@ class AddPostScreenState extends State<AddPostScreen> {
               Container(
                 width: double.infinity,
                 margin: const EdgeInsets.only(top: 16.0),
-                child: _buildSkillsItem(),
+                child: Wrap(
+                  direction: Axis.horizontal,
+                  children: <Widget>[
+                    _buildSkillsItem(),
+                  ],
+                ),
               ),
               _buildAddTagsCard(),
               _buildDetailsTextFiled()
@@ -246,6 +286,7 @@ class AddPostScreenState extends State<AddPostScreen> {
       alignment: const Alignment(1.0, 0.0),
       children: <Widget>[
         TypeAheadFormField(
+          getImmediateSuggestions: true,
           textFieldConfiguration: TextFieldConfiguration(
             controller: _addTagsTextEditingController,
             decoration: InputDecoration(
@@ -297,13 +338,16 @@ class AddPostScreenState extends State<AddPostScreen> {
           padding: const EdgeInsets.all(16.0),
           child: GestureDetector(
             onTap: () {
-              setState(() {
-                if (_addTagsTextEditingController.text.isNotEmpty) {
+              if (_addTagsTextEditingController.text.isNotEmpty) {
+                var tagFound = tagsList.firstWhere(
+                    (tag) => tag.name == _addTagsTextEditingController.text,
+                    orElse: () => null);
+                if (tagFound != null) {
                   setState(() {
-                    tag = Tag(_addTagsTextEditingController.text);
+                    tag = tagFound;
                   });
                 }
-              });
+              }
               _addTagsTextEditingController.clear();
               FocusScope.of(context).requestFocus(FocusNode());
             },
@@ -322,6 +366,7 @@ class AddPostScreenState extends State<AddPostScreen> {
     return Container(
       margin: const EdgeInsets.only(top: 16.0),
       child: TextFormField(
+          controller: _addDetailsTextEditingController,
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6.0),

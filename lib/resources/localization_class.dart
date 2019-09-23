@@ -96,6 +96,9 @@ class Localization {
       'selectTagsYouAreLookingFor': 'Select tag you are looking for...',
       'tagsYouAreLookingFor': 'Tag you are looking for',
       'addMoreDetails': 'Add more details (optional)...',
+      'createPostError': 'Please select the tag you are looking for!',
+      'success': 'Success',
+      'yourPostHasBeenSuccessfullyAdded': 'Your post has been successfully added!',
     },
     'ro': {
       'contacts': 'Contacte',
@@ -183,6 +186,9 @@ class Localization {
       'selectTagsYouAreLookingFor': 'Selecteaza etichetea pe care le cauti',
       'tagsYouAreLookingFor': 'Eticheta pe care o cauti...',
       'addMoreDetails': 'Adauga mai multe detalii (optional)...',
+      'createPostError': 'Va rugam selectati tag-ul pe care il cautati',
+      'success': 'Succes',
+      'yourPostHasBeenSuccessfullyAdded': 'Postarea a fost adaugata cu succes!',
     },
   };
 

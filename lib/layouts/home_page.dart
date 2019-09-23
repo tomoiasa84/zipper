@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -86,8 +88,7 @@ class _HomePageState extends State<HomePage> {
       type: BottomNavigationBarType.fixed,
       onTap: (index) {
         if (index == 2) {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (BuildContext context) => AddPostScreen()));
+          _goToAddPostScreen();
         } else {
           _homeBloc.pickItem(index);
         }
@@ -134,6 +135,22 @@ class _HomePageState extends State<HomePage> {
             )),
       ],
     );
+  }
+
+  Future<void> _goToAddPostScreen() async {
+    var result = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) => AddPostScreen()));
+    if(result!=null){
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => CustomDialog(
+          title: Localization.of(context).getString("success"),
+          description:
+          Localization.of(context).getString("yourPostHasBeenSuccessfullyAdded"),
+          buttonText: Localization.of(context).getString("ok"),
+        ),
+      );
+    }
   }
 
   void _onBlurredChanged(bool value) {

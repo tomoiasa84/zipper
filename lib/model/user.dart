@@ -12,11 +12,11 @@ class User {
         location = json["location"] !=null ? LocationModel.fromJson(json['location']): null,
         phoneNumber = json['phoneNumber'],
         isActive = json['isActive'],
-        cards = json['cards'] !=null ?(json['cards'] as List)?.map((i)=> Card.fromJson(i))?.toList() : null,
+        cards = json['cards'] !=null ?(json['cards'] as List)?.map((i)=> CardModel.fromJson(i))?.toList() : null,
         tags =  json['tags'] !=null ? (json['tags'] as List)?.map((i)=> Tag.fromJson(i))?.toList() : null,
         conversations = json['conversations'] !=null ? (json['conversations'] as List)?.map((i)=> ConversationModel.fromJson(i))?.toList() : null,
         connections = json['connections'] !=null ? (json['connections'] as List)?.map((i)=> User.fromJson(i))?.toList() : null,
-        cardsFeed =json['cards_feed'] !=null ? (json['cards_feed'] as List)?.map((i)=> Card.fromJson(i))?.toList() : null,
+        cardsFeed =json['cards_feed'] !=null ? (json['cards_feed'] as List)?.map((i)=> CardModel.fromJson(i))?.toList() : null,
         settings = json['settings'] !=null ? (json['settings'] as List)?.map((i)=> Setting.fromJson(i))?.toList(): null;
 
   final String id;
@@ -27,8 +27,8 @@ class User {
   final bool isActive;
   final List<ConversationModel> conversations;
   final List<User> connections;
-  final List<Card> cards;
+  final List<CardModel> cards;
   final List<Tag> tags;
-  final List<Card> cardsFeed;
+  final List<CardModel> cardsFeed;
   final List<Setting> settings;
 }

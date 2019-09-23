@@ -65,4 +65,25 @@ class AddPostBloc {
     return result;
   }
 
+  Future<QueryResult> createPost(String postedBy, int searchFor, String details) async {
+    final QueryResult result = await client.query(QueryOptions(
+      document: '''mutation{
+                      create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$details"){
+                        id
+                        postedBy{
+                          name
+                          id
+                        }
+                        searchFor{
+                          name
+                          id
+                        }
+                        createdAt
+                        text
+                      }
+                    }''',
+    ));
+
+    return result;
+  }
 }

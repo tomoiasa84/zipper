@@ -87,13 +87,13 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
   @override
   void initState() {
     _signUpBloc = SignUpBloc();
-    if(this.mounted) {
-      _signUpBloc.getLocations().then((snapshot) {
+    _signUpBloc.getLocations().then((snapshot) {
+      if (this.mounted) {
         setState(() {
           snapshot.forEach((location) => locations.add(location.city));
         });
-      });
-    }
+      }
+    });
     super.initState();
   }
 
@@ -184,6 +184,7 @@ class PhoneAuthScreenState extends State<PhoneAuthScreen> {
     return Container(
       margin: const EdgeInsets.only(top: 35.0),
       child: TypeAheadFormField(
+        getImmediateSuggestions: true,
         textFieldConfiguration: TextFieldConfiguration(
             controller: this._typeAheadController,
             decoration: customInputDecoration(
