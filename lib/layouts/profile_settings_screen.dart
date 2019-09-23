@@ -63,8 +63,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     _mainTextEditingController.value =
         new TextEditingValue(text: '#housekeeper');
     _bioTextEditingController.value = new TextEditingValue(
-        text:
-            "Hi! My name is Name Surname, I'm a housekeeper, it's my obsession since a little kid, first day has 50% discount.");
+        text: widget.user.description != null ? widget.user.description : "");
     _profileSettingsBloc = ProfileSettingsBloc();
     name = widget.user.name;
     super.initState();
@@ -288,6 +287,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                 this.name = value;
               },
               decoration: InputDecoration(
+                hintText: Localization.of(context).getString('addDescription'),
                 border: InputBorder.none,
               ),
               validator: (value) {

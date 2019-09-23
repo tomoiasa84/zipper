@@ -88,13 +88,15 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   Container _buildDescription() {
-    return Container(
-      padding: const EdgeInsets.only(top: 16.0),
-      child: Text(
-        Localization.of(context).getString('termsAndConditionsText'),
-        style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
-      ),
-    );
+    return widget.user.description != null
+        ? Container(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: Text(
+              widget.user.description,
+              style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
+            ),
+          )
+        : Container();
   }
 
   Widget _buildNameRow() {
