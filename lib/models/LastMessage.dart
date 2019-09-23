@@ -12,5 +12,6 @@ class LastMessage {
 
   LastMessage.fromJson(Map<String, dynamic> json)
       : _timeToken = json['timetoken'],
-        _message = json['message'];
+        _message =
+            json['message'] != null ? Message.fromJson(json['message']) : null;
 }

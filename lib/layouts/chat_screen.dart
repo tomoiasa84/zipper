@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:contractor_search/bloc/chat_bloc.dart';
 import 'package:contractor_search/layouts/image_preview_screen.dart';
-import 'package:contractor_search/models/Conversation.dart';
+import 'package:contractor_search/layouts/select_contact_screen.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
-import 'package:contractor_search/models/SharedContact.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
@@ -14,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loadmore/loadmore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class ChatScreen extends StatefulWidget {
   final PubNubConversation pubNubConversation;
@@ -32,6 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatBloc _chatBloc = ChatBloc();
   final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   final TextEditingController _textEditingController =
       new TextEditingController();
@@ -50,13 +56,83 @@ class _ChatScreenState extends State<ChatScreen> {
     return await SharedPreferencesHelper.getCurrentUserId();
   }
 
-  Future _getImage(ImageSource imageSource) async {
+  Future _uploadImage(ImageSource imageSource) async {
     await ImagePicker.pickImage(source: imageSource).then((image) {
-      _chatBloc.uploadPic(image).then((imageDownloadUrl) {
-        Message message = Message.withImage(DateTime.now(),
-            escapeJsonCharacters(imageDownloadUrl), _currentUserId);
-        _chatBloc.sendMessage(widget.pubNubConversation.id, message);
-      });
+      if (image != null) {
+        setState(() {
+          _loading = true;
+        });
+        _chatBloc.uploadPic(image).then((imageDownloadUrl) {
+          Message message = Message.withImage(DateTime.now(),
+              escapeJsonCharacters(imageDownloadUrl), _currentUserId);
+          _chatBloc
+              .sendMessage(widget.pubNubConversation.id, message)
+              .then((messageSent) {
+            if (!messageSent) {
+              _showDialog(
+                  Localization.of(context).getString('error'),
+                  Localization.of(context).getString('somethingWentWrong'),
+                  Localization.of(context).getString('ok'));
+            }
+            setState(() {
+              _loading = false;
+            });
+          });
+        });
+      }
+    });
+  }
+
+  void firebaseCloudMessagingListeners() {
+    if (Platform.isIOS) iosPermission();
+
+    _firebaseMessaging.getToken().then((deviceId){
+      print('DEVICE TOKEN IS: $deviceId');
+      _chatBloc.subscribeToPushNotifications(deviceId, widget.pubNubConversation.id);
+    });
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print('on message $message');
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print('on resume $message');
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print('on launch $message');
+      },
+    );
+  }
+
+  void iosPermission() {
+    _firebaseMessaging.requestNotificationPermissions(
+        IosNotificationSettings(sound: true, badge: true, alert: true)
+    );
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings)
+    {
+      print("Settings registered: $settings");
+    });
+  }
+
+  void _shareContact(BuildContext context) async {
+    final sharedContact = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => SelectContactScreen(shareContactScreen: true)),
+    );
+    //Do something with the result
+    _getCurrentUserId().then((userId) {
+      _chatBloc.sendMessage(widget.pubNubConversation.id,
+          new Message.withSharedContact(DateTime.now(), userId, sharedContact));
+    });
+  }
+
+  void _startConversation(User user) {
+    _chatBloc.createConversation(user).then((pubNubConversation) {
+      Navigator.of(context).pushReplacement(new MaterialPageRoute(
+          builder: (BuildContext context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)));
     });
   }
 
@@ -70,12 +146,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    firebaseCloudMessagingListeners();
     _getCurrentUserId().then((currentUserId) {
       setState(() {
         _currentUserId = currentUserId;
         _interlocutor = getInterlocutorName(widget.pubNubConversation.user1,
             widget.pubNubConversation.user2, _currentUserId);
-        _setMessagesListener();
+        _setMessagesListener(currentUserId);
       });
     });
   }
@@ -87,6 +164,7 @@ class _ChatScreenState extends State<ChatScreen> {
           .then((historyMessages) {
         setState(() {
           _listOfMessages.addAll(historyMessages.reversed);
+          _addHeadersIfNecessary();
         });
       });
       return true;
@@ -94,13 +172,60 @@ class _ChatScreenState extends State<ChatScreen> {
     return false;
   }
 
-  void _setMessagesListener() {
-    _chatBloc.subscribeToChannel(widget.pubNubConversation.id);
+  void _setMessagesListener(String currentUserId) {
+    _chatBloc.subscribeToChannel(widget.pubNubConversation.id, currentUserId);
     _subscription = _chatBloc.ctrl.stream.listen((message) {
       setState(() {
         _listOfMessages.insert(0, message);
+        _addHeadersIfNecessary();
       });
     });
+  }
+
+  void _addHeadersIfNecessary() {
+    if (_listOfMessages.length > 0) {
+      var lastItem = _listOfMessages[_listOfMessages.length - 1];
+      if (lastItem is Message) {
+        setState(() {
+          _listOfMessages.insert(
+              _listOfMessages.length, MessageHeader(lastItem.timestamp));
+        });
+      }
+
+      for (var i = 0; i < _listOfMessages.length - 1; i++) {
+        var currentItem = _listOfMessages[i];
+        var nextItem = _listOfMessages[i + 1];
+        if (currentItem is Message) {
+          if (_datesDontMatch(currentItem, nextItem)) {
+            _listOfMessages.insert(i + 1, MessageHeader(currentItem.timestamp));
+          }
+        }
+      }
+    }
+  }
+
+  bool _datesDontMatch(Message currentItem, Object nextItem) {
+    if (nextItem is Message) {
+      return !(currentItem.timestamp.day == nextItem.timestamp.day &&
+          currentItem.timestamp.month == nextItem.timestamp.month &&
+          currentItem.timestamp.year == nextItem.timestamp.year);
+    } else if (nextItem is MessageHeader) {
+      return !(currentItem.timestamp.day == nextItem.timestamp.day &&
+          currentItem.timestamp.month == nextItem.timestamp.month &&
+          currentItem.timestamp.year == nextItem.timestamp.year);
+    }
+    return false;
+  }
+
+  void _showDialog(String title, String message, String buttonText) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText: buttonText,
+      ),
+    );
   }
 
   @override
@@ -126,15 +251,6 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               onPressed: () => Navigator.pop(context, false),
             ),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(
-                  Icons.more_vert,
-                  color: ColorUtils.almostBlack,
-                ),
-                tooltip: "More actions",
-              )
-            ],
             backgroundColor: Colors.white,
           ),
           _showMessagesUI(),
@@ -193,14 +309,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _selectMessageLayout(Object item, int position) {
     if (item is Message) {
+      if (item.sharedContact != null) {
+        return _getSharedContactUI(item.sharedContact);
+      }
+
       if (_messageAuthorIsCurrentUser(item)) {
         return _currentUserMessage(position, item);
       } else {
         return _otherUserMessage(position, item);
       }
-    }
-    if (item is SharedContact) {
-      return _getSharedContactUI(item);
     }
     return _getMessageHeaderUI(item as MessageHeader);
   }
@@ -267,7 +384,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Visibility(
                     visible: message.imageDownloadUrl == null,
                     child: Text(
-                      message.message,
+                      message.message != null ? message.message : "",
                       textWidthBasis: TextWidthBasis.longestLine,
                       style: TextStyle(color: Colors.white, fontSize: 14),
                       softWrap: true,
@@ -518,7 +635,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _handleMessageSubmit(_textEditingController.text)),
+          onPressed: () => _shareContact(context)),
     );
   }
 
@@ -533,7 +650,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _getImage(ImageSource.gallery)),
+          onPressed: () => _uploadImage(ImageSource.gallery)),
     );
   }
 
@@ -548,7 +665,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorUtils.darkGray,
             size: 24,
           ),
-          onPressed: () => _getImage(ImageSource.camera)),
+          onPressed: () => _uploadImage(ImageSource.camera)),
     );
   }
 
@@ -570,13 +687,13 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _getMessageHeaderUI(MessageHeader messageHeader) {
     return Container(
       margin: EdgeInsets.fromLTRB(0, 22, 00, 0),
-      child: Text(messageHeader.timestamp.toIso8601String(),
+      child: Text(getFormattedDateTime(messageHeader.timestamp),
           textAlign: TextAlign.center,
           style: TextStyle(color: ColorUtils.textGray, fontSize: 14)),
     );
   }
 
-  Widget _getSharedContactUI(SharedContact sharedContact) {
+  Widget _getSharedContactUI(User user) {
     return Container(
       height: 72,
       margin: EdgeInsets.fromLTRB(15, 16, 15, 0),
@@ -595,7 +712,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Text(sharedContact.name,
+                        Text(user.name,
                             style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.white,
@@ -606,7 +723,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           child: Row(
                             children: <Widget>[
                               Text(
-                                sharedContact.hashtag,
+                                "#hardcoded tag",
                                 style: TextStyle(
                                     fontSize: 12, color: Colors.white),
                               ),
@@ -630,6 +747,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Container(
                     decoration: _getRoundWhiteCircle(),
                     child: new IconButton(
+                      onPressed: () => _startConversation(user),
                       icon: Image.asset(
                         "assets/images/ic_inbox_orange.png",
                         color: ColorUtils.messageOrange,

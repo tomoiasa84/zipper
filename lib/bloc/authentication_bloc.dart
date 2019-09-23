@@ -45,12 +45,6 @@ class AuthenticationBloc {
                            						 id
                            						 city
                        						 }
-                                  tags{
-                                      name
-                                  }
-                                  cards{
-                                      text
-                                  }
                     }
                   }''',
       ),
@@ -78,12 +72,6 @@ class AuthenticationBloc {
                            						 id
                            						 city
                        						 }
-                                  tags{
-                                      name
-                                  }
-                                  cards{
-                                      text
-                                  }
                     }
                   }''',
       ),

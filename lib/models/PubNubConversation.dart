@@ -1,24 +1,38 @@
+import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/LastMessage.dart';
 
 class PubNubConversation {
   String _id;
   String _name;
-  String _hashtag;
+  String _hashTag;
   String _messagePreview;
   int _timeToken;
-  User user1;
-  User user2;
+  User _user1;
+  User _user2;
   LastMessage _lastMessage;
 
-  PubNubConversation(this._id, this._name, this._hashtag, this._messagePreview,
+  PubNubConversation(this._id, this._name, this._hashTag, this._messagePreview,
       this._lastMessage);
+
+  PubNubConversation.fromConversation(ConversationModel conversationModel) {
+    this._id = conversationModel.id;
+    this._user1 = conversationModel.user1;
+    this._user2 = conversationModel.user2;
+  }
+
+
+  set user1(User value) {
+    _user1 = value;
+  }
+
+  User get user1 => _user1;
 
   String get id => _id;
 
   String get messagePreview => _messagePreview;
 
-  String get hashtag => _hashtag;
+  String get hashTag => _hashTag;
 
   String get name => _name;
 
@@ -29,4 +43,10 @@ class PubNubConversation {
   PubNubConversation.fromJson(Map<String, dynamic> json)
       : _timeToken = json['timetoken'],
         _lastMessage = json['message'];
+
+  User get user2 => _user2;
+
+  set user2(User value) {
+    _user2 = value;
+  }
 }

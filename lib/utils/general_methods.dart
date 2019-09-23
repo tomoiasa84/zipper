@@ -1,4 +1,5 @@
 import 'package:contractor_search/model/user.dart';
+import 'package:intl/intl.dart';
 
 String validatePhoneNumber(String value, String validationMessage) {
   final RegExp phoneExp =
@@ -32,6 +33,10 @@ String getInterlocutorName(User user1, User user2, String currentUserId) {
   }
 }
 
-String escapeJsonCharacters(String imageUrlDownload){
+String escapeJsonCharacters(String imageUrlDownload) {
   return imageUrlDownload.replaceAll("?", "%3F");
+}
+
+String getFormattedDateTime(DateTime dateTime) {
+  return DateFormat("dd/MM/yyyy").format(dateTime);
 }
