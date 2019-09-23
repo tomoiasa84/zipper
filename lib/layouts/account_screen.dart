@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:contractor_search/bloc/account_bloc.dart';
 import 'package:contractor_search/layouts/phone_auth_screen.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
+import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
@@ -145,9 +146,13 @@ class AccountScreenState extends State<AccountScreen> {
                         child: Container(
                           margin: const EdgeInsets.only(top: 16.0),
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               _buildMainInfoCard(),
-                              _buildSkillsCard()
+                              _buildSkillsCard(),
+                              _user.cards != null
+                                  ? _buildPostsList()
+                                  : Container()
                             ],
                           ),
                         ),
@@ -305,11 +310,109 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   Future _goToSettingsScreen() async {
-   await Navigator.push(context,
+    await Navigator.push(context,
         MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
-      reviews.clear();
-      _getCurrentUserInfo();
-    }
+    reviews.clear();
+    _getCurrentUserInfo();
+  }
+
+  ListView _buildPostsList() {
+    return ListView.builder(
+        shrinkWrap: true,
+        primary: false,
+        itemCount: _user.cards.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Container(
+              margin: EdgeInsets.only(
+                top: (index == 0) ? 8.0 : 0.0,
+                bottom: (index == _user.cards.length - 1) ? 24.0 : 0.0,
+              ),
+              child: _buildPostItem(_user.cards.elementAt(index)));
+        });
+  }
+
+  Card _buildPostItem(CardModel card) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _buildPostText(),
+            _buildCreatedAtInfo()
+          ],
+        ),
+      ),
+    );
+  }
+
+  Row _buildPostText() {
+    return Row(
+            children: <Widget>[
+              CircleAvatar(
+                child: Text(getInitials(_user.name),
+                    style: TextStyle(color: ColorUtils.darkerGray)),
+                backgroundColor: ColorUtils.lightLightGray,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text.rich(
+                      TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: _user.name,
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          TextSpan(
+                              text: Localization.of(context)
+                                  .getString("isLookingFor"),
+                              style: TextStyle(color: ColorUtils.darkerGray)),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      "#houseKeeper",
+                      style: TextStyle(
+                          color: ColorUtils.orangeAccent,
+                          fontWeight: FontWeight.bold),
+                    )
+                  ],
+                ),
+              )
+            ],
+          );
+  }
+
+  Padding _buildCreatedAtInfo() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0),
+      child: Row(
+        children: <Widget>[
+          Image.asset('assets/images/ic_access_time.png'),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, right: 16.0),
+            child: Text(
+              '1h ago',
+              style: TextStyle(color: ColorUtils.darkerGray),
+            ),
+          ),
+          Image.asset('assets/images/ic_replies_gray.png'),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, right: 16.0),
+            child: Text('3 replies',
+                style: TextStyle(color: ColorUtils.darkerGray)),
+          ),
+        ],
+      ),
+    );
+  }
+
 }
 
 class CustomPopupMenu {

@@ -138,17 +138,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _goToAddPostScreen() async {
-    var result = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => AddPostScreen()));
-    if(result!=null){
+    var result = await Navigator.of(context).push(
+        MaterialPageRoute(builder: (BuildContext context) => AddPostScreen()));
+    if (result != null) {
       showDialog(
         context: context,
-        builder: (BuildContext context) => CustomDialog(
-          title: Localization.of(context).getString("success"),
-          description:
-          Localization.of(context).getString("yourPostHasBeenSuccessfullyAdded"),
-          buttonText: Localization.of(context).getString("ok"),
-        ),
+        builder: (BuildContext context) =>
+            CustomDialog(
+              title: Localization.of(context).getString("success"),
+              description: Localization.of(context)
+                  .getString("yourPostHasBeenSuccessfullyAdded"),
+              buttonText: Localization.of(context).getString("ok"),
+            ),
       );
     }
   }
