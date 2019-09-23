@@ -46,6 +46,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   }
 
   void _goToChatScreen(PubNubConversation pubNubConversation) {
+    var convId = pubNubConversation.id;
+    print('CONVERSATION ID IS: $convId');
     Navigator.push(
       context,
       MaterialPageRoute(

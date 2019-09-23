@@ -1,6 +1,7 @@
 import 'package:contractor_search/model/user.dart';
 
 class Message {
+  String _channelId;
   User _sharedContact;
   String _message;
   DateTime _timestamp;
@@ -36,6 +37,7 @@ class Message {
   DateTime get timestamp => _timestamp;
 
   Map<String, dynamic> toJson() => {
+        '_channelId': _channelId,
         'message': _message,
         'timestamp': _timestamp.toIso8601String(),
         'from': _from,

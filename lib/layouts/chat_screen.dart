@@ -83,11 +83,12 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void firebaseCloudMessaging_Listeners() {
-    if (Platform.isIOS) iOS_Permission();
+  void firebaseCloudMessagingListeners() {
+    if (Platform.isIOS) iosPermission();
 
-    _firebaseMessaging.getToken().then((token){
-      print('DEVICE TOKEN IS: $token');
+    _firebaseMessaging.getToken().then((deviceId){
+      print('DEVICE TOKEN IS: $deviceId');
+      _chatBloc.subscribeToPushNotifications(deviceId, widget.pubNubConversation.id);
     });
 
     _firebaseMessaging.configure(
@@ -103,7 +104,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void iOS_Permission() {
+  void iosPermission() {
     _firebaseMessaging.requestNotificationPermissions(
         IosNotificationSettings(sound: true, badge: true, alert: true)
     );
@@ -145,13 +146,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    firebaseCloudMessaging_Listeners();
+    firebaseCloudMessagingListeners();
     _getCurrentUserId().then((currentUserId) {
       setState(() {
         _currentUserId = currentUserId;
         _interlocutor = getInterlocutorName(widget.pubNubConversation.user1,
             widget.pubNubConversation.user2, _currentUserId);
-        _setMessagesListener();
+        _setMessagesListener(currentUserId);
       });
     });
   }
@@ -171,8 +172,8 @@ class _ChatScreenState extends State<ChatScreen> {
     return false;
   }
 
-  void _setMessagesListener() {
-    _chatBloc.subscribeToChannel(widget.pubNubConversation.id);
+  void _setMessagesListener(String currentUserId) {
+    _chatBloc.subscribeToChannel(widget.pubNubConversation.id, currentUserId);
     _subscription = _chatBloc.ctrl.stream.listen((message) {
       setState(() {
         _listOfMessages.insert(0, message);

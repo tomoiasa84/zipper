@@ -25,7 +25,7 @@ class ChatBloc {
   FirebaseStorage _storage = FirebaseStorage.instance;
 
   static HttpLink link =
-  HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+      HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
@@ -76,16 +76,16 @@ class ChatBloc {
     }
   }
 
-  void subscribeToChannel(String channelName) async {
+  void subscribeToChannel(String channelName, String currentUserId) async {
     var url =
-        "$_baseUrl/subscribe/$_subscribeKey/$channelName/0/$_timestamp?uuid=12345";
+        "$_baseUrl/subscribe/$_subscribeKey/$channelName/0/$_timestamp?uuid=$currentUserId";
     var response = await _pubNubClient.get(url);
 
     if (response.statusCode == 200) {
       var myString = response.body.substring(response.body.length - 19);
       _timestamp = myString.substring(0, myString.length - 2);
       _addMessageToList(response);
-      subscribeToChannel(channelName);
+      subscribeToChannel(channelName, currentUserId);
     } else {
       print("Subscribe request failed with status: ${response.body}.");
     }
@@ -135,11 +135,17 @@ class ChatBloc {
                      }''',
       ));
       ConversationModel conversationModel =
-      ConversationModel.fromJson(result.data['create_conversation']);
+          ConversationModel.fromJson(result.data['create_conversation']);
       PubNubConversation pubNubConversation =
-      PubNubConversation.fromConversation(conversationModel);
+          PubNubConversation.fromConversation(conversationModel);
       return pubNubConversation;
     });
+  }
+
+  Future subscribeToPushNotifications(String deviceId, String channelId) async {
+    var url =
+        "http://ps.pndsn.com/v1/push/sub-key/$_subscribeKey/devices/$deviceId?add=$channelId&type=gcm";
+    var response = await _pubNubClient.get(url);
   }
 
   void dispose() {
