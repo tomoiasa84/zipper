@@ -3,6 +3,7 @@ import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 
 import 'home_page.dart';
@@ -118,7 +119,7 @@ class ShareSelectedContactsScreenState
                   onPressed: () {
                     Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
+                        MaterialPageRoute(builder: (context) => HomePage(syncContactsFlagRequired: true,)),
                         ModalRoute.withName("/homepage"));
                   },
                   color: ColorUtils.orangeAccent,

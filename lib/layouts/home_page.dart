@@ -3,13 +3,19 @@ import 'dart:ui';
 import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
+import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 
 import 'account_screen.dart';
+import 'add_post_screen.dart';
 import 'users_screen.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  final bool syncContactsFlagRequired;
+
+  HomePage({Key key, this.syncContactsFlagRequired}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -22,6 +28,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     _homeBloc = HomeBloc();
+    if (widget.syncContactsFlagRequired) {
+      _saveSyncContactsFlag(true);
+    }
     super.initState();
   }
 
@@ -64,9 +73,9 @@ class _HomePageState extends State<HomePage> {
         ),
         (blurred)
             ? new Container(
-                decoration:
-                    new BoxDecoration(color: Colors.black.withOpacity(0.6)),
-              )
+          decoration:
+          new BoxDecoration(color: Colors.black.withOpacity(0.6)),
+        )
             : Container(),
       ],
     );
@@ -77,7 +86,13 @@ class _HomePageState extends State<HomePage> {
     return BottomNavigationBar(
       currentIndex: snapshot.data.index,
       type: BottomNavigationBarType.fixed,
-      onTap: _homeBloc.pickItem,
+      onTap: (index) {
+        if (index == 2) {
+          _goToAddPostScreen();
+        } else {
+          _homeBloc.pickItem(index);
+        }
+      },
       selectedItemColor: Colors.black,
       items: [
         BottomNavigationBarItem(
@@ -122,9 +137,29 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _goToAddPostScreen() async {
+    var result = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) => AddPostScreen()));
+    if(result!=null){
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => CustomDialog(
+          title: Localization.of(context).getString("success"),
+          description:
+          Localization.of(context).getString("yourPostHasBeenSuccessfullyAdded"),
+          buttonText: Localization.of(context).getString("ok"),
+        ),
+      );
+    }
+  }
+
   void _onBlurredChanged(bool value) {
     setState(() {
       blurred = value;
     });
+  }
+
+  Future _saveSyncContactsFlag(bool syncValue) async {
+    await SharedPreferencesHelper.saveSyncContactsFlag(true);
   }
 }

@@ -1,9 +1,12 @@
 import 'package:contractor_search/bloc/sync_contacts_model.dart';
 import 'package:contractor_search/layouts/share_selected_screen.dart';
 import 'package:contractor_search/layouts/unjoined_contacts_screen.dart';
+import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
+
+import 'joined_contacts_screen.dart';
 
 class SyncResultsScreen extends StatefulWidget {
   final SyncContactsModel syncResult;
@@ -15,12 +18,20 @@ class SyncResultsScreen extends StatefulWidget {
 }
 
 class SyncResultsScreenState extends State<SyncResultsScreen> {
+  List<UnjoinedContactsModel> unjoinedContacts;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
       body: _buildBody(),
     );
+  }
+
+  @override
+  void initState() {
+    unjoinedContacts = widget.syncResult.unjoinedContacts;
+    super.initState();
   }
 
   AppBar _buildAppBar() {
@@ -66,6 +77,9 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
                 widget.syncResult.existingUsers.length.toString() +
                     " " +
                     Localization.of(context).getString("users").toLowerCase()),
+            _buildForwardArrow(() {
+              _navigateAndDisplayJoinedUsers();
+            })
           ],
         ),
       ),
@@ -73,6 +87,12 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
   }
 
   Card _buildUntaggedContactsCard() {
+    int selectedContacts = 0;
+    unjoinedContacts.forEach((item) {
+      if (item.selected) {
+        selectedContacts++;
+      }
+    });
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -83,7 +103,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
           children: <Widget>[
             _buildCardTitle(
                 Localization.of(context).getString("unjoinedContacts"),
-                widget.syncResult.unjoinedContacts.length.toString() +
+                selectedContacts.toString() +
                     " " +
                     Localization.of(context)
                         .getString("contacts")
@@ -97,12 +117,24 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
     );
   }
 
-  void _navigateAndDisplayUnjoinedUsers() {
-    Navigator.push(
+  Future _navigateAndDisplayUnjoinedUsers() async {
+    await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => UnjoinedContactsScreen(
                   unjoinedContacts: widget.syncResult.unjoinedContacts,
+                )));
+    setState(() {
+      unjoinedContacts = widget.syncResult.unjoinedContacts;
+    });
+  }
+
+  void _navigateAndDisplayJoinedUsers() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => JoinedContactsScreen(
+                  joinedContacts: widget.syncResult.existingUsers,
                 )));
   }
 

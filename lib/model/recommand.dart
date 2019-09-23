@@ -12,7 +12,7 @@ class Recommand {
         acceptedFlag = json['acceptedFlag'];
 
   final int id;
-  final Card card;
+  final CardModel card;
   final User userAsk;
   final User userSend;
   final User userRecommand;

@@ -5,12 +5,12 @@ import 'package:contractor_search/layouts/phone_auth_screen.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
-import 'package:contractor_search/utils/star_display.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -30,6 +30,7 @@ class AccountScreenState extends State<AccountScreen> {
   AccountBloc _accountBloc;
 
   User _user;
+  UserTag _mainUserTag;
   bool _saving = false;
   var list = List<PopupMenuEntry<Object>>();
   List<Review> reviews = [];
@@ -109,6 +110,10 @@ class AccountScreenState extends State<AccountScreen> {
           setState(() {
             _user = User.fromJson(result.data['get_user']);
             _saving = false;
+            if (_user.tags != null) {
+              _mainUserTag = _user.tags
+                  .firstWhere((tag) => tag.defaultTag, orElse: () => null);
+            }
             reviews.add(Review(1, _user, 3, "#babysitter"));
             reviews.add(Review(1, _user, 4, "#nanny"));
             reviews.add(Review(1, _user, 5, "#housekeeper"));
@@ -193,6 +198,7 @@ class AccountScreenState extends State<AccountScreen> {
         padding: const EdgeInsets.only(
             left: 16.0, right: 16.0, top: 24.0, bottom: 44.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _buildNameRow(),
             _buildDescription(),
@@ -203,13 +209,16 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   Container _buildDescription() {
-    return Container(
-      padding: const EdgeInsets.only(top: 16.0),
-      child: Text(
-        Localization.of(context).getString('termsAndConditionsText'),
-        style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
-      ),
-    );
+    return _user.description != null
+        ? Container(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: Text(
+              _user.description,
+              textAlign: TextAlign.left,
+              style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
+            ),
+          )
+        : Container();
   }
 
   Widget _buildNameRow() {
@@ -229,26 +238,28 @@ class AccountScreenState extends State<AccountScreen> {
                 _user.name,
                 style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
               ),
-              Row(
-                children: <Widget>[
-                  Text(
-                    "#housekeeper",
-                    style: TextStyle(color: ColorUtils.orangeAccent),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0, top: 4.0),
-                    child: Icon(
-                      Icons.star,
-                      color: ColorUtils.orangeAccent,
-                    ),
-                  ),
-                  Text(
-                    '4.8',
-                    style:
-                        TextStyle(fontSize: 14.0, color: ColorUtils.darkGray),
-                  )
-                ],
-              )
+              _mainUserTag != null
+                  ? Row(
+                      children: <Widget>[
+                        Text(
+                          '#' + _mainUserTag.tag.name,
+                          style: TextStyle(color: ColorUtils.orangeAccent),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, top: 4.0),
+                          child: Icon(
+                            Icons.star,
+                            color: ColorUtils.orangeAccent,
+                          ),
+                        ),
+                        Text(
+                          '4.8',
+                          style: TextStyle(
+                              fontSize: 14.0, color: ColorUtils.darkGray),
+                        )
+                      ],
+                    )
+                  : Container()
             ],
           ),
         ),

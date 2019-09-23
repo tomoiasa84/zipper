@@ -32,7 +32,7 @@ class TermsAndConditions extends StatelessWidget {
       margin: const EdgeInsets.only(top: 25.0),
       child: Row(
         children: <Widget>[
-          buildBackButton(() {
+          buildBackButton(Icons.arrow_back, () {
             Navigator.pop(context, true);
           }),
           Padding(

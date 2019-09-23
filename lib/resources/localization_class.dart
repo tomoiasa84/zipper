@@ -83,7 +83,7 @@ class Localization {
       'skip': 'Skip',
       'usersFoundInYourPhone': 'Users found in your phone',
       'existingUsers': 'Existing Users',
-      'unjoinedContacts': 'Contacts that haven\'t joined the app',
+      'unjoinedContacts': 'Contacts that haven\'t joined',
       'shareSelected': 'Share Selected',
       'selectedTagsWillBeShared': 'Selected tags will be shared',
       'addTagsToPromoteYourFriends': 'Add tags to promote your friends',
@@ -91,7 +91,22 @@ class Localization {
       'tags': 'Tags',
       'selectedContactsWillBeShared':
           'The selected contacts will be shared behind the scene.',
-      'imagePreview': 'Image Preview'
+      'imagePreview': 'Image Preview',
+      'verificationCodeDescription':
+          'A text message with a 6-digit verification code was just sent to ',
+      'resendCode': 'Resend code',
+      'cantRetry': 'You can\'t retry yet!',
+      'addPost': 'Add Post',
+      'isLookingFor': ' is looking for',
+      'preview': 'Preview',
+      'selectTagsYouAreLookingFor': 'Select tag you are looking for...',
+      'tagsYouAreLookingFor': 'Tag you are looking for',
+      'addMoreDetails': 'Add more details (optional)...',
+      'createPostError': 'Please select the tag you are looking for!',
+      'success': 'Success',
+      'yourPostHasBeenSuccessfullyAdded': 'Your post has been successfully added!',
+      'addDescription': 'Add a description',
+      'addATag': 'Add a tag',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -175,7 +190,22 @@ class Localization {
       'tags': 'Etichete',
       'selectedContactsWillBeShared':
           'Contactele selectate vor fi partajate in spatele scenei.',
-      'imagePreview': 'Vizualizare Imagine'
+      'imagePreview': 'Vizualizare Imagine',
+      'verificationCodeDescription':
+          'Un mesaj text cu un code de verificare din 6 cifre a fost trimis catre ',
+      'resendCode': 'Retrimite codul',
+      'cantRetry': 'Inca nu puteti retrimite codul!',
+      'addPost': 'Adauga o postare',
+      'isLookingFor': ' cauta',
+      'preview': 'Previzualizare',
+      'selectTagsYouAreLookingFor': 'Selecteaza etichetea pe care le cauti',
+      'tagsYouAreLookingFor': 'Eticheta pe care o cauti...',
+      'addMoreDetails': 'Adauga mai multe detalii (optional)...',
+      'createPostError': 'Va rugam selectati tag-ul pe care il cautati',
+      'success': 'Succes',
+      'yourPostHasBeenSuccessfullyAdded': 'Postarea a fost adaugata cu succes!',
+      'addDescription': 'Adauga o descriere',
+      'addATag': 'Adauga un tag',
     },
   };
 

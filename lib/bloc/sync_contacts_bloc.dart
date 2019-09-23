@@ -48,31 +48,23 @@ class SyncContactsBloc {
       document: '''query{
                      get_user(userId:"$userId"){
                         name
-                        phoneNumber
+                        firebaseId
                         id
+                        phoneNumber
+                        isActive
                         location{
                             id
                             city
                         }
-                        isActive
-                        connections{
-                             name
-                        }
-                        cards{
-                            id
-                            createdAt
-                            searchFor{
-                              name
-                            }
-                            postedBy{
-                                id
-                                name
-                            }
-                            text
-                        }
                         tags{
-                            id
+                          id
+                          user{
                             name
+                          }
+                        }
+                        description
+                        cards{
+                            text
                         }
                     }
               }''',

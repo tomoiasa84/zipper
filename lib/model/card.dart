@@ -1,11 +1,13 @@
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 
-class Card {
-  Card.fromJson(Map<String, dynamic> json)
+class CardModel {
+  CardModel.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        postedBy = User.fromJson(json['postedBy']),
-        searchFor = Tag.fromJson(json['searchFor']),
+        postedBy =
+            json['postedBy'] != null ? User.fromJson(json['postedBy']) : null,
+        searchFor =
+            json['searchFor'] != null ? Tag.fromJson(json['searchFor']) : null,
         createdAt = json['createdAt'],
         text = json['text'];
 

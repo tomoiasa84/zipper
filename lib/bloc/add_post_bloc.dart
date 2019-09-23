@@ -1,7 +1,7 @@
 import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-class AccountBloc {
+class AddPostBloc {
   void dispose() {}
 
   static HttpLink link =
@@ -41,20 +41,51 @@ class AccountBloc {
                             }
                             text
                         }
-                        description
-                        tags{
+                         tags{
                           id
-                          default
                           user{
                             name
                           }
-                          tag{
-                            id
-                            name
-                          }
                         }
+                        description
                     }
               }''',
+    ));
+
+    return result;
+  }
+
+  Future<QueryResult> getTags() async {
+    final QueryResult result = await client.query(QueryOptions(
+      document: '''query{
+                      get_tags{
+                        id
+                        name
+                      }
+                    }''',
+    ));
+
+    return result;
+  }
+
+  Future<QueryResult> createPost(
+      String postedBy, int searchFor, String details) async {
+    final QueryResult result = await client.query(QueryOptions(
+      document: '''mutation{
+                      create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$details"){
+                        id
+                        postedBy{
+                          name
+                          id
+                        }
+                        searchFor{
+                          name
+                          id
+                        }
+                        createdAt
+                        text
+                      }
+                    }''',
     ));
 
     return result;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:contractor_search/bloc/authentication_bloc.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/layouts/tutorial_screen.dart';
@@ -34,6 +36,11 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   String smsCode;
   bool _autoValidate = false;
   bool _saving = false;
+  Timer _codeTimer;
+  Duration _timeOut = const Duration(minutes: 1);
+  String verificationId;
+  bool _codeTimedOut = false;
+  TextEditingController _codeTextEditingController = TextEditingController();
 
   signIn() async {
     setState(() {
@@ -228,9 +235,9 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   void _finishLogin(String userId) {
     saveCurrentUserId(userId).then((userId) {
       Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => TutorialScreen()),
-            ModalRoute.withName("/homepage"));
+          context,
+          MaterialPageRoute(builder: (context) => TutorialScreen()),
+          ModalRoute.withName("/homepage"));
     });
   }
 
@@ -242,6 +249,16 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     await SharedPreferencesHelper.saveCurrentUserId(userId);
   }
 
+  @override
+  void initState() {
+    verificationId = widget.verificationId;
+    _codeTimer = Timer(_timeOut, () {
+      setState(() {
+        _codeTimedOut = true;
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -264,7 +281,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        buildBackButton(() {
+                        buildBackButton(Icons.arrow_back, () {
                           Navigator.pop(context, true);
                         }),
                         buildLogo(context),
@@ -273,7 +290,9 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                                 .getString('verificationCode'),
                             MediaQuery.of(context).size.height * 0.048),
                         _buildForm(),
+                        _buildPhoneNumber(),
                         _buildButton(context),
+                        _buildResendButton(),
                         _buildTerms(context),
                       ],
                     ),
@@ -293,6 +312,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       child: Container(
         margin: const EdgeInsets.only(top: 35.0, left: 24.0, right: 24.0),
         child: TextFormField(
+          controller: _codeTextEditingController,
           autovalidate: _autoValidate,
           onChanged: (value) {
             smsCode = value;
@@ -318,7 +338,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
 
   Padding _buildButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+      padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 40.0),
       child:
           customAccentButton(Localization.of(context).getString('login'), () {
         FocusScope.of(context).requestFocus(FocusNode());
@@ -357,5 +377,84 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
         buttonText: buttonText,
       ),
     );
+  }
+
+  Container _buildPhoneNumber() {
+    return Container(
+        margin: const EdgeInsets.only(top: 16.0, left: 24.0, right: 24.0),
+        child: Text.rich(
+          TextSpan(
+            text: Localization.of(context)
+                .getString("verificationCodeDescription"),
+            style: TextStyle(color: ColorUtils.gray),
+            children: <TextSpan>[
+              TextSpan(
+                  text: widget.phoneNumber,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  )),
+            ],
+          ),
+          textAlign: TextAlign.center,
+        ));
+  }
+
+  GestureDetector _buildResendButton() {
+    return GestureDetector(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 20.0, left: 24.0, right: 24.0),
+        child: Text(
+          Localization.of(context).getString('resendCode'),
+          style: TextStyle(
+              color: ColorUtils.orangeAccent, fontWeight: FontWeight.bold),
+        ),
+      ),
+      onTap: () async {
+        FocusScope.of(context).requestFocus(FocusNode());
+
+        setState(() {
+          _saving = true;
+        });
+
+        if (_codeTimedOut) {
+          await _resendVerificationCode();
+        } else {
+          _showDialog(Localization.of(context).getString("error"), Localization.of(context).getString("cantRetry"),Localization.of(context).getString("ok"),);
+        }
+        _resendVerificationCode();
+      },
+    );
+  }
+
+  Future<void> _resendVerificationCode() async {
+    final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
+      verificationId = verId;
+    };
+
+    final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
+      this.verificationId = verId;
+      setState(() {
+        _saving = false;
+      });
+    };
+
+    final PhoneVerificationCompleted verifiedSuccess = (AuthCredential user) {
+      print('verified');
+      setState(() {
+        _saving = false;
+      });
+    };
+
+    final PhoneVerificationFailed veriFailed = (AuthException exception) {
+      print('${exception.message}');
+    };
+
+    await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: widget.phoneNumber,
+        codeAutoRetrievalTimeout: autoRetrieve,
+        codeSent: smsCodeSent,
+        timeout: const Duration(seconds: 5),
+        verificationCompleted: verifiedSuccess,
+        verificationFailed: veriFailed);
   }
 }

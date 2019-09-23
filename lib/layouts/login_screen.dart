@@ -79,7 +79,7 @@ class LoginScreenState extends State<LoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        buildBackButton(() {
+                        buildBackButton(Icons.arrow_back, () {
                           Navigator.pop(context, true);
                         }),
                         buildLogo(context),
