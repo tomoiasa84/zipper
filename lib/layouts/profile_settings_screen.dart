@@ -34,13 +34,21 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   List<UserTag> skills = [];
   List<Tag> tagsList = [];
 
+  UserTag userTag;
+
   void getTags() {
     _profileSettingsBloc.getTags().then((result) {
       if (result.data != null) {
         final List<Map<String, dynamic>> tags =
             result.data['get_tags'].cast<Map<String, dynamic>>();
         tags.forEach((item) {
-          tagsList.add(Tag.fromJson(item));
+          Tag tagItem = Tag.fromJson(item);
+          var tagFound = skills.firstWhere((tag) => tag.tag.id == tagItem.id,
+              orElse: () => null);
+          if (tagFound == null &&
+              (userTag != null && userTag.tag.id != tagItem.id)) {
+            tagsList.add(tagItem);
+          }
         });
       }
     });
@@ -73,13 +81,13 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
   @override
   void initState() {
-    UserTag userTag;
     _profileSettingsBloc = ProfileSettingsBloc();
     getTags();
     widget.user.tags.forEach((item) {
-      skills.add(item);
       if (item.defaultTag) {
         userTag = item;
+      } else {
+        skills.add(item);
       }
     });
     _nameTextEditingController.value =
@@ -123,7 +131,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       leading: buildBackButton(Icons.arrow_back, () {
-        Navigator.pop(context, true);
+        Navigator.pop(context);
       }),
       actions: <Widget>[
         IconButton(
@@ -493,6 +501,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         if (result.errors == null) {
           setState(() {
             skills.add(UserTag.fromJson(result.data['create_userTag']));
+            tagsList.remove(tag);
           });
         } else {
           _showDialog(
@@ -515,6 +524,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       if (result.errors == null) {
         setState(() {
           skills.remove(item);
+          tagsList.add(item.tag);
         });
       }
     });

@@ -305,13 +305,11 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   Future _goToSettingsScreen() async {
-    var result = await Navigator.push(context,
+   await Navigator.push(context,
         MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
-    if(result ==null){
       reviews.clear();
       _getCurrentUserInfo();
     }
-  }
 }
 
 class CustomPopupMenu {
