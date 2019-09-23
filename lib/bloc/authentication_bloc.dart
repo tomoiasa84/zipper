@@ -110,10 +110,10 @@ class AuthenticationBloc {
   Future<QueryResult> getUsers() async {
     final QueryResult result = await client.query(QueryOptions(
       document: '''query {
-                     get_users{
+                    get_users{
                         name
-                        id
                         firebaseId
+                        id
                         phoneNumber
                         isActive
                         location{
@@ -121,8 +121,12 @@ class AuthenticationBloc {
                             city
                         }
                         tags{
+                          id
+                          user{
                             name
+                          }
                         }
+                        description
                         cards{
                             text
                         }

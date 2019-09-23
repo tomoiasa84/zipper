@@ -5,7 +5,7 @@ class AddPostBloc {
   void dispose() {}
 
   static HttpLink link =
-  HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+      HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
@@ -41,10 +41,13 @@ class AddPostBloc {
                             }
                             text
                         }
-                        tags{
-                            id
+                         tags{
+                          id
+                          user{
                             name
+                          }
                         }
+                        description
                     }
               }''',
     ));
@@ -65,7 +68,8 @@ class AddPostBloc {
     return result;
   }
 
-  Future<QueryResult> createPost(String postedBy, int searchFor, String details) async {
+  Future<QueryResult> createPost(
+      String postedBy, int searchFor, String details) async {
     final QueryResult result = await client.query(QueryOptions(
       document: '''mutation{
                       create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$details"){

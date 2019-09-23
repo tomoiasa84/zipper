@@ -41,9 +41,12 @@ class AccountBloc {
                             }
                             text
                         }
+                        description
                         tags{
-                            id
+                          id
+                          user{
                             name
+                          }
                         }
                     }
               }''',

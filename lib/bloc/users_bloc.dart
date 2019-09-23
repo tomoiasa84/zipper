@@ -33,8 +33,12 @@ class UsersBloc {
                             city
                         }
                         tags{
+                          id
+                          user{
                             name
+                          }
                         }
+                        description
                         cards{
                             text
                         }

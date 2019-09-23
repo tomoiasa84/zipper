@@ -10,7 +10,6 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
-import 'package:contractor_search/utils/star_display.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -52,7 +51,7 @@ class AccountScreenState extends State<AccountScreen> {
         value: 1,
         child: Text(Localization.of(context).getString('signOut')),
         textStyle:
-            TextStyle(color: ColorUtils.red, fontWeight: FontWeight.bold),
+        TextStyle(color: ColorUtils.red, fontWeight: FontWeight.bold),
       ),
     ];
   }
@@ -83,7 +82,7 @@ class AccountScreenState extends State<AccountScreen> {
         });
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => PhoneAuthScreen()),
-            (Route<dynamic> route) => false);
+                (Route<dynamic> route) => false);
       });
     });
   }
@@ -130,24 +129,24 @@ class AccountScreenState extends State<AccountScreen> {
         inAsyncCall: _saving,
         child: Scaffold(
             appBar:
-                _buildAppBar(Localization.of(context).getString('settings')),
+            _buildAppBar(Localization.of(context).getString('settings')),
             body: SafeArea(
               top: true,
               child: _user != null
                   ? Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SingleChildScrollView(
-                        child: Container(
-                          margin: const EdgeInsets.only(top: 16.0),
-                          child: Column(
-                            children: <Widget>[
-                              _buildMainInfoCard(),
-                              _buildSkillsCard()
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
+                margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: SingleChildScrollView(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 16.0),
+                    child: Column(
+                      children: <Widget>[
+                        _buildMainInfoCard(),
+                        _buildSkillsCard()
+                      ],
+                    ),
+                  ),
+                ),
+              )
                   : Container(),
             )));
   }
@@ -193,6 +192,7 @@ class AccountScreenState extends State<AccountScreen> {
         padding: const EdgeInsets.only(
             left: 16.0, right: 16.0, top: 24.0, bottom: 44.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _buildNameRow(),
             _buildDescription(),
@@ -203,13 +203,14 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   Container _buildDescription() {
-    return Container(
+    return _user.description != null ? Container(
       padding: const EdgeInsets.only(top: 16.0),
       child: Text(
-        Localization.of(context).getString('termsAndConditionsText'),
+        _user.description,
+        textAlign: TextAlign.left,
         style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
       ),
-    );
+    ) : Container();
   }
 
   Widget _buildNameRow() {
@@ -245,7 +246,7 @@ class AccountScreenState extends State<AccountScreen> {
                   Text(
                     '4.8',
                     style:
-                        TextStyle(fontSize: 14.0, color: ColorUtils.darkGray),
+                    TextStyle(fontSize: 14.0, color: ColorUtils.darkGray),
                   )
                 ],
               )
