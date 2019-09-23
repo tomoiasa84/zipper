@@ -122,9 +122,15 @@ class AddPostScreenState extends State<AddPostScreen> {
   }
 
   void createPost() {
+    setState(() {
+      _saving = true;
+    });
     _addPostBloc
         .createPost(_user.id, tag.id, _addDetailsTextEditingController.text)
         .then((result) {
+      setState(() {
+        _saving = false;
+      });
       if (result.errors == null) {
         Navigator.pop(context, CardModel.fromJson(result.data['create_card']));
       } else {
@@ -213,7 +219,7 @@ class AddPostScreenState extends State<AddPostScreen> {
               children: <Widget>[
                 Flexible(
                   child: Text(
-                    tag.name,
+                    '#' + tag.name,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -252,11 +258,12 @@ class AddPostScreenState extends State<AddPostScreen> {
                 children: <Widget>[
                   Text.rich(
                     TextSpan(
-                      text: _user.name,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: ColorUtils.textBlack),
                       children: <TextSpan>[
+                        TextSpan(
+                            text: _user.name,
+                            style: TextStyle(
+                                color: ColorUtils.textBlack,
+                                fontWeight: FontWeight.bold)),
                         TextSpan(
                             text: Localization.of(context)
                                 .getString("isLookingFor"),
@@ -267,7 +274,7 @@ class AddPostScreenState extends State<AddPostScreen> {
                     ),
                   ),
                   Text(
-                    tag != null ? tag.name : "",
+                    tag != null ? '#' + tag.name : "",
                     style: TextStyle(
                         color: ColorUtils.orangeAccent,
                         fontWeight: FontWeight.bold),
