@@ -132,6 +132,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             color: ColorUtils.darkGray,
           ),
           onPressed: () {
+            FocusScope.of(context).requestFocus(FocusNode());
             if (_formKey.currentState.validate()) {
               _updateProfile();
             } else {
@@ -395,80 +396,85 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     return lines;
   }
 
-  Stack _buildAddSkills() {
-    return Stack(
-      alignment: const Alignment(1.0, 0.0),
-      children: <Widget>[
-        TypeAheadFormField(
-          getImmediateSuggestions: true,
-          textFieldConfiguration: TextFieldConfiguration(
-            controller: _addSkillsTextEditingController,
-            decoration: InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(6.0),
-                  borderSide:
-                      BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(6.0),
-                  borderSide:
-                      BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
-                ),
-                hintText: Localization.of(context).getString('addMoreSkills'),
-                hintStyle: TextStyle(
-                  fontSize: 14.0,
-                  color: ColorUtils.darkerGray,
-                ),
-                suffix: Text('          ')),
-          ),
-          suggestionsCallback: (pattern) {
-            List<String> list = [];
-            tagsList
-                .where((it) => it.name.startsWith(pattern))
-                .toList()
-                .forEach((tag) => list.add(tag.name));
-            return list;
-          },
-          itemBuilder: (context, suggestion) {
-            return ListTile(
-              title: Text(suggestion),
-            );
-          },
-          transitionBuilder: (context, suggestionsBox, controller) {
-            return suggestionsBox;
-          },
-          onSuggestionSelected: (suggestion) {
-            this._addSkillsTextEditingController.text = suggestion;
-          },
-          validator: (value) {
-            if (value.isEmpty) {
-              return Localization.of(context).getString('locationValidation');
-            }
-            return null;
-          },
-        ),
-        Container(
-          padding: const EdgeInsets.all(16.0),
-          child: GestureDetector(
-            onTap: () {
-              setState(() {
-                if (_addSkillsTextEditingController.text.isNotEmpty) {
-                  setState(() {
-                    _createNewUserTag();
-                  });
-                }
-              });
-              _addSkillsTextEditingController.clear();
-              FocusScope.of(context).requestFocus(FocusNode());
-            },
-            child: Text(
-              Localization.of(context).getString('add'),
-              style: TextStyle(
-                  color: ColorUtils.orangeAccent, fontWeight: FontWeight.bold),
+  Padding _buildAddSkills() {
+    return Padding(
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Stack(
+        alignment: const Alignment(1.0, 0.0),
+        children: <Widget>[
+          TypeAheadFormField(
+            getImmediateSuggestions: true,
+            textFieldConfiguration: TextFieldConfiguration(
+              controller: _addSkillsTextEditingController,
+              decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                    borderSide: BorderSide(
+                        color: ColorUtils.lightLightGray, width: 1.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                    borderSide: BorderSide(
+                        color: ColorUtils.lightLightGray, width: 1.0),
+                  ),
+                  hintText: Localization.of(context).getString('addMoreSkills'),
+                  hintStyle: TextStyle(
+                    fontSize: 14.0,
+                    color: ColorUtils.darkerGray,
+                  ),
+                  suffix: Text('          ')),
             ),
+            suggestionsCallback: (pattern) {
+              List<String> list = [];
+              tagsList
+                  .where((it) => it.name.startsWith(pattern))
+                  .toList()
+                  .forEach((tag) => list.add(tag.name));
+              return list;
+            },
+            itemBuilder: (context, suggestion) {
+              return ListTile(
+                title: Text(suggestion),
+              );
+            },
+            transitionBuilder: (context, suggestionsBox, controller) {
+              return suggestionsBox;
+            },
+            onSuggestionSelected: (suggestion) {
+              this._addSkillsTextEditingController.text = suggestion;
+            },
+            validator: (value) {
+              if (value.isEmpty) {
+                return Localization.of(context).getString('locationValidation');
+              }
+              return null;
+            },
           ),
-        )
-      ],
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (_addSkillsTextEditingController.text.isNotEmpty) {
+                    setState(() {
+                      _createNewUserTag();
+                    });
+                  }
+                });
+                _addSkillsTextEditingController.clear();
+                FocusScope.of(context).requestFocus(FocusNode());
+              },
+              child: Text(
+                Localization.of(context).getString('add'),
+                style: TextStyle(
+                    color: ColorUtils.orangeAccent,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 
