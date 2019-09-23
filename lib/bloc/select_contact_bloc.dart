@@ -32,9 +32,6 @@ class SelectContactBloc {
                         id
                         phoneNumber
                         isActive
-                        tags{
-                            name
-                        }
                     }
               }''',
     ));
