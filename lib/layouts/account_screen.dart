@@ -5,6 +5,7 @@ import 'package:contractor_search/layouts/phone_auth_screen.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/review.dart';
+import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -14,6 +15,7 @@ import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -341,55 +343,56 @@ class AccountScreenState extends State<AccountScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            _buildPostText(),
-            _buildCreatedAtInfo()
+            _buildPostText(card.searchFor),
+            _buildCreatedAtInfo(card.createdAt)
           ],
         ),
       ),
     );
   }
 
-  Row _buildPostText() {
+  Row _buildPostText(Tag searchFor) {
     return Row(
+      children: <Widget>[
+        CircleAvatar(
+          child: Text(getInitials(_user.name),
+              style: TextStyle(color: ColorUtils.darkerGray)),
+          backgroundColor: ColorUtils.lightLightGray,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              CircleAvatar(
-                child: Text(getInitials(_user.name),
-                    style: TextStyle(color: ColorUtils.darkerGray)),
-                backgroundColor: ColorUtils.lightLightGray,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text.rich(
-                      TextSpan(
-                        children: <TextSpan>[
-                          TextSpan(
-                              text: _user.name,
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(
-                              text: Localization.of(context)
-                                  .getString("isLookingFor"),
-                              style: TextStyle(color: ColorUtils.darkerGray)),
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text(
-                      "#houseKeeper",
-                      style: TextStyle(
-                          color: ColorUtils.orangeAccent,
-                          fontWeight: FontWeight.bold),
-                    )
+              Text.rich(
+                TextSpan(
+                  children: <TextSpan>[
+                    TextSpan(
+                        text: _user.name,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text:
+                            Localization.of(context).getString("isLookingFor"),
+                        style: TextStyle(color: ColorUtils.darkerGray)),
                   ],
                 ),
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                "#" + searchFor.name,
+                style: TextStyle(
+                    color: ColorUtils.orangeAccent,
+                    fontWeight: FontWeight.bold),
               )
             ],
-          );
+          ),
+        )
+      ],
+    );
   }
 
-  Padding _buildCreatedAtInfo() {
+  Padding _buildCreatedAtInfo(String createdAt) {
+    String difference = getTimeDifference(createdAt);
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: Row(
@@ -398,7 +401,7 @@ class AccountScreenState extends State<AccountScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
             child: Text(
-              '1h ago',
+              difference + ' ago',
               style: TextStyle(color: ColorUtils.darkerGray),
             ),
           ),
@@ -412,7 +415,6 @@ class AccountScreenState extends State<AccountScreen> {
       ),
     );
   }
-
 }
 
 class CustomPopupMenu {
