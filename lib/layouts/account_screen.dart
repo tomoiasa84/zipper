@@ -15,7 +15,6 @@ import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -339,12 +338,38 @@ class AccountScreenState extends State<AccountScreen> {
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.only(
+          bottom: 24.0,
+          left: 16.0,
+        ),
+        child: Stack(
           children: <Widget>[
-            _buildPostText(card.searchFor),
-            _buildCreatedAtInfo(card.createdAt)
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildPostText(card.searchFor),
+                  _buildCreatedAtInfo(card.createdAt)
+                ],
+              ),
+            ),
+            Positioned(
+              top: 0.0,
+              right: 0.0,
+              child: GestureDetector(
+                onTap: () {},
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 13.0, horizontal: 11.0),
+                  child: Icon(
+                    Icons.more_vert,
+                    color: ColorUtils.lightGray30Opacity,
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),
