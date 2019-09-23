@@ -126,15 +126,6 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               onPressed: () => Navigator.pop(context, false),
             ),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(
-                  Icons.more_vert,
-                  color: ColorUtils.almostBlack,
-                ),
-                tooltip: "More actions",
-              )
-            ],
             backgroundColor: Colors.white,
           ),
           _showMessagesUI(),
