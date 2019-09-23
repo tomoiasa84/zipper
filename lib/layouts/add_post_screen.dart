@@ -93,7 +93,7 @@ class AddPostScreenState extends State<AddPostScreen> {
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       leading: buildBackButton(Icons.clear, () {
-        Navigator.pop(context, false);
+        Navigator.pop(context);
       }),
       actions: <Widget>[
         IconButton(
