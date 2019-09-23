@@ -5,7 +5,9 @@ import 'dart:io';
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/Message.dart';
+import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
+import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -71,7 +73,8 @@ class ChatBloc {
     _messagesList.clear();
 
     for (var item in messagesList) {
-      Message message = Message.fromJson(item);
+      PnGCM pnGCM = PnGCM.fromJson(item);
+      Message message = pnGCM.wrappedMessage.message;
       _messagesList.add(message);
     }
   }
@@ -96,13 +99,15 @@ class ChatBloc {
     List<dynamic> messagesList = messageListenerResponse[0];
 
     if (messagesList.length > 0) {
-      Message message = Message.fromJson(messagesList[0]);
+      PnGCM pnGCM = PnGCM.fromJson(messagesList[0]);
+      Message message = pnGCM.wrappedMessage.message;
       ctrl.sink.add(message);
     }
   }
 
-  Future<bool> sendMessage(String channelName, Message message) async {
-    var encodedMessage = convert.jsonEncode(message.toJson());
+  Future<bool> sendMessage(
+      String channelName, PnGCM pnGCM) async {
+    var encodedMessage = convert.jsonEncode(pnGCM.toJson());
     var url =
         "$_baseUrl/publish/$_publishKey/$_subscribeKey/0/$channelName/myCallback/$encodedMessage";
 

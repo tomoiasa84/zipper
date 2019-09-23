@@ -7,18 +7,21 @@ import 'package:contractor_search/layouts/select_contact_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
+import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
+import 'package:contractor_search/models/PushNotification.dart';
+import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loadmore/loadmore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 class ChatScreen extends StatefulWidget {
   final PubNubConversation pubNubConversation;
@@ -31,7 +34,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   bool _loading = false;
-  String _interlocutor;
+  String _interlocutorName;
+  String _currentUserName;
   String _currentUserId;
   StreamSubscription _subscription;
   final ChatBloc _chatBloc = ChatBloc();
@@ -46,8 +50,10 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.trim().length > 0) {
       _textEditingController.clear();
       _getCurrentUserId().then((userId) {
-        _chatBloc.sendMessage(widget.pubNubConversation.id,
-            new Message(text, DateTime.now(), userId));
+        _chatBloc.sendMessage(
+            widget.pubNubConversation.id,
+            PnGCM(WrappedMessage(PushNotification(_currentUserName, text),
+                Message(text, DateTime.now(), userId))));
       });
     }
   }
@@ -66,7 +72,12 @@ class _ChatScreenState extends State<ChatScreen> {
           Message message = Message.withImage(DateTime.now(),
               escapeJsonCharacters(imageDownloadUrl), _currentUserId);
           _chatBloc
-              .sendMessage(widget.pubNubConversation.id, message)
+              .sendMessage(
+                  widget.pubNubConversation.id,
+                  PnGCM(WrappedMessage(
+                      PushNotification(_currentUserName,
+                          Localization.of(context).getString('image')),
+                      message)))
               .then((messageSent) {
             if (!messageSent) {
               _showDialog(
@@ -86,9 +97,10 @@ class _ChatScreenState extends State<ChatScreen> {
   void firebaseCloudMessagingListeners() {
     if (Platform.isIOS) iosPermission();
 
-    _firebaseMessaging.getToken().then((deviceId){
+    _firebaseMessaging.getToken().then((deviceId) {
       print('DEVICE TOKEN IS: $deviceId');
-      _chatBloc.subscribeToPushNotifications(deviceId, widget.pubNubConversation.id);
+      _chatBloc.subscribeToPushNotifications(
+          deviceId, widget.pubNubConversation.id);
     });
 
     _firebaseMessaging.configure(
@@ -106,11 +118,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void iosPermission() {
     _firebaseMessaging.requestNotificationPermissions(
-        IosNotificationSettings(sound: true, badge: true, alert: true)
-    );
+        IosNotificationSettings(sound: true, badge: true, alert: true));
     _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings)
-    {
+        .listen((IosNotificationSettings settings) {
       print("Settings registered: $settings");
     });
   }
@@ -123,8 +133,13 @@ class _ChatScreenState extends State<ChatScreen> {
     );
     //Do something with the result
     _getCurrentUserId().then((userId) {
-      _chatBloc.sendMessage(widget.pubNubConversation.id,
-          new Message.withSharedContact(DateTime.now(), userId, sharedContact));
+      _chatBloc.sendMessage(
+          widget.pubNubConversation.id,
+          PnGCM(WrappedMessage(
+              PushNotification(_currentUserName,
+                  Localization.of(context).getString('sharedContact')),
+              new Message.withSharedContact(
+                  DateTime.now(), userId, sharedContact))));
     });
   }
 
@@ -134,6 +149,14 @@ class _ChatScreenState extends State<ChatScreen> {
           builder: (BuildContext context) =>
               ChatScreen(pubNubConversation: pubNubConversation)));
     });
+  }
+
+  String _getCurrentUserName(User user1, User user2, String currentUserId) {
+    if (user1.id == currentUserId) {
+      return user1.name;
+    } else {
+      return user2.name;
+    }
   }
 
   @override
@@ -150,7 +173,9 @@ class _ChatScreenState extends State<ChatScreen> {
     _getCurrentUserId().then((currentUserId) {
       setState(() {
         _currentUserId = currentUserId;
-        _interlocutor = getInterlocutorName(widget.pubNubConversation.user1,
+        _interlocutorName = getInterlocutorName(widget.pubNubConversation.user1,
+            widget.pubNubConversation.user2, _currentUserId);
+        _currentUserName = _getCurrentUserName(widget.pubNubConversation.user1,
             widget.pubNubConversation.user2, _currentUserId);
         _setMessagesListener(currentUserId);
       });
@@ -236,7 +261,7 @@ class _ChatScreenState extends State<ChatScreen> {
         body: new Column(children: <Widget>[
           AppBar(
             title: Text(
-              'Message to $_interlocutor',
+              'Message to $_interlocutorName',
               style: TextStyle(
                   color: ColorUtils.textBlack,
                   fontSize: 14,
@@ -777,7 +802,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   bool _messageAuthorIsCurrentUser(Message message) {
-    return message.from == _currentUserId;
+    return message.messageAuthor == _currentUserId;
   }
 
   BoxDecoration _getRoundedWhiteDecoration() {

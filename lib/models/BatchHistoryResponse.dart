@@ -1,8 +1,8 @@
 import 'dart:collection';
 
-import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/LastMessage.dart';
-import 'package:contractor_search/models/Message.dart';
+import 'package:contractor_search/models/PnGCM.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 
 class BatchHistoryResponse {
   LinkedHashMap _channels;
@@ -40,8 +40,8 @@ class BatchHistoryResponse {
   PubNubConversation _mapConversation(dynamic k, dynamic v) {
     LinkedHashMap hashMap = v[0];
 
-    LastMessage lastMessage = LastMessage(
-        hashMap['timetoken'], Message.fromJson(hashMap['message']));
+    LastMessage lastMessage = LastMessage(hashMap['timetoken'],
+        (PnGCM.fromJson(hashMap['message'])).wrappedMessage.message);
 
     return PubNubConversation(k.toString(), k.toString(), "", "", lastMessage);
   }

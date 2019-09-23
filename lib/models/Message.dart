@@ -5,22 +5,22 @@ class Message {
   User _sharedContact;
   String _message;
   DateTime _timestamp;
-  String _from;
+  String _messageAuthor;
   String _stringTimestamp;
   bool showUserIcon = true;
   String _imageDownloadUrl;
 
-  Message(this._message, this._timestamp, this._from);
+  Message(this._message, this._timestamp, this._messageAuthor);
 
   Message.withImage(DateTime timestamp, String imageDownloadUrl, String from) {
     this._timestamp = timestamp;
     this._imageDownloadUrl = imageDownloadUrl;
-    this._from = from;
+    this._messageAuthor = from;
   }
 
   Message.withSharedContact(DateTime timestamp, String from, User user) {
     this._timestamp = timestamp;
-    this._from = from;
+    this._messageAuthor = from;
     this._sharedContact = user;
   }
 
@@ -30,7 +30,7 @@ class Message {
 
   String get message => _message;
 
-  String get from => _from;
+  String get messageAuthor => _messageAuthor;
 
   String get stringTimestamp => _stringTimestamp;
 
@@ -40,7 +40,7 @@ class Message {
         '_channelId': _channelId,
         'message': _message,
         'timestamp': _timestamp.toIso8601String(),
-        'from': _from,
+        'messageAuthor': _messageAuthor,
         'imageDownloadUrl': _imageDownloadUrl,
         'sharedContact': _sharedContact
       };
@@ -49,7 +49,7 @@ class Message {
       : _message = json['message'],
         _timestamp = DateTime.parse(json['timestamp']),
         _stringTimestamp = json['timestamp'],
-        _from = json['from'],
+        _messageAuthor = json['messageAuthor'],
         _imageDownloadUrl = json['imageDownloadUrl'],
         _sharedContact = json['sharedContact'] != null
             ? User.fromJson(json['sharedContact'])

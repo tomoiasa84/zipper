@@ -7,6 +7,8 @@ class WrappedMessage {
 
   WrappedMessage(this._pushNotification, this._message);
 
+  Message get message => _message;
+
   Map<String, dynamic> toJson() =>
       {'notification': _pushNotification, 'data': _message};
 
