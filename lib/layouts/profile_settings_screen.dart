@@ -1,4 +1,5 @@
 import 'package:contractor_search/bloc/profile_settings_bloc.dart';
+import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -7,6 +8,7 @@ import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class ProfileSettingsScreen extends StatefulWidget {
@@ -27,29 +29,41 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   TextEditingController _mainTextEditingController = TextEditingController();
   TextEditingController _bioTextEditingController = TextEditingController();
   TextEditingController _addSkillsTextEditingController =
-  TextEditingController();
+      TextEditingController();
   String name;
-  List<String> skills = [
-    '#babysitter',
-    '#keeper',
-    '#nanny',
-    '#caretaker',
-    '#housekeeper',
-  ];
+  List<UserTag> skills = [];
+  List<Tag> tagsList = [];
+
+  void getTags() {
+    _profileSettingsBloc.getTags().then((result) {
+      if (result.data != null) {
+        final List<Map<String, dynamic>> tags =
+            result.data['get_tags'].cast<Map<String, dynamic>>();
+        tags.forEach((item) {
+          tagsList.add(Tag.fromJson(item));
+        });
+      }
+    });
+  }
 
   void _updateProfile() {
     setState(() {
       _saving = true;
     });
     _profileSettingsBloc
-        .updateUser(_nameTextEditingController.text, widget.user.location.id,
-        widget.user.id, widget.user.phoneNumber, true)
+        .updateUser(
+            _nameTextEditingController.text,
+            widget.user.location.id,
+            widget.user.id,
+            widget.user.phoneNumber,
+            true,
+            _bioTextEditingController.text)
         .then((result) {
       setState(() {
         _saving = false;
       });
       if (result.errors == null) {
-        Navigator.pop(context, true);
+        Navigator.pop(context);
       } else {
         _showDialog(Localization.of(context).getString('error'),
             result.errors[0].message, Localization.of(context).getString('ok'));
@@ -60,20 +74,20 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   @override
   void initState() {
     UserTag userTag;
-    if (widget.user.tags != null) {
-      userTag = widget.user.tags.firstWhere(
-              (tag) => tag.defaultTag,
-          orElse: () => null);
-    }
+    _profileSettingsBloc = ProfileSettingsBloc();
+    getTags();
+    widget.user.tags.forEach((item) {
+      skills.add(item);
+      if (item.defaultTag) {
+        userTag = item;
+      }
+    });
     _nameTextEditingController.value =
-    new TextEditingValue(text: widget.user.name);
+        new TextEditingValue(text: widget.user.name);
     _mainTextEditingController.value = new TextEditingValue(
-        text: (userTag != null)
-            ? '#' + userTag.tag.name
-            : "");
+        text: (userTag != null) ? '#' + userTag.tag.name : "");
     _bioTextEditingController.value = new TextEditingValue(
         text: widget.user.description != null ? widget.user.description : "");
-    _profileSettingsBloc = ProfileSettingsBloc();
     name = widget.user.name;
     super.initState();
   }
@@ -109,7 +123,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       leading: buildBackButton(Icons.arrow_back, () {
-        Navigator.pop(context, false);
+        Navigator.pop(context, true);
       }),
       actions: <Widget>[
         IconButton(
@@ -134,12 +148,11 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   void _showDialog(String title, String message, String buttonText) {
     showDialog(
       context: context,
-      builder: (BuildContext context) =>
-          CustomDialog(
-            title: title,
-            description: message,
-            buttonText: buttonText,
-          ),
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText: buttonText,
+      ),
     );
   }
 
@@ -214,7 +227,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                     borderSide: BorderSide(color: ColorUtils.lightGray)),
                 hintText: Localization.of(context).getString('nameSurname'),
                 hintStyle:
-                TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
+                    TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
               ),
               validator: (value) {
                 if (value.isEmpty) {
@@ -257,7 +270,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                     borderSide: BorderSide(color: ColorUtils.lightGray)),
                 hintText: Localization.of(context).getString('addATag'),
                 hintStyle:
-                TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
+                    TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
               ),
               validator: (value) {
                 if (value.isEmpty) {
@@ -359,14 +372,14 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             children: <Widget>[
               Flexible(
                 child: Text(
-                  item,
+                  item.tag.name,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    skills.remove(item);
+                    _deleteUserTag(item);
                   });
                 },
                 child: Icon(
@@ -386,25 +399,53 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     return Stack(
       alignment: const Alignment(1.0, 0.0),
       children: <Widget>[
-        TextFormField(
-          controller: _addSkillsTextEditingController,
-          decoration: InputDecoration(
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6.0),
-                borderSide:
-                BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6.0),
-                borderSide:
-                BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
-              ),
-              hintText: Localization.of(context).getString('addMoreSkills'),
-              hintStyle: TextStyle(
-                fontSize: 14.0,
-                color: ColorUtils.darkerGray,
-              ),
-              suffix: Text('          ')),
+        TypeAheadFormField(
+          getImmediateSuggestions: true,
+          textFieldConfiguration: TextFieldConfiguration(
+            controller: _addSkillsTextEditingController,
+            decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                  borderSide:
+                      BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                  borderSide:
+                      BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
+                ),
+                hintText: Localization.of(context).getString('addMoreSkills'),
+                hintStyle: TextStyle(
+                  fontSize: 14.0,
+                  color: ColorUtils.darkerGray,
+                ),
+                suffix: Text('          ')),
+          ),
+          suggestionsCallback: (pattern) {
+            List<String> list = [];
+            tagsList
+                .where((it) => it.name.startsWith(pattern))
+                .toList()
+                .forEach((tag) => list.add(tag.name));
+            return list;
+          },
+          itemBuilder: (context, suggestion) {
+            return ListTile(
+              title: Text(suggestion),
+            );
+          },
+          transitionBuilder: (context, suggestionsBox, controller) {
+            return suggestionsBox;
+          },
+          onSuggestionSelected: (suggestion) {
+            this._addSkillsTextEditingController.text = suggestion;
+          },
+          validator: (value) {
+            if (value.isEmpty) {
+              return Localization.of(context).getString('locationValidation');
+            }
+            return null;
+          },
         ),
         Container(
           padding: const EdgeInsets.all(16.0),
@@ -413,7 +454,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               setState(() {
                 if (_addSkillsTextEditingController.text.isNotEmpty) {
                   setState(() {
-                    skills.add(_addSkillsTextEditingController.text);
+                    _createNewUserTag();
                   });
                 }
               });
@@ -429,5 +470,47 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         )
       ],
     );
+  }
+
+  void _createNewUserTag() {
+    setState(() {
+      _saving = true;
+    });
+    Tag tag = tagsList.firstWhere(
+        (tag) => tag.name == _addSkillsTextEditingController.text,
+        orElse: () => null);
+    if (tag != null) {
+      _profileSettingsBloc.createUserTag(widget.user.id, tag.id).then((result) {
+        setState(() {
+          _saving = false;
+        });
+        if (result.errors == null) {
+          setState(() {
+            skills.add(UserTag.fromJson(result.data['create_userTag']));
+          });
+        } else {
+          _showDialog(
+              Localization.of(context).getString("error"),
+              result.errors[0].message,
+              Localization.of(context).getString("ok"));
+        }
+      });
+    }
+  }
+
+  void _deleteUserTag(UserTag item) {
+    setState(() {
+      _saving = true;
+    });
+    _profileSettingsBloc.deleteUserTag(item.id).then((result) {
+      setState(() {
+        _saving = false;
+      });
+      if (result.errors == null) {
+        setState(() {
+          skills.remove(item);
+        });
+      }
+    });
   }
 }

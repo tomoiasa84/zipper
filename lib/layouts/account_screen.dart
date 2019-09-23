@@ -305,9 +305,10 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   Future _goToSettingsScreen() async {
-    bool received = await Navigator.push(context,
+    var result = await Navigator.push(context,
         MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
-    if (received != null && received) {
+    if(result ==null){
+      reviews.clear();
       _getCurrentUserInfo();
     }
   }
