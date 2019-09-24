@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:contractor_search/bloc/account_bloc.dart';
 import 'package:contractor_search/layouts/phone_auth_screen.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
+import 'package:contractor_search/layouts/replies_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/tag.dart';
@@ -352,8 +353,13 @@ class AccountScreenState extends State<AccountScreen> {
 
   GestureDetector _buildPostItem(CardModel card) {
     return GestureDetector(
-      onTap:(){
-
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => RepliesScreen(
+                      card: card,
+                    )));
       },
       child: Card(
         shape: RoundedRectangleBorder(
