@@ -7,7 +7,6 @@ import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
-import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -105,8 +104,7 @@ class ChatBloc {
     }
   }
 
-  Future<bool> sendMessage(
-      String channelName, PnGCM pnGCM) async {
+  Future<bool> sendMessage(String channelName, PnGCM pnGCM) async {
     var encodedMessage = convert.jsonEncode(pnGCM.toJson());
     var url =
         "$_baseUrl/publish/$_publishKey/$_subscribeKey/0/$channelName/myCallback/$encodedMessage";
@@ -150,7 +148,7 @@ class ChatBloc {
   Future subscribeToPushNotifications(String deviceId, String channelId) async {
     var url =
         "http://ps.pndsn.com/v1/push/sub-key/$_subscribeKey/devices/$deviceId?add=$channelId&type=gcm";
-    var response = await _pubNubClient.get(url);
+    await _pubNubClient.get(url);
   }
 
   void dispose() {
