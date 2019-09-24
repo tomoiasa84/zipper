@@ -80,7 +80,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     widget.user.tags.forEach((item) {
       if (item.defaultTag) {
         userTag = item;
-      } else {
         skills.add(item);
       }
     });
@@ -260,8 +259,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           ),
           Flexible(
             flex: 3,
-            child:
-                TypeAheadFormField(
+            child: TypeAheadFormField(
               getImmediateSuggestions: true,
               textFieldConfiguration: TextFieldConfiguration(
                 controller: _mainTextEditingController,
@@ -293,13 +291,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               },
               onSuggestionSelected: (suggestion) {
                 this._mainTextEditingController.text = '#' + suggestion;
-              },
-              validator: (value) {
-                if (value.isEmpty) {
-                  return Localization.of(context)
-                      .getString('locationValidation');
-                }
-                return null;
               },
             ),
           ),
@@ -479,7 +470,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               onTap: () {
                 setState(() {
                   if (_addSkillsTextEditingController.text.isNotEmpty) {
-                      _createNewUserTag();
+                    _createNewUserTag();
                   }
                 });
                 _addSkillsTextEditingController.clear();

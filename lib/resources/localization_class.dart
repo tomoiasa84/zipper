@@ -104,11 +104,13 @@ class Localization {
       'addMoreDetails': 'Add more details (optional)...',
       'createPostError': 'Please select the tag you are looking for!',
       'success': 'Success',
-      'yourPostHasBeenSuccessfullyAdded': 'Your post has been successfully added!',
+      'yourPostHasBeenSuccessfullyAdded':
+          'Your post has been successfully added!',
       'addDescription': 'Add a description',
       'addATag': 'Add a tag',
       'deletePost': 'Delete Post',
       'recommendedBy': 'Recommended by ',
+      'tapHereToLeaveAReview': 'Tap here to leave a review',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -210,6 +212,7 @@ class Localization {
       'addATag': 'Adauga un tag',
       'deletePost': 'Sterge Postarea',
       'recommendedBy': 'Recomandat de ',
+      'tapHereToLeaveAReview': 'Apasa aici pentru a lasa o recenzie',
     },
   };
 

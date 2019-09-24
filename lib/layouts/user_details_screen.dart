@@ -164,33 +164,70 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     );
   }
 
-  Card _buildSkillsCard() {
-    return Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Container(
-          padding: const EdgeInsets.only(
-              left: 16.0, right: 16.0, top: 24.0, bottom: 44.0),
-          child: Column(
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    Localization.of(context).getString("skills"),
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(Localization.of(context).getString("viewAllReviews"))
-                ],
+  Stack _buildSkillsCard() {
+    return Stack(
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.only(bottom: 20.0),
+          child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
               ),
-              Container(
+              child: Container(
+                padding: const EdgeInsets.only(
+                    left: 16.0, right: 16.0, top: 24.0, bottom: 36.0),
                 child: Column(
-                  children: generateSkills(reviews),
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          Localization.of(context).getString("skills"),
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          Localization.of(context).getString("viewAllReviews"),
+                        )
+                      ],
+                    ),
+                    Container(
+                      child: Column(
+                        children: generateSkills(reviews),
+                      ),
+                    )
+                  ],
                 ),
-              )
-            ],
+              )),
+        ),
+        Positioned(
+            bottom: 0.0,
+            right: 0.0,
+            left: 0.0,
+            child: _buildLeaveReviewButton()),
+      ],
+    );
+  }
+
+  Container _buildLeaveReviewButton() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 27.0),
+      child: RaisedButton(
+        onPressed: () {},
+        color: ColorUtils.orangeAccent,
+        shape: new RoundedRectangleBorder(
+          borderRadius: new BorderRadius.circular(10.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Text(
+            Localization.of(context).getString("tapHereToLeaveAReview"),
+            style: TextStyle(
+              color: ColorUtils.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
