@@ -37,7 +37,7 @@ class AccountScreenState extends State<AccountScreen> {
   bool _saving = false;
   var list = List<PopupMenuEntry<Object>>();
   List<Review> reviews = [];
-
+  
   static List<PopupMenuEntry<Object>> getOptions(BuildContext context) {
     return [
       PopupMenuItem(
@@ -126,6 +126,7 @@ class AccountScreenState extends State<AccountScreen> {
         if (result.data != null) {
           setState(() {
             _user = User.fromJson(result.data['get_user']);
+            _user.cards  = _user.cards.reversed.toList();
             _saving = false;
             if (_user.tags != null) {
               _mainUserTag = _user.tags

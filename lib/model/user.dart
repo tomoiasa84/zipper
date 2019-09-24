@@ -56,7 +56,7 @@ class User {
   final bool isActive;
   final List<ConversationModel> conversations;
   final List<User> connections;
-  final List<CardModel> cards;
+  List<CardModel> cards;
   final List<UserTag> tags;
   final List<CardModel> cardsFeed;
   final List<Setting> settings;
