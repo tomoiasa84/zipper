@@ -15,29 +15,52 @@ class ProfileSettingsBloc {
   );
 
   Future<QueryResult> updateUser(String name, int location, String id,
-      String phoneNumber, bool isActive) async {
+      String phoneNumber, bool isActive, String description) async {
     final QueryResult queryResult = await client.mutate(
       MutationOptions(
-        document: '''mutation{
+        document: '''
+                    mutation{
                            update_user(userId: "$id",
                             name: "$name", 
-                            location: $location,  
+                            location: $location,
+                            isActive: $isActive,
                             phoneNumber: "$phoneNumber",
-                            isActive: $isActive) {
-                                 	name
-                        					id
-                        					phoneNumber
-                        					isActive
-                        					location{
-                           						 id
-                           						 city
-                       						 }
-                                  tags{
+                            description: "$description") {
+                              name
+                              phoneNumber
+                              id
+                              location{
+                                  id
+                                  city
+                              }
+                              isActive
+                              connections{
+                                   name
+                              }
+                              cards{
+                                  id
+                                  createdAt
+                                  searchFor{
+                                    name
+                                  }
+                                  postedBy{
+                                      id
                                       name
                                   }
-                                  cards{
-                                      text
-                                  }
+                                  text
+                              }
+                              description
+                              tags{
+                                id
+                                default
+                                user{
+                                  name
+                                }
+                                tag{
+                                  id
+                                  name
+                                }
+                              }
                     }
                   }''',
       ),
@@ -72,11 +95,24 @@ class ProfileSettingsBloc {
     final QueryResult queryResult = await client.mutate(
       MutationOptions(
         document: '''mutation{
-                       delete_userTag(userTagId:2 )
+                       delete_userTag(userTagId:$userTagId)
                       }''',
       ),
     );
 
     return queryResult;
+  }
+
+  Future<QueryResult> getTags() async {
+    final QueryResult result = await client.query(QueryOptions(
+      document: '''query{
+                      get_tags{
+                        id
+                        name
+                      }
+                    }''',
+    ));
+
+    return result;
   }
 }

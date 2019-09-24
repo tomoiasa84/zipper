@@ -3,11 +3,15 @@ import 'dart:ui';
 import 'package:contractor_search/bloc/account_bloc.dart';
 import 'package:contractor_search/layouts/phone_auth_screen.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
+import 'package:contractor_search/layouts/replies_screen.dart';
+import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/review.dart';
+import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
@@ -55,6 +59,20 @@ class AccountScreenState extends State<AccountScreen> {
         textStyle:
             TextStyle(color: ColorUtils.red, fontWeight: FontWeight.bold),
       ),
+    ];
+  }
+
+  static List<PopupMenuEntry<Object>> getPostOptions(BuildContext context) {
+    return [
+      PopupMenuItem(
+          value: 0,
+          child: Container(
+              width: 140.0,
+              child: Text(
+                Localization.of(context).getString('deletePost'),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: ColorUtils.red),
+              ))),
     ];
   }
 
@@ -106,9 +124,10 @@ class AccountScreenState extends State<AccountScreen> {
         _saving = true;
       });
       _accountBloc.getCurrentUser(userId).then((result) {
-        if (result.data != null) {
+        if (result.data != null && mounted) {
           setState(() {
             _user = User.fromJson(result.data['get_user']);
+            _user.cards = _user.cards.reversed.toList();
             _saving = false;
             if (_user.tags != null) {
               _mainUserTag = _user.tags
@@ -145,9 +164,13 @@ class AccountScreenState extends State<AccountScreen> {
                         child: Container(
                           margin: const EdgeInsets.only(top: 16.0),
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               _buildMainInfoCard(),
-                              _buildSkillsCard()
+                              _buildSkillsCard(),
+                              _user.cards != null
+                                  ? _buildPostsList()
+                                  : Container()
                             ],
                           ),
                         ),
@@ -169,6 +192,8 @@ class AccountScreenState extends State<AccountScreen> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(10.0))),
           child: PopupMenuButton<Object>(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0)),
             elevation: 13.2,
             offset: Offset(100, 110),
             initialValue: CustomPopupMenu(title: popupInitialValue),
@@ -305,11 +330,173 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   Future _goToSettingsScreen() async {
-    bool received = await Navigator.push(context,
+    await Navigator.push(context,
         MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
-    if (received != null && received) {
-      _getCurrentUserInfo();
-    }
+    reviews.clear();
+    _getCurrentUserInfo();
+  }
+
+  ListView _buildPostsList() {
+    return ListView.builder(
+        shrinkWrap: true,
+        primary: false,
+        itemCount: _user.cards.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Container(
+              margin: EdgeInsets.only(
+                top: (index == 0) ? 8.0 : 0.0,
+                bottom: (index == _user.cards.length - 1) ? 24.0 : 0.0,
+              ),
+              child: _buildPostItem(_user.cards.elementAt(index)));
+        });
+  }
+
+  GestureDetector _buildPostItem(CardModel card) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => RepliesScreen(
+                      card: card,
+                    )));
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Stack(
+          children: <Widget>[
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildPostText(card.searchFor),
+                  _buildCreatedAtInfo(card.createdAt)
+                ],
+              ),
+            ),
+            Positioned(
+              top: 0.0,
+              right: 0.0,
+              child: PopupMenuButton<Object>(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0)),
+                elevation: 13.2,
+                offset: Offset(0, 110),
+                initialValue: CustomPopupMenu(
+                    title: Localization.of(context).getString('deletePost')),
+                onCanceled: () {
+                  widget.onChanged(false);
+                },
+                onSelected: (_) {
+                  widget.onChanged(false);
+                  _deletePost(card);
+                },
+                icon: Icon(
+                  Icons.more_vert,
+                  color: ColorUtils.lightGray30Opacity,
+                ),
+                itemBuilder: (BuildContext context) {
+                  widget.onChanged(true);
+                  return getPostOptions(context);
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Row _buildPostText(Tag searchFor) {
+    return Row(
+      children: <Widget>[
+        CircleAvatar(
+          child: Text(getInitials(_user.name),
+              style: TextStyle(color: ColorUtils.darkerGray)),
+          backgroundColor: ColorUtils.lightLightGray,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text.rich(
+                TextSpan(
+                  children: <TextSpan>[
+                    TextSpan(
+                        text: _user.name,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text:
+                            Localization.of(context).getString("isLookingFor"),
+                        style: TextStyle(color: ColorUtils.darkerGray)),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                "#" + searchFor.name,
+                style: TextStyle(
+                    color: ColorUtils.orangeAccent,
+                    fontWeight: FontWeight.bold),
+              )
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  Padding _buildCreatedAtInfo(String createdAt) {
+    String difference = getTimeDifference(createdAt);
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0),
+      child: Row(
+        children: <Widget>[
+          Image.asset('assets/images/ic_access_time.png'),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, right: 16.0),
+            child: Text(
+              difference + ' ago',
+              style: TextStyle(color: ColorUtils.darkerGray),
+            ),
+          ),
+          Image.asset('assets/images/ic_replies_gray.png'),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, right: 16.0),
+            child: Text('3 replies',
+                style: TextStyle(color: ColorUtils.darkerGray)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deletePost(CardModel card) {
+    setState(() {
+      _saving = true;
+    });
+    _accountBloc.deleteCard(card.id).then((result) {
+      if (result.errors == null) {
+        setState(() {
+          _saving = false;
+          _user.cards.remove(card);
+        });
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: Localization.of(context).getString("error"),
+            description: result.errors[0].message,
+            buttonText: Localization.of(context).getString('ok'),
+          ),
+        );
+      }
+    });
   }
 }
 

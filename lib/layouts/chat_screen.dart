@@ -16,6 +16,7 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -291,7 +292,7 @@ class _ChatScreenState extends State<ChatScreen> {
         color: ColorUtils.messageGray,
         child: new Container(
           margin: EdgeInsets.fromLTRB(16, 16, 16, 8),
-          decoration: _getRoundedWhiteDecoration(),
+          decoration: getRoundedWhiteDecoration(),
           child: getListView(_listOfMessages),
         ),
       ),
@@ -614,7 +615,7 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Container(
         margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
         height: 50,
-        decoration: _getRoundedWhiteDecoration(),
+        decoration: getRoundedWhiteDecoration(),
         child: Row(
           children: <Widget>[
             _getUserInputTextField(),
@@ -726,7 +727,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: <Widget>[
           Container(
             margin: EdgeInsets.fromLTRB(28, 0, 0, 0),
-            decoration: _getRoundedOrangeDecoration(),
+            decoration: getRoundedOrangeDecoration(),
             child: Container(
               height: 80,
               margin: EdgeInsets.fromLTRB(40, 0, 0, 0),
@@ -770,7 +771,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   Container(
-                    decoration: _getRoundWhiteCircle(),
+                    decoration: getRoundWhiteCircle(),
                     child: new IconButton(
                       onPressed: () => _startConversation(user),
                       icon: Image.asset(
@@ -803,23 +804,5 @@ class _ChatScreenState extends State<ChatScreen> {
 
   bool _messageAuthorIsCurrentUser(Message message) {
     return message.messageAuthor == _currentUserId;
-  }
-
-  BoxDecoration _getRoundedWhiteDecoration() {
-    return BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(8)));
-  }
-
-  BoxDecoration _getRoundWhiteCircle() {
-    return BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(20)));
-  }
-
-  BoxDecoration _getRoundedOrangeDecoration() {
-    return BoxDecoration(
-        color: ColorUtils.messageOrange,
-        borderRadius: BorderRadius.all(Radius.circular(8)));
   }
 }

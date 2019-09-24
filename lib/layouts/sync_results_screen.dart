@@ -6,6 +6,7 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
 
+import 'home_page.dart';
 import 'joined_contacts_screen.dart';
 
 class SyncResultsScreen extends StatefulWidget {
@@ -39,27 +40,62 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
       title: Text(Localization.of(context).getString("syncResults"),
           style: TextStyle(fontWeight: FontWeight.bold)),
       centerTitle: true,
+      actions: <Widget>[
+        widget.syncResult.existingUsers.isEmpty &&
+                widget.syncResult.unjoinedContacts.isEmpty
+            ? GestureDetector(
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => HomePage(
+                                syncContactsFlagRequired: true,
+                              )),
+                      ModalRoute.withName("/homepage"));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                      child: Text(
+                    Localization.of(context).getString("skip"),
+                    style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                        color: ColorUtils.orangeAccent),
+                  )),
+                ),
+              )
+            : Container()
+      ],
     );
   }
 
   Container _buildBody() {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-            child: Text(
-              Localization.of(context).getString("usersFoundInYourPhone"),
-              style: TextStyle(fontWeight: FontWeight.bold),
+      child: widget.syncResult.unjoinedContacts.isNotEmpty &&
+              widget.syncResult.existingUsers.isNotEmpty
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                  child: Text(
+                    Localization.of(context).getString("usersFoundInYourPhone"),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                _buildPublicTagsCard(),
+                _buildUntaggedContactsCard(),
+                _buildShareButton()
+              ],
+            )
+          : Center(
+              child: Text(
+                Localization.of(context).getString('emptyContactsList'),
+                style: TextStyle(fontSize: 16.0, color: ColorUtils.darkerGray),
+              ),
             ),
-          ),
-          _buildPublicTagsCard(),
-          _buildUntaggedContactsCard(),
-          _buildShareButton()
-        ],
-      ),
     );
   }
 

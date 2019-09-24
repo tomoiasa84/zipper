@@ -40,3 +40,37 @@ String escapeJsonCharacters(String imageUrlDownload) {
 String getFormattedDateTime(DateTime dateTime) {
   return DateFormat("dd/MM/yyyy").format(dateTime);
 }
+
+String getTimeDifference(String time) {
+  DateTime date = parseDateFromString(time);
+
+  Duration duration = date.timeZoneOffset;
+  DateTime currentTime = DateTime.now();
+  String difference;
+  DateTime exactDate = date.add(duration);
+
+  if (currentTime.difference(exactDate).inSeconds < 60) {
+    difference = (currentTime.difference(exactDate).inSeconds).toString() + "s";
+  } else if (currentTime.difference(exactDate).inSeconds > 60 &&
+      currentTime.difference(exactDate).inMinutes < 60) {
+    difference = (currentTime.difference(exactDate).inMinutes).toString() + "m";
+  } else if (currentTime.difference(exactDate).inMinutes >= 60 &&
+      currentTime.difference(date).inHours < 24) {
+    difference = (currentTime.difference(exactDate).inHours).toString() + "h";
+  } else if (currentTime.difference(exactDate).inHours >= 24 &&
+      currentTime.difference(exactDate).inDays < 7) {
+    difference = (currentTime.difference(exactDate).inDays).toString() + "d";
+  } else if (currentTime.difference(exactDate).inDays >= 7 &&
+      currentTime.difference(exactDate).inDays < 52) {
+    difference =
+        (currentTime.difference(exactDate).inDays / 7).toString() + 'w';
+  }
+
+  return difference;
+}
+
+DateTime parseDateFromString(String time) {
+  DateFormat dateFormat = DateFormat("EEE MMM dd yyyy HH:mm:ss zzz");
+  var date = dateFormat.parse(time);
+  return date;
+}

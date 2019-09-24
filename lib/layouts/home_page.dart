@@ -73,9 +73,9 @@ class _HomePageState extends State<HomePage> {
         ),
         (blurred)
             ? new Container(
-          decoration:
-          new BoxDecoration(color: Colors.black.withOpacity(0.6)),
-        )
+                decoration:
+                    new BoxDecoration(color: Colors.black.withOpacity(0.6)),
+              )
             : Container(),
       ],
     );
@@ -88,6 +88,7 @@ class _HomePageState extends State<HomePage> {
       type: BottomNavigationBarType.fixed,
       onTap: (index) {
         if (index == 2) {
+          _homeBloc.pickItem(0);
           _goToAddPostScreen();
         } else {
           _homeBloc.pickItem(index);
@@ -138,15 +139,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _goToAddPostScreen() async {
-    var result = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => AddPostScreen()));
-    if(result!=null){
+    var result = await Navigator.of(context).push(
+        MaterialPageRoute(builder: (BuildContext context) => AddPostScreen()));
+    if (result != null) {
       showDialog(
         context: context,
         builder: (BuildContext context) => CustomDialog(
           title: Localization.of(context).getString("success"),
-          description:
-          Localization.of(context).getString("yourPostHasBeenSuccessfullyAdded"),
+          description: Localization.of(context)
+              .getString("yourPostHasBeenSuccessfullyAdded"),
           buttonText: Localization.of(context).getString("ok"),
         ),
       );
