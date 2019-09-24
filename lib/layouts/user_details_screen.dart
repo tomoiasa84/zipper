@@ -1,3 +1,4 @@
+import 'package:contractor_search/layouts/leave_review_dialog.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -212,7 +213,12 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 27.0),
       child: RaisedButton(
-        onPressed: () {},
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => LeaveReviewDialog(),
+          );
+        },
         color: ColorUtils.orangeAccent,
         shape: new RoundedRectangleBorder(
           borderRadius: new BorderRadius.circular(10.0),

@@ -124,7 +124,7 @@ class AccountScreenState extends State<AccountScreen> {
         _saving = true;
       });
       _accountBloc.getCurrentUser(userId).then((result) {
-        if (result.data != null) {
+        if (result.data != null && mounted) {
           setState(() {
             _user = User.fromJson(result.data['get_user']);
             _user.cards = _user.cards.reversed.toList();

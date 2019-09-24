@@ -111,6 +111,9 @@ class Localization {
       'deletePost': 'Delete Post',
       'recommendedBy': 'Recommended by ',
       'tapHereToLeaveAReview': 'Tap here to leave a review',
+      'leaveReview': 'Leave review',
+      'typeAMessage': 'Type a message...',
+      'publishReview': 'Publish Review',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -213,6 +216,9 @@ class Localization {
       'deletePost': 'Sterge Postarea',
       'recommendedBy': 'Recomandat de ',
       'tapHereToLeaveAReview': 'Apasa aici pentru a lasa o recenzie',
+      'leaveReview': 'Lasa o recenzie',
+      'typeAMessage': 'Scrie un mesaj...',
+      'publishReview': 'Publica Recenzia',
     },
   };
 
