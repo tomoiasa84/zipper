@@ -19,11 +19,27 @@ class RepliesScrenState extends State<RepliesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
             _buildCardDetails(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: generateContactUI(
+                  widget.card.postedBy,
+                  widget.card.searchFor.name,
+                  () {},
+                  Localization.of(context).getString("recommendedBy")),
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 24.0),
+              child: generateContactUI(
+                  widget.card.postedBy,
+                  widget.card.searchFor.name,
+                  () {},
+                  Localization.of(context).getString("recommendedBy")),
+            ),
           ],
         ),
       ),
@@ -43,20 +59,23 @@ class RepliesScrenState extends State<RepliesScreen> {
     );
   }
 
-  Card _buildCardDetails() {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _buildPostText(),
-            _buildDetailsText(),
-            _buildCreatedAtInfo()
-          ],
+  Padding _buildCardDetails() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              _buildPostText(),
+              _buildDetailsText(),
+              _buildCreatedAtInfo(),
+            ],
+          ),
         ),
       ),
     );

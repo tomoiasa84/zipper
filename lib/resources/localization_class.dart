@@ -108,6 +108,7 @@ class Localization {
       'addDescription': 'Add a description',
       'addATag': 'Add a tag',
       'deletePost': 'Delete Post',
+      'recommendedBy': 'Recommended by ',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -208,6 +209,7 @@ class Localization {
       'addDescription': 'Adauga o descriere',
       'addATag': 'Adauga un tag',
       'deletePost': 'Sterge Postarea',
+      'recommendedBy': 'Recomandat de ',
     },
   };
 
