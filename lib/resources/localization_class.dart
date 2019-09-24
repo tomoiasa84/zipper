@@ -114,6 +114,7 @@ class Localization {
       'leaveReview': 'Leave review',
       'typeAMessage': 'Type a message...',
       'publishReview': 'Publish Review',
+      'emptyContactsList': 'Empty contacts list',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -184,7 +185,7 @@ class Localization {
       'LoadMoreStatus.loading': 'Se incarca mesajele',
       'LoadMoreStatus.fail': 'Mesajele nu au putut fi incarcate',
       'viewAllReviews': 'Vezi toate recenziile',
-      'syncResults': 'Rezultate sincronizare',
+      'syncResults': 'Rezultate',
       'skip': 'Inainte',
       'usersFoundInYourPhone': 'Utilizatori gasiti in texlefon',
       'existingUsers': 'Useri Existenti',
@@ -219,6 +220,7 @@ class Localization {
       'leaveReview': 'Lasa o recenzie',
       'typeAMessage': 'Scrie un mesaj...',
       'publishReview': 'Publica Recenzia',
+      'emptyContactsList': 'Nu exista contacte in telefon',
     },
   };
 

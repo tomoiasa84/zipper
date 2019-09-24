@@ -9,11 +9,13 @@ class CardModel {
         searchFor =
             json['searchFor'] != null ? Tag.fromJson(json['searchFor']) : null,
         createdAt = json['createdAt'],
-        text = json['text'];
+        text = json['text'],
+        recommends = json['recommands'];
 
   final int id;
   final User postedBy;
   final Tag searchFor;
   final String createdAt;
   final String text;
+  final int recommends;
 }

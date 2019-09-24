@@ -72,17 +72,25 @@ class SyncContactsBloc {
 
     if (result.errors == null) {
       countryCode =
-          User.fromJson(result.data['get_user']).phoneNumber.substring(0, 2);
+          User
+              .fromJson(result.data['get_user'])
+              .phoneNumber
+              .substring(0, 2);
 
       var contactsResult = await getContacts();
-      List<String> phoneContacts = _formatContactsNumber(contactsResult);
+      if (contactsResult != null && contactsResult.isNotEmpty) {
+        List<String> phoneContacts = _formatContactsNumber(contactsResult);
 
-      var checkResult = await checkContacts(phoneContacts.toSet().toList());
-      if (checkResult.errors == null) {
-        return _groupExistingUsers(checkResult, contactsResult);
-      } else
+        var checkResult = await checkContacts(phoneContacts.toSet().toList());
+        if (checkResult.errors == null) {
+          return _groupExistingUsers(checkResult, contactsResult);
+        } else
+          return SyncContactsModel([], [], countryCode);
+      } else {
         return SyncContactsModel([], [], countryCode);
-    } else {
+      }
+    }
+    else{
       return SyncContactsModel([], [], countryCode);
     }
   }
