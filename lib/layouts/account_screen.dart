@@ -37,7 +37,7 @@ class AccountScreenState extends State<AccountScreen> {
   bool _saving = false;
   var list = List<PopupMenuEntry<Object>>();
   List<Review> reviews = [];
-  
+
   static List<PopupMenuEntry<Object>> getOptions(BuildContext context) {
     return [
       PopupMenuItem(
@@ -126,7 +126,7 @@ class AccountScreenState extends State<AccountScreen> {
         if (result.data != null) {
           setState(() {
             _user = User.fromJson(result.data['get_user']);
-            _user.cards  = _user.cards.reversed.toList();
+            _user.cards = _user.cards.reversed.toList();
             _saving = false;
             if (_user.tags != null) {
               _mainUserTag = _user.tags
@@ -350,15 +350,14 @@ class AccountScreenState extends State<AccountScreen> {
         });
   }
 
-  Card _buildPostItem(CardModel card) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(
-          bottom: 24.0,
-          left: 16.0,
+  GestureDetector _buildPostItem(CardModel card) {
+    return GestureDetector(
+      onTap:(){
+
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
         ),
         child: Stack(
           children: <Widget>[

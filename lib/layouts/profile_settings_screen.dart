@@ -42,13 +42,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         final List<Map<String, dynamic>> tags =
             result.data['get_tags'].cast<Map<String, dynamic>>();
         tags.forEach((item) {
-          Tag tagItem = Tag.fromJson(item);
-          var tagFound = skills.firstWhere((tag) => tag.tag.id == tagItem.id,
-              orElse: () => null);
-          if (tagFound == null &&
-              (userTag != null && userTag.tag.id != tagItem.id)) {
-            tagsList.add(tagItem);
-          }
+          tagsList.add(Tag.fromJson(item));
         });
       }
     });
@@ -266,24 +260,44 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           ),
           Flexible(
             flex: 3,
-            child: TextFormField(
-              controller: _mainTextEditingController,
-              autovalidate: _autoValidate,
-              onChanged: (value) {
-                this.name = value;
-              },
-              decoration: InputDecoration(
-                focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: ColorUtils.orangeAccent)),
-                enabledBorder: new UnderlineInputBorder(
-                    borderSide: BorderSide(color: ColorUtils.lightGray)),
-                hintText: Localization.of(context).getString('addATag'),
-                hintStyle:
-                    TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
+            child:
+                TypeAheadFormField(
+              getImmediateSuggestions: true,
+              textFieldConfiguration: TextFieldConfiguration(
+                controller: _mainTextEditingController,
+                decoration: InputDecoration(
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: ColorUtils.orangeAccent)),
+                  enabledBorder: new UnderlineInputBorder(
+                      borderSide: BorderSide(color: ColorUtils.lightGray)),
+                  hintText: Localization.of(context).getString('addATag'),
+                  hintStyle:
+                      TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
+                ),
               ),
+              suggestionsCallback: (pattern) {
+                List<String> list = [];
+                tagsList
+                    .where((it) => it.name.startsWith(pattern))
+                    .toList()
+                    .forEach((tag) => list.add(tag.name));
+                return list;
+              },
+              itemBuilder: (context, suggestion) {
+                return ListTile(
+                  title: Text('#' + suggestion),
+                );
+              },
+              transitionBuilder: (context, suggestionsBox, controller) {
+                return suggestionsBox;
+              },
+              onSuggestionSelected: (suggestion) {
+                this._mainTextEditingController.text = '#' + suggestion;
+              },
               validator: (value) {
                 if (value.isEmpty) {
-                  return Localization.of(context).getString('tagValidation');
+                  return Localization.of(context)
+                      .getString('locationValidation');
                 }
                 return null;
               },
@@ -381,7 +395,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             children: <Widget>[
               Flexible(
                 child: Text(
-                  item.tag.name,
+                  '#' + item.tag.name,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -443,14 +457,14 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             },
             itemBuilder: (context, suggestion) {
               return ListTile(
-                title: Text(suggestion),
+                title: Text('#' + suggestion),
               );
             },
             transitionBuilder: (context, suggestionsBox, controller) {
               return suggestionsBox;
             },
             onSuggestionSelected: (suggestion) {
-              this._addSkillsTextEditingController.text = suggestion;
+              this._addSkillsTextEditingController.text = '#' + suggestion;
             },
             validator: (value) {
               if (value.isEmpty) {
@@ -465,9 +479,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               onTap: () {
                 setState(() {
                   if (_addSkillsTextEditingController.text.isNotEmpty) {
-                    setState(() {
                       _createNewUserTag();
-                    });
                   }
                 });
                 _addSkillsTextEditingController.clear();
@@ -491,7 +503,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       _saving = true;
     });
     Tag tag = tagsList.firstWhere(
-        (tag) => tag.name == _addSkillsTextEditingController.text,
+        (tag) => tag.name == _addSkillsTextEditingController.text.substring(1),
         orElse: () => null);
     if (tag != null) {
       _profileSettingsBloc.createUserTag(widget.user.id, tag.id).then((result) {
@@ -501,7 +513,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         if (result.errors == null) {
           setState(() {
             skills.add(UserTag.fromJson(result.data['create_userTag']));
-            tagsList.remove(tag);
           });
         } else {
           _showDialog(
@@ -524,7 +535,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       if (result.errors == null) {
         setState(() {
           skills.remove(item);
-          tagsList.add(item.tag);
         });
       }
     });
