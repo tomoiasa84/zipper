@@ -1,4 +1,6 @@
+import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/model/user_tag.dart';
 import 'package:intl/intl.dart';
 
 String validatePhoneNumber(String value, String validationMessage) {
@@ -73,4 +75,14 @@ DateTime parseDateFromString(String time) {
   DateFormat dateFormat = DateFormat("EEE MMM dd yyyy HH:mm:ss zzz");
   var date = dateFormat.parse(time);
   return date;
+}
+
+String getReviewForMainTag(User user, UserTag mainUserTag){
+  String stars = '';
+  user.reviews.forEach((review){
+    if(review.userTag.id == mainUserTag.id) {
+      stars = review.stars.toString();
+    }
+  });
+  return stars;
 }

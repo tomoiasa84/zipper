@@ -37,6 +37,8 @@ class AccountScreenState extends State<AccountScreen> {
   bool _saving = false;
   var list = List<PopupMenuEntry<Object>>();
 
+  String _mainUserTagStarts = '';
+
   static List<PopupMenuEntry<Object>> getOptions(BuildContext context) {
     return [
       PopupMenuItem(
@@ -130,6 +132,9 @@ class AccountScreenState extends State<AccountScreen> {
             if (_user.tags != null) {
               _mainUserTag = _user.tags
                   .firstWhere((tag) => tag.defaultTag, orElse: () => null);
+            }
+            if (_mainUserTag != null) {
+              _mainUserTagStarts = getReviewForMainTag(_user, _mainUserTag);
             }
           });
         }
@@ -265,15 +270,18 @@ class AccountScreenState extends State<AccountScreen> {
                           '#' + _mainUserTag.tag.name,
                           style: TextStyle(color: ColorUtils.orangeAccent),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0, top: 4.0),
-                          child: Icon(
-                            Icons.star,
-                            color: ColorUtils.orangeAccent,
-                          ),
-                        ),
+                        _mainUserTagStarts.isNotEmpty
+                            ? Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8.0, top: 4.0),
+                                child: Icon(
+                                  Icons.star,
+                                  color: ColorUtils.orangeAccent,
+                                ),
+                              )
+                            : Container(),
                         Text(
-                          '4.8',
+                          _mainUserTagStarts,
                           style: TextStyle(
                               fontSize: 14.0, color: ColorUtils.darkGray),
                         )

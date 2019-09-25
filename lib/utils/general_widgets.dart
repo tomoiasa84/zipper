@@ -116,7 +116,9 @@ List<Widget> generateSkills(List<Review> reviews, Function onTapAction) {
   List<Widget> skills = [];
   reviews.forEach((item) {
     skills.add(GestureDetector(
-      onTap: (){onTapAction(item);},
+      onTap: () {
+        onTapAction(item);
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10.0),
         child: Row(

@@ -3,6 +3,7 @@ import 'package:contractor_search/layouts/leave_review_dialog.dart';
 import 'package:contractor_search/model/leave_review_model.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
@@ -25,6 +26,8 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   User _user;
   bool _saving = false;
 
+  UserTag _mainUserTag;
+
   @override
   void initState() {
     getCurrentUser();
@@ -41,6 +44,10 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         setState(() {
           _user = User.fromJson(result.data['get_user']);
           _saving = false;
+          if (_user.tags != null) {
+            _mainUserTag = _user.tags
+                .firstWhere((tag) => tag.defaultTag, orElse: () => null);
+          }
         });
       }
     });
@@ -145,10 +152,11 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                 _user.name,
                 style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
               ),
-              Row(
+              _mainUserTag != null
+                  ? Row(
                 children: <Widget>[
                   Text(
-                    "#housekeeper",
+                    '#' + _mainUserTag.tag.name,
                     style: TextStyle(color: ColorUtils.orangeAccent),
                   ),
                   Padding(
@@ -159,12 +167,13 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                     ),
                   ),
                   Text(
-                    '4.8',
-                    style:
-                        TextStyle(fontSize: 14.0, color: ColorUtils.darkGray),
+                    getReviewForMainTag(_user, _mainUserTag),
+                    style: TextStyle(
+                        fontSize: 14.0, color: ColorUtils.darkGray),
                   )
                 ],
               )
+                  : Container()
             ],
           ),
         )
