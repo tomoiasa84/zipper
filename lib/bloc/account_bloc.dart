@@ -53,6 +53,21 @@ class AccountBloc {
                             name
                           }
                         }
+                         reviews{
+                            author{
+                              name
+                            }
+                            stars
+                           userTag{
+                            tag{
+                              name
+                            }
+                            user{
+                              name
+                            }
+                          }
+                            text
+                          }
                     }
               }''',
     ));

@@ -128,7 +128,7 @@ List<Widget> generateSkills(List<Review> reviews) {
                 padding: const EdgeInsets.only(
                     top: 8.0, bottom: 8.0, left: 16.0, right: 10.0),
                 child: AutoSizeText(
-                  item.text,
+                  '#' + item.userTag.tag.name,
                   style: TextStyle(fontSize: 14),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

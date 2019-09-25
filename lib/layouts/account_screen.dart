@@ -5,7 +5,6 @@ import 'package:contractor_search/layouts/phone_auth_screen.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
 import 'package:contractor_search/layouts/replies_screen.dart';
 import 'package:contractor_search/model/card.dart';
-import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
@@ -37,7 +36,6 @@ class AccountScreenState extends State<AccountScreen> {
   UserTag _mainUserTag;
   bool _saving = false;
   var list = List<PopupMenuEntry<Object>>();
-  List<Review> reviews = [];
 
   static List<PopupMenuEntry<Object>> getOptions(BuildContext context) {
     return [
@@ -133,11 +131,6 @@ class AccountScreenState extends State<AccountScreen> {
               _mainUserTag = _user.tags
                   .firstWhere((tag) => tag.defaultTag, orElse: () => null);
             }
-            reviews.add(Review(1, _user, 3, "#babysitter"));
-            reviews.add(Review(1, _user, 4, "#nanny"));
-            reviews.add(Review(1, _user, 5, "#housekeeper"));
-            reviews.add(Review(1, _user, 4, "#caretaker"));
-            reviews.add(Review(1, _user, 2, "#housekeeper"));
           });
         }
       });
@@ -167,7 +160,9 @@ class AccountScreenState extends State<AccountScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               _buildMainInfoCard(),
-                              _buildSkillsCard(),
+                              _user.reviews != null && _user.reviews.isNotEmpty
+                                  ? _buildSkillsCard()
+                                  : Container(),
                               _user.cards != null
                                   ? _buildPostsList()
                                   : Container()
@@ -320,7 +315,7 @@ class AccountScreenState extends State<AccountScreen> {
               ),
               Container(
                 child: Column(
-                  children: generateSkills(reviews),
+                  children: generateSkills(_user.reviews),
                 ),
               )
             ],
@@ -331,7 +326,6 @@ class AccountScreenState extends State<AccountScreen> {
   Future _goToSettingsScreen() async {
     await Navigator.push(context,
         MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
-    reviews.clear();
     _getCurrentUserInfo();
   }
 

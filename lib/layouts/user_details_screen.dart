@@ -17,17 +17,6 @@ class UserDetailsScreen extends StatefulWidget {
 }
 
 class UserDetailsScreenState extends State<UserDetailsScreen> {
-  List<Review> reviews = [];
-
-  @override
-  void initState() {
-    reviews.add(Review(1, widget.user, 3, "#babysitter"));
-    reviews.add(Review(1, widget.user, 4, "#nanny"));
-    reviews.add(Review(1, widget.user, 5, "#housekeeper"));
-    reviews.add(Review(1, widget.user, 5, "#nanny"));
-    reviews.add(Review(1, widget.user, 1, "#babysitter"));
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +52,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                         bottom: 0.0, right: 0.0, child: _buildActionsButtons()),
                   ],
                 ),
-                _buildSkillsCard(),
+               widget.user.reviews!=null && widget.user.reviews.isNotEmpty? _buildSkillsCard(): Container(),
               ],
             ),
           ),
@@ -193,7 +182,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                     ),
                     Container(
                       child: Column(
-                        children: generateSkills(reviews),
+                        children: generateSkills(widget.user.reviews),
                       ),
                     )
                   ],

@@ -42,6 +42,21 @@ class UsersBloc {
                         cards{
                             text
                         }
+                         reviews{
+                            author{
+                              name
+                            }
+                            stars
+                           userTag{
+                            tag{
+                              name
+                            }
+                            user{
+                              name
+                            }
+                          }
+                            text
+                          }
                     }
               }''',
     ));
