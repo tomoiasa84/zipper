@@ -305,8 +305,7 @@ class AccountScreenState extends State<AccountScreen> {
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Container(
-          padding: const EdgeInsets.only(
-              left: 16.0, right: 16.0, top: 24.0, bottom: 44.0),
+          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
           child: Column(
             children: <Widget>[
               Row(

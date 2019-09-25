@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -119,15 +120,23 @@ List<Widget> generateSkills(List<Review> reviews) {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-                border: Border.all(color: ColorUtils.lightLightGray),
-                borderRadius: BorderRadius.all(Radius.circular(6.0))),
-            padding: const EdgeInsets.only(
-                top: 8.0, bottom: 8.0, left: 16.0, right: 10.0),
-            child: Text(item.text),
+          Flexible(
+            child: Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: ColorUtils.lightLightGray),
+                    borderRadius: BorderRadius.all(Radius.circular(6.0))),
+                padding: const EdgeInsets.only(
+                    top: 8.0, bottom: 8.0, left: 16.0, right: 10.0),
+                child: AutoSizeText(
+                  item.text,
+                  style: TextStyle(fontSize: 14),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )),
           ),
           Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
               StarDisplay(
                 value: item.stars,

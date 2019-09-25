@@ -176,7 +176,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
               ),
               child: Container(
                 padding: const EdgeInsets.only(
-                    left: 16.0, right: 16.0, top: 24.0, bottom: 36.0),
+                    left: 16.0, right: 16.0, top: 24.0, bottom: 54.0),
                 child: Column(
                   children: <Widget>[
                     Row(
