@@ -260,7 +260,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Icons.arrow_back,
                 color: ColorUtils.almostBlack,
               ),
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: () => Navigator.pop(context),
             ),
             backgroundColor: Colors.white,
           ),
