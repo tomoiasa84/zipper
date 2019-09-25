@@ -42,7 +42,17 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         final List<Map<String, dynamic>> tags =
             result.data['get_tags'].cast<Map<String, dynamic>>();
         tags.forEach((item) {
-          tagsList.add(Tag.fromJson(item));
+          var tagItem = Tag.fromJson(item);
+          if (skills.isNotEmpty) {
+            var tagFound = skills.firstWhere((tag) => tag.tag.id == tagItem.id,
+                orElse: () => null);
+            if (tagFound == null &&
+                (userTag != null && userTag.tag.id != tagItem.id)) {
+              tagsList.add(tagItem);
+            }
+          } else {
+            tagsList.add(tagItem);
+          }
         });
       }
     });
@@ -393,6 +403,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               GestureDetector(
                 onTap: () {
                   setState(() {
+                    FocusScope.of(context).requestFocus(FocusNode());
                     _deleteUserTag(item);
                   });
                 },
@@ -503,6 +514,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         });
         if (result.errors == null) {
           setState(() {
+            tagsList.remove(tag);
             skills.add(UserTag.fromJson(result.data['create_userTag']));
           });
         } else {
@@ -525,6 +537,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       });
       if (result.errors == null) {
         setState(() {
+          tagsList.add(item.tag);
           skills.remove(item);
         });
       }
