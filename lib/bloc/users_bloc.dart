@@ -48,6 +48,7 @@ class UsersBloc {
                             }
                             stars
                            userTag{
+                            id
                             tag{
                               name
                             }

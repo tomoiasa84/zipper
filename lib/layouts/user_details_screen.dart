@@ -17,7 +17,6 @@ class UserDetailsScreen extends StatefulWidget {
 }
 
 class UserDetailsScreenState extends State<UserDetailsScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +51,9 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                         bottom: 0.0, right: 0.0, child: _buildActionsButtons()),
                   ],
                 ),
-               widget.user.reviews!=null && widget.user.reviews.isNotEmpty? _buildSkillsCard(): Container(),
+                widget.user.reviews != null && widget.user.reviews.isNotEmpty
+                    ? _buildSkillsCard()
+                    : Container(),
               ],
             ),
           ),
@@ -182,7 +183,8 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                     ),
                     Container(
                       child: Column(
-                        children: generateSkills(widget.user.reviews),
+                        children: generateSkills(
+                            widget.user.reviews, openLeaveReviewDialog),
                       ),
                     )
                   ],
@@ -198,31 +200,29 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     );
   }
 
+  Future<void> openLeaveReviewDialog(Review review) {
+     showDialog(
+      context: context,
+      builder: (BuildContext context) => LeaveReviewDialog(userTag: review.userTag, userId: widget.user.id,),
+    );
+  }
+
   Container _buildLeaveReviewButton() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 27.0),
-      child: RaisedButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => LeaveReviewDialog(),
-          );
-        },
-        color: ColorUtils.orangeAccent,
-        shape: new RoundedRectangleBorder(
-          borderRadius: new BorderRadius.circular(10.0),
-        ),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.0),
+            color: ColorUtils.orangeAccent),
+        margin: const EdgeInsets.symmetric(horizontal: 27.0),
         child: Padding(
           padding: const EdgeInsets.all(18.0),
           child: Text(
-            Localization.of(context).getString("tapHereToLeaveAReview"),
+            Localization.of(context).getString("tapOnSkillToLeaveAReview"),
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: ColorUtils.white,
               fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }

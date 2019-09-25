@@ -112,45 +112,48 @@ GestureDetector buildBackButton(IconData iconData, Function onClickAction) {
   );
 }
 
-List<Widget> generateSkills(List<Review> reviews) {
+List<Widget> generateSkills(List<Review> reviews, Function onTapAction) {
   List<Widget> skills = [];
   reviews.forEach((item) {
-    skills.add(Container(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Flexible(
-            child: Container(
-                decoration: BoxDecoration(
-                    border: Border.all(color: ColorUtils.lightLightGray),
-                    borderRadius: BorderRadius.all(Radius.circular(6.0))),
-                padding: const EdgeInsets.only(
-                    top: 8.0, bottom: 8.0, left: 16.0, right: 10.0),
-                child: AutoSizeText(
-                  '#' + item.userTag.tag.name,
-                  style: TextStyle(fontSize: 14),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                )),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              StarDisplay(
-                value: item.stars,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Text(
-                  item.stars.toString(),
-                  style: TextStyle(fontWeight: FontWeight.bold),
+    skills.add(GestureDetector(
+      onTap: (){onTapAction(item);},
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Flexible(
+              child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: ColorUtils.lightLightGray),
+                      borderRadius: BorderRadius.all(Radius.circular(6.0))),
+                  padding: const EdgeInsets.only(
+                      top: 8.0, bottom: 8.0, left: 16.0, right: 10.0),
+                  child: AutoSizeText(
+                    '#' + item.userTag.tag.name,
+                    style: TextStyle(fontSize: 14),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                StarDisplay(
+                  value: item.stars,
                 ),
-              )
-            ],
-          ),
-        ],
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    item.stars.toString(),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     ));
   });

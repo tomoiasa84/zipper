@@ -315,7 +315,7 @@ class AccountScreenState extends State<AccountScreen> {
               ),
               Container(
                 child: Column(
-                  children: generateSkills(_user.reviews),
+                  children: generateSkills(_user.reviews, () {}),
                 ),
               )
             ],

@@ -55,7 +55,7 @@ String getTimeDifference(String time) {
       currentTime.difference(exactDate).inMinutes < 60) {
     difference = (currentTime.difference(exactDate).inMinutes).toString() + "m";
   } else if (currentTime.difference(exactDate).inMinutes >= 60 &&
-      currentTime.difference(date).inHours < 24) {
+      currentTime.difference(exactDate).inHours < 24) {
     difference = (currentTime.difference(exactDate).inHours).toString() + "h";
   } else if (currentTime.difference(exactDate).inHours >= 24 &&
       currentTime.difference(exactDate).inDays < 7) {
