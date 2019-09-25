@@ -1,17 +1,17 @@
-import 'package:contractor_search/models/Message.dart';
+import 'package:contractor_search/models/UserMessage.dart';
 
 class LastMessage {
   String _timeToken;
-  Message _message;
+  UserMessage _message;
 
   LastMessage(this._timeToken, this._message);
 
   String get timeToken => _timeToken;
 
-  Message get message => _message;
+  UserMessage get message => _message;
 
   LastMessage.fromJson(Map<String, dynamic> json)
       : _timeToken = json['timetoken'],
         _message =
-            json['message'] != null ? Message.fromJson(json['message']) : null;
+            json['message'] != null ? UserMessage.fromJson(json['message']) : null;
 }

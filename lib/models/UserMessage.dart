@@ -1,6 +1,6 @@
 import 'package:contractor_search/model/user.dart';
 
-class Message {
+class UserMessage {
   String _channelId;
   User _sharedContact;
   String _message;
@@ -10,18 +10,22 @@ class Message {
   bool showUserIcon = true;
   String _imageDownloadUrl;
 
-  Message(this._message, this._timestamp, this._messageAuthor);
+  UserMessage(this._message, this._timestamp, this._messageAuthor, this._channelId);
 
-  Message.withImage(DateTime timestamp, String imageDownloadUrl, String from) {
+  UserMessage.withImage(DateTime timestamp, String imageDownloadUrl,
+      String messageAuthor, String channelId) {
     this._timestamp = timestamp;
     this._imageDownloadUrl = imageDownloadUrl;
-    this._messageAuthor = from;
+    this._messageAuthor = messageAuthor;
+    this._channelId = channelId;
   }
 
-  Message.withSharedContact(DateTime timestamp, String from, User user) {
+  UserMessage.withSharedContact(
+      DateTime timestamp, String messageAuthor, User user, String channelId) {
     this._timestamp = timestamp;
-    this._messageAuthor = from;
+    this._messageAuthor = messageAuthor;
     this._sharedContact = user;
+    this._channelId = channelId;
   }
 
   User get sharedContact => _sharedContact;
@@ -45,7 +49,7 @@ class Message {
         'sharedContact': _sharedContact
       };
 
-  Message.fromJson(Map<String, dynamic> json)
+  UserMessage.fromJson(Map<String, dynamic> json)
       : _message = json['message'],
         _timestamp = DateTime.parse(json['timestamp']),
         _stringTimestamp = json['timestamp'],

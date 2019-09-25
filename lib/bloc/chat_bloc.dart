@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
-import 'package:contractor_search/models/Message.dart';
+import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
@@ -19,7 +19,7 @@ class ChatBloc {
   final String _baseUrl = "https://ps.pndsn.com";
   final http.Client _pubNubClient = new http.Client();
   final StreamController ctrl = StreamController();
-  final List<Message> _messagesList = new List();
+  final List<UserMessage> _messagesList = new List();
   final int _numberOfMessagesToFetch = 50;
   int historyStart;
   String _timestamp = "0";
@@ -35,7 +35,7 @@ class ChatBloc {
     link: _authLink.concat(link),
   );
 
-  Future<List<Message>> getHistoryMessages(String channelName) async {
+  Future<List<UserMessage>> getHistoryMessages(String channelName) async {
     var url;
 
     if (historyStart == null) {
@@ -73,7 +73,7 @@ class ChatBloc {
 
     for (var item in messagesList) {
       PnGCM pnGCM = PnGCM.fromJson(item);
-      Message message = pnGCM.wrappedMessage.message;
+      UserMessage message = pnGCM.wrappedMessage.message;
       _messagesList.add(message);
     }
   }
@@ -99,7 +99,7 @@ class ChatBloc {
 
     if (messagesList.length > 0) {
       PnGCM pnGCM = PnGCM.fromJson(messagesList[0]);
-      Message message = pnGCM.wrappedMessage.message;
+      UserMessage message = pnGCM.wrappedMessage.message;
       ctrl.sink.add(message);
     }
   }
