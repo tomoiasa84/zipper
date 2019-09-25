@@ -73,7 +73,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
   Container _buildBody() {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-      child: widget.syncResult.unjoinedContacts.isNotEmpty &&
+      child: widget.syncResult.unjoinedContacts.isNotEmpty ||
               widget.syncResult.existingUsers.isNotEmpty
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,13 +137,16 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 21.0),
         child: Row(
           children: <Widget>[
-            _buildCardTitle(
-                Localization.of(context).getString("unjoinedContacts"),
-                selectedContacts.toString() +
-                    " " +
-                    Localization.of(context)
-                        .getString("contacts")
-                        .toLowerCase()),
+            Flexible(
+              flex: 4,
+              child: _buildCardTitle(
+                  Localization.of(context).getString("unjoinedContacts"),
+                  selectedContacts.toString() +
+                      " " +
+                      Localization.of(context)
+                          .getString("contacts")
+                          .toLowerCase()),
+            ),
             _buildForwardArrow(() {
               _navigateAndDisplayUnjoinedUsers();
             })
@@ -194,8 +197,9 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
     );
   }
 
-  Expanded _buildForwardArrow(Function onTapAction) {
-    return Expanded(
+  Flexible _buildForwardArrow(Function onTapAction) {
+    return Flexible(
+      flex: 1,
       child: GestureDetector(
         onTap: onTapAction,
         child: Container(

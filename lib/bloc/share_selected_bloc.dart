@@ -24,19 +24,25 @@ class ShareSelectedBloc {
         document: '''mutation{
                          load_contacts(phoneContacts: $phoneContactsJson) {
                            name
-                           id
-                           phoneNumber
-                           location{
-                                 id
-                                 city
-                             }
-                                tags{
-                                    name
-                                }
-                                cards{
-                                    text
-                                }
-                         }
+                        firebaseId
+                        id
+                        phoneNumber
+                        isActive
+                        location{
+                            id
+                            city
+                        }
+                        tags{
+                          id
+                          user{
+                            name
+                          }
+                        }
+                        description
+                        cards{
+                            text
+                        }
+                       }
                   }''',
       ),
     );

@@ -24,7 +24,12 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Expanded(
-            child: _buildUntaggedContactsList(),
+            child: widget.unjoinedContacts.isNotEmpty
+                ? _buildUntaggedContactsList()
+                : Center(
+                    child: Text(
+                        Localization.of(context).getString("emptyUsersList")),
+                  ),
           ),
         ],
       ),
@@ -34,11 +39,11 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
   AppBar _buildAppBar() {
     return AppBar(
       title: Text(
-        Localization.of(context).getString("unjoinedContacts"),
+        Localization.of(context).getString("contacts"),
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
       ),
       centerTitle: true,
-      leading: buildBackButton(Icons.arrow_back,() {
+      leading: buildBackButton(Icons.arrow_back, () {
         Navigator.pop(context, true);
       }),
     );

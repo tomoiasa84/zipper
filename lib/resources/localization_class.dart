@@ -115,6 +115,7 @@ class Localization {
       'typeAMessage': 'Type a message...',
       'publishReview': 'Publish Review',
       'emptyContactsList': 'Empty contacts list',
+      'emptyUsersList': 'Empty users list',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -187,8 +188,8 @@ class Localization {
       'viewAllReviews': 'Vezi toate recenziile',
       'syncResults': 'Rezultate',
       'skip': 'Inainte',
-      'usersFoundInYourPhone': 'Utilizatori gasiti in texlefon',
-      'existingUsers': 'Useri Existenti',
+      'usersFoundInYourPhone': 'Utilizatori gasiti in telefon',
+      'existingUsers': 'Utilizatori Existenti',
       'unjoinedContacts': 'Contacte care nu s-au alaturat aplicatiei',
       'shareSelected': 'Partajeaza selectia ',
       'selectedTagsWillBeShared': 'Etichetele selectate vor fi partajate',
@@ -221,6 +222,7 @@ class Localization {
       'typeAMessage': 'Scrie un mesaj...',
       'publishReview': 'Publica Recenzia',
       'emptyContactsList': 'Nu exista contacte in telefon',
+      'emptyUsersList': 'Nu exista utilizatori',
     },
   };
 
