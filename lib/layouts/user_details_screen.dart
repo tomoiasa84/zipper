@@ -1,64 +1,102 @@
+import 'package:contractor_search/bloc/user_details_bloc.dart';
 import 'package:contractor_search/layouts/leave_review_dialog.dart';
+import 'package:contractor_search/model/leave_review_model.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class UserDetailsScreen extends StatefulWidget {
-  final User user;
+  final String userId;
 
-  UserDetailsScreen(this.user);
+  UserDetailsScreen(this.userId);
 
   @override
   UserDetailsScreenState createState() => UserDetailsScreenState();
 }
 
 class UserDetailsScreenState extends State<UserDetailsScreen> {
+  UserDetailsBloc _userDetailsBloc;
+  User _user;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    getCurrentUser();
+    super.initState();
+  }
+
+  void getCurrentUser() {
+    _userDetailsBloc = UserDetailsBloc();
+    setState(() {
+      _saving = true;
+    });
+    _userDetailsBloc.getCurrentUser(widget.userId).then((result) {
+      if (result.data != null && mounted) {
+        setState(() {
+          _user = User.fromJson(result.data['get_user']);
+          _saving = false;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(context),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: <Widget>[
-                Stack(
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.only(bottom: 15.0),
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.only(
-                              left: 16.0, right: 16.0, top: 24.0, bottom: 44.0),
-                          child: Column(
-                            children: <Widget>[
-                              _buildNameRow(),
-                              _buildDescription(),
-                            ],
+    return ModalProgressHUD(
+      inAsyncCall: _saving,
+      child: _user != null
+          ? Scaffold(
+              appBar: _buildAppBar(context),
+              body: SafeArea(
+                child: SingleChildScrollView(
+                    child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: <Widget>[
+                      Stack(
+                        children: <Widget>[
+                          Container(
+                            padding: const EdgeInsets.only(bottom: 15.0),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                    left: 16.0,
+                                    right: 16.0,
+                                    top: 24.0,
+                                    bottom: 44.0),
+                                child: Column(
+                                  children: <Widget>[
+                                    _buildNameRow(),
+                                    _buildDescription(),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                          Positioned(
+                              bottom: 0.0,
+                              right: 0.0,
+                              child: _buildActionsButtons()),
+                        ],
                       ),
-                    ),
-                    Positioned(
-                        bottom: 0.0, right: 0.0, child: _buildActionsButtons()),
-                  ],
-                ),
-                widget.user.reviews != null && widget.user.reviews.isNotEmpty
-                    ? _buildSkillsCard()
-                    : Container(),
-              ],
+                      _buildSkillsCard(),
+                    ],
+                  ),
+                )),
+              ),
+            )
+          : Container(
+              color: ColorUtils.white,
             ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -66,7 +104,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     return AppBar(
         centerTitle: true,
         title: Text(
-          widget.user.name,
+          _user.name,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
@@ -79,11 +117,11 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   Container _buildDescription() {
-    return widget.user.description != null
+    return _user.description != null
         ? Container(
             padding: const EdgeInsets.only(top: 16.0),
             child: Text(
-              widget.user.description,
+              _user.description,
               style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
             ),
           )
@@ -94,7 +132,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(widget.user.name),
+          child: Text(getInitials(_user.name),
               style: TextStyle(color: ColorUtils.darkerGray)),
           backgroundColor: ColorUtils.lightLightGray,
         ),
@@ -104,7 +142,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                widget.user.name,
+                _user.name,
                 style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
               ),
               Row(
@@ -184,7 +222,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                     Container(
                       child: Column(
                         children: generateSkills(
-                            widget.user.reviews, openLeaveReviewDialog),
+                            _user.reviews, openLeaveReviewDialog),
                       ),
                     )
                   ],
@@ -200,11 +238,44 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     );
   }
 
-  Future<void> openLeaveReviewDialog(Review review) {
-     showDialog(
+  void openLeaveReviewDialog(Review review) async {
+    LeaveReviewModel result = await showDialog(
       context: context,
-      builder: (BuildContext context) => LeaveReviewDialog(userTag: review.userTag, userId: widget.user.id,),
+      builder: (BuildContext context) => LeaveReviewDialog(),
     );
+    if (result != null) {
+      setState(() {
+        _saving = true;
+      });
+      _userDetailsBloc
+          .createReview(
+              widget.userId, review.userTag.id, result.rating, result.message)
+          .then((result) {
+        setState(() {
+          _saving = false;
+        });
+        if (result.errors == null) {
+          getCurrentUser();
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => CustomDialog(
+              title: Localization.of(context).getString('success'),
+              description: Localization.of(context).getString('reviewAdded'),
+              buttonText: Localization.of(context).getString('ok'),
+            ),
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => CustomDialog(
+              title: Localization.of(context).getString('error'),
+              description: result.errors[0].message,
+              buttonText: Localization.of(context).getString('ok'),
+            ),
+          );
+        }
+      });
+    }
   }
 
   Container _buildLeaveReviewButton() {

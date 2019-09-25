@@ -1,16 +1,11 @@
-import 'package:contractor_search/bloc/review_bloc.dart';
-import 'package:contractor_search/model/user_tag.dart';
+import 'package:contractor_search/model/leave_review_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/star_rating.dart';
 import 'package:flutter/material.dart';
 
 class LeaveReviewDialog extends StatefulWidget {
-
-  final UserTag userTag;
-  final String userId;
-
-  const LeaveReviewDialog({Key key, this.userTag, this.userId}) : super(key: key);
+  const LeaveReviewDialog({Key key}) : super(key: key);
 
   @override
   LeaveReviewDialogState createState() {
@@ -21,15 +16,7 @@ class LeaveReviewDialog extends StatefulWidget {
 class LeaveReviewDialogState extends State<LeaveReviewDialog> {
   var rating = 0;
 
-  ReviewBloc _reviewBloc;
-
   TextEditingController _reviewDetailsController = TextEditingController();
-
-  @override
-  void initState() {
-    _reviewBloc = ReviewBloc();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +83,8 @@ class LeaveReviewDialogState extends State<LeaveReviewDialog> {
           ),
           GestureDetector(
             onTap: () {
-              postReview();
+              Navigator.pop(
+                  context, LeaveReviewModel(_reviewDetailsController.text, rating));
             },
             child: Container(
               alignment: Alignment.centerRight,
@@ -112,15 +100,5 @@ class LeaveReviewDialogState extends State<LeaveReviewDialog> {
       ),
     );
   }
-
-  void postReview() {
-    _reviewBloc.createReview(widget.userId, widget.userTag.id, rating, _reviewDetailsController.text).then((result){
-      if(result.errors == null){
-        Navigator.of(context).pop(Localization.of(context).getString("yourReviewWasSuccessfullyAdded"));
-      }
-      else{
-        Navigator.of(context).pop(result.errors[0].message);
-      }
-    });
-  }
 }
+

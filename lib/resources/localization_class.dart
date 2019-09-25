@@ -116,6 +116,7 @@ class Localization {
       'publishReview': 'Publish Review',
       'emptyContactsList': 'Empty contacts list',
       'emptyUsersList': 'Empty users list',
+      'reviewAdded': 'Review adaugat'
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -223,6 +224,7 @@ class Localization {
       'publishReview': 'Publica Recenzia',
       'emptyContactsList': 'Nu exista contacte in telefon',
       'emptyUsersList': 'Nu exista utilizatori',
+      'reviewAdded': 'Your review was successfully added'
     },
   };
 
