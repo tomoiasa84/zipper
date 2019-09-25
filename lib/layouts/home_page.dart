@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
@@ -107,10 +106,24 @@ class _HomePageState extends State<HomePage> {
         _filterNotifications(message);
       },
       onResume: (Map<String, dynamic> message) async {
-        print('on resume $message');
+        var messageData = new Map<String, dynamic>.from(message['data']);
+        _message = UserMessage.fromJson(messageData);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  ChatScreen(conversationId: _message.channelId)),
+        );
       },
       onLaunch: (Map<String, dynamic> message) async {
-        print('on launch $message');
+        var messageData = new Map<String, dynamic>.from(message['data']);
+        _message = UserMessage.fromJson(messageData);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  ChatScreen(conversationId: _message.channelId)),
+        );
       },
     );
   }
