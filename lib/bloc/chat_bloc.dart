@@ -4,9 +4,9 @@ import 'dart:io';
 
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
-import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
+import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -116,6 +116,29 @@ class ChatBloc {
       print("Request failed with status: ${response.body}.");
       return false;
     }
+  }
+
+  Future<PubNubConversation> getConversation(String conversationId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                    get_conversation(conversationId: "$conversationId"){
+                      id
+                      user1{
+                        id
+                        name
+                      }
+                      user2{
+                        id
+                        name
+                      }
+                    }
+                   }''',
+    ));
+    ConversationModel conversationModel =
+        ConversationModel.fromJson(result.data['get_conversation']);
+    PubNubConversation pubNubConversation =
+        PubNubConversation.fromConversation(conversationModel);
+    return pubNubConversation;
   }
 
   Future<PubNubConversation> createConversation(User user) async {

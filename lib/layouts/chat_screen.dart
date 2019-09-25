@@ -4,11 +4,11 @@ import 'package:contractor_search/bloc/chat_bloc.dart';
 import 'package:contractor_search/layouts/image_preview_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
 import 'package:contractor_search/model/user.dart';
-import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/PushNotification.dart';
+import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -25,14 +25,17 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class ChatScreen extends StatefulWidget {
   final PubNubConversation pubNubConversation;
+  final String conversationId;
 
-  ChatScreen({Key key, @required this.pubNubConversation}) : super(key: key);
+  ChatScreen({Key key, this.pubNubConversation, this.conversationId})
+      : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  PubNubConversation _pubNubConversation;
   bool _loading = false;
   String _interlocutorName;
   String _currentUserName;
@@ -51,11 +54,11 @@ class _ChatScreenState extends State<ChatScreen> {
       _textEditingController.clear();
       _getCurrentUserId().then((userId) {
         _chatBloc.sendMessage(
-            widget.pubNubConversation.id,
+            _pubNubConversation.id,
             PnGCM(WrappedMessage(
                 PushNotification(_currentUserName, text),
                 UserMessage(text, DateTime.now(), userId,
-                    widget.pubNubConversation.id))));
+                    _pubNubConversation.id))));
       });
     }
   }
@@ -75,10 +78,10 @@ class _ChatScreenState extends State<ChatScreen> {
               DateTime.now(),
               escapeJsonCharacters(imageDownloadUrl),
               _currentUserId,
-              widget.pubNubConversation.id);
+              _pubNubConversation.id);
           _chatBloc
               .sendMessage(
-                  widget.pubNubConversation.id,
+              _pubNubConversation.id,
                   PnGCM(WrappedMessage(
                       PushNotification(_currentUserName,
                           Localization.of(context).getString('image')),
@@ -108,12 +111,12 @@ class _ChatScreenState extends State<ChatScreen> {
     //Do something with the result
     _getCurrentUserId().then((userId) {
       _chatBloc.sendMessage(
-          widget.pubNubConversation.id,
+          _pubNubConversation.id,
           PnGCM(WrappedMessage(
               PushNotification(_currentUserName,
                   Localization.of(context).getString('sharedContact')),
               new UserMessage.withSharedContact(DateTime.now(), userId,
-                  sharedContact, widget.pubNubConversation.id))));
+                  sharedContact, _pubNubConversation.id))));
     });
   }
 
@@ -143,35 +146,49 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _registerChannelForPushNotifications();
+    _pubNubConversation = widget.pubNubConversation;
     _initScreen();
   }
 
   void _initScreen() {
     _getCurrentUserId().then((currentUserId) {
-      setState(() {
+      setState(() async {
         _currentUserId = currentUserId;
-        _interlocutorName = getInterlocutorName(widget.pubNubConversation.user1,
-            widget.pubNubConversation.user2, _currentUserId);
-        _currentUserName = _getCurrentUserName(widget.pubNubConversation.user1,
-            widget.pubNubConversation.user2, _currentUserId);
+
+        if (_pubNubConversation == null) {
+          await _chatBloc
+              .getConversation(widget.conversationId)
+              .then((pubNubConversation) {
+            _pubNubConversation = pubNubConversation;
+          });
+        }
+
+        _interlocutorName = getInterlocutorName(
+            _pubNubConversation.user1, _pubNubConversation.user2, _currentUserId);
+        _currentUserName = _getCurrentUserName(
+            _pubNubConversation.user1, _pubNubConversation.user2, _currentUserId);
         _setMessagesListener(currentUserId);
+        _registerChannelForPushNotifications(_pubNubConversation.id);
       });
     });
   }
 
-  void _registerChannelForPushNotifications() {
+  void getPubNubConversation() {}
+
+  void _registerChannelForPushNotifications(String conversationId) {
     _firebaseMessaging.getToken().then((deviceId) {
       print('DEVICE ID: $deviceId');
-      _chatBloc.subscribeToPushNotifications(
-          deviceId, widget.pubNubConversation.id);
+      _chatBloc.subscribeToPushNotifications(deviceId, conversationId);
     });
   }
 
   Future<bool> _loadMore() async {
+    if (_pubNubConversation == null){
+      return true;
+    }
     if (_chatBloc.historyStart != 0) {
       await _chatBloc
-          .getHistoryMessages(widget.pubNubConversation.id)
+          .getHistoryMessages(_pubNubConversation.id)
           .then((historyMessages) {
         setState(() {
           _listOfMessages.addAll(historyMessages.reversed);
@@ -184,7 +201,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _setMessagesListener(String currentUserId) {
-    _chatBloc.subscribeToChannel(widget.pubNubConversation.id, currentUserId);
+    _chatBloc.subscribeToChannel(_pubNubConversation.id, currentUserId);
     _subscription = _chatBloc.ctrl.stream.listen((message) {
       setState(() {
         _listOfMessages.insert(0, message);
