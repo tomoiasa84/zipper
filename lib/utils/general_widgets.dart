@@ -154,7 +154,11 @@ List<Widget> generateSkills(List<Review> reviews) {
       ),
     ));
   });
-  return skills;
+  if (skills.length > 5) {
+    return skills.sublist(0, 5);
+  } else {
+    return skills;
+  }
 }
 
 Widget generateContactUI(
