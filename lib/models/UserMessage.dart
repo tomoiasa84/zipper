@@ -45,7 +45,7 @@ class UserMessage {
   String get channelId => _channelId;
 
   Map<String, dynamic> toJson() => {
-        '_channelId': _channelId,
+        'channelId': _channelId,
         'message': _message,
         'timestamp': _timestamp.toIso8601String(),
         'messageAuthor': _messageAuthor,
