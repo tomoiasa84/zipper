@@ -116,7 +116,8 @@ class Localization {
       'publishReview': 'Publish Review',
       'emptyContactsList': 'Empty contacts list',
       'emptyUsersList': 'Empty users list',
-      'reviewAdded': 'Your review was successfully added'
+      'reviewAdded': 'Your review was successfully added',
+      'reviews': 'Reviews',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -218,13 +219,15 @@ class Localization {
       'addATag': 'Adauga un tag',
       'deletePost': 'Sterge Postarea',
       'recommendedBy': 'Recomandat de ',
-      'tapOnSkillToLeaveAReview': 'Apasa pe o abilitate pentru a lasa o recenzie',
+      'tapOnSkillToLeaveAReview':
+          'Apasa pe o abilitate pentru a lasa o recenzie',
       'leaveReview': 'Lasa o recenzie',
       'typeAMessage': 'Scrie un mesaj...',
       'publishReview': 'Publica Recenzia',
       'emptyContactsList': 'Nu exista contacte in telefon',
       'emptyUsersList': 'Nu exista utilizatori',
-      'reviewAdded': 'Recenzia dumneavoastra a fost adaugata cu succes!'
+      'reviewAdded': 'Recenzia dumneavoastra a fost adaugata cu succes!',
+      'reviews': 'Recenzii',
     },
   };
 

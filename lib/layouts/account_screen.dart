@@ -1,9 +1,9 @@
 import 'dart:ui';
-
 import 'package:contractor_search/bloc/account_bloc.dart';
 import 'package:contractor_search/layouts/phone_auth_screen.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
 import 'package:contractor_search/layouts/replies_screen.dart';
+import 'package:contractor_search/layouts/reviews_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
@@ -31,15 +31,12 @@ class AccountScreen extends StatefulWidget {
 
 class AccountScreenState extends State<AccountScreen> {
   AccountBloc _accountBloc;
-
   User _user;
   UserTag _mainUserTag;
   bool _saving = false;
-  var list = List<PopupMenuEntry<Object>>();
-
   String _mainUserTagStarts = '';
 
-  static List<PopupMenuEntry<Object>> getOptions(BuildContext context) {
+  static List<PopupMenuEntry<Object>> getMoreOptions(BuildContext context) {
     return [
       PopupMenuItem(
           value: 0,
@@ -95,55 +92,70 @@ class AccountScreenState extends State<AccountScreen> {
     setState(() {
       _saving = true;
     });
-    FirebaseAuth.instance.signOut().then((_) {
-      removeSharedPreferences().then((_) {
+      _accountBloc.removeSharedPreferences().then((_) {
         setState(() {
-          _saving = true;
+          _saving = false;
         });
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => PhoneAuthScreen()),
             (Route<dynamic> route) => false);
-      });
     });
   }
 
-  Future removeSharedPreferences() async {
-    await SharedPreferencesHelper.clear();
+  void _getCurrentUserInfo() {
+    _accountBloc = AccountBloc();
+    setState(() {
+      _saving = true;
+    });
+      _accountBloc.getCurrentUser().then((result) {
+        if (result.data != null && mounted) {
+          setState(() {
+            _user = User.fromJson(result.data['get_user']);
+            _user.cards = _user.cards.reversed.toList();
+            _saving = false;
+            _getMainTag();
+          });
+        }
+      });
+  }
+
+  void _getMainTag() {
+    if (_user.tags != null) {
+      _mainUserTag = _user.tags
+          .firstWhere((tag) => tag.defaultTag, orElse: () => null);
+    }
+    if (_mainUserTag != null) {
+      _mainUserTagStarts = getReviewForMainTag(_user, _mainUserTag);
+    }
+  }
+
+  void _deletePost(CardModel card) {
+    setState(() {
+      _saving = true;
+    });
+    _accountBloc.deleteCard(card.id).then((result) {
+      if (result.errors == null) {
+        setState(() {
+          _saving = false;
+          _user.cards.remove(card);
+        });
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: Localization.of(context).getString("error"),
+            description: result.errors[0].message,
+            buttonText: Localization.of(context).getString('ok'),
+          ),
+        );
+      }
+    });
   }
 
   @override
   void initState() {
     _getCurrentUserInfo();
     super.initState();
-  }
-
-  void _getCurrentUserInfo() {
-    _accountBloc = AccountBloc();
-    getCurrentUserId().then((userId) {
-      setState(() {
-        _saving = true;
-      });
-      _accountBloc.getCurrentUser(userId).then((result) {
-        if (result.data != null && mounted) {
-          setState(() {
-            _user = User.fromJson(result.data['get_user']);
-            _user.cards = _user.cards.reversed.toList();
-            _saving = false;
-            if (_user.tags != null) {
-              _mainUserTag = _user.tags
-                  .firstWhere((tag) => tag.defaultTag, orElse: () => null);
-            }
-            if (_mainUserTag != null) {
-              _mainUserTagStarts = getReviewForMainTag(_user, _mainUserTag);
-            }
-          });
-        }
-      });
-    });
-  }
-
-  Future<String> getCurrentUserId() async {
-    return await SharedPreferencesHelper.getCurrentUserId();
   }
 
   @override
@@ -205,7 +217,7 @@ class AccountScreenState extends State<AccountScreen> {
             },
             itemBuilder: (BuildContext context) {
               widget.onChanged(true);
-              return getOptions(context);
+              return getMoreOptions(context);
             },
           ),
         ),
@@ -323,18 +335,13 @@ class AccountScreenState extends State<AccountScreen> {
               ),
               Container(
                 child: Column(
-                  children: generateSkills(_user.reviews, () {}),
+                  children:
+                      generateSkills(_user.reviews, () {}, goToReviewsScreen),
                 ),
               )
             ],
           ),
         ));
-  }
-
-  Future _goToSettingsScreen() async {
-    await Navigator.push(context,
-        MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
-    _getCurrentUserInfo();
   }
 
   ListView _buildPostsList() {
@@ -477,27 +484,19 @@ class AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  void _deletePost(CardModel card) {
-    setState(() {
-      _saving = true;
-    });
-    _accountBloc.deleteCard(card.id).then((result) {
-      if (result.errors == null) {
-        setState(() {
-          _saving = false;
-          _user.cards.remove(card);
-        });
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CustomDialog(
-            title: Localization.of(context).getString("error"),
-            description: result.errors[0].message,
-            buttonText: Localization.of(context).getString('ok'),
-          ),
-        );
-      }
-    });
+  Future _goToSettingsScreen() async {
+    await Navigator.push(context,
+        MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
+    _getCurrentUserInfo();
+  }
+
+  void goToReviewsScreen() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ReviewsScreen(
+              reviews: _user.reviews,
+            )));
   }
 }
 

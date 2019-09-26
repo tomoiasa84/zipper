@@ -1,5 +1,6 @@
 import 'package:contractor_search/bloc/user_details_bloc.dart';
 import 'package:contractor_search/layouts/leave_review_dialog.dart';
+import 'package:contractor_search/layouts/reviews_screen.dart';
 import 'package:contractor_search/model/leave_review_model.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
@@ -25,7 +26,6 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   UserDetailsBloc _userDetailsBloc;
   User _user;
   bool _saving = false;
-
   UserTag _mainUserTag;
 
   @override
@@ -36,21 +36,27 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
 
   void getCurrentUser() {
     _userDetailsBloc = UserDetailsBloc();
-    setState(() {
-      _saving = true;
-    });
+    if(mounted) {
+      setState(() {
+        _saving = true;
+      });
+    }
     _userDetailsBloc.getCurrentUser(widget.userId).then((result) {
       if (result.data != null && mounted) {
         setState(() {
           _user = User.fromJson(result.data['get_user']);
           _saving = false;
-          if (_user.tags != null) {
-            _mainUserTag = _user.tags
-                .firstWhere((tag) => tag.defaultTag, orElse: () => null);
-          }
+          _getMainTag();
         });
       }
     });
+  }
+
+  void _getMainTag() {
+    if (_user.tags != null) {
+      _mainUserTag =
+          _user.tags.firstWhere((tag) => tag.defaultTag, orElse: () => null);
+    }
   }
 
   @override
@@ -123,18 +129,6 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         ));
   }
 
-  Container _buildDescription() {
-    return _user.description != null
-        ? Container(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: Text(
-              _user.description,
-              style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
-            ),
-          )
-        : Container();
-  }
-
   Widget _buildNameRow() {
     return Row(
       children: <Widget>[
@@ -154,31 +148,43 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
               ),
               _mainUserTag != null
                   ? Row(
-                children: <Widget>[
-                  Text(
-                    '#' + _mainUserTag.tag.name,
-                    style: TextStyle(color: ColorUtils.orangeAccent),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0, top: 4.0),
-                    child: Icon(
-                      Icons.star,
-                      color: ColorUtils.orangeAccent,
-                    ),
-                  ),
-                  Text(
-                    getReviewForMainTag(_user, _mainUserTag),
-                    style: TextStyle(
-                        fontSize: 14.0, color: ColorUtils.darkGray),
-                  )
-                ],
-              )
+                      children: <Widget>[
+                        Text(
+                          '#' + _mainUserTag.tag.name,
+                          style: TextStyle(color: ColorUtils.orangeAccent),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, top: 4.0),
+                          child: Icon(
+                            Icons.star,
+                            color: ColorUtils.orangeAccent,
+                          ),
+                        ),
+                        Text(
+                          getReviewForMainTag(_user, _mainUserTag),
+                          style: TextStyle(
+                              fontSize: 14.0, color: ColorUtils.darkGray),
+                        )
+                      ],
+                    )
                   : Container()
             ],
           ),
         )
       ],
     );
+  }
+
+  Container _buildDescription() {
+    return _user.description != null
+        ? Container(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: Text(
+              _user.description,
+              style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
+            ),
+          )
+        : Container();
   }
 
   Container _buildActionsButtons() {
@@ -223,15 +229,21 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                           Localization.of(context).getString("skills"),
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        Text(
-                          Localization.of(context).getString("viewAllReviews"),
+                        GestureDetector(
+                          onTap: () {
+                            goToReviewsScreen();
+                          },
+                          child: Text(
+                            Localization.of(context)
+                                .getString("viewAllReviews"),
+                          ),
                         )
                       ],
                     ),
                     Container(
                       child: Column(
-                        children: generateSkills(
-                            _user.reviews, openLeaveReviewDialog),
+                        children: generateSkills(_user.reviews,
+                            openLeaveReviewDialog, goToReviewsScreen),
                       ),
                     )
                   ],
@@ -245,46 +257,6 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
             child: _buildLeaveReviewButton()),
       ],
     );
-  }
-
-  void openLeaveReviewDialog(Review review) async {
-    LeaveReviewModel result = await showDialog(
-      context: context,
-      builder: (BuildContext context) => LeaveReviewDialog(),
-    );
-    if (result != null) {
-      setState(() {
-        _saving = true;
-      });
-      _userDetailsBloc
-          .createReview(
-              widget.userId, review.userTag.id, result.rating, result.message)
-          .then((result) {
-        setState(() {
-          _saving = false;
-        });
-        if (result.errors == null) {
-          getCurrentUser();
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => CustomDialog(
-              title: Localization.of(context).getString('success'),
-              description: Localization.of(context).getString('reviewAdded'),
-              buttonText: Localization.of(context).getString('ok'),
-            ),
-          );
-        } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => CustomDialog(
-              title: Localization.of(context).getString('error'),
-              description: result.errors[0].message,
-              buttonText: Localization.of(context).getString('ok'),
-            ),
-          );
-        }
-      });
-    }
   }
 
   Container _buildLeaveReviewButton() {
@@ -304,5 +276,55 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
             ),
           ),
         ));
+  }
+
+  void openLeaveReviewDialog(Review review) async {
+    LeaveReviewModel dialogResult = await showDialog(
+      context: context,
+      builder: (BuildContext context) => LeaveReviewDialog(),
+    );
+
+    if (dialogResult != null) {
+      setState(() {
+        _saving = true;
+      });
+      _userDetailsBloc
+          .createReview(widget.userId, review.userTag.id, dialogResult.rating,
+              dialogResult.message)
+          .then((result) {
+        setState(() {
+          _saving = false;
+        });
+
+        if (result.errors == null) {
+          getCurrentUser();
+          _showDialog(Localization.of(context).getString('success'),
+              Localization.of(context).getString('reviewAdded'));
+        } else {
+          _showDialog(Localization.of(context).getString('error'),
+              result.errors[0].message);
+        }
+      });
+    }
+  }
+
+  Future _showDialog(String title, String message) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText: Localization.of(context).getString('ok'),
+      ),
+    );
+  }
+
+  void goToReviewsScreen() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ReviewsScreen(
+              reviews: _user.reviews,
+            )));
   }
 }

@@ -112,7 +112,11 @@ GestureDetector buildBackButton(IconData iconData, Function onClickAction) {
   );
 }
 
-List<Widget> generateSkills(List<Review> reviews, Function onTapAction) {
+List<Widget> generateSkills(
+  List<Review> reviews,
+  Function onTapAction,
+  Function onStarsTapAction,
+) {
   List<Widget> skills = [];
   reviews.forEach((item) {
     skills.add(GestureDetector(
@@ -138,21 +142,26 @@ List<Widget> generateSkills(List<Review> reviews, Function onTapAction) {
                     overflow: TextOverflow.ellipsis,
                   )),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                StarDisplay(
-                  value: item.stars,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    item.stars.toString(),
-                    style: TextStyle(fontWeight: FontWeight.bold),
+            GestureDetector(
+              onTap: () {
+                onStarsTapAction();
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  StarDisplay(
+                    value: item.stars,
                   ),
-                )
-              ],
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      item.stars.toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  )
+                ],
+              ),
             ),
           ],
         ),
