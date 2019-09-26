@@ -1,6 +1,7 @@
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -10,9 +11,35 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
+
   bool _arePushNotificationsAllowed = false;
   bool _areMessageNotificationsAllowed = false;
-  bool _areRecommendSearchNotificationsAllowed = true;
+  bool _areRecommendSearchNotificationsAllowed = false;
+
+  @override
+  void initState() {
+    getSettings();
+    super.initState();
+  }
+
+  Future<void> getSettings() async {
+    SharedPreferencesHelper.arePushNotificationAllowed().then((value) {
+      setState(() {
+        _arePushNotificationsAllowed = value;
+      });
+    });
+    SharedPreferencesHelper.areMessageNotificationAllowed().then((value) {
+      setState(() {
+        _areMessageNotificationsAllowed = value;
+      });
+    });
+    SharedPreferencesHelper.areRecommendsSearchNotificationAllowed()
+        .then((value) {
+      setState(() {
+        _areRecommendSearchNotificationsAllowed = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +102,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                     activeColor: ColorUtils.orangeAccent,
                     value: _arePushNotificationsAllowed,
                     onChanged: (value) {
-                      _arePushNotificationsAllowed = value;
+                      SharedPreferencesHelper.setPushNotificationAllowed(value)
+                          .then((_) {
+                        _arePushNotificationsAllowed = value;
+                      });
                     },
                   ),
                 )
@@ -91,7 +121,11 @@ class SettingsScreenState extends State<SettingsScreen> {
                     activeColor: ColorUtils.orangeAccent,
                     value: _areMessageNotificationsAllowed,
                     onChanged: (value) {
-                      _areMessageNotificationsAllowed = value;
+                      SharedPreferencesHelper.setMessageNotificationAllowed(
+                              value)
+                          .then((_) {
+                        _areMessageNotificationsAllowed = value;
+                      });
                     },
                   ),
                 )
@@ -108,7 +142,11 @@ class SettingsScreenState extends State<SettingsScreen> {
                     activeColor: ColorUtils.orangeAccent,
                     value: _areRecommendSearchNotificationsAllowed,
                     onChanged: (value) {
-                      _areRecommendSearchNotificationsAllowed = value;
+                      SharedPreferencesHelper
+                              .setRecommendsSearchNotificationAllowed(value)
+                          .then((_) {
+                        _areRecommendSearchNotificationsAllowed = value;
+                      });
                     },
                   ),
                 )

@@ -4,6 +4,10 @@ class SharedPreferencesHelper {
   static final String _accessToken = "accessToken";
   static final String _currentUserId = "currentUsertId";
   static final String _syncContactsFlag = "syncContactsFlag";
+  static final String _allowPushNotifications = "allowPushNotifications";
+  static final String _allowMessageNotification = "allowMessageNotification";
+  static final String _allowRecommendSearchNotification =
+      "allowRecommendSearchNotification";
 
   static Future clear() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -44,5 +48,41 @@ class SharedPreferencesHelper {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     return prefs.setBool(_syncContactsFlag, value);
+  }
+
+  static Future<bool> arePushNotificationAllowed() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.getBool(_allowPushNotifications) ?? false;
+  }
+
+  static Future<bool> setPushNotificationAllowed(bool value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.setBool(_allowPushNotifications, value);
+  }
+
+  static Future<bool> areMessageNotificationAllowed() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.getBool(_allowMessageNotification) ?? false;
+  }
+
+  static Future<bool> setMessageNotificationAllowed(bool value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.setBool(_allowMessageNotification, value);
+  }
+
+  static Future<bool> areRecommendsSearchNotificationAllowed() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.getBool(_allowRecommendSearchNotification) ?? false;
+  }
+
+  static Future<bool> setRecommendsSearchNotificationAllowed(bool value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.setBool(_allowRecommendSearchNotification, value);
   }
 }
