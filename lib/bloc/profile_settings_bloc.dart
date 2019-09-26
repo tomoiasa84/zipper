@@ -80,6 +80,29 @@ class ProfileSettingsBloc {
                               name
                             }
                             tag{
+                              id
+                              name
+                            }
+                            default
+                          }
+                        }''',
+      ),
+    );
+
+    return queryResult;
+  }
+
+  Future<QueryResult> updateMainUserTag(int userTagId, bool defaultFlag) async {
+    final QueryResult queryResult = await client.mutate(
+      MutationOptions(
+        document: '''mutation{
+                          update_userTag(userTagId:$userTagId, defaultFlag:$defaultFlag){
+                            id
+                            user{
+                              name
+                            }
+                            tag{
+                              id
                               name
                             }
                             default

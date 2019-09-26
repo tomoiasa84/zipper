@@ -6,6 +6,7 @@ import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'layouts/home_page.dart';
 import 'layouts/phone_auth_screen.dart';
 
@@ -45,12 +46,22 @@ class MyAppState extends State<MyApp> {
         theme: ThemeData(primaryColor: ColorUtils.white, fontFamily: "Arial"),
         home: Builder(
           builder: (context) => authStatus == AuthStatus.LOGGED_IN
-              ? (_syncContactsFlag ? HomePage(syncContactsFlagRequired: false,) : TutorialScreen())
-              : PhoneAuthScreen(),
+              ? (_syncContactsFlag
+                  ? HomePage(
+                      syncContactsFlagRequired: false,
+                    )
+                  : TutorialScreen())
+              : (authStatus == AuthStatus.NOT_LOGGED_IN
+                  ? PhoneAuthScreen()
+                  : Container(
+                      color: ColorUtils.white,
+                    )),
         ),
         routes: <String, WidgetBuilder>{
           '/phoneAuthScreen': (BuildContext context) => PhoneAuthScreen(),
-          '/homepage': (BuildContext context) => HomePage(syncContactsFlagRequired: false,),
+          '/homepage': (BuildContext context) => HomePage(
+                syncContactsFlagRequired: false,
+              ),
         });
   }
 
