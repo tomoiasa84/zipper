@@ -69,12 +69,15 @@ class SettingsScreenState extends State<SettingsScreen> {
               children: <Widget>[
                 Text(Localization.of(context)
                     .getString('allowPushNotifications')),
-                Switch(
-                  activeColor: ColorUtils.orangeAccent,
-                  value: _arePushNotificationsAllowed,
-                  onChanged: (value) {
-                    _arePushNotificationsAllowed = value;
-                  },
+                Transform.scale(
+                  scale: 0.7,
+                  child: CupertinoSwitch(
+                    activeColor: ColorUtils.orangeAccent,
+                    value: _arePushNotificationsAllowed,
+                    onChanged: (value) {
+                      _arePushNotificationsAllowed = value;
+                    },
+                  ),
                 )
               ],
             ),
@@ -82,12 +85,15 @@ class SettingsScreenState extends State<SettingsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(Localization.of(context).getString('messageNotification')),
-                Switch(
-                  activeColor: ColorUtils.orangeAccent,
-                  value: _areMessageNotificationsAllowed,
-                  onChanged: (value) {
-                    _areMessageNotificationsAllowed = value;
-                  },
+                Transform.scale(
+                  scale: 0.7,
+                  child: CupertinoSwitch(
+                    activeColor: ColorUtils.orangeAccent,
+                    value: _areMessageNotificationsAllowed,
+                    onChanged: (value) {
+                      _areMessageNotificationsAllowed = value;
+                    },
+                  ),
                 )
               ],
             ),
@@ -96,12 +102,15 @@ class SettingsScreenState extends State<SettingsScreen> {
               children: <Widget>[
                 Text(Localization.of(context)
                     .getString('recommendSearchNotification')),
-                Switch(
-                  activeColor: ColorUtils.orangeAccent,
-                  value: _areRecommendSearchNotificationsAllowed,
-                  onChanged: (value) {
-                    _areRecommendSearchNotificationsAllowed = value;
-                  },
+                Transform.scale(
+                  scale: 0.7,
+                  child: CupertinoSwitch(
+                    activeColor: ColorUtils.orangeAccent,
+                    value: _areRecommendSearchNotificationsAllowed,
+                    onChanged: (value) {
+                      _areRecommendSearchNotificationsAllowed = value;
+                    },
+                  ),
                 )
               ],
             ),
