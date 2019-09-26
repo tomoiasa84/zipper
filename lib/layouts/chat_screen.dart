@@ -56,11 +56,16 @@ class _ChatScreenState extends State<ChatScreen> {
         _chatBloc.sendMessage(
             _pubNubConversation.id,
             PnGCM(WrappedMessage(
-                PushNotification(_currentUserName, text),
-                UserMessage(text, DateTime.now(), userId,
+                PushNotification(_currentUserName, _escapeJsonCharacters(text)),
+                UserMessage(_escapeJsonCharacters(text), DateTime.now(), userId,
                     _pubNubConversation.id))));
       });
     }
+  }
+
+  String _escapeJsonCharacters(String myString) {
+    var string = myString.replaceAll("#", "%23");
+    return string.replaceAll("?", "%3F");
   }
 
   Future<String> _getCurrentUserId() async {
@@ -81,7 +86,7 @@ class _ChatScreenState extends State<ChatScreen> {
               _pubNubConversation.id);
           _chatBloc
               .sendMessage(
-              _pubNubConversation.id,
+                  _pubNubConversation.id,
                   PnGCM(WrappedMessage(
                       PushNotification(_currentUserName,
                           Localization.of(context).getString('image')),
@@ -163,10 +168,10 @@ class _ChatScreenState extends State<ChatScreen> {
           });
         }
 
-        _interlocutorName = getInterlocutorName(
-            _pubNubConversation.user1, _pubNubConversation.user2, _currentUserId);
-        _currentUserName = _getCurrentUserName(
-            _pubNubConversation.user1, _pubNubConversation.user2, _currentUserId);
+        _interlocutorName = getInterlocutorName(_pubNubConversation.user1,
+            _pubNubConversation.user2, _currentUserId);
+        _currentUserName = _getCurrentUserName(_pubNubConversation.user1,
+            _pubNubConversation.user2, _currentUserId);
         _setMessagesListener(currentUserId);
         _registerChannelForPushNotifications(_pubNubConversation.id);
       });
@@ -183,7 +188,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<bool> _loadMore() async {
-    if (_pubNubConversation == null){
+    if (_pubNubConversation == null) {
       return true;
     }
     if (_chatBloc.historyStart != 0) {
