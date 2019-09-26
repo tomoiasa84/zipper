@@ -2,6 +2,7 @@ import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
 import 'package:contractor_search/layouts/sync_results_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -47,13 +48,26 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
       if (status == PermissionStatus.granted) {
         getCurrentUserId().then((userId) {
           _syncContactsBloc.syncContacts(userId).then((syncResult) {
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SyncResultsScreen(
-                          syncResult: syncResult,
-                        )),
-                ModalRoute.withName("/homepage"));
+            if(syncResult.error.isNotEmpty){
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => CustomDialog(
+                  title: Localization.of(context).getString("error"),
+                  description: syncResult.error,
+                  buttonText: Localization.of(context).getString("ok"),
+                ),
+              );
+            }
+            else {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          SyncResultsScreen(
+                            syncResult: syncResult,
+                          )),
+                  ModalRoute.withName("/homepage"));
+            }
           });
         });
       }

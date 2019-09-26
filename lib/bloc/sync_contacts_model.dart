@@ -5,6 +5,7 @@ class SyncContactsModel{
   List<UnjoinedContactsModel> unjoinedContacts;
   List<Contact> existingUsers;
   String countryCode;
+  String error;
 
-  SyncContactsModel(this.unjoinedContacts, this.existingUsers, this.countryCode);
+  SyncContactsModel(this.unjoinedContacts, this.existingUsers, this.countryCode, this.error);
 }

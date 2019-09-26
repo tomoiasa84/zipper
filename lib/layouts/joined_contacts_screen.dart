@@ -23,7 +23,7 @@ class JoinedContactsScreenState extends State<JoinedContactsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Expanded(
-            child: _buildUntaggedContactsList(),
+            child: widget.joinedContacts.isNotEmpty ?_buildUntaggedContactsList(): Center(child: Text(Localization.of(context).getString("emptyUsersList")),),
           )
         ],
       ),

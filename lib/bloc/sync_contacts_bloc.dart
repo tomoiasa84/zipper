@@ -72,26 +72,25 @@ class SyncContactsBloc {
 
     if (result.errors == null) {
       countryCode =
-          User
-              .fromJson(result.data['get_user'])
-              .phoneNumber
-              .substring(0, 2);
+          User.fromJson(result.data['get_user']).phoneNumber.substring(0, 2);
 
       var contactsResult = await getContacts();
       if (contactsResult != null && contactsResult.isNotEmpty) {
         List<String> phoneContacts = _formatContactsNumber(contactsResult);
 
-        var checkResult = await checkContacts(phoneContacts.toSet().toList());
-        if (checkResult.errors == null) {
-          return _groupExistingUsers(checkResult, contactsResult);
-        } else
-          return SyncContactsModel([], [], countryCode);
+        if (phoneContacts.isNotEmpty) {
+          var checkResult = await checkContacts(phoneContacts.toSet().toList());
+          if (checkResult.errors == null) {
+            return _groupExistingUsers(checkResult, contactsResult);
+          } else
+            return SyncContactsModel([], [], countryCode,result.errors[0].message);
+        }
+        return SyncContactsModel([], [], countryCode,"");
       } else {
-        return SyncContactsModel([], [], countryCode);
+        return SyncContactsModel([], [], countryCode,"");
       }
-    }
-    else{
-      return SyncContactsModel([], [], countryCode);
+    } else {
+      return SyncContactsModel([], [], countryCode,result.errors[0].message);
     }
   }
 
@@ -139,6 +138,6 @@ class SyncContactsBloc {
         unjoinedContacts.add(UnjoinedContactsModel(contact, true));
       }
     });
-    return SyncContactsModel(unjoinedContacts, joinedContacts, countryCode);
+    return SyncContactsModel(unjoinedContacts, joinedContacts, countryCode, "");
   }
 }
