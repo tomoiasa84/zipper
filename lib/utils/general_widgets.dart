@@ -227,20 +227,24 @@ Widget generateContactUI(
                             "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg"))))
           ],
         ),
-        Container(
-          margin: const EdgeInsets.only(top: 8.0),
-          alignment: Alignment.centerRight,
-          child: Text.rich(
-            TextSpan(
-              style: TextStyle(color: ColorUtils.almostBlack, fontSize: 12.0),
-              children: <TextSpan>[
-                TextSpan(text: bottomDescription),
-                TextSpan(
-                    text: user.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    )),
-              ],
+        Visibility(
+          visible: bottomDescription != null,
+          child: Container(
+            margin: const EdgeInsets.only(top: 8.0),
+            alignment: Alignment.centerRight,
+            child: Text.rich(
+              TextSpan(
+                style: TextStyle(color: ColorUtils.almostBlack, fontSize: 12.0),
+                children: <TextSpan>[
+                  TextSpan(
+                      text: bottomDescription == null ? '' : bottomDescription),
+                  TextSpan(
+                      text: user.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      )),
+                ],
+              ),
             ),
           ),
         ),

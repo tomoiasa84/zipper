@@ -343,7 +343,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _selectMessageLayout(Object item, int position) {
     if (item is UserMessage) {
       if (item.sharedContact != null) {
-        return _getSharedContactUI(item.sharedContact);
+        return generateContactUI(item.sharedContact, "#hardcodedtag",
+            () => _startConversation(item.sharedContact), null);
       }
 
       if (_messageAuthorIsCurrentUser(item)) {
@@ -723,89 +724,6 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Text(getFormattedDateTime(messageHeader.timestamp),
           textAlign: TextAlign.center,
           style: TextStyle(color: ColorUtils.textGray, fontSize: 14)),
-    );
-  }
-
-  Widget _getSharedContactUI(User user) {
-    return Container(
-      height: 72,
-      margin: EdgeInsets.fromLTRB(15, 16, 15, 0),
-      child: Stack(
-        children: <Widget>[
-          Container(
-            margin: EdgeInsets.fromLTRB(28, 0, 0, 0),
-            decoration: getRoundedOrangeDecoration(),
-            child: Container(
-              height: 80,
-              margin: EdgeInsets.fromLTRB(40, 0, 0, 0),
-              child: Row(
-                children: <Widget>[
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(user.name,
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white,
-                                fontFamily: 'Arial',
-                                fontWeight: FontWeight.bold)),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
-                          child: Row(
-                            children: <Widget>[
-                              Text(
-                                "#hardcoded tag",
-                                style: TextStyle(
-                                    fontSize: 12, color: Colors.white),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(45, 0, 0, 0),
-                                child: Icon(
-                                  Icons.star,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                              ),
-                              Text("4.8",
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.white))
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Container(
-                    decoration: getRoundWhiteCircle(),
-                    child: new IconButton(
-                      onPressed: () => _startConversation(user),
-                      icon: Image.asset(
-                        "assets/images/ic_inbox_orange.png",
-                        color: ColorUtils.messageOrange,
-                      ),
-                    ),
-                    margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
-                    width: 40,
-                    height: 40,
-                  )
-                ],
-              ),
-            ),
-          ),
-          Container(
-              margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
-              width: 56,
-              height: 56,
-              decoration: new BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: new DecorationImage(
-                      fit: BoxFit.cover,
-                      image: new NetworkImage(
-                          "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))),
-        ],
-      ),
     );
   }
 
