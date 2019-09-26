@@ -1,9 +1,11 @@
 import 'dart:ui';
+
 import 'package:contractor_search/bloc/account_bloc.dart';
 import 'package:contractor_search/layouts/phone_auth_screen.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
 import 'package:contractor_search/layouts/replies_screen.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
+import 'package:contractor_search/layouts/settings_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
@@ -13,8 +15,6 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -74,10 +74,11 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   void _select(Object item) {
-    widget.onChanged(false);
     switch (item as int) {
       case 0:
         {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SettingsScreen()));
           break;
         }
       case 1:
@@ -86,19 +87,20 @@ class AccountScreenState extends State<AccountScreen> {
           break;
         }
     }
+    widget.onChanged(false);
   }
 
   void signOut() {
     setState(() {
       _saving = true;
     });
-      _accountBloc.removeSharedPreferences().then((_) {
-        setState(() {
-          _saving = false;
-        });
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => PhoneAuthScreen()),
-            (Route<dynamic> route) => false);
+    _accountBloc.removeSharedPreferences().then((_) {
+      setState(() {
+        _saving = false;
+      });
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => PhoneAuthScreen()),
+          (Route<dynamic> route) => false);
     });
   }
 
@@ -107,22 +109,22 @@ class AccountScreenState extends State<AccountScreen> {
     setState(() {
       _saving = true;
     });
-      _accountBloc.getCurrentUser().then((result) {
-        if (result.data != null && mounted) {
-          setState(() {
-            _user = User.fromJson(result.data['get_user']);
-            _user.cards = _user.cards.reversed.toList();
-            _saving = false;
-            _getMainTag();
-          });
-        }
-      });
+    _accountBloc.getCurrentUser().then((result) {
+      if (result.data != null && mounted) {
+        setState(() {
+          _user = User.fromJson(result.data['get_user']);
+          _user.cards = _user.cards.reversed.toList();
+          _saving = false;
+          _getMainTag();
+        });
+      }
+    });
   }
 
   void _getMainTag() {
     if (_user.tags != null) {
-      _mainUserTag = _user.tags
-          .firstWhere((tag) => tag.defaultTag, orElse: () => null);
+      _mainUserTag =
+          _user.tags.firstWhere((tag) => tag.defaultTag, orElse: () => null);
     }
     if (_mainUserTag != null) {
       _mainUserTagStarts = getReviewForMainTag(_user, _mainUserTag);
@@ -495,8 +497,8 @@ class AccountScreenState extends State<AccountScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => ReviewsScreen(
-              reviews: _user.reviews,
-            )));
+                  reviews: _user.reviews,
+                )));
   }
 }
 
