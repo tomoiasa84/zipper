@@ -90,11 +90,12 @@ class _HomePageState extends State<HomePage> {
   Future onSelectNotification(String payload) async {
     print('Notification tapped');
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => ChatScreen(conversationId: _message.channelId)),
-    );
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                ChatScreen(conversationId: _message.channelId)),
+        ModalRoute.withName("/"));
   }
 
   void _initFirebaseClientMessaging() {
@@ -108,22 +109,22 @@ class _HomePageState extends State<HomePage> {
       onResume: (Map<String, dynamic> message) async {
         var messageData = new Map<String, dynamic>.from(message['data']);
         _message = UserMessage.fromJson(messageData);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  ChatScreen(conversationId: _message.channelId)),
-        );
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
+            ModalRoute.withName("/"));
       },
       onLaunch: (Map<String, dynamic> message) async {
         var messageData = new Map<String, dynamic>.from(message['data']);
         _message = UserMessage.fromJson(messageData);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  ChatScreen(conversationId: _message.channelId)),
-        );
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
+            ModalRoute.withName("/"));
       },
     );
   }
