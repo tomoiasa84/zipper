@@ -34,7 +34,7 @@ class ChatScreen extends StatefulWidget {
   _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   PubNubConversation _pubNubConversation;
   bool _loading = false;
   String _interlocutorName;
@@ -151,8 +151,17 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _pubNubConversation = widget.pubNubConversation;
     _initScreen();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _initScreen();
+    }
   }
 
   void _initScreen() {
@@ -177,8 +186,6 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     });
   }
-
-  void getPubNubConversation() {}
 
   void _registerChannelForPushNotifications(String conversationId) {
     _firebaseMessaging.getToken().then((deviceId) {
