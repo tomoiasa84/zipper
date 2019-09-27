@@ -54,10 +54,10 @@ class _ConversationsScreenState extends State<ConversationsScreen>
 
   void _startNewConversation() {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                SelectContactScreen(shareContactScreen: false)))
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    SelectContactScreen(shareContactScreen: false)))
         .then((onValue) {
       _getConversations();
     });
@@ -104,8 +104,10 @@ class _ConversationsScreenState extends State<ConversationsScreen>
               onPressed: () {
                 _startNewConversation();
               },
-              child: Image.asset(
-                "assets/images/ic_plus_accent_background.png",
+              child: Icon(
+                Icons.message,
+                color: ColorUtils.white,
+                size: 28,
               ),
               backgroundColor: ColorUtils.orangeAccent,
             ),
@@ -186,7 +188,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style:
-                    TextStyle(fontSize: 12, color: ColorUtils.darkerGray))
+                        TextStyle(fontSize: 12, color: ColorUtils.darkerGray))
               ],
             ),
           )
