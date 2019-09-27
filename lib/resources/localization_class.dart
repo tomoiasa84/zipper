@@ -131,6 +131,8 @@ class Localization {
       'home':'Home',
       'emptyPostsList':'Empty posts list',
       'sendInChat':'Send in Chat',
+      'post':'Post',
+      'tapAndRecommendAFriend':'Tap here and recommend a friend',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -254,6 +256,8 @@ class Localization {
       'home':'Acasa',
       'emptyPostsList':'Nu exista postari',
       'sendInChat':'Trimite in Chat',
+      'post':'Postare',
+      'tapAndRecommendAFriend':'Recomanda un prieten',
     },
   };
 

@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:contractor_search/bloc/home_content_bloc.dart';
+import 'package:contractor_search/layouts/post_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -148,11 +149,21 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              Text(
-                "#" + post.searchFor.name,
-                style: TextStyle(
-                    color: ColorUtils.orangeAccent,
-                    fontWeight: FontWeight.bold),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PostDetailsScreen(
+                                post: post,
+                              )));
+                },
+                child: Text(
+                  "#" + post.searchFor.name,
+                  style: TextStyle(
+                      color: ColorUtils.orangeAccent,
+                      fontWeight: FontWeight.bold),
+                ),
               )
             ],
           ),

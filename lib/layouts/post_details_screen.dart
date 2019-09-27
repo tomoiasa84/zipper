@@ -5,78 +5,77 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 
-class RepliesScreen extends StatefulWidget {
-  final CardModel card;
+class PostDetailsScreen extends StatefulWidget {
+  final CardModel post;
 
-  const RepliesScreen({Key key, this.card}) : super(key: key);
+  const PostDetailsScreen({Key key, this.post}) : super(key: key);
 
   @override
-  RepliesScreenState createState() => RepliesScreenState();
+  PostDetailsScreenState createState() => PostDetailsScreenState();
 }
 
-class RepliesScreenState extends State<RepliesScreen> {
+class PostDetailsScreenState extends State<PostDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            _buildCardDetails(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: generateContactUI(
-                  widget.card.postedBy,
-                  widget.card.searchFor.name,
-                  () {},
-                  Localization.of(context).getString("recommendedBy")),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 24.0),
-              child: generateContactUI(
-                  widget.card.postedBy,
-                  widget.card.searchFor.name,
-                  () {},
-                  Localization.of(context).getString("recommendedBy")),
-            ),
-          ],
-        ),
-      ),
+      body: _buildContent(),
     );
   }
 
   AppBar _buildAppBar() {
     return AppBar(
-      centerTitle: true,
       title: Text(
-        Localization.of(context).getString('myProfile'),
+        Localization.of(context).getString('post'),
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
+      centerTitle: true,
       leading: buildBackButton(Icons.arrow_back, () {
         Navigator.pop(context);
       }),
     );
   }
 
-  Padding _buildCardDetails() {
+  Widget _buildContent() {
+    return SingleChildScrollView(
+      child: Column(
+        children: <Widget>[
+          _buildPostDetails(),
+        ],
+      ),
+    );
+  }
+
+  Padding _buildPostDetails() {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _buildPostText(),
-              _buildDetailsText(),
-              _buildCreatedAtInfo(),
-            ],
+      child: Stack(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 54.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    _buildPostText(),
+                    _buildDetailsText(),
+                    _buildCreatedAtInfo(),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
+          Positioned(
+              bottom: 0.0,
+              right: 0.0,
+              left: 0.0,
+              child: _buildRecommendButton())
+        ],
       ),
     );
   }
@@ -85,7 +84,7 @@ class RepliesScreenState extends State<RepliesScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(widget.card.postedBy.name),
+          child: Text(getInitials(widget.post.postedBy.name),
               style: TextStyle(color: ColorUtils.darkerGray)),
           backgroundColor: ColorUtils.lightLightGray,
         ),
@@ -98,7 +97,7 @@ class RepliesScreenState extends State<RepliesScreen> {
                 TextSpan(
                   children: <TextSpan>[
                     TextSpan(
-                        text: widget.card.postedBy.name,
+                        text: widget.post.postedBy.name,
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(
                         text:
@@ -109,7 +108,7 @@ class RepliesScreenState extends State<RepliesScreen> {
                 textAlign: TextAlign.center,
               ),
               Text(
-                "#" + widget.card.searchFor.name,
+                "#" + widget.post.searchFor.name,
                 style: TextStyle(
                     color: ColorUtils.orangeAccent,
                     fontWeight: FontWeight.bold),
@@ -122,7 +121,7 @@ class RepliesScreenState extends State<RepliesScreen> {
   }
 
   Padding _buildCreatedAtInfo() {
-    String difference = getTimeDifference(widget.card.createdAt);
+    String difference = getTimeDifference(widget.post.createdAt);
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: Row(
@@ -151,12 +150,31 @@ class RepliesScreenState extends State<RepliesScreen> {
   Padding _buildDetailsText() {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
-      child: (widget.card.text != null && widget.card.text.isNotEmpty)
+      child: (widget.post.text != null && widget.post.text.isNotEmpty)
           ? Text(
-              widget.card.text,
+              widget.post.text,
               style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
             )
           : Container(),
     );
+  }
+
+  Container _buildRecommendButton() {
+    return Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.0),
+            color: ColorUtils.orangeAccent),
+        margin: const EdgeInsets.symmetric(horizontal: 27.0),
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Text(
+            Localization.of(context).getString("tapAndRecommendAFriend"),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: ColorUtils.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ));
   }
 }
