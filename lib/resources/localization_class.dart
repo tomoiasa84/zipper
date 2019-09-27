@@ -128,6 +128,9 @@ class Localization {
       'whoCanSendYouMessage': 'Who can send you message?',
       'everyone': 'Everyone',
       'friendsOf': 'Friends of...',
+      'home':'Home',
+      'emptyPostsList':'Empty posts list',
+      'sendInChat':'Send in Chat',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -248,6 +251,9 @@ class Localization {
       'whoCanSendYouMessage': 'Cine iti poate trimite mesaj?',
       'everyone': 'Oricine',
       'friendsOf': 'Prietenii lui...',
+      'home':'Acasa',
+      'emptyPostsList':'Nu exista postari',
+      'sendInChat':'Trimite in Chat',
     },
   };
 
