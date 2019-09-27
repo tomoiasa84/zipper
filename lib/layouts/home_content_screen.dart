@@ -37,6 +37,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
         posts.forEach((item) {
           _postsList.add(CardModel.fromJson(item));
         });
+        _postsList = _postsList.reversed.toList();
         if (mounted) {
           setState(() {
             _saving = false;
