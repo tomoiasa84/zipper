@@ -11,7 +11,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
-
   bool _arePushNotificationsAllowed = false;
   bool _areMessageNotificationsAllowed = false;
   bool _areRecommendSearchNotificationsAllowed = false;
@@ -134,20 +133,25 @@ class SettingsScreenState extends State<SettingsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(Localization.of(context)
-                    .getString('recommendSearchNotification')),
-                Transform.scale(
-                  scale: 0.7,
-                  child: CupertinoSwitch(
-                    activeColor: ColorUtils.orangeAccent,
-                    value: _areRecommendSearchNotificationsAllowed,
-                    onChanged: (value) {
-                      SharedPreferencesHelper
-                              .setRecommendsSearchNotificationAllowed(value)
-                          .then((_) {
-                        _areRecommendSearchNotificationsAllowed = value;
-                      });
-                    },
+                Expanded(
+                  child: Text(Localization.of(context)
+                      .getString('recommendSearchNotification')),
+                ),
+                Flexible(
+                  flex: 1,
+                  child: Transform.scale(
+                    scale: 0.7,
+                    child: CupertinoSwitch(
+                      activeColor: ColorUtils.orangeAccent,
+                      value: _areRecommendSearchNotificationsAllowed,
+                      onChanged: (value) {
+                        SharedPreferencesHelper
+                                .setRecommendsSearchNotificationAllowed(value)
+                            .then((_) {
+                          _areRecommendSearchNotificationsAllowed = value;
+                        });
+                      },
+                    ),
                   ),
                 )
               ],
