@@ -16,7 +16,6 @@ import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loadmore/loadmore.dart';
@@ -715,7 +714,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Widget _getMessageHeaderUI(MessageHeader messageHeader) {
     return Container(
       margin: EdgeInsets.fromLTRB(0, 22, 00, 0),
-      child: Text(getFormattedDateTime(messageHeader.timestamp),
+      child: Text(Localization.of(context).getFormattedDateTime(messageHeader.timestamp),
           textAlign: TextAlign.center,
           style: TextStyle(color: ColorUtils.textGray, fontSize: 14)),
     );

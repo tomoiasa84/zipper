@@ -39,7 +39,6 @@ String getInterlocutorName(User user1, User user2, String currentUserId) {
   }
 }
 
-
 String getStringOfChannelIds(List<ConversationModel> listOfConversation) {
   String channelIds = "";
 
@@ -52,10 +51,6 @@ String getStringOfChannelIds(List<ConversationModel> listOfConversation) {
 
 String escapeJsonCharacters(String imageUrlDownload) {
   return imageUrlDownload.replaceAll("?", "%3F");
-}
-
-String getFormattedDateTime(DateTime dateTime) {
-  return DateFormat("dd/MM/yyyy").format(dateTime);
 }
 
 String getTimeDifference(String time) {
