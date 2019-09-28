@@ -1,13 +1,34 @@
 import 'dart:async';
 
 import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/model/conversation_model.dart';
+import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/utils/custom_auth_link.dart';
+import 'package:contractor_search/utils/general_methods.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:http/http.dart' as http;
 
 enum NavBarItem { HOME, CONTACTS, PLUS, INBOX, ACCOUNT }
 
 class HomeBloc {
+  static HttpLink link =
+      HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+
+  static final CustomAuthLink _authLink = CustomAuthLink();
+
+  GraphQLClient _client = GraphQLClient(
+    cache: InMemoryCache(),
+    link: _authLink.concat(link),
+  );
+
+  final String _subscribeKey = "sub-c-e742fad6-c8a5-11e9-9d00-8a58a5558306";
+  final String _baseUrl = "https://ps.pndsn.com";
+  final http.Client _pubNubClient = new http.Client();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   final StreamController<NavBarItem> _navBarController =
-  StreamController<NavBarItem>.broadcast();
+      StreamController<NavBarItem>.broadcast();
 
   NavBarItem defaultItem = NavBarItem.HOME;
 
@@ -33,11 +54,55 @@ class HomeBloc {
     }
   }
 
+  void subscribeToAllChannels() async {
+    _firebaseMessaging.getToken().then((deviceId) {
+      _getListOfIdsFromBackend().then((listOfIds) async {
+        var channels = getStringOfChannelIds(listOfIds);
+        var url =
+            "http://ps.pndsn.com/v1/push/sub-key/$_subscribeKey/devices/$deviceId?add=$channels&type=gcm";
+
+        var response = await _pubNubClient.get(url);
+
+        if (response.statusCode == 200) {
+          print('Succesfully subscribed to all channels');
+        } else {
+          print("Request failed with status: ${response.statusCode}.");
+        }
+      });
+    });
+  }
+
+  Future<List<ConversationModel>> _getListOfIdsFromBackend() async {
+    var conversationsList;
+    await getCurrentUserId().then((currentUserId) async {
+      final QueryResult result = await _client.query(QueryOptions(
+        document: '''query{
+                    get_user(userId: "$currentUserId"){
+                      conversations{
+                        id
+                        user1{
+                          id
+                          name
+                        }
+                        user2{
+                          id
+                          name
+                        }
+                      }
+                    }
+                }''',
+      ));
+      User currentUser = User.fromJson(result.data['get_user']);
+      conversationsList = currentUser.conversations;
+    });
+    return conversationsList;
+  }
+
   void dispose() {
     _navBarController?.close();
   }
+
   getContacts() async {
     return ContactsService.getContacts();
   }
 }
-

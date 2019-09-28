@@ -9,6 +9,7 @@ import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -21,6 +22,7 @@ class ChatBloc {
   final StreamController ctrl = StreamController();
   final List<UserMessage> _messagesList = new List();
   final int _numberOfMessagesToFetch = 50;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   int historyStart;
   String _timestamp = "0";
   FirebaseStorage _storage = FirebaseStorage.instance;
@@ -168,10 +170,13 @@ class ChatBloc {
     });
   }
 
-  Future subscribeToPushNotifications(String deviceId, String channelId) async {
-    var url =
-        "http://ps.pndsn.com/v1/push/sub-key/$_subscribeKey/devices/$deviceId?add=$channelId&type=gcm";
-    await _pubNubClient.get(url);
+  Future subscribeToPushNotifications(String channelId) async {
+    _firebaseMessaging.getToken().then((deviceId) {
+      print('DEVICE ID: $deviceId');
+      var url =
+          "http://ps.pndsn.com/v1/push/sub-key/$_subscribeKey/devices/$deviceId?add=$channelId&type=gcm";
+      _pubNubClient.get(url);
+    });
   }
 
   void dispose() {

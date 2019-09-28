@@ -8,6 +8,7 @@ import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -29,20 +30,22 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool blurred = false;
-  HomeBloc _homeBloc;
+  HomeBloc _homeBloc = HomeBloc();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   UserMessage _message;
 
   @override
   void initState() {
-    _homeBloc = HomeBloc();
     if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
     }
-    super.initState();
     _initFirebaseClientMessaging();
     _initLocalNotifications();
+    getCurrentUserId().then((currentUserId) {
+      _homeBloc.subscribeToAllChannels();
+    });
+    super.initState();
   }
 
   void _initLocalNotifications() {

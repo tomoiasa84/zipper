@@ -28,7 +28,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _getCurrentUserId().then((currentUserId) {
+    getCurrentUserId().then((currentUserId) {
       _currentUserId = currentUserId;
     });
     _getConversations();
@@ -115,10 +115,6 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         ),
       ),
     );
-  }
-
-  Future<String> _getCurrentUserId() async {
-    return await SharedPreferencesHelper.getCurrentUserId();
   }
 
   Widget _showConversationsUI() {

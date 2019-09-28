@@ -1,4 +1,6 @@
+import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:intl/intl.dart';
 
 String validatePhoneNumber(String value, String validationMessage) {
@@ -25,12 +27,27 @@ getInitials(String name) {
     return "";
 }
 
+Future<String> getCurrentUserId() async {
+  return await SharedPreferencesHelper.getCurrentUserId();
+}
+
 String getInterlocutorName(User user1, User user2, String currentUserId) {
   if (user1.id == currentUserId) {
     return user2.name;
   } else {
     return user1.name;
   }
+}
+
+
+String getStringOfChannelIds(List<ConversationModel> listOfConversation) {
+  String channelIds = "";
+
+  for (var item in listOfConversation) {
+    channelIds = channelIds + item.id.toString() + ",";
+  }
+
+  return channelIds;
 }
 
 String escapeJsonCharacters(String imageUrlDownload) {

@@ -16,7 +16,6 @@ import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -44,7 +43,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final ChatBloc _chatBloc = ChatBloc();
   final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   final TextEditingController _textEditingController =
       new TextEditingController();
@@ -52,7 +50,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void _handleMessageSubmit(String text) {
     if (text.trim().length > 0) {
       _textEditingController.clear();
-      _getCurrentUserId().then((userId) {
+      getCurrentUserId().then((userId) {
         _chatBloc.sendMessage(
             _pubNubConversation.id,
             PnGCM(WrappedMessage(
@@ -66,10 +64,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   String _escapeJsonCharacters(String myString) {
     var string = myString.replaceAll("#", "%23");
     return string.replaceAll("?", "%3F");
-  }
-
-  Future<String> _getCurrentUserId() async {
-    return await SharedPreferencesHelper.getCurrentUserId();
   }
 
   Future _uploadImage(ImageSource imageSource) async {
@@ -114,7 +108,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           builder: (context) => SelectContactScreen(shareContactScreen: true)),
     );
     //Do something with the result
-    _getCurrentUserId().then((userId) {
+    getCurrentUserId().then((userId) {
       _chatBloc.sendMessage(
           _pubNubConversation.id,
           PnGCM(WrappedMessage(
@@ -165,7 +159,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void _initScreen() {
-    _getCurrentUserId().then((currentUserId) {
+    getCurrentUserId().then((currentUserId) {
       setState(() async {
         _currentUserId = currentUserId;
 
@@ -182,15 +176,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _currentUserName = _getCurrentUserName(_pubNubConversation.user1,
             _pubNubConversation.user2, _currentUserId);
         _setMessagesListener(currentUserId);
-        _registerChannelForPushNotifications(_pubNubConversation.id);
+        _chatBloc.subscribeToPushNotifications(_pubNubConversation.id);
       });
-    });
-  }
-
-  void _registerChannelForPushNotifications(String conversationId) {
-    _firebaseMessaging.getToken().then((deviceId) {
-      print('DEVICE ID: $deviceId');
-      _chatBloc.subscribeToPushNotifications(deviceId, conversationId);
     });
   }
 
