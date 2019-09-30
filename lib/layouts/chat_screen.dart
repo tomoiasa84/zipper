@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:contractor_search/bloc/chat_bloc.dart';
 import 'package:contractor_search/layouts/image_preview_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
+import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
 import 'package:contractor_search/models/PnGCM.dart';
@@ -360,6 +361,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       if (item.sharedContact != null) {
         return generateContactUI(item.sharedContact, "#hardcodedtag",
             () => _startConversation(item.sharedContact), null);
+      }
+
+      if (item.cardModel != null) {
+        return _buildCardDetails(item.cardModel);
       }
 
       if (_messageAuthorIsCurrentUser(item)) {
@@ -746,5 +751,113 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   bool _messageAuthorIsCurrentUser(UserMessage message) {
     return message.messageAuthor == _currentUserId;
+  }
+
+  Padding _buildCardDetails(CardModel cardModel) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+      child: Stack(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 54.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    _buildCardText(cardModel),
+                    _buildDetailsText(cardModel),
+                    _buildCreatedAtInfo(cardModel),
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Row _buildCardText(CardModel cardModel) {
+    return Row(
+      children: <Widget>[
+        CircleAvatar(
+          child: Text(getInitials(cardModel.postedBy.name),
+              style: TextStyle(color: ColorUtils.darkerGray)),
+          backgroundColor: ColorUtils.lightLightGray,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text.rich(
+                TextSpan(
+                  children: <TextSpan>[
+                    TextSpan(
+                        text: cardModel.postedBy.name,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text:
+                            Localization.of(context).getString("isLookingFor"),
+                        style: TextStyle(color: ColorUtils.darkerGray)),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                "#" + cardModel.searchFor.name,
+                style: TextStyle(
+                    color: ColorUtils.orangeAccent,
+                    fontWeight: FontWeight.bold),
+              )
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  Padding _buildCreatedAtInfo(CardModel cardModel) {
+    String difference = getTimeDifference(cardModel.createdAt);
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0),
+      child: Row(
+        children: <Widget>[
+          Image.asset('assets/images/ic_access_time.png'),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, right: 16.0),
+            child: Text(
+              difference + ' ago',
+              style: TextStyle(color: ColorUtils.darkerGray),
+            ),
+          ),
+          Image.asset('assets/images/ic_replies_gray.png'),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, right: 16.0),
+            child: Text('3 replies',
+                style: TextStyle(
+                  color: ColorUtils.darkerGray,
+                )),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Padding _buildDetailsText(CardModel cardModel) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0),
+      child: (cardModel.text != null && cardModel.text.isNotEmpty)
+          ? Text(
+              cardModel.text,
+              style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
+            )
+          : Container(),
+    );
   }
 }

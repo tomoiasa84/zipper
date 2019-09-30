@@ -173,8 +173,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     );
   }
 
-  Padding _buildCreatedAtInfo(String createdAt) {
-    String difference = getTimeDifference(createdAt);
+  Padding _buildCreatedAtInfo(CardModel post) {
+    String difference = getTimeDifference(post.createdAt);
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: Row(
@@ -207,8 +207,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => SendInChatScreen(
-                        )));
+                        builder: (context) => SendInChatScreen(cardModel: post)));
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,

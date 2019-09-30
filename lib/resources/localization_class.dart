@@ -147,7 +147,7 @@ class Localization {
    'Friday': 'Friday',
    'Saturday': 'Saturday',
    'Sunday': 'Sunday',
-
+ 'sharedPost': 'Shared Post'
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -278,7 +278,7 @@ class Localization {
       'recentConversations': 'Conversatii recente',
       'send': 'Trimite',
       'allFriends': 'Toti prietenii',
-      'usersWithTag': 'Utilizaroti cu ',
+      'usersWithTag': 'Utilizatori cu ',
       'noUsersWith': 'Nu exista utilizatori cu #',
    'Monday': 'Luni',
    'Tuesday': 'Marti',
@@ -287,6 +287,7 @@ class Localization {
    'Friday': 'Vineri',
    'Saturday': 'Sambata',
    'Sunday': 'Duminica',
+ 'sharedPost': 'Postare distribuita'
     },
   };
 
