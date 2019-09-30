@@ -32,7 +32,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     super.initState();
   }
 
-  void _getRecentUsers() {
+  void _getRecentUsers() async {
     getCurrentUserId().then((currentUserId) {
       _currentUserId = currentUserId;
       _sendInChatBloc.getPubNubConversations().then((conversations) {
@@ -45,7 +45,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     });
   }
 
-  void _getAllUsers() {
+  void _getAllUsers() async {
     _sendInChatBloc.getUsers().then((result) {
       if (result.data != null) {
         final List<Map<String, dynamic>> users =
