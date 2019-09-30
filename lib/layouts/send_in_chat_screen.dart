@@ -5,6 +5,7 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'chat_screen.dart';
@@ -32,7 +33,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     super.initState();
   }
 
-  void _getRecentUsers() async{
+  void _getRecentUsers() async {
     getCurrentUserId().then((currentUserId) {
       _currentUserId = currentUserId;
       _sendInChatBloc.getPubNubConversations().then((conversations) {
@@ -45,7 +46,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     });
   }
 
-  void _getAllUsers() async{
+  void _getAllUsers() async {
     _sendInChatBloc.getUsers().then((result) {
       if (result.data != null) {
         final List<Map<String, dynamic>> users =
@@ -127,52 +128,79 @@ class SendInChatScreenState extends State<SendInChatScreen> {
 
   Container _buildSearchTextField() {
     return Container(
-      padding: const EdgeInsets.only(left: 20.0, top: 4.0),
+      padding: const EdgeInsets.only(top: 4.0),
       decoration: new BoxDecoration(
           borderRadius: new BorderRadius.all(new Radius.circular(10.0)),
           border: Border.all(color: ColorUtils.lightLightGray),
           color: Colors.white),
       margin: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-      child: TextFormField(
-          style: TextStyle(
-            color: ColorUtils.textBlack,
-          ),
+      child: TypeAheadFormField(
+        getImmediateSuggestions: true,
+        textFieldConfiguration: TextFieldConfiguration(
           decoration: InputDecoration(
-              border: InputBorder.none,
-              hintStyle: TextStyle(color: ColorUtils.textGray),
-              hintText: Localization.of(context).getString('searchs'),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  Icons.search,
-                  color: ColorUtils.darkerGray,
-                ),
-                onPressed: () {},
-              ))),
+            prefix: Text('    '),
+            border: InputBorder.none,
+            hintStyle: TextStyle(color: ColorUtils.textGray),
+            hintText: Localization.of(context).getString('searchs'),
+            suffixIcon: IconButton(
+              icon: Icon(
+                Icons.search,
+                color: ColorUtils.darkerGray,
+              ),
+              onPressed: () {},
+            ),
+          ),
+        ),
+        suggestionsCallback: (pattern) {
+          List<String> list = [];
+          _usersList
+              .where((it) =>
+                  it.name.toLowerCase().startsWith(pattern.toLowerCase()))
+              .toList()
+              .forEach((tag) => list.add(tag.name));
+          return list;
+        },
+        itemBuilder: (context, suggestion) {
+          int index = _usersList.indexWhere((item) => item.name == suggestion);
+          return ListTile(
+            title: _buildUserItem(index, _usersList),
+          );
+        },
+        transitionBuilder: (context, suggestionsBox, controller) {
+          return suggestionsBox;
+        },
+        onSuggestionSelected: (suggestion) {
+          int index = _usersList.indexWhere((item) => item.name == suggestion);
+          _startConversation(_usersList.elementAt(index));
+        },
+      ),
     );
   }
 
   Container _buildRecentConversations() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                Localization.of(context).getString('recentConversations'),
-                style: TextStyle(fontWeight: FontWeight.bold),
+    return _usersList.isNotEmpty
+        ? Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
               ),
-              _usersList.isNotEmpty ? _buildConversationsList() : Container()
-            ],
-          ),
-        ),
-      ),
-    );
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      Localization.of(context).getString('recentConversations'),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    _buildConversationsList(),
+                  ],
+                ),
+              ),
+            ),
+          )
+        : Container();
   }
 
   Widget _buildConversationsList() {
@@ -235,27 +263,30 @@ class SendInChatScreenState extends State<SendInChatScreen> {
   }
 
   Container _buildAllFriends() {
-    return Container(
-      margin: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 24.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                Localization.of(context).getString('allFriends'),
-                style: TextStyle(fontWeight: FontWeight.bold),
+    return _usersList.isNotEmpty
+        ? Container(
+            margin:
+                const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 24.0),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
               ),
-              _buildAllFriendsList()
-            ],
-          ),
-        ),
-      ),
-    );
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      Localization.of(context).getString('allFriends'),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    _buildAllFriendsList()
+                  ],
+                ),
+              ),
+            ),
+          )
+        : Container();
   }
 
   Widget _buildAllFriendsList() {
