@@ -114,7 +114,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 _buildCardText(card),
-                _buildCreatedAtInfo(card.createdAt)
+                _buildCreatedAtInfo(card)
               ],
             ),
           ),
@@ -173,8 +173,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     );
   }
 
-  Padding _buildCreatedAtInfo(CardModel post) {
-    String difference = getTimeDifference(post.createdAt);
+  Padding _buildCreatedAtInfo(CardModel card) {
+    String difference = getTimeDifference(card.createdAt);
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: Row(
@@ -207,7 +207,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => SendInChatScreen(cardModel: post)));
+                        builder: (context) => SendInChatScreen(cardModel: card)));
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,

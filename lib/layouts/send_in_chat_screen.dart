@@ -201,7 +201,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
         },
         onSuggestionSelected: (suggestion) {
           int index = _usersList.indexWhere((item) => item.name == suggestion);
-          _startConversation(_usersList.elementAt(index));
+          _sendCardToUser(_usersList.elementAt(index));
         },
       ),
     );
