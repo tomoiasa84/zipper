@@ -162,7 +162,9 @@ class MyAppState extends State<MyApp> {
   Future checkAuthStatus() async {
     var accessToken = await SharedPreferencesHelper.getAccessToken();
     if (accessToken == null || accessToken.isEmpty) {
-      authStatus = AuthStatus.NOT_LOGGED_IN;
+      setState(() {
+        authStatus = AuthStatus.NOT_LOGGED_IN;
+      });
     } else {
       setState(() {
         authStatus = AuthStatus.LOGGED_IN;

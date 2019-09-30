@@ -1,4 +1,4 @@
-import 'package:contractor_search/layouts/sms_code_verification.dart';
+import 'package:contractor_search/layouts/sms_code_verification_screen.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -34,7 +34,7 @@ class LoginScreenState extends State<LoginScreen> {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => SmsCodeVerification(
+              builder: (context) => SmsCodeVerificationScreen(
                   verificationId, "", "", phoneNumber, AuthType.login)));
     };
 

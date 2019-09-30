@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPreferencesHelper {
   static final String _accessToken = "accessToken";
   static final String _currentUserId = "currentUsertId";
+  static final String _currentUserName = "currentUsertName";
   static final String _syncContactsFlag = "syncContactsFlag";
   static final String _allowPushNotifications = "allowPushNotifications";
   static final String _allowMessageNotification = "allowMessageNotification";
@@ -36,6 +37,18 @@ class SharedPreferencesHelper {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     return prefs.setString(_currentUserId, value);
+  }
+
+ static Future<String> getCurrentUserName() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.getString(_currentUserName) ?? "";
+  }
+
+  static Future<bool> saveCurrentUserName(String value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.setString(_currentUserName, value);
   }
 
   static Future<bool> getSyncContactsFlag() async {

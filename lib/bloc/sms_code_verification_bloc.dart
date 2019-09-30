@@ -1,4 +1,5 @@
 import 'package:contractor_search/utils/custom_auth_link.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class SmsCodeVerificationBloc {
@@ -122,5 +123,17 @@ class SmsCodeVerificationBloc {
               }''',
     ));
     return result;
+  }
+
+  Future saveAccessToken(String accessToken) async {
+    await SharedPreferencesHelper.saveAccessToken(accessToken);
+  }
+
+  Future saveCurrentUserId(String userId) async {
+    await SharedPreferencesHelper.saveCurrentUserId(userId);
+  }
+
+  Future saveCurrentUserName(String userName) async {
+    await SharedPreferencesHelper.saveCurrentUserName(userName);
   }
 }

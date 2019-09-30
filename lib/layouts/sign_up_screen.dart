@@ -1,6 +1,6 @@
 import 'package:contractor_search/bloc/sign_up_bloc.dart';
 import 'package:contractor_search/layouts/login_screen.dart';
-import 'package:contractor_search/layouts/sms_code_verification.dart';
+import 'package:contractor_search/layouts/sms_code_verification_screen.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -80,7 +80,7 @@ class SignUpScreenState extends State<SignUpScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => SmsCodeVerification(verificationId, name,
+            builder: (context) => SmsCodeVerificationScreen(verificationId, name,
                 _typeAheadController.text, phoneNumber, authType)));
   }
 

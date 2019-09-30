@@ -16,23 +16,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class SmsCodeVerification extends StatefulWidget {
+class SmsCodeVerificationScreen extends StatefulWidget {
   final String verificationId;
   final String name;
   final String location;
   final String phoneNumber;
   final int authType;
 
-  SmsCodeVerification(this.verificationId, this.name, this.location,
+  SmsCodeVerificationScreen(this.verificationId, this.name, this.location,
       this.phoneNumber, this.authType);
 
   @override
-  SmsCodeVerificationState createState() => SmsCodeVerificationState();
+  SmsCodeVerificationScreenState createState() =>
+      SmsCodeVerificationScreenState();
 }
 
-class SmsCodeVerificationState extends State<SmsCodeVerification> {
+class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
   final _formKey = GlobalKey<FormState>();
-  SmsCodeVerificationBloc _authenticationBloc;
+  SmsCodeVerificationBloc _smsCodeVerificationBloc;
   String smsCode;
   bool _autoValidate = false;
   bool _saving = false;
@@ -59,8 +60,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
 
       if (user != null) {
         user.user.getIdToken().then((token) {
-          saveAccessToken(token.token).then((token) {
-            _authenticationBloc = SmsCodeVerificationBloc();
+          _smsCodeVerificationBloc.saveAccessToken(token.token).then((token) {
             _checkUser(user);
           });
         });
@@ -84,7 +84,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
 
   void _checkUser(AuthResult authResult) {
     List<User> usersList = [];
-    _authenticationBloc.getUsers().then((result) {
+    _smsCodeVerificationBloc.getUsers().then((result) {
       if (result.data != null) {
         final List<Map<String, dynamic>> users =
             result.data['get_users'].cast<Map<String, dynamic>>();
@@ -119,7 +119,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
                   Localization.of(context).getString('ok'));
             });
           } else {
-            _finishLogin(user.id);
+            _finishLogin(user.id, user.name);
           }
         }
       }
@@ -128,7 +128,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
 
   void _signUp(AuthResult user) {
     List<LocationModel> locations = [];
-    _authenticationBloc.getLocations().then((result) {
+    _smsCodeVerificationBloc.getLocations().then((result) {
       setState(() {
         (result.data['get_locations']?.cast<Map<String, dynamic>>())?.forEach(
             (location) => locations.add(LocationModel.fromJson(location)));
@@ -138,7 +138,9 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
         if (loc != null) {
           _createUser(user, loc.id);
         } else {
-          _authenticationBloc.createLocation(widget.location).then((result) {
+          _smsCodeVerificationBloc
+              .createLocation(widget.location)
+              .then((result) {
             if (result.data != null) {
               _createUser(user,
                   LocationModel.fromJson(result.data['create_location']).id);
@@ -159,7 +161,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   }
 
   void _createUser(AuthResult user, int locationId) {
-    _authenticationBloc
+    _smsCodeVerificationBloc
         .createUser(
             widget.name, locationId, user.user.uid, user.user.phoneNumber)
         .then((result) {
@@ -167,7 +169,8 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
         _saving = false;
       });
       if (result.data != null) {
-        _finishLogin(User.fromJson(result.data['create_user']).id);
+        User user = User.fromJson(result.data['create_user']);
+        _finishLogin(user.id, user.name);
       } else {
         SharedPreferencesHelper.clear().then((_) {
           _showDialog(
@@ -181,7 +184,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
 
   void _doUpdateUser(AuthResult user) {
     List<LocationModel> locations = [];
-    _authenticationBloc.getLocations().then((result) {
+    _smsCodeVerificationBloc.getLocations().then((result) {
       setState(() {
         (result.data['get_locations']?.cast<Map<String, dynamic>>())?.forEach(
             (location) => locations.add(LocationModel.fromJson(location)));
@@ -191,7 +194,9 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
         if (loc != null) {
           _updateUserData(user, loc.id);
         } else {
-          _authenticationBloc.createLocation(widget.location).then((result) {
+          _smsCodeVerificationBloc
+              .createLocation(widget.location)
+              .then((result) {
             if (result.data != null) {
               _updateUserData(user,
                   LocationModel.fromJson(result.data['create_location']).id);
@@ -212,7 +217,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
   }
 
   void _updateUserData(AuthResult user, int locationId) {
-    _authenticationBloc
+    _smsCodeVerificationBloc
         .updateUser(
             widget.name, locationId, user.user.uid, user.user.phoneNumber, true)
         .then((result) {
@@ -220,7 +225,8 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
         _saving = false;
       });
       if (result.data != null) {
-        _finishLogin(User.fromJson(result.data['update_user']).id);
+        User user = User.fromJson(result.data['update_user']);
+        _finishLogin(user.id, user.name);
       } else {
         SharedPreferencesHelper.clear().then((_) {
           _showDialog(
@@ -232,25 +238,20 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
     });
   }
 
-  void _finishLogin(String userId) {
-    saveCurrentUserId(userId).then((userId) {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => TutorialScreen()),
-          ModalRoute.withName("/homepage"));
+  void _finishLogin(String userId, String userName) {
+    _smsCodeVerificationBloc.saveCurrentUserId(userId).then((userId) {
+      _smsCodeVerificationBloc.saveCurrentUserName(userName).then((value) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => TutorialScreen()),
+            ModalRoute.withName("/homepage"));
+      });
     });
-  }
-
-  Future saveAccessToken(String accessToken) async {
-    await SharedPreferencesHelper.saveAccessToken(accessToken);
-  }
-
-  Future saveCurrentUserId(String userId) async {
-    await SharedPreferencesHelper.saveCurrentUserId(userId);
   }
 
   @override
   void initState() {
+    _smsCodeVerificationBloc = SmsCodeVerificationBloc();
     verificationId = widget.verificationId;
     _codeTimer = Timer(_timeOut, () {
       setState(() {
@@ -419,7 +420,11 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
         if (_codeTimedOut) {
           await _resendVerificationCode();
         } else {
-          _showDialog(Localization.of(context).getString("error"), Localization.of(context).getString("cantRetry"),Localization.of(context).getString("ok"),);
+          _showDialog(
+            Localization.of(context).getString("error"),
+            Localization.of(context).getString("cantRetry"),
+            Localization.of(context).getString("ok"),
+          );
         }
         _resendVerificationCode();
       },
