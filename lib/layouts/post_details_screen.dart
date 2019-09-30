@@ -166,7 +166,7 @@ class PostDetailsScreenState extends State<PostDetailsScreen> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => RecommendFriendScreen(
+                builder: (context) => RecommendFriendScreen(searchedTag: widget.post.searchFor
                 )));
       },
       child: Container(

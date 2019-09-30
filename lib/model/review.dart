@@ -1,12 +1,12 @@
-import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
 
 class Review {
   Review.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        author = User.fromJson(json['author']),
-        userTag = UserTag.fromJson(json['userTag']),
+        author = json['author'] != null ? User.fromJson(json['author']) : null,
+        userTag =
+            json['userTag'] != null ? UserTag.fromJson(json['userTag']) : null,
         stars = json['stars'],
         text = json['text'];
 
@@ -15,5 +15,4 @@ class Review {
   final UserTag userTag;
   final int stars;
   final String text;
-
 }

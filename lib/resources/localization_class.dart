@@ -137,8 +137,8 @@ class Localization {
       'recentConversations': 'Recent Conversations',
       'send': 'Send',
       'allFriends': 'All friends',
-      'yourFriendsWith': 'Your friends with ',
-      'others': 'Others',
+      'usersWithTag': 'Users with ',
+      'noUsersWith': 'There are no users with #',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -269,8 +269,8 @@ class Localization {
       'recentConversations': 'Conversatii recente',
       'send': 'Trimite',
       'allFriends': 'Toti prietenii',
-      'yourFriendsWith': 'Prieteni cu ',
-      'others': 'Atlii',
+      'usersWithTag': 'Utilizaroti cu ',
+      'noUsersWith': 'Nu exista utilizatori cu #',
     },
   };
 

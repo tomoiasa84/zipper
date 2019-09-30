@@ -1,4 +1,5 @@
-import 'package:contractor_search/bloc/send_in_chat_bloc.dart';
+import 'package:contractor_search/bloc/recommend_friend_bloc.dart';
+import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -8,13 +9,18 @@ import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class RecommendFriendScreen extends StatefulWidget {
+  final Tag searchedTag;
+
+  const RecommendFriendScreen({Key key, this.searchedTag}) : super(key: key);
+
   @override
   RecommendFriendScreenState createState() => RecommendFriendScreenState();
 }
 
 class RecommendFriendScreenState extends State<RecommendFriendScreen> {
-  SendInChatBloc _sendInChatBloc;
-  List<User> _usersList = [];
+
+  List<User> usersWithSearchedTag = [];
+  RecommendFriendBloc _recommendBloc;
   bool _saving = false;
 
   @override
@@ -24,27 +30,39 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
   }
 
   void getCurrentUser() {
-    _sendInChatBloc = SendInChatBloc();
+    _recommendBloc = RecommendFriendBloc();
     setState(() {
       _saving = true;
     });
-    _sendInChatBloc.getUsers().then((result) {
-      if (result.data != null) {
-        final List<Map<String, dynamic>> users =
-            result.data['get_users'].cast<Map<String, dynamic>>();
-        users.forEach((item) {
-          var user = User.fromJson(item);
-          if (user.isActive) {
-            _usersList.add(user);
+    _recommendBloc.getCurrentUserId().then((currentUserId) {
+      _recommendBloc.getUsers().then((result) {
+        if (result.data != null) {
+          if (mounted) {
+            setState(() {
+              final List<Map<String, dynamic>> users =
+                  result.data['get_users'].cast<Map<String, dynamic>>();
+              users.forEach((item) {
+                User user = User.fromJson(item);
+                if (user.id != currentUserId && hasSearchedTag(user)) {
+                  usersWithSearchedTag.add(user);
+                }
+              });
+              _saving = false;
+            });
           }
-        });
-        if (mounted) {
-          setState(() {
-            _saving = false;
-          });
         }
+      });
+    });
+  }
+
+  bool hasSearchedTag(User user) {
+    bool hasTag = false;
+    user.tags.forEach((tag) {
+      if (tag.tag.id == widget.searchedTag.id) {
+        hasTag = true;
       }
     });
+    return hasTag;
   }
 
   @override
@@ -59,7 +77,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
     return AppBar(
       centerTitle: true,
       title: Text(
-        '#nanny',
+        '# ' + widget.searchedTag.name,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
       ),
       leading: buildBackButton(Icons.arrow_back, () {
@@ -78,19 +96,16 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
   }
 
   Widget _buildContent() {
-    return _usersList.isNotEmpty
-        ? SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                _buildFriendsWithTagCard(),
-                _buildOthersCard()
-              ],
-            ),
-          )
-        : Container();
+    return usersWithSearchedTag.isNotEmpty
+        ? SingleChildScrollView(child: _buildUsersWithTagCard())
+        : (_saving
+            ? Container()
+            : Center(
+                child: Text(Localization.of(context).getString('noUsersWith') + widget.searchedTag.name),
+              ));
   }
 
-  Container _buildFriendsWithTagCard() {
+  Container _buildUsersWithTagCard() {
     return Container(
       margin: const EdgeInsets.only(right: 16.0, left: 16.0, top: 16.0),
       child: Card(
@@ -103,11 +118,14 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                Localization.of(context).getString('yourFriendsWith') +
-                    ' #nanny',
+                Localization.of(context).getString('usersWithTag') +
+                    '#' +
+                    widget.searchedTag.name,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              _usersList.isNotEmpty ? _buildUsersList() : Container()
+              usersWithSearchedTag.isNotEmpty
+                  ? _buildUsersList(usersWithSearchedTag)
+                  : Container()
             ],
           ),
         ),
@@ -115,20 +133,20 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
     );
   }
 
-  Widget _buildUsersList() {
+  Widget _buildUsersList(List<User> users) {
     return ListView.builder(
         shrinkWrap: true,
         primary: false,
-        itemCount: _usersList.length,
+        itemCount: users.length,
         itemBuilder: (BuildContext context, int index) {
           return Container(
             padding: const EdgeInsets.only(top: 12.0),
-            child: _buildUserItem(index),
+            child: _buildUserItem(users, index),
           );
         });
   }
 
-  Widget _buildUserItem(int index) {
+  Widget _buildUserItem(List<User> users, int index) {
     return Column(
       children: <Widget>[
         Row(
@@ -147,7 +165,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 12.0),
                 child: Text(
-                  _usersList.elementAt(index).name,
+                  users.elementAt(index).name,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -162,7 +180,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
             )
           ],
         ),
-        index != _usersList.length - 1
+        index != users.length - 1
             ? Container(
                 margin: const EdgeInsets.only(top: 12.0),
                 color: ColorUtils.messageGray,
@@ -170,30 +188,6 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
               )
             : Container()
       ],
-    );
-  }
-
-  Container _buildOthersCard() {
-    return Container(
-      margin: const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 16.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                Localization.of(context).getString('others'),
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              _usersList.isNotEmpty ? _buildUsersList() : Container()
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
