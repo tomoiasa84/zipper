@@ -1,7 +1,9 @@
 import 'package:contractor_search/bloc/send_in_chat_bloc.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -13,21 +15,35 @@ class SendInChatScreen extends StatefulWidget {
 }
 
 class SendInChatScreenState extends State<SendInChatScreen> {
-  SendInChatBloc _sendInChatBloc;
+  SendInChatBloc _sendInChatBloc = SendInChatBloc();
   List<User> _usersList = [];
-  bool _saving = false;
+  List<User> _recentUserConversations = List();
+  bool _saving = true;
+  bool _allUsersLoaded = false;
+  bool _recentUsersLoaded = false;
+  String _currentUserId;
 
   @override
   void initState() {
-    getCurrentUser();
+    _getRecentUsers();
+    _getAllUsers();
     super.initState();
   }
 
-  void getCurrentUser() {
-    _sendInChatBloc = SendInChatBloc();
-    setState(() {
-      _saving = true;
+  void _getRecentUsers() {
+    getCurrentUserId().then((currentUserId) {
+      _currentUserId = currentUserId;
+      _sendInChatBloc.getPubNubConversations().then((conversations) {
+        for (var conversation in conversations) {
+          _recentUserConversations.add(_getInterlocutorUser(conversation));
+        }
+        _recentUsersLoaded = true;
+        _hideLoading();
+      });
     });
+  }
+
+  void _getAllUsers() {
     _sendInChatBloc.getUsers().then((result) {
       if (result.data != null) {
         final List<Map<String, dynamic>> users =
@@ -38,13 +54,26 @@ class SendInChatScreenState extends State<SendInChatScreen> {
             _usersList.add(user);
           }
         });
-        if (mounted) {
-          setState(() {
-            _saving = false;
-          });
-        }
+        _allUsersLoaded = true;
+        _hideLoading();
       }
     });
+  }
+
+  void _hideLoading() {
+    if (_allUsersLoaded && _recentUsersLoaded && mounted) {
+      setState(() {
+        _saving = false;
+      });
+    }
+  }
+
+  User _getInterlocutorUser(PubNubConversation pubNubConversation) {
+    if (pubNubConversation.user1.id == _currentUserId) {
+      return pubNubConversation.user2;
+    } else {
+      return pubNubConversation.user1;
+    }
   }
 
   @override
@@ -81,7 +110,6 @@ class SendInChatScreenState extends State<SendInChatScreen> {
           _buildSearchTextField(),
           _buildRecentConversations(),
           _buildAllFriends(),
-
         ],
       ),
     );
@@ -141,16 +169,16 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     return ListView.builder(
         shrinkWrap: true,
         primary: false,
-        itemCount: _usersList.length,
+        itemCount: _recentUserConversations.length,
         itemBuilder: (BuildContext context, int index) {
           return Container(
             padding: const EdgeInsets.only(top: 12.0),
-            child: _buildUserItem(index),
+            child: _buildUserItem(index, _recentUserConversations),
           );
         });
   }
 
-  Widget _buildUserItem(int index) {
+  Widget _buildUserItem(int index, List<User> usersList) {
     return Column(
       children: <Widget>[
         Row(
@@ -169,7 +197,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 12.0),
                 child: Text(
-                  _usersList.elementAt(index).name,
+                  usersList.elementAt(index).name,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -181,7 +209,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
             )
           ],
         ),
-        index != _usersList.length - 1
+        index != usersList.length - 1
             ? Container(
                 margin: const EdgeInsets.only(top: 12.0),
                 color: ColorUtils.messageGray,
@@ -224,7 +252,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
         itemBuilder: (BuildContext context, int index) {
           return Container(
             padding: const EdgeInsets.only(top: 12.0),
-            child: _buildUserItem(index),
+            child: _buildUserItem(index, _usersList),
           );
         });
   }
