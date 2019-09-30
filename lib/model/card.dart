@@ -12,6 +12,15 @@ class CardModel {
         text = json['text'],
         recommends = json['recommands'];
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'postedBy': postedBy,
+        'searchFor': searchFor,
+        'createdAt': createdAt,
+        'text': text,
+        'recommands': recommends,
+      };
+
   final int id;
   final User postedBy;
   final Tag searchFor;

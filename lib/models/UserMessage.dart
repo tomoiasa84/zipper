@@ -1,3 +1,4 @@
+import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 
 class UserMessage {
@@ -10,6 +11,7 @@ class UserMessage {
   String _stringTimestamp;
   bool showUserIcon = true;
   String _imageDownloadUrl;
+  CardModel _cardModel;
 
   UserMessage(
       this._message, this._timestamp, this._messageAuthor, this._channelId);
@@ -29,6 +31,16 @@ class UserMessage {
     this._sharedContact = user;
     this._channelId = channelId;
   }
+
+  UserMessage.withSharedCard(DateTime timestamp, String messageAuthor,
+      CardModel cardModel, String channelId) {
+    this._timestamp = timestamp;
+    this._messageAuthor = messageAuthor;
+    this._cardModel = cardModel;
+    this._channelId = channelId;
+  }
+
+  CardModel get cardModel => _cardModel;
 
   User get sharedContact => _sharedContact;
 
