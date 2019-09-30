@@ -209,8 +209,8 @@ class _HomePageState extends State<HomePage> {
       type: BottomNavigationBarType.fixed,
       onTap: (index) {
         if (index == 2) {
-          _homeBloc.pickItem(0);
           _goToAddCardScreen();
+          _homeBloc.pickItem(index);
         } else {
           _homeBloc.pickItem(index);
         }
@@ -262,6 +262,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _goToAddCardScreen() async {
     var result = await Navigator.of(context).push(
         MaterialPageRoute(builder: (BuildContext context) => AddCardScreen()));
+    _homeBloc.pickItem(0);
     if (result != null) {
       showDialog(
         context: context,

@@ -325,14 +325,14 @@ class AddCardScreenState extends State<AddCardScreen> {
           },
           itemBuilder: (context, suggestion) {
             return ListTile(
-              title: Text(suggestion),
+              title: Text('#' + suggestion),
             );
           },
           transitionBuilder: (context, suggestionsBox, controller) {
             return suggestionsBox;
           },
           onSuggestionSelected: (suggestion) {
-            this._addTagsTextEditingController.text = suggestion;
+            this._addTagsTextEditingController.text = '#' + suggestion;
           },
           validator: (value) {
             if (value.isEmpty) {
@@ -347,7 +347,9 @@ class AddCardScreenState extends State<AddCardScreen> {
             onTap: () {
               if (_addTagsTextEditingController.text.isNotEmpty) {
                 var tagFound = tagsList.firstWhere(
-                    (tag) => tag.name == _addTagsTextEditingController.text,
+                    (tag) =>
+                        tag.name ==
+                        _addTagsTextEditingController.text.substring(1),
                     orElse: () => null);
                 if (tagFound != null) {
                   setState(() {
