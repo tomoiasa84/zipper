@@ -7,6 +7,8 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
+import 'chat_screen.dart';
+
 class SendInChatScreen extends StatefulWidget {
   @override
   SendInChatScreenState createState() {
@@ -74,6 +76,14 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     } else {
       return pubNubConversation.user1;
     }
+  }
+
+  void _startConversation(User user) {
+    _sendInChatBloc.createConversation(user).then((pubNubConversation) {
+      Navigator.of(context).pushReplacement(new MaterialPageRoute(
+          builder: (BuildContext context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)));
+    });
   }
 
   @override
@@ -202,10 +212,14 @@ class SendInChatScreenState extends State<SendInChatScreen> {
                 ),
               ),
             ),
-            Text(
-              Localization.of(context).getString('send'),
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: ColorUtils.orangeAccent),
+            GestureDetector(
+              onTap: () => _startConversation(usersList.elementAt(index)),
+              child: Text(
+                Localization.of(context).getString('send'),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: ColorUtils.orangeAccent),
+              ),
             )
           ],
         ),

@@ -7,6 +7,7 @@ import 'package:contractor_search/models/BatchHistoryResponse.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -140,5 +141,32 @@ class SendInChatBloc {
       pubNubConversation.user2 = conversation.user2;
     }
     return pubNubConversationsList;
+  }
+
+  Future<PubNubConversation> createConversation(User user) async {
+    String userId = user.id;
+    return SharedPreferencesHelper.getCurrentUserId()
+        .then((currentUserId) async {
+      final QueryResult result = await client.query(QueryOptions(
+        document: '''mutation{
+                      create_conversation(user1:"$currentUserId", user2:"$userId"){
+                        id
+                        user1{
+                          id
+                          name
+                        }
+                        user2{
+                          id
+                          name
+                        }
+                      }
+                     }''',
+      ));
+      ConversationModel conversationModel =
+      ConversationModel.fromJson(result.data['create_conversation']);
+      PubNubConversation pubNubConversation =
+      PubNubConversation.fromConversation(conversationModel);
+      return pubNubConversation;
+    });
   }
 }
