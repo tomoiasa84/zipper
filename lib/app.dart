@@ -8,7 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'layouts/home_page.dart';
-import 'layouts/phone_auth_screen.dart';
+import 'layouts/sign_up_screen.dart';
 
 class MyApp extends StatefulWidget {
   @override
@@ -52,13 +52,13 @@ class MyAppState extends State<MyApp> {
                     )
                   : TutorialScreen())
               : (authStatus == AuthStatus.NOT_LOGGED_IN
-                  ? PhoneAuthScreen()
+                  ? SignUpScreen()
                   : Container(
                       color: ColorUtils.white,
                     )),
         ),
         routes: <String, WidgetBuilder>{
-          '/phoneAuthScreen': (BuildContext context) => PhoneAuthScreen(),
+          '/phoneAuthScreen': (BuildContext context) => SignUpScreen(),
           '/homepage': (BuildContext context) => HomePage(
                 syncContactsFlagRequired: false,
               ),

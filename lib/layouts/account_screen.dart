@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:contractor_search/bloc/account_bloc.dart';
-import 'package:contractor_search/layouts/phone_auth_screen.dart';
+import 'package:contractor_search/layouts/sign_up_screen.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
 import 'package:contractor_search/layouts/replies_screen.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
@@ -99,7 +99,7 @@ class AccountScreenState extends State<AccountScreen> {
         _saving = false;
       });
       Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => PhoneAuthScreen()),
+          MaterialPageRoute(builder: (context) => SignUpScreen()),
           (Route<dynamic> route) => false);
     });
   }

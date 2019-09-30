@@ -1,7 +1,7 @@
 import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-class AuthenticationBloc {
+class SmsCodeVerificationBloc {
   void dispose() {}
 
   static HttpLink link =

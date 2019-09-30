@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:contractor_search/bloc/authentication_bloc.dart';
+import 'package:contractor_search/bloc/sms_code_verification_bloc.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/layouts/tutorial_screen.dart';
 import 'package:contractor_search/model/location.dart';
@@ -32,7 +32,7 @@ class SmsCodeVerification extends StatefulWidget {
 
 class SmsCodeVerificationState extends State<SmsCodeVerification> {
   final _formKey = GlobalKey<FormState>();
-  AuthenticationBloc _authenticationBloc;
+  SmsCodeVerificationBloc _authenticationBloc;
   String smsCode;
   bool _autoValidate = false;
   bool _saving = false;
@@ -60,7 +60,7 @@ class SmsCodeVerificationState extends State<SmsCodeVerification> {
       if (user != null) {
         user.user.getIdToken().then((token) {
           saveAccessToken(token.token).then((token) {
-            _authenticationBloc = AuthenticationBloc();
+            _authenticationBloc = SmsCodeVerificationBloc();
             _checkUser(user);
           });
         });
