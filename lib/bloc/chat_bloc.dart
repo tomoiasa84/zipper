@@ -114,10 +114,10 @@ class ChatBloc {
     }
   }
 
-  Future<bool> sendMessage(String channelName, PnGCM pnGCM) async {
+  Future<bool> sendMessage(String channelId, PnGCM pnGCM) async {
     var encodedMessage = convert.jsonEncode(pnGCM.toJson());
     var url =
-        "$_baseUrl/publish/$_publishKey/$_subscribeKey/0/$channelName/myCallback/$encodedMessage";
+        "$_baseUrl/publish/$_publishKey/$_subscribeKey/0/$channelId/myCallback/$encodedMessage";
 
     var response = await _pubNubClient.get(url);
     if (response.statusCode == 200) {

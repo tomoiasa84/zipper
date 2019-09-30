@@ -4,7 +4,6 @@ import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -202,6 +201,9 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     }
     if (pubNubConversation.lastMessage.message.sharedContact != null) {
       return Localization.of(context).getString('sharedContact');
+    }
+    if (pubNubConversation.lastMessage.message.cardModel != null) {
+      return Localization.of(context).getString('sharedPost');
     }
     if (pubNubConversation.lastMessage.message.message != null) {
       return pubNubConversation.lastMessage.message.message;

@@ -147,6 +147,7 @@ class Localization {
       'Friday': 'Friday',
       'Saturday': 'Saturday',
       'Sunday': 'Sunday',
+      'sharedPost': 'Shared Post'
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -286,6 +287,7 @@ class Localization {
       'Friday': 'Vineri',
       'Saturday': 'Sambata',
       'Sunday': 'Duminica',
+      'sharedPost': 'Postare distribuita'
     },
   };
 

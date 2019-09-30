@@ -4,6 +4,7 @@ import 'dart:convert' as convert;
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/BatchHistoryResponse.dart';
+import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -24,6 +25,7 @@ class SendInChatBloc {
     link: _authLink.concat(link),
   );
 
+  final String _publishKey = "pub-c-202b96b5-ebbe-4a3a-94fd-dc45b0bd382e";
   final String _subscribeKey = "sub-c-e742fad6-c8a5-11e9-9d00-8a58a5558306";
   final String _baseUrl = "https://ps.pndsn.com";
   final http.Client _pubnubClient = new http.Client();
@@ -168,5 +170,19 @@ class SendInChatBloc {
       PubNubConversation.fromConversation(conversationModel);
       return pubNubConversation;
     });
+  }
+
+  Future<bool> sendMessage(String channelId, PnGCM pnGCM) async {
+    var encodedMessage = convert.jsonEncode(pnGCM.toJson());
+    var url =
+        "$_baseUrl/publish/$_publishKey/$_subscribeKey/0/$channelId/myCallback/$encodedMessage";
+
+    var response = await _pubnubClient.get(url);
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print("Request failed with status: ${response.body}.");
+      return false;
+    }
   }
 }

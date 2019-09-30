@@ -1,6 +1,11 @@
 import 'package:contractor_search/bloc/send_in_chat_bloc.dart';
+import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
+import 'package:contractor_search/models/PushNotification.dart';
+import 'package:contractor_search/models/UserMessage.dart';
+import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -10,10 +15,12 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'chat_screen.dart';
 
 class SendInChatScreen extends StatefulWidget {
+  final CardModel cardModel;
+
+  SendInChatScreen({Key key, this.cardModel}) : super(key: key);
+
   @override
-  SendInChatScreenState createState() {
-    return SendInChatScreenState();
-  }
+  SendInChatScreenState createState() => SendInChatScreenState();
 }
 
 class SendInChatScreenState extends State<SendInChatScreen> {
@@ -24,6 +31,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
   bool _allUsersLoaded = false;
   bool _recentUsersLoaded = false;
   String _currentUserId;
+  String _currentUserName;
 
   @override
   void initState() {
@@ -78,12 +86,34 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     }
   }
 
-  void _startConversation(User user) {
+  void _sendCardToUser(User user) {
     _sendInChatBloc.createConversation(user).then((pubNubConversation) {
-      Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (BuildContext context) =>
-              ChatScreen(pubNubConversation: pubNubConversation)));
+      var pnGCM = PnGCM(WrappedMessage(
+          PushNotification(
+              "Test", _createSharedCardPushNotificationText(widget.cardModel)),
+          UserMessage.withSharedCard(DateTime.now(), _currentUserId,
+              widget.cardModel, pubNubConversation.id)));
+
+      _sendInChatBloc
+          .sendMessage(pubNubConversation.id, pnGCM)
+          .then((messageSent) {
+        if (messageSent) {
+          Navigator.of(context).pushReplacement(new MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  ChatScreen(pubNubConversation: pubNubConversation)));
+        } else {
+          print('Could not send message');
+        }
+      });
     });
+  }
+
+  String _createSharedCardPushNotificationText(CardModel cardModel) {
+    return widget.cardModel.postedBy.name +
+        " " +
+        Localization.of(context).getString('isLookingFor') +
+        " " +
+        widget.cardModel.searchFor.name;
   }
 
   @override
@@ -213,7 +243,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
               ),
             ),
             GestureDetector(
-              onTap: () => _startConversation(usersList.elementAt(index)),
+              onTap: () => _sendCardToUser(usersList.elementAt(index)),
               child: Text(
                 Localization.of(context).getString('send'),
                 style: TextStyle(

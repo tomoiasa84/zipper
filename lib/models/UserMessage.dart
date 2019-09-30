@@ -63,7 +63,8 @@ class UserMessage {
         'messageAuthor': _messageAuthor,
         'imageDownloadUrl': _imageDownloadUrl,
         'sharedContact': _sharedContact,
-        'click_action': _clickAction
+        'click_action': _clickAction,
+        'cardModel': _cardModel
       };
 
   UserMessage.fromJson(Map<String, dynamic> json)
@@ -74,6 +75,9 @@ class UserMessage {
         _messageAuthor = json['messageAuthor'],
         _imageDownloadUrl = json['imageDownloadUrl'],
         _clickAction = json['clickAction'],
+        _cardModel = json['cardModel'] != null
+            ? CardModel.fromJson(json['cardModel'])
+            : null,
         _sharedContact = json['sharedContact'] != null
             ? User.fromJson(json['sharedContact'])
             : null;
