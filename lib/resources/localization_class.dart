@@ -137,6 +137,8 @@ class Localization {
       'recentConversations': 'Recent Conversations',
       'send': 'Send',
       'allFriends': 'All friends',
+      'yourFriendsWith': 'Your friends with ',
+      'others': 'Others',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -266,7 +268,9 @@ class Localization {
       'searchs': 'Cautari',
       'recentConversations': 'Conversatii recente',
       'send': 'Trimite',
-      'allFriends': 'Tori prietenii',
+      'allFriends': 'Toti prietenii',
+      'yourFriendsWith': 'Prieteni cu ',
+      'others': 'Atlii',
     },
   };
 

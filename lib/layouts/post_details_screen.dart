@@ -1,3 +1,4 @@
+import 'package:contractor_search/layouts/recommend_friend_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -159,22 +160,31 @@ class PostDetailsScreenState extends State<PostDetailsScreen> {
     );
   }
 
-  Container _buildRecommendButton() {
-    return Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            color: ColorUtils.orangeAccent),
-        margin: const EdgeInsets.symmetric(horizontal: 27.0),
-        child: Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Text(
-            Localization.of(context).getString("tapAndRecommendAFriend"),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: ColorUtils.white,
-              fontWeight: FontWeight.bold,
+  GestureDetector _buildRecommendButton() {
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => RecommendFriendScreen(
+                )));
+      },
+      child: Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              color: ColorUtils.orangeAccent),
+          margin: const EdgeInsets.symmetric(horizontal: 27.0),
+          child: Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Text(
+              Localization.of(context).getString("tapAndRecommendAFriend"),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: ColorUtils.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ));
+          )),
+    );
   }
 }

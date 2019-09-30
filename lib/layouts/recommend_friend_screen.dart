@@ -2,17 +2,17 @@ import 'package:contractor_search/bloc/send_in_chat_bloc.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class SendInChatScreen extends StatefulWidget {
+class RecommendFriendScreen extends StatefulWidget {
   @override
-  SendInChatScreenState createState() {
-    return SendInChatScreenState();
-  }
+  RecommendFriendScreenState createState() => RecommendFriendScreenState();
 }
 
-class SendInChatScreenState extends State<SendInChatScreen> {
+class RecommendFriendScreenState extends State<RecommendFriendScreen> {
   SendInChatBloc _sendInChatBloc;
   List<User> _usersList = [];
   bool _saving = false;
@@ -51,71 +51,48 @@ class SendInChatScreenState extends State<SendInChatScreen> {
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       inAsyncCall: _saving,
-      child: Scaffold(
-        appBar: _buildAppBar(),
-        body: _usersList.isNotEmpty ? _buildContent() : Container(),
-      ),
+      child: Scaffold(appBar: _buildAppBar(), body: _buildContent()),
     );
   }
 
   AppBar _buildAppBar() {
     return AppBar(
-        title: Text(
-          Localization.of(context).getString('sendInChat'),
-          style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        leading: IconButton(
+      centerTitle: true,
+      title: Text(
+        '#nanny',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
+      ),
+      leading: buildBackButton(Icons.arrow_back, () {
+        Navigator.pop(context);
+      }),
+      actions: <Widget>[
+        IconButton(
           icon: Icon(
-            Icons.arrow_back,
-            color: ColorUtils.darkerGray,
+            Icons.check,
+            color: ColorUtils.darkGray,
           ),
-          onPressed: () => Navigator.pop(context, false),
-        ));
+          onPressed: () {},
+        )
+      ],
+    );
   }
 
   Widget _buildContent() {
-    return SingleChildScrollView(
-      child: Column(
-        children: <Widget>[
-          _buildSearchTextField(),
-          _buildRecentConversations(),
-          _buildAllFriends(),
-
-        ],
-      ),
-    );
+    return _usersList.isNotEmpty
+        ? SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                _buildFriendsWithTagCard(),
+                _buildOthersCard()
+              ],
+            ),
+          )
+        : Container();
   }
 
-  Container _buildSearchTextField() {
+  Container _buildFriendsWithTagCard() {
     return Container(
-      padding: const EdgeInsets.only(left: 20.0, top: 4.0),
-      decoration: new BoxDecoration(
-          borderRadius: new BorderRadius.all(new Radius.circular(10.0)),
-          border: Border.all(color: ColorUtils.lightLightGray),
-          color: Colors.white),
-      margin: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-      child: TextFormField(
-          style: TextStyle(
-            color: ColorUtils.textBlack,
-          ),
-          decoration: InputDecoration(
-              border: InputBorder.none,
-              hintStyle: TextStyle(color: ColorUtils.textGray),
-              hintText: Localization.of(context).getString('searchs'),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  Icons.search,
-                  color: ColorUtils.darkerGray,
-                ),
-                onPressed: () {},
-              ))),
-    );
-  }
-
-  Container _buildRecentConversations() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      margin: const EdgeInsets.only(right: 16.0, left: 16.0, top: 16.0),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -126,10 +103,11 @@ class SendInChatScreenState extends State<SendInChatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                Localization.of(context).getString('recentConversations'),
+                Localization.of(context).getString('yourFriendsWith') +
+                    ' #nanny',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              _usersList.isNotEmpty ? _buildConversationsList() : Container()
+              _usersList.isNotEmpty ? _buildUsersList() : Container()
             ],
           ),
         ),
@@ -137,7 +115,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     );
   }
 
-  Widget _buildConversationsList() {
+  Widget _buildUsersList() {
     return ListView.builder(
         shrinkWrap: true,
         primary: false,
@@ -174,10 +152,13 @@ class SendInChatScreenState extends State<SendInChatScreen> {
                 ),
               ),
             ),
-            Text(
-              Localization.of(context).getString('send'),
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: ColorUtils.orangeAccent),
+            Icon(
+              Icons.star,
+              color: ColorUtils.orangeAccent,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 6.0),
+              child: Text('4.8'),
             )
           ],
         ),
@@ -192,9 +173,9 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     );
   }
 
-  Container _buildAllFriends() {
+  Container _buildOthersCard() {
     return Container(
-      margin: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 24.0),
+      margin: const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 16.0),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -205,27 +186,14 @@ class SendInChatScreenState extends State<SendInChatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                Localization.of(context).getString('allFriends'),
+                Localization.of(context).getString('others'),
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              _buildAllFriendsList()
+              _usersList.isNotEmpty ? _buildUsersList() : Container()
             ],
           ),
         ),
       ),
     );
-  }
-
-  Widget _buildAllFriendsList() {
-    return ListView.builder(
-        shrinkWrap: true,
-        primary: false,
-        itemCount: _usersList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Container(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: _buildUserItem(index),
-          );
-        });
   }
 }
