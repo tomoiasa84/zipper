@@ -12,6 +12,7 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'account_screen.dart';
@@ -34,6 +35,8 @@ class _HomePageState extends State<HomePage> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   UserMessage _message;
+  var channel =
+      BasicMessageChannel<String>('iosNotificationTapped', StringCodec());
 
   @override
   void initState() {
@@ -44,6 +47,15 @@ class _HomePageState extends State<HomePage> {
     _initLocalNotifications();
     getCurrentUserId().then((currentUserId) {
       _homeBloc.subscribeToAllChannels();
+    });
+    channel.setMessageHandler((String message) async {
+      print('Received: $message');
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ChatScreen(conversationId: message)),
+          ModalRoute.withName("/"));
+      return '';
     });
     super.initState();
   }
