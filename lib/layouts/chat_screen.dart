@@ -195,7 +195,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       });
       return true;
     }
-    return false;
+    return true;
   }
 
   void _setMessagesListener(String currentUserId) {
@@ -225,9 +225,31 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           if (_datesDontMatch(currentItem, nextItem)) {
             _listOfMessages.insert(i + 1, MessageHeader(currentItem.timestamp));
           }
+        } else if (currentItem is MessageHeader) {
+          if (_duplicateHeader(currentItem, i)) {
+            _listOfMessages.remove(currentItem);
+          }
         }
       }
     }
+  }
+
+  bool _duplicateHeader(MessageHeader currentItem, int i) {
+    if (_listOfMessages.elementAt(_listOfMessages.length - 1) != currentItem) {
+      var previousItem = _listOfMessages[i] as UserMessage;
+      var nextItem = _listOfMessages[i + 1] as UserMessage;
+      if (currentItem.timestamp.day == previousItem.timestamp.day &&
+          currentItem.timestamp.day == nextItem.timestamp.day &&
+          currentItem.timestamp.month == previousItem.timestamp.month &&
+          currentItem.timestamp.month == nextItem.timestamp.month &&
+          currentItem.timestamp.year == previousItem.timestamp.year &&
+          currentItem.timestamp.month == nextItem.timestamp.month) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return false;
   }
 
   bool _datesDontMatch(UserMessage currentItem, Object nextItem) {
@@ -302,7 +324,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Widget getListView(List<Object> listOfMessages) {
     var listView = LoadMore(
       delegate: CustomLoadMoreDelegate(context),
-      isFinish: _chatBloc.historyStart == 0,
+      isFinish: _chatBloc.historyStart == 0 || _chatBloc.stopFetchingMessages(),
       onLoadMore: _loadMore,
       child: ListView.builder(
         reverse: true,
@@ -714,7 +736,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Widget _getMessageHeaderUI(MessageHeader messageHeader) {
     return Container(
       margin: EdgeInsets.fromLTRB(0, 22, 00, 0),
-      child: Text(Localization.of(context).getFormattedDateTime(messageHeader.timestamp),
+      child: Text(
+          Localization.of(context)
+              .getFormattedDateTime(messageHeader.timestamp),
           textAlign: TextAlign.center,
           style: TextStyle(color: ColorUtils.textGray, fontSize: 14)),
     );

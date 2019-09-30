@@ -20,8 +20,8 @@ class ChatBloc {
   final String _baseUrl = "https://ps.pndsn.com";
   final http.Client _pubNubClient = new http.Client();
   final StreamController ctrl = StreamController();
-  final List<UserMessage> _messagesList = new List();
-  final int _numberOfMessagesToFetch = 50;
+  List<UserMessage> _messagesList;
+  final int _numberOfMessagesToFetch = 100;
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   int historyStart;
   String _timestamp = "0";
@@ -67,11 +67,19 @@ class ChatBloc {
     return url;
   }
 
+  bool stopFetchingMessages() {
+    if (_messagesList != null) {
+      return _messagesList.length < _numberOfMessagesToFetch;
+    } else {
+      return false;
+    }
+  }
+
   void _addHistoryMessagesToList(http.Response response) {
     List<dynamic> responseList = convert.jsonDecode(response.body);
     List<dynamic> messagesList = responseList[0];
     historyStart = responseList[1];
-    _messagesList.clear();
+    _messagesList = List();
 
     for (var item in messagesList) {
       PnGCM pnGCM = PnGCM.fromJson(item);
