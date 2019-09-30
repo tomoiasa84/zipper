@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:contractor_search/bloc/home_content_bloc.dart';
 import 'package:contractor_search/layouts/post_details_screen.dart';
+import 'package:contractor_search/layouts/send_in_chat_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -202,7 +203,13 @@ class HomeContentScreenState extends State<HomeContentScreen> {
           Flexible(
             flex: 1,
             child: GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SendInChatScreen(
+                        )));
+              },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
