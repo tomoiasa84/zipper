@@ -1,6 +1,7 @@
-import 'package:contractor_search/model/review.dart';
+import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:intl/intl.dart';
 
 String validatePhoneNumber(String value, String validationMessage) {
@@ -27,6 +28,10 @@ getInitials(String name) {
     return "";
 }
 
+Future<String> getCurrentUserId() async {
+  return await SharedPreferencesHelper.getCurrentUserId();
+}
+
 String getInterlocutorName(User user1, User user2, String currentUserId) {
   if (user1.id == currentUserId) {
     return user2.name;
@@ -35,12 +40,18 @@ String getInterlocutorName(User user1, User user2, String currentUserId) {
   }
 }
 
-String escapeJsonCharacters(String imageUrlDownload) {
-  return imageUrlDownload.replaceAll("?", "%3F");
+String getStringOfChannelIds(List<ConversationModel> listOfConversation) {
+  String channelIds = "";
+
+  for (var item in listOfConversation) {
+    channelIds = channelIds + item.id.toString() + ",";
+  }
+
+  return channelIds;
 }
 
-String getFormattedDateTime(DateTime dateTime) {
-  return DateFormat("dd/MM/yyyy").format(dateTime);
+String escapeJsonCharacters(String imageUrlDownload) {
+  return imageUrlDownload.replaceAll("?", "%3F");
 }
 
 String getTimeDifference(String time) {
@@ -77,10 +88,10 @@ DateTime parseDateFromString(String time) {
   return date;
 }
 
-String getReviewForMainTag(User user, UserTag mainUserTag){
+String getReviewForMainTag(User user, UserTag mainUserTag) {
   String stars = '';
-  user.reviews.forEach((review){
-    if(review.userTag.id == mainUserTag.id) {
+  user.reviews.forEach((review) {
+    if (review.userTag.id == mainUserTag.id) {
       stars = review.stars.toString();
     }
   });

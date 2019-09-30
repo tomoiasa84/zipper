@@ -4,10 +4,12 @@ import 'dart:io';
 
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
-import 'package:contractor_search/models/Message.dart';
+import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
+import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -18,8 +20,9 @@ class ChatBloc {
   final String _baseUrl = "https://ps.pndsn.com";
   final http.Client _pubNubClient = new http.Client();
   final StreamController ctrl = StreamController();
-  final List<Message> _messagesList = new List();
-  final int _numberOfMessagesToFetch = 50;
+  List<UserMessage> _messagesList;
+  final int _numberOfMessagesToFetch = 100;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   int historyStart;
   String _timestamp = "0";
   FirebaseStorage _storage = FirebaseStorage.instance;
@@ -34,7 +37,7 @@ class ChatBloc {
     link: _authLink.concat(link),
   );
 
-  Future<List<Message>> getHistoryMessages(String channelName) async {
+  Future<List<UserMessage>> getHistoryMessages(String channelName) async {
     var url;
 
     if (historyStart == null) {
@@ -64,14 +67,23 @@ class ChatBloc {
     return url;
   }
 
+  bool stopFetchingMessages() {
+    if (_messagesList != null) {
+      return _messagesList.length < _numberOfMessagesToFetch;
+    } else {
+      return false;
+    }
+  }
+
   void _addHistoryMessagesToList(http.Response response) {
     List<dynamic> responseList = convert.jsonDecode(response.body);
     List<dynamic> messagesList = responseList[0];
     historyStart = responseList[1];
-    _messagesList.clear();
+    _messagesList = List();
 
     for (var item in messagesList) {
-      Message message = Message.fromJson(item);
+      PnGCM pnGCM = PnGCM.fromJson(item);
+      UserMessage message = pnGCM.wrappedMessage.message;
       _messagesList.add(message);
     }
   }
@@ -96,13 +108,14 @@ class ChatBloc {
     List<dynamic> messagesList = messageListenerResponse[0];
 
     if (messagesList.length > 0) {
-      Message message = Message.fromJson(messagesList[0]);
+      PnGCM pnGCM = PnGCM.fromJson(messagesList[0]);
+      UserMessage message = pnGCM.wrappedMessage.message;
       ctrl.sink.add(message);
     }
   }
 
-  Future<bool> sendMessage(String channelName, Message message) async {
-    var encodedMessage = convert.jsonEncode(message.toJson());
+  Future<bool> sendMessage(String channelName, PnGCM pnGCM) async {
+    var encodedMessage = convert.jsonEncode(pnGCM.toJson());
     var url =
         "$_baseUrl/publish/$_publishKey/$_subscribeKey/0/$channelName/myCallback/$encodedMessage";
 
@@ -113,6 +126,29 @@ class ChatBloc {
       print("Request failed with status: ${response.body}.");
       return false;
     }
+  }
+
+  Future<PubNubConversation> getConversation(String conversationId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                    get_conversation(conversationId: "$conversationId"){
+                      id
+                      user1{
+                        id
+                        name
+                      }
+                      user2{
+                        id
+                        name
+                      }
+                    }
+                   }''',
+    ));
+    ConversationModel conversationModel =
+        ConversationModel.fromJson(result.data['get_conversation']);
+    PubNubConversation pubNubConversation =
+        PubNubConversation.fromConversation(conversationModel);
+    return pubNubConversation;
   }
 
   Future<PubNubConversation> createConversation(User user) async {
@@ -142,10 +178,13 @@ class ChatBloc {
     });
   }
 
-  Future subscribeToPushNotifications(String deviceId, String channelId) async {
-    var url =
-        "http://ps.pndsn.com/v1/push/sub-key/$_subscribeKey/devices/$deviceId?add=$channelId&type=gcm";
-    var response = await _pubNubClient.get(url);
+  Future subscribeToPushNotifications(String channelId) async {
+    _firebaseMessaging.getToken().then((deviceId) {
+      print('DEVICE ID: $deviceId');
+      var url =
+          "http://ps.pndsn.com/v1/push/sub-key/$_subscribeKey/devices/$deviceId?add=$channelId&type=gcm";
+      _pubNubClient.get(url);
+    });
   }
 
   void dispose() {

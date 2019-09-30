@@ -6,7 +6,7 @@ import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/BatchHistoryResponse.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -44,12 +44,8 @@ class ConversationsBloc {
     });
   }
 
-  Future<String> _getCurrentUserId() async {
-    return await SharedPreferencesHelper.getCurrentUserId();
-  }
-
   Future<List<ConversationModel>> _getListOfIdsFromBackend() async {
-    await _getCurrentUserId().then((currentUserId) async {
+    await getCurrentUserId().then((currentUserId) async {
       final QueryResult result = await client.query(QueryOptions(
         document: '''query{
                     get_user(userId: "$currentUserId"){

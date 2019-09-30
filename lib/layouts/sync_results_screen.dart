@@ -41,7 +41,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
           style: TextStyle(fontWeight: FontWeight.bold)),
       centerTitle: true,
       actions: <Widget>[
-        widget.syncResult.existingUsers.isEmpty &&
+        widget.syncResult.existingUsers.isEmpty ||
                 widget.syncResult.unjoinedContacts.isEmpty
             ? GestureDetector(
                 onTap: () {

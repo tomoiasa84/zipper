@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 
 class Localization {
   Localization(this.locale);
@@ -139,6 +140,14 @@ class Localization {
       'allFriends': 'All friends',
       'usersWithTag': 'Users with ',
       'noUsersWith': 'There are no users with #',
+   'Monday': 'Monday',
+   'Tuesday': 'Tuesday',
+   'Wednesday': 'Wednesday',
+   'Thursday': 'Thursday',
+   'Friday': 'Friday',
+   'Saturday': 'Saturday',
+   'Sunday': 'Sunday',
+
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -271,10 +280,26 @@ class Localization {
       'allFriends': 'Toti prietenii',
       'usersWithTag': 'Utilizaroti cu ',
       'noUsersWith': 'Nu exista utilizatori cu #',
+   'Monday': 'Luni',
+   'Tuesday': 'Marti',
+   'Wednesday': 'Miercuri',
+   'Thursday': 'Joi',
+   'Friday': 'Vineri',
+   'Saturday': 'Sambata',
+   'Sunday': 'Duminica',
     },
   };
 
   String getString(String string) {
     return _localizedValues[locale.languageCode][string];
+  }
+
+  String getFormattedDateTime(DateTime dateTime) {
+    if (DateTime.now().difference(dateTime) <
+        Duration(seconds: DateTime.daysPerWeek * 24 * 3600)) {
+      return getString(DateFormat("EEEE").format(dateTime));
+    } else {
+      return DateFormat("dd/MM/yyyy").format(dateTime);
+    }
   }
 }

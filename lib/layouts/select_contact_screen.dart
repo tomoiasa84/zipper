@@ -71,19 +71,26 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
       child: Scaffold(
         body: new Column(children: <Widget>[
           AppBar(
-            title: Text(
-              widget.shareContactScreen == true
-                  ? Localization.of(context).getString('shareContact')
-                  : Localization.of(context).getString('startNewConversation'),
-              style: TextStyle(
-                  color: ColorUtils.textBlack,
-                  fontSize: 14,
-                  fontFamily: 'Arial',
-                  fontWeight: FontWeight.bold),
-            ),
-            centerTitle: true,
-            backgroundColor: Colors.white,
-          ),
+              title: Text(
+                widget.shareContactScreen == true
+                    ? Localization.of(context).getString('shareContact')
+                    : Localization.of(context)
+                        .getString('startNewConversation'),
+                style: TextStyle(
+                    color: ColorUtils.textBlack,
+                    fontSize: 14,
+                    fontFamily: 'Arial',
+                    fontWeight: FontWeight.bold),
+              ),
+              centerTitle: true,
+              backgroundColor: Colors.white,
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: ColorUtils.almostBlack,
+                ),
+                onPressed: () => Navigator.pop(context),
+              )),
           _showContacts(),
         ]),
       ),

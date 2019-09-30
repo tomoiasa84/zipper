@@ -9,6 +9,16 @@ import 'card.dart';
 import 'location.dart';
 
 class User {
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'firebaseId': firebaseId,
+        'name': name,
+        'location': location,
+        'description': description,
+        'phoneNumber': phoneNumber,
+        'isActive': isActive
+      };
+
   User.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         firebaseId = json['firebaseId'],

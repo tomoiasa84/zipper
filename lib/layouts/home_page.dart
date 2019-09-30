@@ -1,16 +1,24 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/layouts/home_content_screen.dart';
+import 'package:contractor_search/models/PushNotification.dart';
+import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'account_screen.dart';
 import 'add_post_screen.dart';
+import 'chat_screen.dart';
 import 'users_screen.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,7 +32,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool blurred = false;
-  HomeBloc _homeBloc;
+  HomeBloc _homeBloc = HomeBloc();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  UserMessage _message;
+  var channel =
+      BasicMessageChannel<String>('iosNotificationTapped', StringCodec());
 
   @override
   void initState() {
@@ -32,7 +45,114 @@ class _HomePageState extends State<HomePage> {
     if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
     }
+    _initFirebaseClientMessaging();
+    _initLocalNotifications();
+    getCurrentUserId().then((currentUserId) {
+      _homeBloc.subscribeToAllChannels();
+    });
+    channel.setMessageHandler((String message) async {
+      print('Received: $message');
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ChatScreen(conversationId: message)),
+          ModalRoute.withName("/"));
+      return '';
+    });
     super.initState();
+  }
+
+  void _initLocalNotifications() {
+    var initializationSettingsAndroid =
+        new AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        initializationSettingsAndroid, initializationSettingsIOS);
+    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
+  }
+
+  Future _filterNotifications(Map<String, dynamic> notification) async {
+    SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
+      var messageData = new Map<String, dynamic>.from(notification['data']);
+      _message = UserMessage.fromJson(messageData);
+
+      if (_message.messageAuthor != currentUserId) {
+        var notificationMap =
+            Map<String, dynamic>.from(notification['notification']);
+        PushNotification pushNotification =
+            PushNotification.fromJson(notificationMap);
+        _showNotification(pushNotification);
+      }
+    });
+  }
+
+  Future _showNotification(PushNotification pushNotification) async {
+    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+        '1', 'General', 'Basic notifications',
+        importance: Importance.Max, priority: Priority.High);
+    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+    var platformChannelSpecifics = new NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      pushNotification.title,
+      pushNotification.body,
+      platformChannelSpecifics,
+      payload: 'Default_Sound',
+    );
+  }
+
+  Future onSelectNotification(String payload) async {
+    print('Notification tapped');
+
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                ChatScreen(conversationId: _message.channelId)),
+        ModalRoute.withName("/"));
+  }
+
+  void _initFirebaseClientMessaging() {
+    if (Platform.isIOS) iosPermission();
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print('on message $message');
+        _filterNotifications(message);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        var messageData = new Map<String, dynamic>.from(message['data']);
+        _message = UserMessage.fromJson(messageData);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
+            ModalRoute.withName("/"));
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        var messageData = new Map<String, dynamic>.from(message['data']);
+        _message = UserMessage.fromJson(messageData);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
+            ModalRoute.withName("/"));
+      },
+    );
+  }
+
+  void iosPermission() {
+    _firebaseMessaging.requestNotificationPermissions(
+        IosNotificationSettings(sound: true, badge: true, alert: true));
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
   }
 
   @override

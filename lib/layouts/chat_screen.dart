@@ -1,21 +1,21 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:contractor_search/bloc/chat_bloc.dart';
 import 'package:contractor_search/layouts/image_preview_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
 import 'package:contractor_search/model/user.dart';
-import 'package:contractor_search/models/Message.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
+import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
+import 'package:contractor_search/models/PushNotification.dart';
+import 'package:contractor_search/models/UserMessage.dart';
+import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loadmore/loadmore.dart';
@@ -23,22 +23,25 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class ChatScreen extends StatefulWidget {
   final PubNubConversation pubNubConversation;
+  final String conversationId;
 
-  ChatScreen({Key key, @required this.pubNubConversation}) : super(key: key);
+  ChatScreen({Key key, this.pubNubConversation, this.conversationId})
+      : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
+  PubNubConversation _pubNubConversation;
   bool _loading = false;
-  String _interlocutor;
+  String _interlocutorName;
+  String _currentUserName;
   String _currentUserId;
   StreamSubscription _subscription;
   final ChatBloc _chatBloc = ChatBloc();
   final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   final TextEditingController _textEditingController =
       new TextEditingController();
@@ -46,15 +49,20 @@ class _ChatScreenState extends State<ChatScreen> {
   void _handleMessageSubmit(String text) {
     if (text.trim().length > 0) {
       _textEditingController.clear();
-      _getCurrentUserId().then((userId) {
-        _chatBloc.sendMessage(widget.pubNubConversation.id,
-            new Message(text, DateTime.now(), userId));
+      getCurrentUserId().then((userId) {
+        _chatBloc.sendMessage(
+            _pubNubConversation.id,
+            PnGCM(WrappedMessage(
+                PushNotification(_currentUserName, _escapeJsonCharacters(text)),
+                UserMessage(_escapeJsonCharacters(text), DateTime.now(), userId,
+                    _pubNubConversation.id))));
       });
     }
   }
 
-  Future<String> _getCurrentUserId() async {
-    return await SharedPreferencesHelper.getCurrentUserId();
+  String _escapeJsonCharacters(String myString) {
+    var string = myString.replaceAll("#", "%23");
+    return string.replaceAll("?", "%3F");
   }
 
   Future _uploadImage(ImageSource imageSource) async {
@@ -64,10 +72,18 @@ class _ChatScreenState extends State<ChatScreen> {
           _loading = true;
         });
         _chatBloc.uploadPic(image).then((imageDownloadUrl) {
-          Message message = Message.withImage(DateTime.now(),
-              escapeJsonCharacters(imageDownloadUrl), _currentUserId);
+          UserMessage message = UserMessage.withImage(
+              DateTime.now(),
+              escapeJsonCharacters(imageDownloadUrl),
+              _currentUserId,
+              _pubNubConversation.id);
           _chatBloc
-              .sendMessage(widget.pubNubConversation.id, message)
+              .sendMessage(
+                  _pubNubConversation.id,
+                  PnGCM(WrappedMessage(
+                      PushNotification(_currentUserName,
+                          Localization.of(context).getString('image')),
+                      message)))
               .then((messageSent) {
             if (!messageSent) {
               _showDialog(
@@ -84,37 +100,6 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void firebaseCloudMessagingListeners() {
-    if (Platform.isIOS) iosPermission();
-
-    _firebaseMessaging.getToken().then((deviceId) {
-      print('DEVICE TOKEN IS: $deviceId');
-      _chatBloc.subscribeToPushNotifications(
-          deviceId, widget.pubNubConversation.id);
-    });
-
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print('on message $message');
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print('on resume $message');
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        print('on launch $message');
-      },
-    );
-  }
-
-  void iosPermission() {
-    _firebaseMessaging.requestNotificationPermissions(
-        IosNotificationSettings(sound: true, badge: true, alert: true));
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
-    });
-  }
-
   void _shareContact(BuildContext context) async {
     final sharedContact = await Navigator.push(
       context,
@@ -122,9 +107,14 @@ class _ChatScreenState extends State<ChatScreen> {
           builder: (context) => SelectContactScreen(shareContactScreen: true)),
     );
     //Do something with the result
-    _getCurrentUserId().then((userId) {
-      _chatBloc.sendMessage(widget.pubNubConversation.id,
-          new Message.withSharedContact(DateTime.now(), userId, sharedContact));
+    getCurrentUserId().then((userId) {
+      _chatBloc.sendMessage(
+          _pubNubConversation.id,
+          PnGCM(WrappedMessage(
+              PushNotification(_currentUserName,
+                  Localization.of(context).getString('sharedContact')),
+              new UserMessage.withSharedContact(DateTime.now(), userId,
+                  sharedContact, _pubNubConversation.id))));
     });
   }
 
@@ -134,6 +124,14 @@ class _ChatScreenState extends State<ChatScreen> {
           builder: (BuildContext context) =>
               ChatScreen(pubNubConversation: pubNubConversation)));
     });
+  }
+
+  String _getCurrentUserName(User user1, User user2, String currentUserId) {
+    if (user1.id == currentUserId) {
+      return user1.name;
+    } else {
+      return user2.name;
+    }
   }
 
   @override
@@ -146,21 +144,49 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    firebaseCloudMessagingListeners();
-    _getCurrentUserId().then((currentUserId) {
-      setState(() {
+    WidgetsBinding.instance.addObserver(this);
+    _pubNubConversation = widget.pubNubConversation;
+    _initScreen();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _initScreen();
+    }
+  }
+
+  void _initScreen() {
+    getCurrentUserId().then((currentUserId) {
+      setState(() async {
         _currentUserId = currentUserId;
-        _interlocutor = getInterlocutorName(widget.pubNubConversation.user1,
-            widget.pubNubConversation.user2, _currentUserId);
+
+        if (_pubNubConversation == null) {
+          await _chatBloc
+              .getConversation(widget.conversationId)
+              .then((pubNubConversation) {
+            _pubNubConversation = pubNubConversation;
+          });
+        }
+
+        _interlocutorName = getInterlocutorName(_pubNubConversation.user1,
+            _pubNubConversation.user2, _currentUserId);
+        _currentUserName = _getCurrentUserName(_pubNubConversation.user1,
+            _pubNubConversation.user2, _currentUserId);
         _setMessagesListener(currentUserId);
+        _chatBloc.subscribeToPushNotifications(_pubNubConversation.id);
       });
     });
   }
 
   Future<bool> _loadMore() async {
+    if (_pubNubConversation == null) {
+      return true;
+    }
     if (_chatBloc.historyStart != 0) {
       await _chatBloc
-          .getHistoryMessages(widget.pubNubConversation.id)
+          .getHistoryMessages(_pubNubConversation.id)
           .then((historyMessages) {
         setState(() {
           _listOfMessages.addAll(historyMessages.reversed);
@@ -169,11 +195,11 @@ class _ChatScreenState extends State<ChatScreen> {
       });
       return true;
     }
-    return false;
+    return true;
   }
 
   void _setMessagesListener(String currentUserId) {
-    _chatBloc.subscribeToChannel(widget.pubNubConversation.id, currentUserId);
+    _chatBloc.subscribeToChannel(_pubNubConversation.id, currentUserId);
     _subscription = _chatBloc.ctrl.stream.listen((message) {
       setState(() {
         _listOfMessages.insert(0, message);
@@ -185,7 +211,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _addHeadersIfNecessary() {
     if (_listOfMessages.length > 0) {
       var lastItem = _listOfMessages[_listOfMessages.length - 1];
-      if (lastItem is Message) {
+      if (lastItem is UserMessage) {
         setState(() {
           _listOfMessages.insert(
               _listOfMessages.length, MessageHeader(lastItem.timestamp));
@@ -195,17 +221,39 @@ class _ChatScreenState extends State<ChatScreen> {
       for (var i = 0; i < _listOfMessages.length - 1; i++) {
         var currentItem = _listOfMessages[i];
         var nextItem = _listOfMessages[i + 1];
-        if (currentItem is Message) {
+        if (currentItem is UserMessage) {
           if (_datesDontMatch(currentItem, nextItem)) {
             _listOfMessages.insert(i + 1, MessageHeader(currentItem.timestamp));
+          }
+        } else if (currentItem is MessageHeader) {
+          if (_duplicateHeader(currentItem, i)) {
+            _listOfMessages.remove(currentItem);
           }
         }
       }
     }
   }
 
-  bool _datesDontMatch(Message currentItem, Object nextItem) {
-    if (nextItem is Message) {
+  bool _duplicateHeader(MessageHeader currentItem, int i) {
+    if (_listOfMessages.elementAt(_listOfMessages.length - 1) != currentItem) {
+      var previousItem = _listOfMessages[i] as UserMessage;
+      var nextItem = _listOfMessages[i + 1] as UserMessage;
+      if (currentItem.timestamp.day == previousItem.timestamp.day &&
+          currentItem.timestamp.day == nextItem.timestamp.day &&
+          currentItem.timestamp.month == previousItem.timestamp.month &&
+          currentItem.timestamp.month == nextItem.timestamp.month &&
+          currentItem.timestamp.year == previousItem.timestamp.year &&
+          currentItem.timestamp.month == nextItem.timestamp.month) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  bool _datesDontMatch(UserMessage currentItem, Object nextItem) {
+    if (nextItem is UserMessage) {
       return !(currentItem.timestamp.day == nextItem.timestamp.day &&
           currentItem.timestamp.month == nextItem.timestamp.month &&
           currentItem.timestamp.year == nextItem.timestamp.year);
@@ -236,7 +284,7 @@ class _ChatScreenState extends State<ChatScreen> {
         body: new Column(children: <Widget>[
           AppBar(
             title: Text(
-              'Message to $_interlocutor',
+              'Message to $_interlocutorName',
               style: TextStyle(
                   color: ColorUtils.textBlack,
                   fontSize: 14,
@@ -249,7 +297,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Icons.arrow_back,
                 color: ColorUtils.almostBlack,
               ),
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: () => Navigator.pop(context),
             ),
             backgroundColor: Colors.white,
           ),
@@ -276,7 +324,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget getListView(List<Object> listOfMessages) {
     var listView = LoadMore(
       delegate: CustomLoadMoreDelegate(context),
-      isFinish: _chatBloc.historyStart == 0,
+      isFinish: _chatBloc.historyStart == 0 || _chatBloc.stopFetchingMessages(),
       onLoadMore: _loadMore,
       child: ListView.builder(
         reverse: true,
@@ -296,7 +344,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _goToImagePreview(Object item) {
-    if (item is Message) {
+    if (item is UserMessage) {
       if (item.imageDownloadUrl != null) {
         Navigator.push(
             context,
@@ -308,9 +356,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _selectMessageLayout(Object item, int position) {
-    if (item is Message) {
+    if (item is UserMessage) {
       if (item.sharedContact != null) {
-        return _getSharedContactUI(item.sharedContact);
+        return generateContactUI(item.sharedContact, "#hardcodedtag",
+            () => _startConversation(item.sharedContact), null);
       }
 
       if (_messageAuthorIsCurrentUser(item)) {
@@ -322,7 +371,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return _getMessageHeaderUI(item as MessageHeader);
   }
 
-  Widget _currentUserMessage(int position, Message message) {
+  Widget _currentUserMessage(int position, UserMessage message) {
     if (_listOfMessages.length > 0 && position < _listOfMessages.length - 1) {
       var nextItem = _listOfMessages[position + 1];
       _showHideCurrentUserIcon(nextItem, message);
@@ -333,7 +382,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return _currentUserMessageLayout(message);
   }
 
-  Widget _otherUserMessage(int position, Message message) {
+  Widget _otherUserMessage(int position, UserMessage message) {
     if (_listOfMessages.length > 0 && position < _listOfMessages.length - 1) {
       var nextItem = _listOfMessages[position + 1];
       _showHideOtherUserIcon(nextItem, message);
@@ -344,8 +393,8 @@ class _ChatScreenState extends State<ChatScreen> {
     return _otherUserMessageLayout(message);
   }
 
-  void _showHideCurrentUserIcon(Object nextItem, Message message) {
-    if (nextItem is Message) {
+  void _showHideCurrentUserIcon(Object nextItem, UserMessage message) {
+    if (nextItem is UserMessage) {
       if (_messageAuthorIsCurrentUser(nextItem)) {
         message.showUserIcon = false;
       } else {
@@ -354,8 +403,8 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void _showHideOtherUserIcon(Object nextItem, Message message) {
-    if (nextItem is Message) {
+  void _showHideOtherUserIcon(Object nextItem, UserMessage message) {
+    if (nextItem is UserMessage) {
       if (!_messageAuthorIsCurrentUser(nextItem)) {
         message.showUserIcon = false;
       } else {
@@ -364,7 +413,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Widget _currentUserMessageLayout(Message message) {
+  Widget _currentUserMessageLayout(UserMessage message) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.end,
@@ -434,7 +483,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _currentUserImageMessageLayout(Message message) {
+  Widget _currentUserImageMessageLayout(UserMessage message) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.end,
@@ -486,7 +535,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _otherUserMessageLayout(Message message) {
+  Widget _otherUserMessageLayout(UserMessage message) {
     return new Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -533,7 +582,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ]);
   }
 
-  Widget _otherUserImageMessageLayout(Message message) {
+  Widget _otherUserImageMessageLayout(UserMessage message) {
     return new Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -687,96 +736,15 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _getMessageHeaderUI(MessageHeader messageHeader) {
     return Container(
       margin: EdgeInsets.fromLTRB(0, 22, 00, 0),
-      child: Text(getFormattedDateTime(messageHeader.timestamp),
+      child: Text(
+          Localization.of(context)
+              .getFormattedDateTime(messageHeader.timestamp),
           textAlign: TextAlign.center,
           style: TextStyle(color: ColorUtils.textGray, fontSize: 14)),
     );
   }
 
-  Widget _getSharedContactUI(User user) {
-    return Container(
-      height: 72,
-      margin: EdgeInsets.fromLTRB(15, 16, 15, 0),
-      child: Stack(
-        children: <Widget>[
-          Container(
-            margin: EdgeInsets.fromLTRB(28, 0, 0, 0),
-            decoration: getRoundedOrangeDecoration(),
-            child: Container(
-              height: 80,
-              margin: EdgeInsets.fromLTRB(40, 0, 0, 0),
-              child: Row(
-                children: <Widget>[
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(user.name,
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white,
-                                fontFamily: 'Arial',
-                                fontWeight: FontWeight.bold)),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
-                          child: Row(
-                            children: <Widget>[
-                              Text(
-                                "#hardcoded tag",
-                                style: TextStyle(
-                                    fontSize: 12, color: Colors.white),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(45, 0, 0, 0),
-                                child: Icon(
-                                  Icons.star,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                              ),
-                              Text("4.8",
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.white))
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Container(
-                    decoration: getRoundWhiteCircle(),
-                    child: new IconButton(
-                      onPressed: () => _startConversation(user),
-                      icon: Image.asset(
-                        "assets/images/ic_inbox_orange.png",
-                        color: ColorUtils.messageOrange,
-                      ),
-                    ),
-                    margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
-                    width: 40,
-                    height: 40,
-                  )
-                ],
-              ),
-            ),
-          ),
-          Container(
-              margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
-              width: 56,
-              height: 56,
-              decoration: new BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: new DecorationImage(
-                      fit: BoxFit.cover,
-                      image: new NetworkImage(
-                          "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))),
-        ],
-      ),
-    );
-  }
-
-  bool _messageAuthorIsCurrentUser(Message message) {
-    return message.from == _currentUserId;
+  bool _messageAuthorIsCurrentUser(UserMessage message) {
+    return message.messageAuthor == _currentUserId;
   }
 }

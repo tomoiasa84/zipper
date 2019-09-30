@@ -17,7 +17,8 @@ class ConversationsScreen extends StatefulWidget {
   _ConversationsScreenState createState() => _ConversationsScreenState();
 }
 
-class _ConversationsScreenState extends State<ConversationsScreen> {
+class _ConversationsScreenState extends State<ConversationsScreen>
+    with WidgetsBindingObserver {
   bool _loading = true;
   String _currentUserId;
   List<PubNubConversation> _pubNubConversations = List();
@@ -26,9 +27,15 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   @override
   void initState() {
     super.initState();
-    _getCurrentUserId().then((currentUserId) {
+    WidgetsBinding.instance.addObserver(this);
+    getCurrentUserId().then((currentUserId) {
       _currentUserId = currentUserId;
     });
+    _getConversations();
+  }
+
+  void _getConversations() {
+    print('GET CONVERSATIONS');
     _conversationsBloc.getPubNubConversations().then((conversations) {
       setState(() {
         _pubNubConversations = conversations;
@@ -37,12 +44,23 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     });
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _getConversations();
+    }
+  }
+
   void _startNewConversation() {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                SelectContactScreen(shareContactScreen: false)));
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    SelectContactScreen(shareContactScreen: false)))
+        .then((onValue) {
+      _getConversations();
+    });
   }
 
   void _goToChatScreen(PubNubConversation pubNubConversation) {
@@ -53,7 +71,9 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       MaterialPageRoute(
           builder: (context) =>
               ChatScreen(pubNubConversation: pubNubConversation)),
-    );
+    ).then((onValue) {
+      _getConversations();
+    });
   }
 
   @override
@@ -84,8 +104,10 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
               onPressed: () {
                 _startNewConversation();
               },
-              child: Image.asset(
-                "assets/images/ic_plus_accent_background.png",
+              child: Icon(
+                Icons.message,
+                color: ColorUtils.white,
+                size: 28,
               ),
               backgroundColor: ColorUtils.orangeAccent,
             ),
@@ -93,10 +115,6 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
         ),
       ),
     );
-  }
-
-  Future<String> _getCurrentUserId() async {
-    return await SharedPreferencesHelper.getCurrentUserId();
   }
 
   Widget _showConversationsUI() {
