@@ -6,16 +6,16 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 
-class PostDetailsScreen extends StatefulWidget {
-  final CardModel post;
+class CardDetailsScreen extends StatefulWidget {
+  final CardModel card;
 
-  const PostDetailsScreen({Key key, this.post}) : super(key: key);
+  const CardDetailsScreen({Key key, this.card}) : super(key: key);
 
   @override
-  PostDetailsScreenState createState() => PostDetailsScreenState();
+  CardDetailsScreenState createState() => CardDetailsScreenState();
 }
 
-class PostDetailsScreenState extends State<PostDetailsScreen> {
+class CardDetailsScreenState extends State<CardDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,13 +41,13 @@ class PostDetailsScreenState extends State<PostDetailsScreen> {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          _buildPostDetails(),
+          _buildCardDetails(),
         ],
       ),
     );
   }
 
-  Padding _buildPostDetails() {
+  Padding _buildCardDetails() {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
       child: Stack(
@@ -63,7 +63,7 @@ class PostDetailsScreenState extends State<PostDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    _buildPostText(),
+                    _buildCardText(),
                     _buildDetailsText(),
                     _buildCreatedAtInfo(),
                   ],
@@ -81,11 +81,11 @@ class PostDetailsScreenState extends State<PostDetailsScreen> {
     );
   }
 
-  Row _buildPostText() {
+  Row _buildCardText() {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(widget.post.postedBy.name),
+          child: Text(getInitials(widget.card.postedBy.name),
               style: TextStyle(color: ColorUtils.darkerGray)),
           backgroundColor: ColorUtils.lightLightGray,
         ),
@@ -98,7 +98,7 @@ class PostDetailsScreenState extends State<PostDetailsScreen> {
                 TextSpan(
                   children: <TextSpan>[
                     TextSpan(
-                        text: widget.post.postedBy.name,
+                        text: widget.card.postedBy.name,
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(
                         text:
@@ -109,7 +109,7 @@ class PostDetailsScreenState extends State<PostDetailsScreen> {
                 textAlign: TextAlign.center,
               ),
               Text(
-                "#" + widget.post.searchFor.name,
+                "#" + widget.card.searchFor.name,
                 style: TextStyle(
                     color: ColorUtils.orangeAccent,
                     fontWeight: FontWeight.bold),
@@ -122,7 +122,7 @@ class PostDetailsScreenState extends State<PostDetailsScreen> {
   }
 
   Padding _buildCreatedAtInfo() {
-    String difference = getTimeDifference(widget.post.createdAt);
+    String difference = getTimeDifference(widget.card.createdAt);
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: Row(
@@ -151,9 +151,9 @@ class PostDetailsScreenState extends State<PostDetailsScreen> {
   Padding _buildDetailsText() {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
-      child: (widget.post.text != null && widget.post.text.isNotEmpty)
+      child: (widget.card.text != null && widget.card.text.isNotEmpty)
           ? Text(
-              widget.post.text,
+              widget.card.text,
               style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
             )
           : Container(),
@@ -166,7 +166,7 @@ class PostDetailsScreenState extends State<PostDetailsScreen> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => RecommendFriendScreen(searchedTag: widget.post.searchFor
+                builder: (context) => RecommendFriendScreen(searchedTag: widget.card.searchFor
                 )));
       },
       child: Container(

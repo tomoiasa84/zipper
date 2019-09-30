@@ -17,7 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'account_screen.dart';
-import 'add_post_screen.dart';
+import 'add_card_screen.dart';
 import 'chat_screen.dart';
 import 'users_screen.dart';
 
@@ -210,7 +210,7 @@ class _HomePageState extends State<HomePage> {
       onTap: (index) {
         if (index == 2) {
           _homeBloc.pickItem(0);
-          _goToAddPostScreen();
+          _goToAddCardScreen();
         } else {
           _homeBloc.pickItem(index);
         }
@@ -259,9 +259,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _goToAddPostScreen() async {
+  Future<void> _goToAddCardScreen() async {
     var result = await Navigator.of(context).push(
-        MaterialPageRoute(builder: (BuildContext context) => AddPostScreen()));
+        MaterialPageRoute(builder: (BuildContext context) => AddCardScreen()));
     if (result != null) {
       showDialog(
         context: context,

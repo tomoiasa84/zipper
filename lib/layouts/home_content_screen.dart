@@ -1,6 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:contractor_search/bloc/home_content_bloc.dart';
-import 'package:contractor_search/layouts/post_details_screen.dart';
+import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/send_in_chat_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -17,29 +17,29 @@ class HomeContentScreen extends StatefulWidget {
 class HomeContentScreenState extends State<HomeContentScreen> {
   var _saving = false;
   HomeContentBloc _homeContentBloc;
-  List<CardModel> _postsList = [];
+  List<CardModel> _cardsList = [];
 
   @override
   void initState() {
-    getPosts();
+    getCards();
     super.initState();
   }
 
-  void getPosts() {
+  void getCards() {
     if (mounted) {
       setState(() {
         _saving = true;
       });
     }
     _homeContentBloc = HomeContentBloc();
-    _homeContentBloc.getPosts().then((result) {
+    _homeContentBloc.getCards().then((result) {
       if (result.errors == null) {
-        final List<Map<String, dynamic>> posts =
+        final List<Map<String, dynamic>> cards =
             result.data['get_cards'].cast<Map<String, dynamic>>();
-        posts.forEach((item) {
-          _postsList.add(CardModel.fromJson(item));
+        cards.forEach((item) {
+          _cardsList.add(CardModel.fromJson(item));
         });
-        _postsList = _postsList.reversed.toList();
+        _cardsList = _cardsList.reversed.toList();
         if (mounted) {
           setState(() {
             _saving = false;
@@ -55,7 +55,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       inAsyncCall: _saving,
       child: Scaffold(
         appBar: _buildAppBar(),
-        body: _postsList.isNotEmpty
+        body: _cardsList.isNotEmpty
             ? _buildContent()
             : (_saving
                 ? Container()
@@ -87,20 +87,20 @@ class HomeContentScreenState extends State<HomeContentScreen> {
 
   ListView _buildContent() {
     return ListView.builder(
-        itemCount: _postsList?.length ?? 0,
+        itemCount: _cardsList?.length ?? 0,
         itemBuilder: (BuildContext context, int index) {
-          CardModel post = _postsList.elementAt(index);
+          CardModel card = _cardsList.elementAt(index);
           return Container(
               margin: EdgeInsets.only(
                   top: (index == 0) ? 16.0 : 0.0,
-                  bottom: (index == _postsList.length - 1) ? 16.0 : 0.0,
+                  bottom: (index == _cardsList.length - 1) ? 16.0 : 0.0,
                   left: 16.0,
                   right: 16.0),
-              child: _buildPostItem(post));
+              child: _buildCardItem(card));
         });
   }
 
-  Widget _buildPostItem(CardModel post) {
+  Widget _buildCardItem(CardModel card) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -113,8 +113,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                _buildPostText(post),
-                _buildCreatedAtInfo(post.createdAt)
+                _buildCardText(card),
+                _buildCreatedAtInfo(card.createdAt)
               ],
             ),
           ),
@@ -123,11 +123,11 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     );
   }
 
-  Row _buildPostText(CardModel post) {
+  Row _buildCardText(CardModel card) {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(post.postedBy.name),
+          child: Text(getInitials(card.postedBy.name),
               style: TextStyle(color: ColorUtils.darkerGray)),
           backgroundColor: ColorUtils.lightLightGray,
         ),
@@ -140,7 +140,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                 TextSpan(
                   children: <TextSpan>[
                     TextSpan(
-                        text: post.postedBy.name,
+                        text: card.postedBy.name,
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(
                         text:
@@ -155,12 +155,12 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => PostDetailsScreen(
-                                post: post,
+                          builder: (context) => CardDetailsScreen(
+                                card: card,
                               )));
                 },
                 child: Text(
-                  "#" + post.searchFor.name,
+                  "#" + card.searchFor.name,
                   style: TextStyle(
                       color: ColorUtils.orangeAccent,
                       fontWeight: FontWeight.bold),

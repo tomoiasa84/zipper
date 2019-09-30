@@ -71,7 +71,7 @@ class RepliesScreenState extends State<RepliesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              _buildPostText(),
+              _buildCardText(),
               _buildDetailsText(),
               _buildCreatedAtInfo(),
             ],
@@ -81,7 +81,7 @@ class RepliesScreenState extends State<RepliesScreen> {
     );
   }
 
-  Row _buildPostText() {
+  Row _buildCardText() {
     return Row(
       children: <Widget>[
         CircleAvatar(

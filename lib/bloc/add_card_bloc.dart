@@ -1,7 +1,7 @@
 import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-class AddPostBloc {
+class AddCardBloc {
   void dispose() {}
 
   static HttpLink link =
@@ -68,7 +68,7 @@ class AddPostBloc {
     return result;
   }
 
-  Future<QueryResult> createPost(
+  Future<QueryResult> createCard(
       String postedBy, int searchFor, String details) async {
     final QueryResult result = await client.query(QueryOptions(
       document: '''mutation{

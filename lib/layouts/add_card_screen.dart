@@ -1,4 +1,4 @@
-import 'package:contractor_search/bloc/add_post_bloc.dart';
+import 'package:contractor_search/bloc/add_card_bloc.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
@@ -13,13 +13,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class AddPostScreen extends StatefulWidget {
+class AddCardScreen extends StatefulWidget {
   @override
-  AddPostScreenState createState() => AddPostScreenState();
+  AddCardScreenState createState() => AddCardScreenState();
 }
 
-class AddPostScreenState extends State<AddPostScreen> {
-  AddPostBloc _addPostBloc;
+class AddCardScreenState extends State<AddCardScreen> {
+  AddCardBloc _addCardBloc;
   TextEditingController _addTagsTextEditingController = TextEditingController();
   TextEditingController _addDetailsTextEditingController =
       TextEditingController();
@@ -30,14 +30,14 @@ class AddPostScreenState extends State<AddPostScreen> {
 
   @override
   void initState() {
-    _addPostBloc = AddPostBloc();
+    _addCardBloc = AddCardBloc();
     _getCurrentUserInfo();
     getTags();
     super.initState();
   }
 
   void getTags() {
-    _addPostBloc.getTags().then((result) {
+    _addCardBloc.getTags().then((result) {
       if (result.data != null) {
         final List<Map<String, dynamic>> tags =
             result.data['get_tags'].cast<Map<String, dynamic>>();
@@ -53,7 +53,7 @@ class AddPostScreenState extends State<AddPostScreen> {
       _saving = true;
     });
     getCurrentUserId().then((userId) {
-      _addPostBloc.getCurrentUser(userId).then((result) {
+      _addCardBloc.getCurrentUser(userId).then((result) {
         if (result.data != null) {
           setState(() {
             _user = User.fromJson(result.data['get_user']);
@@ -103,7 +103,7 @@ class AddPostScreenState extends State<AddPostScreen> {
           ),
           onPressed: () {
             if (tag != null) {
-              createPost();
+              createCard();
             } else {
               showDialog(
                 context: context,
@@ -121,12 +121,12 @@ class AddPostScreenState extends State<AddPostScreen> {
     );
   }
 
-  void createPost() {
+  void createCard() {
     setState(() {
       _saving = true;
     });
-    _addPostBloc
-        .createPost(_user.id, tag.id, _addDetailsTextEditingController.text)
+    _addCardBloc
+        .createCard(_user.id, tag.id, _addDetailsTextEditingController.text)
         .then((result) {
       setState(() {
         _saving = false;

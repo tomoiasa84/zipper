@@ -59,7 +59,7 @@ class AccountScreenState extends State<AccountScreen> {
     ];
   }
 
-  static List<PopupMenuEntry<Object>> getPostOptions(BuildContext context) {
+  static List<PopupMenuEntry<Object>> getCardOptions(BuildContext context) {
     return [
       PopupMenuItem(
           value: 0,
@@ -131,7 +131,7 @@ class AccountScreenState extends State<AccountScreen> {
     }
   }
 
-  void _deletePost(CardModel card) {
+  void _deleteCard(CardModel card) {
     setState(() {
       _saving = true;
     });
@@ -183,7 +183,7 @@ class AccountScreenState extends State<AccountScreen> {
                                   ? _buildSkillsCard()
                                   : Container(),
                               _user.cards != null
-                                  ? _buildPostsList()
+                                  ? _buildCardsList()
                                   : Container()
                             ],
                           ),
@@ -346,7 +346,7 @@ class AccountScreenState extends State<AccountScreen> {
         ));
   }
 
-  ListView _buildPostsList() {
+  ListView _buildCardsList() {
     return ListView.builder(
         shrinkWrap: true,
         primary: false,
@@ -357,11 +357,11 @@ class AccountScreenState extends State<AccountScreen> {
                 top: (index == 0) ? 8.0 : 0.0,
                 bottom: (index == _user.cards.length - 1) ? 24.0 : 0.0,
               ),
-              child: _buildPostItem(_user.cards.elementAt(index)));
+              child: _buildCardItem(_user.cards.elementAt(index)));
         });
   }
 
-  GestureDetector _buildPostItem(CardModel card) {
+  GestureDetector _buildCardItem(CardModel card) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -383,7 +383,7 @@ class AccountScreenState extends State<AccountScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _buildPostText(card.searchFor),
+                  _buildCardText(card.searchFor),
                   _buildCreatedAtInfo(card.createdAt)
                 ],
               ),
@@ -403,7 +403,7 @@ class AccountScreenState extends State<AccountScreen> {
                 },
                 onSelected: (_) {
                   widget.onChanged(false);
-                  _deletePost(card);
+                  _deleteCard(card);
                 },
                 icon: Icon(
                   Icons.more_vert,
@@ -411,7 +411,7 @@ class AccountScreenState extends State<AccountScreen> {
                 ),
                 itemBuilder: (BuildContext context) {
                   widget.onChanged(true);
-                  return getPostOptions(context);
+                  return getCardOptions(context);
                 },
               ),
             )
@@ -421,7 +421,7 @@ class AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  Row _buildPostText(Tag searchFor) {
+  Row _buildCardText(Tag searchFor) {
     return Row(
       children: <Widget>[
         CircleAvatar(

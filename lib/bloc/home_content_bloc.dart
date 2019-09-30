@@ -15,7 +15,7 @@ class HomeContentBloc {
     link: _authLink.concat(link),
   );
 
-  Future<QueryResult> getPosts() async {
+  Future<QueryResult> getCards() async {
     final QueryResult result = await client.query(QueryOptions(
       document: '''query{
                     get_cards{

@@ -18,7 +18,6 @@ class RecommendFriendScreen extends StatefulWidget {
 }
 
 class RecommendFriendScreenState extends State<RecommendFriendScreen> {
-
   List<User> usersWithSearchedTag = [];
   RecommendFriendBloc _recommendBloc;
   bool _saving = false;
@@ -77,7 +76,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
     return AppBar(
       centerTitle: true,
       title: Text(
-        '# ' + widget.searchedTag.name,
+        '#' + widget.searchedTag.name,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
       ),
       leading: buildBackButton(Icons.arrow_back, () {
@@ -101,7 +100,8 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
         : (_saving
             ? Container()
             : Center(
-                child: Text(Localization.of(context).getString('noUsersWith') + widget.searchedTag.name),
+                child: Text(Localization.of(context).getString('noUsersWith') +
+                    widget.searchedTag.name),
               ));
   }
 
