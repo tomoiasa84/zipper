@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
+import 'package:contractor_search/layouts/home_content_screen.dart';
 import 'package:contractor_search/models/PushNotification.dart';
 import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -40,6 +41,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    _homeBloc = HomeBloc();
     if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
     }
@@ -173,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                 (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
               switch (snapshot.data) {
                 case NavBarItem.HOME:
-                  return Container();
+                  return HomeContentScreen();
                 case NavBarItem.CONTACTS:
                   return UsersScreen();
                 case NavBarItem.PLUS:

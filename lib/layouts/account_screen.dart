@@ -1,11 +1,12 @@
 import 'dart:ui';
 
 import 'package:contractor_search/bloc/account_bloc.dart';
-import 'package:contractor_search/layouts/phone_auth_screen.dart';
+import 'package:contractor_search/layouts/sign_up_screen.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
 import 'package:contractor_search/layouts/replies_screen.dart';
+import 'package:contractor_search/layouts/reviews_screen.dart';
+import 'package:contractor_search/layouts/settings_screen.dart';
 import 'package:contractor_search/model/card.dart';
-import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
@@ -14,8 +15,6 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -32,14 +31,12 @@ class AccountScreen extends StatefulWidget {
 
 class AccountScreenState extends State<AccountScreen> {
   AccountBloc _accountBloc;
-
   User _user;
   UserTag _mainUserTag;
   bool _saving = false;
-  var list = List<PopupMenuEntry<Object>>();
-  List<Review> reviews = [];
+  String _mainUserTagStarts = '';
 
-  static List<PopupMenuEntry<Object>> getOptions(BuildContext context) {
+  static List<PopupMenuEntry<Object>> getMoreOptions(BuildContext context) {
     return [
       PopupMenuItem(
           value: 0,
@@ -77,10 +74,11 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   void _select(Object item) {
-    widget.onChanged(false);
     switch (item as int) {
       case 0:
         {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SettingsScreen()));
           break;
         }
       case 1:
@@ -89,63 +87,77 @@ class AccountScreenState extends State<AccountScreen> {
           break;
         }
     }
+    widget.onChanged(false);
   }
 
   void signOut() {
     setState(() {
       _saving = true;
     });
-    FirebaseAuth.instance.signOut().then((_) {
-      removeSharedPreferences().then((_) {
-        setState(() {
-          _saving = true;
-        });
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => PhoneAuthScreen()),
-            (Route<dynamic> route) => false);
+    _accountBloc.removeSharedPreferences().then((_) {
+      setState(() {
+        _saving = false;
       });
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => SignUpScreen()),
+          (Route<dynamic> route) => false);
     });
   }
 
-  Future removeSharedPreferences() async {
-    await SharedPreferencesHelper.clear();
+  void _getCurrentUserInfo() {
+    _accountBloc = AccountBloc();
+    setState(() {
+      _saving = true;
+    });
+    _accountBloc.getCurrentUser().then((result) {
+      if (result.data != null && mounted) {
+        setState(() {
+          _user = User.fromJson(result.data['get_user']);
+          _user.cards = _user.cards.reversed.toList();
+          _saving = false;
+          _getMainTag();
+        });
+      }
+    });
+  }
+
+  void _getMainTag() {
+    if (_user.tags != null) {
+      _mainUserTag =
+          _user.tags.firstWhere((tag) => tag.defaultTag, orElse: () => null);
+    }
+    if (_mainUserTag != null) {
+      _mainUserTagStarts = getReviewForMainTag(_user, _mainUserTag);
+    }
+  }
+
+  void _deletePost(CardModel card) {
+    setState(() {
+      _saving = true;
+    });
+    _accountBloc.deleteCard(card.id).then((result) {
+      if (result.errors == null) {
+        setState(() {
+          _saving = false;
+          _user.cards.remove(card);
+        });
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: Localization.of(context).getString("error"),
+            description: result.errors[0].message,
+            buttonText: Localization.of(context).getString('ok'),
+          ),
+        );
+      }
+    });
   }
 
   @override
   void initState() {
     _getCurrentUserInfo();
     super.initState();
-  }
-
-  void _getCurrentUserInfo() {
-    _accountBloc = AccountBloc();
-    getCurrentUserId().then((userId) {
-      setState(() {
-        _saving = true;
-      });
-      _accountBloc.getCurrentUser(userId).then((result) {
-        if (result.data != null && mounted) {
-          setState(() {
-            _user = User.fromJson(result.data['get_user']);
-            _user.cards = _user.cards.reversed.toList();
-            _saving = false;
-            if (_user.tags != null) {
-              _mainUserTag = _user.tags
-                  .firstWhere((tag) => tag.defaultTag, orElse: () => null);
-            }
-            reviews.add(Review(1, _user, 3, "#babysitter"));
-            reviews.add(Review(1, _user, 4, "#nanny"));
-            reviews.add(Review(1, _user, 5, "#housekeeper"));
-            reviews.add(Review(1, _user, 4, "#caretaker"));
-            reviews.add(Review(1, _user, 2, "#housekeeper"));
-          });
-        }
-      });
-    });
-  }
-
-  Future<String> getCurrentUserId() async {
-    return await SharedPreferencesHelper.getCurrentUserId();
   }
 
   @override
@@ -167,7 +179,9 @@ class AccountScreenState extends State<AccountScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               _buildMainInfoCard(),
-                              _buildSkillsCard(),
+                              _user.reviews != null && _user.reviews.isNotEmpty
+                                  ? _buildSkillsCard()
+                                  : Container(),
                               _user.cards != null
                                   ? _buildPostsList()
                                   : Container()
@@ -205,7 +219,7 @@ class AccountScreenState extends State<AccountScreen> {
             },
             itemBuilder: (BuildContext context) {
               widget.onChanged(true);
-              return getOptions(context);
+              return getMoreOptions(context);
             },
           ),
         ),
@@ -270,15 +284,18 @@ class AccountScreenState extends State<AccountScreen> {
                           '#' + _mainUserTag.tag.name,
                           style: TextStyle(color: ColorUtils.orangeAccent),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0, top: 4.0),
-                          child: Icon(
-                            Icons.star,
-                            color: ColorUtils.orangeAccent,
-                          ),
-                        ),
+                        _mainUserTagStarts.isNotEmpty
+                            ? Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8.0, top: 4.0),
+                                child: Icon(
+                                  Icons.star,
+                                  color: ColorUtils.orangeAccent,
+                                ),
+                              )
+                            : Container(),
                         Text(
-                          '4.8',
+                          _mainUserTagStarts,
                           style: TextStyle(
                               fontSize: 14.0, color: ColorUtils.darkGray),
                         )
@@ -305,8 +322,7 @@ class AccountScreenState extends State<AccountScreen> {
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Container(
-          padding: const EdgeInsets.only(
-              left: 16.0, right: 16.0, top: 24.0, bottom: 44.0),
+          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
           child: Column(
             children: <Widget>[
               Row(
@@ -321,19 +337,13 @@ class AccountScreenState extends State<AccountScreen> {
               ),
               Container(
                 child: Column(
-                  children: generateSkills(reviews),
+                  children:
+                      generateSkills(_user.reviews, () {}, goToReviewsScreen),
                 ),
               )
             ],
           ),
         ));
-  }
-
-  Future _goToSettingsScreen() async {
-    await Navigator.push(context,
-        MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
-    reviews.clear();
-    _getCurrentUserInfo();
   }
 
   ListView _buildPostsList() {
@@ -476,27 +486,19 @@ class AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  void _deletePost(CardModel card) {
-    setState(() {
-      _saving = true;
-    });
-    _accountBloc.deleteCard(card.id).then((result) {
-      if (result.errors == null) {
-        setState(() {
-          _saving = false;
-          _user.cards.remove(card);
-        });
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CustomDialog(
-            title: Localization.of(context).getString("error"),
-            description: result.errors[0].message,
-            buttonText: Localization.of(context).getString('ok'),
-          ),
-        );
-      }
-    });
+  Future _goToSettingsScreen() async {
+    await Navigator.push(context,
+        MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
+    _getCurrentUserInfo();
+  }
+
+  void goToReviewsScreen() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ReviewsScreen(
+                  reviews: _user.reviews,
+                )));
   }
 }
 

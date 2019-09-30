@@ -13,14 +13,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class PhoneAuthScreen extends StatefulWidget {
+class SignUpScreen extends StatefulWidget {
   @override
-  PhoneAuthScreenState createState() {
-    return PhoneAuthScreenState();
+  SignUpScreenState createState() {
+    return SignUpScreenState();
   }
 }
 
-class PhoneAuthScreenState extends State<PhoneAuthScreen> {
+class SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   String phoneNumber;
   String name;

@@ -13,7 +13,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'layouts/home_page.dart';
-import 'layouts/phone_auth_screen.dart';
+import 'layouts/sign_up_screen.dart';
 import 'models/UserMessage.dart';
 
 class MyApp extends StatefulWidget {
@@ -141,10 +141,14 @@ class MyAppState extends State<MyApp> {
                       syncContactsFlagRequired: false,
                     )
                   : TutorialScreen())
-              : PhoneAuthScreen(),
+              : (authStatus == AuthStatus.NOT_LOGGED_IN
+                  ? SignUpScreen()
+                  : Container(
+                      color: ColorUtils.white,
+                    )),
         ),
         routes: <String, WidgetBuilder>{
-          '/phoneAuthScreen': (BuildContext context) => PhoneAuthScreen(),
+          '/phoneAuthScreen': (BuildContext context) => SignUpScreen(),
           '/homepage': (BuildContext context) => HomePage(
                 syncContactsFlagRequired: false,
               ),

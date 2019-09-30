@@ -106,7 +106,7 @@ class UsersScreenState extends State<UsersScreen> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => UserDetailsScreen(user)));
+                    builder: (context) => UserDetailsScreen(user.id)));
           },
           leading: (image != null && image.length > 0)
               ? CircleAvatar(backgroundImage: MemoryImage(image))

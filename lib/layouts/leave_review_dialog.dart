@@ -1,9 +1,23 @@
+import 'package:contractor_search/model/leave_review_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/star_display.dart';
+import 'package:contractor_search/utils/star_rating.dart';
 import 'package:flutter/material.dart';
 
-class LeaveReviewDialog extends StatelessWidget {
+class LeaveReviewDialog extends StatefulWidget {
+  const LeaveReviewDialog({Key key}) : super(key: key);
+
+  @override
+  LeaveReviewDialogState createState() {
+    return LeaveReviewDialogState();
+  }
+}
+
+class LeaveReviewDialogState extends State<LeaveReviewDialog> {
+  var rating = 0;
+
+  TextEditingController _reviewDetailsController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -37,18 +51,26 @@ class LeaveReviewDialog extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text(
-                Localization.of(context).getString("leaveReview"),
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Expanded(
+                child: Text(
+                  Localization.of(context).getString("leaveReview"),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
-              StarDisplay(
-                value: 5,
+              StarRating(
+                onChanged: (index) {
+                  setState(() {
+                    rating = index;
+                  });
+                },
+                value: rating,
               )
             ],
           ),
           Padding(
             padding: const EdgeInsets.only(top: 21.0),
             child: TextFormField(
+              controller: _reviewDetailsController,
               maxLines: 5,
               style: TextStyle(color: ColorUtils.darkGray, height: 1.5),
               textAlign: TextAlign.justify,
@@ -59,12 +81,19 @@ class LeaveReviewDialog extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            alignment: Alignment.centerRight,
-            child: Text(
-              Localization.of(context).getString("publishReview"),
-              style: TextStyle(
-                  color: ColorUtils.orangeAccent, fontWeight: FontWeight.bold),
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(
+                  context, LeaveReviewModel(_reviewDetailsController.text, rating));
+            },
+            child: Container(
+              alignment: Alignment.centerRight,
+              child: Text(
+                Localization.of(context).getString("publishReview"),
+                style: TextStyle(
+                    color: ColorUtils.orangeAccent,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
           )
         ],
@@ -72,3 +101,4 @@ class LeaveReviewDialog extends StatelessWidget {
     );
   }
 }
+

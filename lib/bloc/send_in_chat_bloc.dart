@@ -1,16 +1,13 @@
-import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-class UsersBloc {
+class SendInChatBloc {
   void dispose() {}
 
-  getContacts() async {
-    return ContactsService.getContacts();
-  }
-
   static HttpLink link =
-      HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+  HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
@@ -64,4 +61,5 @@ class UsersBloc {
 
     return result;
   }
+
 }

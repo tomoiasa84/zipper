@@ -1,5 +1,6 @@
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:intl/intl.dart';
 
@@ -67,7 +68,7 @@ String getTimeDifference(String time) {
       currentTime.difference(exactDate).inMinutes < 60) {
     difference = (currentTime.difference(exactDate).inMinutes).toString() + "m";
   } else if (currentTime.difference(exactDate).inMinutes >= 60 &&
-      currentTime.difference(date).inHours < 24) {
+      currentTime.difference(exactDate).inHours < 24) {
     difference = (currentTime.difference(exactDate).inHours).toString() + "h";
   } else if (currentTime.difference(exactDate).inHours >= 24 &&
       currentTime.difference(exactDate).inDays < 7) {
@@ -85,4 +86,14 @@ DateTime parseDateFromString(String time) {
   DateFormat dateFormat = DateFormat("EEE MMM dd yyyy HH:mm:ss zzz");
   var date = dateFormat.parse(time);
   return date;
+}
+
+String getReviewForMainTag(User user, UserTag mainUserTag) {
+  String stars = '';
+  user.reviews.forEach((review) {
+    if (review.userTag.id == mainUserTag.id) {
+      stars = review.stars.toString();
+    }
+  });
+  return stars;
 }

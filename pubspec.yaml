@@ -41,6 +41,7 @@ dependencies:
   firebase_messaging: ^5.1.6
   firebase_core: ^0.4.0
   cloud_firestore: ^0.12.5
+  auto_size_text: ^2.1.0
   flutter_local_notifications:
 
 

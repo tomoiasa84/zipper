@@ -1,13 +1,11 @@
 import 'package:contractor_search/utils/custom_auth_link.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-class AccountBloc {
+class UserDetailsBloc {
   void dispose() {}
 
   static HttpLink link =
-      HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+  HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
@@ -16,12 +14,7 @@ class AccountBloc {
     link: _authLink.concat(link),
   );
 
-  Future<String> getCurrentUserId() async {
-    return await SharedPreferencesHelper.getCurrentUserId();
-  }
-
-  Future<QueryResult> getCurrentUser() async {
-    String userId = await getCurrentUserId();
+  Future<QueryResult> getCurrentUser(String userId) async {
     final QueryResult result = await client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -66,6 +59,7 @@ class AccountBloc {
                             }
                             stars
                            userTag{
+                            id
                             tag{
                               name
                             }
@@ -82,19 +76,33 @@ class AccountBloc {
     return result;
   }
 
-  Future<QueryResult> deleteCard(int cardId) async {
-    final QueryResult result = await client.query(QueryOptions(
-      document: '''mutation{
-                      delete_card(cardId:$cardId)
-                    }''',
-    ));
+  Future<QueryResult>  createReview(String userId, int userTagId, int stars, String text) async {
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        document: '''mutation{
+                        create_review(userId:"$userId", 
+                          userTagId:$userTagId,
+                        stars:$stars,
+                        text:"$text"){
+                          id
+                          author{
+                            name
+                          }
+                          userTag{
+                            user{
+                              name
+                            }
+                            tag{
+                              name
+                            }
+                          }
+                          stars
+                          text
+                        }
+                      }''',
+      ),
+    );
 
     return result;
-  }
-
-  Future removeSharedPreferences() async {
-    await FirebaseAuth.instance.signOut().then((_) async {
-      await SharedPreferencesHelper.clear();
-    });
   }
 }

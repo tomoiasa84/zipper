@@ -9,6 +9,7 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:graphql/src/core/query_result.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class ProfileSettingsScreen extends StatefulWidget {
@@ -21,10 +22,9 @@ class ProfileSettingsScreen extends StatefulWidget {
 }
 
 class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
-  bool _saving = false;
-  ProfileSettingsBloc _profileSettingsBloc;
+
   final _formKey = GlobalKey<FormState>();
-  bool _autoValidate = false;
+
   TextEditingController _nameTextEditingController = TextEditingController();
   TextEditingController _mainTextEditingController = TextEditingController();
   TextEditingController _bioTextEditingController = TextEditingController();
@@ -33,8 +33,16 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   String name;
   List<UserTag> skills = [];
   List<Tag> tagsList = [];
-
   UserTag userTag;
+  bool _saving = false;
+  ProfileSettingsBloc _profileSettingsBloc;
+  bool _autoValidate = false;
+  
+  @override
+  void initState() {
+    _fetchUsefulData();
+    super.initState();
+  }
 
   void getTags() {
     _profileSettingsBloc.getTags().then((result) {
@@ -42,7 +50,17 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         final List<Map<String, dynamic>> tags =
             result.data['get_tags'].cast<Map<String, dynamic>>();
         tags.forEach((item) {
-          tagsList.add(Tag.fromJson(item));
+          var tagItem = Tag.fromJson(item);
+          if (skills.isNotEmpty) {
+            var tagFound = skills.firstWhere((tag) => tag.tag.id == tagItem.id,
+                orElse: () => null);
+            if (tagFound == null &&
+                (userTag != null && userTag.tag.id != tagItem.id)) {
+              tagsList.add(tagItem);
+            }
+          } else {
+            tagsList.add(tagItem);
+          }
         });
       }
     });
@@ -52,6 +70,32 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     setState(() {
       _saving = true;
     });
+    if (userTag != null &&
+        (_mainTextEditingController.text.isNotEmpty &&
+            _mainTextEditingController.text.substring(1) != userTag.tag.name)) {
+      UserTag newMainUserTag = skills.firstWhere(
+          (skill) =>
+              skill.tag.name == _mainTextEditingController.text.substring(1),
+          orElse: () => null);
+      _profileSettingsBloc
+          .updateMainUserTag(userTag.id, false)
+          .then((updateOldTagResult) {
+        if (updateOldTagResult.errors == null) {
+          _profileSettingsBloc
+              .updateMainUserTag(newMainUserTag.id, true)
+              .then((newMainTagResult) {
+            if (newMainTagResult.errors == null) {
+              updateUser();
+            }
+          });
+        }
+      });
+    } else {
+      updateUser();
+    }
+  }
+
+  void updateUser() {
     _profileSettingsBloc
         .updateUser(
             _nameTextEditingController.text,
@@ -73,15 +117,88 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     });
   }
 
-  @override
-  void initState() {
-    _profileSettingsBloc = ProfileSettingsBloc();
+  void _createNewUserTag() {
+    setState(() {
+      _saving = true;
+    });
+    Tag tag = tagsList.firstWhere(
+            (tag) => tag.name == _addSkillsTextEditingController.text.substring(1),
+        orElse: () => null);
+    if (tag != null) {
+      _profileSettingsBloc.createUserTag(widget.user.id, tag.id).then((result) {
+        setState(() {
+          _saving = false;
+        });
+        if (result.errors == null) {
+          _updateSkillAdded(tag, result);
+        } else {
+          _showDialog(
+              Localization.of(context).getString("error"),
+              result.errors[0].message,
+              Localization.of(context).getString("ok"));
+        }
+      });
+    }
+  }
+
+  void _updateSkillAdded(Tag tag, QueryResult result) {
+    setState(() {
+      tagsList.remove(tag);
+      UserTag userTagItem = UserTag.fromJson(result.data['create_userTag']);
+      skills.add(userTagItem);
+      if (userTag == null) {
+        userTag = userTagItem;
+        setState(() {
+          _mainTextEditingController.text = '#' + userTag.tag.name;
+        });
+      }
+    });
+  }
+
+  void _deleteUserTag(UserTag item) {
+    setState(() {
+      _saving = true;
+    });
+    _profileSettingsBloc.deleteUserTag(item.id).then((result) {
+      setState(() {
+        _saving = false;
+      });
+      if (result.errors == null) {
+        _updateSkillDeleted(item);
+      }
+    });
+  }
+
+  void _updateSkillDeleted(UserTag item) {
+    setState(() {
+      tagsList.add(item.tag);
+      skills.remove(item);
+      if (skills.isEmpty) {
+        userTag = null;
+        _mainTextEditingController.clear();
+      } else if (userTag != null && !skills.contains(userTag)) {
+        _profileSettingsBloc
+            .updateMainUserTag(skills[0].id, true)
+            .then((updateNewTagResult) {
+          setState(() {
+            _mainTextEditingController.text = '#' +
+                UserTag.fromJson(updateNewTagResult.data['update_userTag'])
+                    .tag
+                    .name;
+          });
+        });
+      }
+    });
+  }
+
+  void _fetchUsefulData() {
+     _profileSettingsBloc = ProfileSettingsBloc();
     getTags();
     widget.user.tags.forEach((item) {
       if (item.defaultTag) {
         userTag = item;
-        skills.add(item);
       }
+      skills.add(item);
     });
     _nameTextEditingController.value =
         new TextEditingValue(text: widget.user.name);
@@ -90,7 +207,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     _bioTextEditingController.value = new TextEditingValue(
         text: widget.user.description != null ? widget.user.description : "");
     name = widget.user.name;
-    super.initState();
   }
 
   @override
@@ -144,17 +260,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           },
         )
       ],
-    );
-  }
-
-  void _showDialog(String title, String message, String buttonText) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: message,
-        buttonText: buttonText,
-      ),
     );
   }
 
@@ -275,10 +380,10 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               ),
               suggestionsCallback: (pattern) {
                 List<String> list = [];
-                tagsList
-                    .where((it) => it.name.startsWith(pattern))
+                skills
+                    .where((it) => it.tag.name.startsWith(pattern))
                     .toList()
-                    .forEach((tag) => list.add(tag.name));
+                    .forEach((tag) => list.add(tag.tag.name));
                 return list;
               },
               itemBuilder: (context, suggestion) {
@@ -393,6 +498,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               GestureDetector(
                 onTap: () {
                   setState(() {
+                    FocusScope.of(context).requestFocus(FocusNode());
                     _deleteUserTag(item);
                   });
                 },
@@ -489,45 +595,14 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     );
   }
 
-  void _createNewUserTag() {
-    setState(() {
-      _saving = true;
-    });
-    Tag tag = tagsList.firstWhere(
-        (tag) => tag.name == _addSkillsTextEditingController.text.substring(1),
-        orElse: () => null);
-    if (tag != null) {
-      _profileSettingsBloc.createUserTag(widget.user.id, tag.id).then((result) {
-        setState(() {
-          _saving = false;
-        });
-        if (result.errors == null) {
-          setState(() {
-            skills.add(UserTag.fromJson(result.data['create_userTag']));
-          });
-        } else {
-          _showDialog(
-              Localization.of(context).getString("error"),
-              result.errors[0].message,
-              Localization.of(context).getString("ok"));
-        }
-      });
-    }
-  }
-
-  void _deleteUserTag(UserTag item) {
-    setState(() {
-      _saving = true;
-    });
-    _profileSettingsBloc.deleteUserTag(item.id).then((result) {
-      setState(() {
-        _saving = false;
-      });
-      if (result.errors == null) {
-        setState(() {
-          skills.remove(item);
-        });
-      }
-    });
+  void _showDialog(String title, String message, String buttonText) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText: buttonText,
+      ),
+    );
   }
 }
