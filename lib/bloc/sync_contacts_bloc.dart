@@ -1,74 +1,25 @@
-import 'dart:convert';
-
 import 'package:contacts_service/contacts_service.dart';
-import 'package:contractor_search/bloc/sync_contacts_model.dart';
+import 'package:contractor_search/model/sync_contacts_model.dart';
 import 'package:contractor_search/model/contact_model.dart';
 import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/model/user.dart';
-import 'package:contractor_search/utils/custom_auth_link.dart';
+import 'package:contractor_search/persistance/repository.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class SyncContactsBloc {
-  void dispose() {}
-
-  static HttpLink link =
-      HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
-
-  static final CustomAuthLink _authLink = CustomAuthLink();
-
-  GraphQLClient client = GraphQLClient(
-    cache: InMemoryCache(),
-    link: _authLink.concat(link),
-  );
+  Repository _repository = Repository();
   String countryCode;
 
   Future<Iterable<Contact>> getContacts() async {
-    return await ContactsService.getContacts();
+    return await _repository.getContacts();
   }
 
   Future<QueryResult> checkContacts(List<String> phoneContacts) async {
-    var phoneContactsJson = jsonEncode(phoneContacts);
-
-    final QueryResult queryResult = await client.mutate(
-      MutationOptions(
-        document: '''query{
-                    check_contacts(contactsList: $phoneContactsJson){
-                      number
-                      exists
-                    }
-                  }''',
-      ),
-    );
-
-    return queryResult;
+    return await _repository.checkContacts(phoneContacts);
   }
 
   Future<SyncContactsModel> syncContacts(String userId) async {
-    final QueryResult result = await client.query(QueryOptions(
-      document: '''query{
-                     get_user(userId:"$userId"){
-                        name
-                        firebaseId
-                        id
-                        phoneNumber
-                        isActive
-                        location{
-                            id
-                            city
-                        }
-                        tags{
-                          id
-                          user{
-                            name
-                          }
-                        }
-                        description
-                        cards{
-                            text
-                        }
-                    }
-              }''',
-    ));
+    QueryResult result = await _repository.getUserById(userId);
 
     if (result.errors == null) {
       countryCode =
@@ -83,14 +34,15 @@ class SyncContactsBloc {
           if (checkResult.errors == null) {
             return _groupExistingUsers(checkResult, contactsResult);
           } else
-            return SyncContactsModel([], [], countryCode,result.errors[0].message);
+            return SyncContactsModel(
+                [], [], countryCode, result.errors[0].message);
         }
-        return SyncContactsModel([], [], countryCode,"");
+        return SyncContactsModel([], [], countryCode, "");
       } else {
-        return SyncContactsModel([], [], countryCode,"");
+        return SyncContactsModel([], [], countryCode, "");
       }
     } else {
-      return SyncContactsModel([], [], countryCode,result.errors[0].message);
+      return SyncContactsModel([], [], countryCode, result.errors[0].message);
     }
   }
 

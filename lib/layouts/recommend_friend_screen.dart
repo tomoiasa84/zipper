@@ -3,6 +3,7 @@ import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
     setState(() {
       _saving = true;
     });
-    _recommendBloc.getCurrentUserId().then((currentUserId) {
+    getCurrentUserId().then((currentUserId) {
       _recommendBloc.getUsers().then((result) {
         if (result.data != null) {
           if (mounted) {

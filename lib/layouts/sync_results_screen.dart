@@ -1,6 +1,6 @@
-import 'package:contractor_search/bloc/sync_contacts_model.dart';
 import 'package:contractor_search/layouts/share_selected_screen.dart';
 import 'package:contractor_search/layouts/unjoined_contacts_screen.dart';
+import 'package:contractor_search/model/sync_contacts_model.dart';
 import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -108,11 +108,15 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 21.0),
         child: Row(
           children: <Widget>[
-            _buildCardTitle(
-                Localization.of(context).getString("existingUsers"),
-                widget.syncResult.existingUsers.length.toString() +
-                    " " +
-                    Localization.of(context).getString("users").toLowerCase()),
+            Expanded(
+              child: _buildCardTitle(
+                  Localization.of(context).getString("existingUsers"),
+                  widget.syncResult.existingUsers.length.toString() +
+                      " " +
+                      Localization.of(context)
+                          .getString("users")
+                          .toLowerCase()),
+            ),
             _buildForwardArrow(() {
               _navigateAndDisplayJoinedUsers();
             })
@@ -137,8 +141,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 21.0),
         child: Row(
           children: <Widget>[
-            Flexible(
-              flex: 4,
+            Expanded(
               child: _buildCardTitle(
                   Localization.of(context).getString("unjoinedContacts"),
                   selectedContacts.toString() +
@@ -197,17 +200,14 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
     );
   }
 
-  Flexible _buildForwardArrow(Function onTapAction) {
-    return Flexible(
-      flex: 1,
-      child: GestureDetector(
-        onTap: onTapAction,
-        child: Container(
-          alignment: Alignment.centerRight,
-          child: Icon(
-            Icons.arrow_forward,
-            color: ColorUtils.orangeAccent,
-          ),
+  Widget _buildForwardArrow(Function onTapAction) {
+    return GestureDetector(
+      onTap: onTapAction,
+      child: Container(
+        alignment: Alignment.centerRight,
+        child: Icon(
+          Icons.arrow_forward,
+          color: ColorUtils.orangeAccent,
         ),
       ),
     );

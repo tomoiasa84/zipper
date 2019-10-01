@@ -2,19 +2,18 @@ import 'dart:async';
 import 'dart:convert' as convert;
 import 'dart:io';
 
-import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/UserMessage.dart';
-import 'package:contractor_search/utils/custom_auth_link.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:contractor_search/persistance/repository.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class ChatBloc {
+  Repository _repository = Repository();
+
   final String _publishKey = "pub-c-202b96b5-ebbe-4a3a-94fd-dc45b0bd382e";
   final String _subscribeKey = "sub-c-e742fad6-c8a5-11e9-9d00-8a58a5558306";
   final String _baseUrl = "https://ps.pndsn.com";
@@ -26,16 +25,6 @@ class ChatBloc {
   int historyStart;
   String _timestamp = "0";
   FirebaseStorage _storage = FirebaseStorage.instance;
-
-  static HttpLink link =
-      HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
-
-  static final CustomAuthLink _authLink = CustomAuthLink();
-
-  GraphQLClient _client = GraphQLClient(
-    cache: InMemoryCache(),
-    link: _authLink.concat(link),
-  );
 
   Future<List<UserMessage>> getHistoryMessages(String channelName) async {
     var url;
@@ -129,53 +118,11 @@ class ChatBloc {
   }
 
   Future<PubNubConversation> getConversation(String conversationId) async {
-    final QueryResult result = await _client.query(QueryOptions(
-      document: '''query{
-                    get_conversation(conversationId: "$conversationId"){
-                      id
-                      user1{
-                        id
-                        name
-                      }
-                      user2{
-                        id
-                        name
-                      }
-                    }
-                   }''',
-    ));
-    ConversationModel conversationModel =
-        ConversationModel.fromJson(result.data['get_conversation']);
-    PubNubConversation pubNubConversation =
-        PubNubConversation.fromConversation(conversationModel);
-    return pubNubConversation;
+    return _repository.getConversation(conversationId);
   }
 
   Future<PubNubConversation> createConversation(User user) async {
-    String userId = user.id;
-    return SharedPreferencesHelper.getCurrentUserId()
-        .then((currentUserId) async {
-      final QueryResult result = await _client.query(QueryOptions(
-        document: '''mutation{
-                      create_conversation(user1:"$currentUserId", user2:"$userId"){
-                        id
-                        user1{
-                          id
-                          name
-                        }
-                        user2{
-                          id
-                          name
-                        }
-                      }
-                     }''',
-      ));
-      ConversationModel conversationModel =
-          ConversationModel.fromJson(result.data['create_conversation']);
-      PubNubConversation pubNubConversation =
-          PubNubConversation.fromConversation(conversationModel);
-      return pubNubConversation;
-    });
+    return await _repository.createConversation(user);
   }
 
   Future subscribeToPushNotifications(String channelId) async {

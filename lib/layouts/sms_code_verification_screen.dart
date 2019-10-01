@@ -113,6 +113,9 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
         } else if (widget.authType == AuthType.login) {
           if (user == null) {
             SharedPreferencesHelper.clear().then((_) {
+              setState(() {
+                _saving = false;
+              });
               _showDialog(
                   Localization.of(context).getString('error'),
                   Localization.of(context).getString('loginErrorMessage'),
