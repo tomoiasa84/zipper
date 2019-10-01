@@ -65,12 +65,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 16.0),
       child: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            _buildGeneralSettingsCard(),
-            _buildPrivacySettingsCard(),
-          ],
-        ),
+        child: _buildGeneralSettingsCard()
       ),
     );
   }
@@ -155,101 +150,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 )
               ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Card _buildPrivacySettingsCard() {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              Localization.of(context).getString('privacySettings'),
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Flexible(
-                    flex: 3,
-                    child: Text(
-                      Localization.of(context)
-                          .getString('whoCanSeeYourProfile'),
-                    ),
-                  ),
-                  Flexible(
-                      flex: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          Localization.of(context).getString('everyone'),
-                          style: TextStyle(color: ColorUtils.textGray),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      )),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Flexible(
-                    flex: 3,
-                    child: Text(
-                      Localization.of(context)
-                          .getString('whoCanSendYouFriendRequest'),
-                    ),
-                  ),
-                  Flexible(
-                      flex: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          Localization.of(context).getString('friendsOf'),
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: ColorUtils.textGray),
-                        ),
-                      )),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Flexible(
-                    flex: 3,
-                    child: Text(
-                      Localization.of(context)
-                          .getString('whoCanSendYouMessage'),
-                    ),
-                  ),
-                  Flexible(
-                      flex: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          Localization.of(context).getString('everyone'),
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: ColorUtils.textGray),
-                        ),
-                      )),
-                ],
-              ),
             ),
           ],
         ),
