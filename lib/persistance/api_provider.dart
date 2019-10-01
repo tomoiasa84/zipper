@@ -586,6 +586,12 @@ class ApiProvider {
     return await _pubNubClient.get(url);
   }
 
+  Future<http.Response> getPubNubConversations(String channels) async {
+    var url =
+        "$_baseUrl/v3/history/sub-key/$_subscribeKey/channel/$channels?max=1";
+    return await _pubNubClient.get(url);
+  }
+
   void dispose() {
     _pubNubClient.close();
   }

@@ -1,9 +1,10 @@
+import 'dart:convert' as convert;
 import 'dart:io';
 
 import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/model/conversation_model.dart';
-import 'package:contractor_search/model/location.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/models/BatchHistoryResponse.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -19,7 +20,6 @@ class Repository {
     return ContactsService.getContacts();
   }
 
-
   Future<QueryResult> getUserById(String userId) async {
     return await appApiProvider.getUserById(userId);
   }
@@ -32,8 +32,8 @@ class Repository {
     return await appApiProvider.getTags();
   }
 
-  Future<QueryResult> createCard(String postedBy, int searchFor,
-      String details) async {
+  Future<QueryResult> createCard(
+      String postedBy, int searchFor, String details) async {
     return await appApiProvider.createCard(postedBy, searchFor, details);
   }
 
@@ -41,28 +41,39 @@ class Repository {
     QueryResult result = await appApiProvider.getConversation(conversationId);
 
     ConversationModel conversationModel =
-    ConversationModel.fromJson(result.data['get_conversation']);
+        ConversationModel.fromJson(result.data['get_conversation']);
     PubNubConversation pubNubConversation =
-    PubNubConversation.fromConversation(conversationModel);
+        PubNubConversation.fromConversation(conversationModel);
     return pubNubConversation;
   }
 
   Future<PubNubConversation> createConversation(User user) async {
     String currentUserId = await getCurrentUserId();
-    QueryResult result = await appApiProvider.createConversation(
-        user, currentUserId);
+    QueryResult result =
+        await appApiProvider.createConversation(user, currentUserId);
 
     ConversationModel conversationModel =
-    ConversationModel.fromJson(result.data['create_conversation']);
+        ConversationModel.fromJson(result.data['create_conversation']);
     PubNubConversation pubNubConversation =
-    PubNubConversation.fromConversation(conversationModel);
+        PubNubConversation.fromConversation(conversationModel);
     return pubNubConversation;
   }
 
   Future<List<ConversationModel>> getListOfIdsFromBackend() async {
     String currentUserId = await getCurrentUserId();
-
     return await appApiProvider.getListOfIdsFromBackend(currentUserId);
+  }
+
+  Future<String> getStringOfChannelIds() async {
+    var listOfConversations = await getListOfIdsFromBackend();
+
+    String channelIds = "";
+
+    for (var item in listOfConversations) {
+      channelIds = channelIds + item.id.toString() + ",";
+    }
+
+    return channelIds;
   }
 
   Future<QueryResult> getCards() async {
@@ -99,8 +110,8 @@ class Repository {
     return await appApiProvider.getLocations();
   }
 
-  Future<QueryResult> createUser(String name, int location, String firebaseId,
-      String phoneNumber) async {
+  Future<QueryResult> createUser(
+      String name, int location, String firebaseId, String phoneNumber) async {
     return await appApiProvider.createUser(
         name, location, firebaseId, phoneNumber);
   }
@@ -113,8 +124,8 @@ class Repository {
     return await appApiProvider.checkContacts(phoneContacts);
   }
 
-  Future<QueryResult> createReview(String userId, int userTagId, int stars,
-      String text) async {
+  Future<QueryResult> createReview(
+      String userId, int userTagId, int stars, String text) async {
     return await appApiProvider.createReview(userId, userTagId, stars, text);
   }
 
@@ -130,19 +141,43 @@ class Repository {
     return await appApiProvider.sendMessage(channelId, pnGCM);
   }
 
-  Future<http.Response> getHistoryMessages(String channelName, int historyStart,
-      int numberOfMessagesToFetch) async {
+  Future<http.Response> getHistoryMessages(
+      String channelName, int historyStart, int numberOfMessagesToFetch) async {
     return await appApiProvider.getHistoryMessages(
         channelName, historyStart, numberOfMessagesToFetch);
   }
 
   Future<http.Response> subscribeToChannel(
       String channelName, String currentUserId, String timestamp) async {
-    return await appApiProvider.subscribeToChannel(channelName, currentUserId, timestamp);
+    return await appApiProvider.subscribeToChannel(
+        channelName, currentUserId, timestamp);
+  }
+
+  Future<List<PubNubConversation>> getPubNubConversations() async {
+    var conversationsList = await getListOfIdsFromBackend();
+    var channels = await getStringOfChannelIds();
+    var response = await appApiProvider.getPubNubConversations(channels);
+
+    if (response.statusCode == 200) {
+      BatchHistoryResponse batchHistoryResponse =
+          BatchHistoryResponse.fromJson(convert.jsonDecode(response.body));
+
+      var pubNubConversationsList = batchHistoryResponse.conversations;
+
+      for (var pubNubConversation in pubNubConversationsList) {
+        var conversation = conversationsList
+            .firstWhere((con) => con.id == pubNubConversation.id);
+        pubNubConversation.user1 = conversation.user1;
+        pubNubConversation.user2 = conversation.user2;
+      }
+      return pubNubConversationsList;
+    } else {
+      print("Request failed with status: ${response.statusCode}.");
+      return List<PubNubConversation>();
+    }
   }
 
   void dispose() {
     appApiProvider.dispose();
   }
-
 }
