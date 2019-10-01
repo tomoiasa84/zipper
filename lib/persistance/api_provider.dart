@@ -1,15 +1,28 @@
 import 'dart:convert';
+import 'dart:convert' as convert;
+import 'dart:io';
 
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:http/http.dart' as http;
 
 class ApiProvider {
   static HttpLink link =
       HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
+
+  final String _publishKey = "pub-c-202b96b5-ebbe-4a3a-94fd-dc45b0bd382e";
+  final String _subscribeKey = "sub-c-e742fad6-c8a5-11e9-9d00-8a58a5558306";
+  final String _baseUrl = "https://ps.pndsn.com";
+  final http.Client _pubNubClient = new http.Client();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   GraphQLClient _client = GraphQLClient(
     cache: InMemoryCache(),
@@ -517,5 +530,63 @@ class ApiProvider {
     );
 
     return result;
+  }
+
+  void subscribeToPushNotifications(String channelId) async {
+    _firebaseMessaging.getToken().then((deviceId) {
+      print('DEVICE ID: $deviceId');
+      var url =
+          "$_baseUrl/v1/push/sub-key/$_subscribeKey/devices/$deviceId?add=$channelId&type=gcm";
+      _pubNubClient.get(url);
+    });
+  }
+
+  Future<String> uploadPic(File image) async {
+    final StorageReference reference =
+        _storage.ref().child(DateTime.now().toIso8601String());
+    final StorageUploadTask uploadTask = reference.putFile(image);
+    final StorageTaskSnapshot downloadUrl = (await uploadTask.onComplete);
+    final String url = (await downloadUrl.ref.getDownloadURL());
+    return url;
+  }
+
+  Future<bool> sendMessage(String channelId, PnGCM pnGCM) async {
+    var encodedMessage = convert.jsonEncode(pnGCM.toJson());
+    var url =
+        "$_baseUrl/publish/$_publishKey/$_subscribeKey/0/$channelId/myCallback/$encodedMessage";
+
+    var response = await _pubNubClient.get(url);
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print("Request failed with status: ${response.body}.");
+      return false;
+    }
+  }
+
+  Future<http.Response> getHistoryMessages(
+      String channelName, int historyStart, int numberOfMessagesToFetch) async {
+    var url;
+
+    if (historyStart == null) {
+      url =
+          "$_baseUrl/v2/history/sub-key/$_subscribeKey/channel/$channelName?count=$numberOfMessagesToFetch";
+    } else {
+      url =
+          "$_baseUrl/v2/history/sub-key/$_subscribeKey/channel/$channelName?count=$numberOfMessagesToFetch&start=$historyStart";
+    }
+
+    return await _pubNubClient.get(url);
+  }
+
+  Future<http.Response> subscribeToChannel(
+      String channelName, String currentUserId, String timestamp) async {
+    var url =
+        "$_baseUrl/subscribe/$_subscribeKey/$channelName/0/$timestamp?uuid=$currentUserId";
+    return await _pubNubClient.get(url);
+  }
+
+  void dispose() {
+    _pubNubClient.close();
   }
 }
