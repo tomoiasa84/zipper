@@ -83,15 +83,6 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
       leading: buildBackButton(Icons.arrow_back, () {
         Navigator.pop(context);
       }),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.check,
-            color: ColorUtils.darkGray,
-          ),
-          onPressed: () {},
-        )
-      ],
     );
   }
 
