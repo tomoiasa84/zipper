@@ -79,14 +79,6 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     }
   }
 
-  User _getInterlocutorUser(PubNubConversation pubNubConversation) {
-    if (pubNubConversation.user1.id == _currentUserId) {
-      return pubNubConversation.user2;
-    } else {
-      return pubNubConversation.user1;
-    }
-  }
-
   void _sendCardToUser(User user) {
     _sendInChatBloc.createConversation(user).then((pubNubConversation) {
       var pnGCM = PnGCM(WrappedMessage(
