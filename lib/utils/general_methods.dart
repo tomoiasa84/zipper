@@ -97,3 +97,7 @@ String getReviewForMainTag(User user, UserTag mainUserTag) {
   });
   return stars;
 }
+
+UserTag getMainTag(User user) {
+  return user.tags.firstWhere((tag) => tag.defaultTag, orElse: () => null);
+}

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:contractor_search/bloc/users_bloc.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -39,7 +40,7 @@ class UsersScreenState extends State<UsersScreen> {
             _usersList.add(user);
           }
         });
-        if(mounted) {
+        if (mounted) {
           setState(() {
             _saving = false;
           });
@@ -95,6 +96,7 @@ class UsersScreenState extends State<UsersScreen> {
   }
 
   Card _buildListItem(Uint8List image, User user) {
+    UserTag mainTag = getMainTag(user);
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -137,7 +139,7 @@ class UsersScreenState extends State<UsersScreen> {
             ],
           ),
           subtitle: Text(
-            "#installer",
+            mainTag != null ? '#' + mainTag.tag.name : '',
             style: TextStyle(color: ColorUtils.messageOrange),
           ),
         ),

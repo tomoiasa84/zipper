@@ -123,8 +123,7 @@ class AccountScreenState extends State<AccountScreen> {
 
   void _getMainTag() {
     if (_user.tags != null) {
-      _mainUserTag =
-          _user.tags.firstWhere((tag) => tag.defaultTag, orElse: () => null);
+      _mainUserTag = getMainTag(_user);
     }
     if (_mainUserTag != null) {
       _mainUserTagStarts = getReviewForMainTag(_user, _mainUserTag);
