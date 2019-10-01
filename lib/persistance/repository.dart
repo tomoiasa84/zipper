@@ -106,4 +106,7 @@ class Repository{
   Future<QueryResult>  createReview(String userId, int userTagId, int stars, String text) async{
     return await appApiProvider.createReview(userId, userTagId, stars, text);
   }
+  Future<QueryResult>  createRecommends(int cardId, String userAskId, String userSendId, String userRecId) async{
+    return await appApiProvider.createRecommend(cardId, userAskId, userSendId, userRecId);
+  }
 }

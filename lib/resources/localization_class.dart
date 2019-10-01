@@ -142,7 +142,8 @@ class Localization {
       'Saturday': 'Saturday',
       'Sunday': 'Sunday',
       'sharedPost': 'Shared Post',
-      'replies': ' replies'
+      'replies': ' replies',
+      'sentARecommend': ' sent a recommend for ',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -276,7 +277,8 @@ class Localization {
       'Saturday': 'Sambata',
       'Sunday': 'Duminica',
       'sharedPost': 'Postare distribuita',
-      'replies': ' respunsuri'
+      'replies': ' respunsuri',
+      'sentARecommend': ' a trimis o recomandare pentru ',
     },
   };
 

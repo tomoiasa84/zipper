@@ -166,7 +166,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => RecommendFriendScreen(searchedTag: widget.card.searchFor
+                builder: (context) => RecommendFriendScreen(card: widget.card
                 )));
       },
       child: Container(

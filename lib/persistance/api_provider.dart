@@ -518,4 +518,32 @@ class ApiProvider {
 
     return result;
   }
+
+  Future<QueryResult> createRecommend(
+      int cardId, String userAskId, String userSendId, String userRecId) async {
+    final QueryResult result = await _client.mutate(
+      MutationOptions(
+        document: '''mutation{
+                            create_recommand(cardId:$cardId, userAskId:"$userAskId", userSendId:"$userSendId", userRecId:"$userRecId"){
+                              id
+                              card{
+                                id
+                              }
+                              userAsk{
+                                name
+                              }
+                              userSend{
+                                name
+                              }
+                              userRecommand{
+                                name
+                              }
+                              acceptedFlag
+                            }
+                          }''',
+      ),
+    );
+
+    return result;
+  }
 }
