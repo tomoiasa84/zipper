@@ -8,7 +8,6 @@ import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/general_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -32,7 +31,6 @@ class SendInChatScreenState extends State<SendInChatScreen> {
   bool _allUsersLoaded = false;
   bool _recentUsersLoaded = false;
   String _currentUserId;
-  String _currentUserName;
 
   @override
   void initState() {
@@ -42,16 +40,9 @@ class SendInChatScreenState extends State<SendInChatScreen> {
   }
 
   void _getRecentUsers() async {
-    getCurrentUserId().then((currentUserId) {
-      _currentUserId = currentUserId;
-      _sendInChatBloc.getPubNubConversations().then((conversations) {
-        for (var conversation in conversations) {
-          _recentUserConversations.add(_getInterlocutorUser(conversation));
-        }
-        _recentUsersLoaded = true;
-        _hideLoading();
-      });
-    });
+    _recentUserConversations = await _sendInChatBloc.getRecentUsers();
+    _recentUsersLoaded = true;
+    _hideLoading();
   }
 
   void _getAllUsers() async {
