@@ -2,24 +2,13 @@ import 'dart:async';
 import 'dart:convert' as convert;
 
 import 'package:contractor_search/model/conversation_model.dart';
-import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/BatchHistoryResponse.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
-import 'package:contractor_search/utils/custom_auth_link.dart';
-import 'package:contractor_search/utils/general_methods.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:contractor_search/persistance/repository.dart';
 import 'package:http/http.dart' as http;
 
 class ConversationsBloc {
-  static HttpLink link =
-      HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
-
-  static final CustomAuthLink _authLink = CustomAuthLink();
-
-  GraphQLClient client = GraphQLClient(
-    cache: InMemoryCache(),
-    link: _authLink.concat(link),
-  );
+  Repository _repository = Repository();
 
   final String _subscribeKey = "sub-c-e742fad6-c8a5-11e9-9d00-8a58a5558306";
   final String _baseUrl = "https://ps.pndsn.com";
@@ -45,27 +34,8 @@ class ConversationsBloc {
   }
 
   Future<List<ConversationModel>> _getListOfIdsFromBackend() async {
-    await getCurrentUserId().then((currentUserId) async {
-      final QueryResult result = await client.query(QueryOptions(
-        document: '''query{
-                    get_user(userId: "$currentUserId"){
-                      conversations{
-                        id
-                        user1{
-                          id
-                          name
-                        }
-                        user2{
-                          id
-                          name
-                        }
-                      }
-                    }
-                }''',
-      ));
-      User currentUser = User.fromJson(result.data['get_user']);
-      _conversationsList = currentUser.conversations;
-    });
+    _conversationsList = await _repository.getListOfIdsFromBackend();
+
     return _conversationsList;
   }
 

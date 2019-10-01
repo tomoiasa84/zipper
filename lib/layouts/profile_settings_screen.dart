@@ -22,7 +22,6 @@ class ProfileSettingsScreen extends StatefulWidget {
 }
 
 class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
-
   final _formKey = GlobalKey<FormState>();
 
   TextEditingController _nameTextEditingController = TextEditingController();
@@ -37,7 +36,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   bool _saving = false;
   ProfileSettingsBloc _profileSettingsBloc;
   bool _autoValidate = false;
-  
+
   @override
   void initState() {
     _fetchUsefulData();
@@ -122,7 +121,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       _saving = true;
     });
     Tag tag = tagsList.firstWhere(
-            (tag) => tag.name == _addSkillsTextEditingController.text.substring(1),
+        (tag) => tag.name == _addSkillsTextEditingController.text.substring(1),
         orElse: () => null);
     if (tag != null) {
       _profileSettingsBloc.createUserTag(widget.user.id, tag.id).then((result) {
@@ -192,7 +191,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   }
 
   void _fetchUsefulData() {
-     _profileSettingsBloc = ProfileSettingsBloc();
+    _profileSettingsBloc = ProfileSettingsBloc();
     getTags();
     widget.user.tags.forEach((item) {
       if (item.defaultTag) {
@@ -432,12 +431,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                 hintText: Localization.of(context).getString('addDescription'),
                 border: InputBorder.none,
               ),
-              validator: (value) {
-                if (value.isEmpty) {
-                  return Localization.of(context).getString('tagValidation');
-                }
-                return null;
-              },
             ),
           ),
         ],
