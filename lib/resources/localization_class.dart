@@ -140,14 +140,15 @@ class Localization {
       'allFriends': 'All friends',
       'usersWithTag': 'Users with ',
       'noUsersWith': 'There are no users with #',
-   'Monday': 'Monday',
-   'Tuesday': 'Tuesday',
-   'Wednesday': 'Wednesday',
-   'Thursday': 'Thursday',
-   'Friday': 'Friday',
-   'Saturday': 'Saturday',
-   'Sunday': 'Sunday',
- 'sharedPost': 'Shared Post'
+      'Monday': 'Monday',
+      'Tuesday': 'Tuesday',
+      'Wednesday': 'Wednesday',
+      'Thursday': 'Thursday',
+      'Friday': 'Friday',
+      'Saturday': 'Saturday',
+      'Sunday': 'Sunday',
+      'sharedPost': 'Shared Post',
+      'today': 'Today'
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -280,14 +281,15 @@ class Localization {
       'allFriends': 'Toti prietenii',
       'usersWithTag': 'Utilizatori cu ',
       'noUsersWith': 'Nu exista utilizatori cu #',
-   'Monday': 'Luni',
-   'Tuesday': 'Marti',
-   'Wednesday': 'Miercuri',
-   'Thursday': 'Joi',
-   'Friday': 'Vineri',
-   'Saturday': 'Sambata',
-   'Sunday': 'Duminica',
- 'sharedPost': 'Postare distribuita'
+      'Monday': 'Luni',
+      'Tuesday': 'Marti',
+      'Wednesday': 'Miercuri',
+      'Thursday': 'Joi',
+      'Friday': 'Vineri',
+      'Saturday': 'Sambata',
+      'Sunday': 'Duminica',
+      'sharedPost': 'Postare distribuita',
+      'today': 'Astazi'
     },
   };
 
@@ -296,11 +298,17 @@ class Localization {
   }
 
   String getFormattedDateTime(DateTime dateTime) {
-    if (DateTime.now().difference(dateTime) <
-        Duration(seconds: DateTime.daysPerWeek * 24 * 3600)) {
-      return getString(DateFormat("EEEE").format(dateTime));
+    if (DateTime.now().day == dateTime.day &&
+        DateTime.now().month == dateTime.month &&
+        DateTime.now().year == dateTime.year) {
+      return getString('today');
     } else {
-      return DateFormat("dd/MM/yyyy").format(dateTime);
+      if (DateTime.now().difference(dateTime) <
+          Duration(seconds: DateTime.daysPerWeek * 24 * 3600)) {
+        return getString(DateFormat("EEEE").format(dateTime));
+      } else {
+        return DateFormat("dd/MM/yyyy").format(dateTime);
+      }
     }
   }
 }

@@ -204,7 +204,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _subscription = _chatBloc.ctrl.stream.listen((message) {
       setState(() {
         _listOfMessages.insert(0, message);
-        _addHeadersIfNecessary();
       });
     });
   }
@@ -758,22 +757,19 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
       child: Stack(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 54.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    _buildCardText(cardModel),
-                    _buildDetailsText(cardModel),
-                    _buildCreatedAtInfo(cardModel),
-                  ],
-                ),
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildCardText(cardModel),
+                  _buildDetailsText(cardModel),
+                  _buildCreatedAtInfo(cardModel),
+                ],
               ),
             ),
           )
