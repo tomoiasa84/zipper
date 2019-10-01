@@ -36,7 +36,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
 
   void getCurrentUser() {
     _userDetailsBloc = UserDetailsBloc();
-    if(mounted) {
+    if (mounted) {
       setState(() {
         _saving = true;
       });
@@ -116,7 +116,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     return AppBar(
         centerTitle: true,
         title: Text(
-          _user.name,
+          _user.name != null ? _user.name : _user.phoneNumber,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
@@ -142,7 +142,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                _user.name,
+                _user.name != null ? _user.name : _user.phoneNumber,
                 style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
               ),
               _mainUserTag != null
@@ -323,7 +323,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => ReviewsScreen(
-              reviews: _user.reviews,
-            )));
+                  reviews: _user.reviews,
+                )));
   }
 }

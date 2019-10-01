@@ -36,9 +36,7 @@ class UsersScreenState extends State<UsersScreen> {
             result.data['get_users'].cast<Map<String, dynamic>>();
         users.forEach((item) {
           var user = User.fromJson(item);
-          if (user.isActive) {
-            _usersList.add(user);
-          }
+          _usersList.add(user);
         });
         if (mounted) {
           setState(() {
@@ -129,26 +127,30 @@ class UsersScreenState extends State<UsersScreen> {
               Flexible(
                 child: Container(
                     child: Text(
-                  user.name ?? "",
+                  user.isActive ? user.name : user.phoneNumber,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                       fontFamily: 'Arial', fontWeight: FontWeight.bold),
                 )),
               ),
-              Container(
-                padding: const EdgeInsets.only(left: 4.0),
-                child: Image.asset(
-                  "assets/images/ic_contacts.png",
-                  height: 16.0,
-                  width: 16.0,
-                ),
-              )
+              user.isActive
+                  ? Container(
+                      padding: const EdgeInsets.only(left: 4.0),
+                      child: Image.asset(
+                        "assets/images/ic_contacts.png",
+                        height: 16.0,
+                        width: 16.0,
+                      ),
+                    )
+                  : Container()
             ],
           ),
-          subtitle: Text(
-            mainTag != null ? '#' + mainTag.tag.name : '',
-            style: TextStyle(color: ColorUtils.messageOrange),
-          ),
+          subtitle: user.isActive
+              ? Text(
+                  mainTag != null ? '#' + mainTag.tag.name : '',
+                  style: TextStyle(color: ColorUtils.messageOrange),
+                )
+              : null,
         ),
       ),
     );
