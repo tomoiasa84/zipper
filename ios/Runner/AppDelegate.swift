@@ -27,6 +27,7 @@ import Firebase
     override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any],
                               fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         print(userInfo["channelId"]!)
+        openChatScreen(conversationId: userInfo["channelId"] as! String)
         completionHandler(UIBackgroundFetchResult.newData)
     }
     
