@@ -74,7 +74,14 @@ class UsersScreenState extends State<UsersScreen> {
               color: ColorUtils.darkerGray,
             ),
             onPressed: () {
-              showSearch(context: context, delegate: UserSearch(_usersList));
+              showSearch(
+                  context: context,
+                  delegate: UserSearch(_usersList, (user) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => UserDetailsScreen(user.id)));
+                  }));
             },
           )
         ]);
