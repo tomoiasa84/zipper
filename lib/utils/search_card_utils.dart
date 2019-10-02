@@ -1,120 +1,70 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:contractor_search/bloc/home_content_bloc.dart';
-import 'package:contractor_search/layouts/card_details_screen.dart';
-import 'package:contractor_search/layouts/send_in_chat_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/resources/color_utils.dart';
-import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/general_methods.dart';
-import 'package:contractor_search/utils/search_card_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class HomeContentScreen extends StatefulWidget {
+import 'general_methods.dart';
+
+class SearchCard extends SearchDelegate<String> {
+  List<CardModel> _cards = [];
+  Function _onTagTapAction;
+  Function _onSendInChatTapAction;
+  String _userActionText;
+  String _sendInChatText;
+
+  SearchCard(this._cards, this._onTagTapAction, this._onSendInChatTapAction,
+      this._userActionText, this._sendInChatText);
+
   @override
-  HomeContentScreenState createState() => HomeContentScreenState();
-}
-
-class HomeContentScreenState extends State<HomeContentScreen> {
-  var _saving = false;
-  HomeContentBloc _homeContentBloc;
-  List<CardModel> _cardsList = [];
-
-  @override
-  void initState() {
-    getCards();
-    super.initState();
-  }
-
-  void getCards() {
-    if (mounted) {
-      setState(() {
-        _saving = true;
-      });
-    }
-    _homeContentBloc = HomeContentBloc();
-    _homeContentBloc.getCards().then((result) {
-      if (result.errors == null) {
-        final List<Map<String, dynamic>> cards =
-            result.data['get_cards'].cast<Map<String, dynamic>>();
-        cards.forEach((item) {
-          _cardsList.add(CardModel.fromJson(item));
-        });
-        _cardsList = _cardsList.reversed.toList();
-        if (mounted) {
-          setState(() {
-            _saving = false;
-          });
-        }
-      }
-    });
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = "";
+        },
+      )
+    ];
   }
 
   @override
-  Widget build(BuildContext context) {
-    return ModalProgressHUD(
-      inAsyncCall: _saving,
-      child: Scaffold(
-        appBar: _buildAppBar(),
-        body: _cardsList.isNotEmpty
-            ? _buildContent()
-            : (_saving
-                ? Container()
-                : Center(
-                    child: Text(
-                        Localization.of(context).getString('emptyPostsList')),
-                  )),
-      ),
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: AnimatedIcon(
+          icon: AnimatedIcons.menu_arrow, progress: transitionAnimation),
+      onPressed: () {
+        close(context, null);
+      },
     );
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
-        title: Text(
-          Localization.of(context).getString('home'),
-          style: TextStyle(
-            fontFamily: 'Arial',
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-        ),
-        centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.search,
-              color: ColorUtils.darkerGray,
-            ),
-            onPressed: () {
-              showSearch(
-                  context: context,
-                  delegate: SearchCard(_cardsList, (card) {
-                    _goToCardDetailsScreen(card);
-                  }, (card) {
-                    _goToSendInChatScreen(card);
-                  }, Localization.of(context).getString('isLookingFor'),
-                      Localization.of(context).getString('sendInChat')));
-            },
-          )
-        ]);
+  @override
+  Widget buildResults(BuildContext context) {
+    return Container();
   }
 
-  ListView _buildContent() {
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestionList = query.isEmpty
+        ? _cards
+        : _cards.where((card) =>
+            card.searchFor.name.toLowerCase().startsWith(query.toLowerCase()));
+
     return ListView.builder(
-        itemCount: _cardsList?.length ?? 0,
+        itemCount: suggestionList.length ?? 0,
         itemBuilder: (BuildContext context, int index) {
-          CardModel card = _cardsList.elementAt(index);
+          CardModel card = suggestionList.elementAt(index);
           return Container(
               margin: EdgeInsets.only(
                   top: (index == 0) ? 16.0 : 0.0,
-                  bottom: (index == _cardsList.length - 1) ? 16.0 : 0.0,
+                  bottom: (index == suggestionList.length - 1) ? 16.0 : 0.0,
                   left: 16.0,
                   right: 16.0),
-              child: _buildCardItem(card));
+              child: _buildCardItem(context, card));
         });
   }
 
-  Widget _buildCardItem(CardModel card) {
+  Widget _buildCardItem(BuildContext context, CardModel card) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -127,8 +77,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                _buildCardText(card),
-                _buildCreatedAtInfo(card)
+                _buildCardText(context, card),
+                _buildCreatedAtInfo(context, card)
               ],
             ),
           ),
@@ -137,7 +87,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     );
   }
 
-  Row _buildCardText(CardModel card) {
+  Row _buildCardText(BuildContext context, CardModel card) {
     return Row(
       children: <Widget>[
         CircleAvatar(
@@ -157,8 +107,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                         text: card.postedBy.name,
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(
-                        text:
-                            Localization.of(context).getString("isLookingFor"),
+                        text: _userActionText,
                         style: TextStyle(color: ColorUtils.darkerGray)),
                   ],
                 ),
@@ -166,7 +115,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
               ),
               GestureDetector(
                 onTap: () {
-                  _goToCardDetailsScreen(card);
+                  close(context, null);
+                  _onTagTapAction(card);
                 },
                 child: Text(
                   "#" + card.searchFor.name,
@@ -182,7 +132,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     );
   }
 
-  Padding _buildCreatedAtInfo(CardModel card) {
+  Padding _buildCreatedAtInfo(BuildContext context, CardModel card) {
     String difference = getTimeDifference(card.createdAt);
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
@@ -213,13 +163,14 @@ class HomeContentScreenState extends State<HomeContentScreen> {
           ),
           GestureDetector(
             onTap: () {
-              _goToSendInChatScreen(card);
+              close(context, null);
+              _onSendInChatTapAction(card);
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 AutoSizeText(
-                  Localization.of(context).getString('sendInChat'),
+                  _sendInChatText,
                   style: TextStyle(
                       fontSize: 14,
                       color: ColorUtils.orangeAccent,
@@ -238,21 +189,5 @@ class HomeContentScreenState extends State<HomeContentScreen> {
         ],
       ),
     );
-  }
-
-  void _goToCardDetailsScreen(CardModel card) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => CardDetailsScreen(
-              card: card,
-            )));
-  }
-
-  void _goToSendInChatScreen(card) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => SendInChatScreen(cardModel: card)));
   }
 }

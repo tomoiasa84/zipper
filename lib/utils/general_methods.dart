@@ -102,7 +102,7 @@ String getTimeDifference(String time) {
   } else if (currentTime.difference(exactDate).inDays >= 7 &&
       currentTime.difference(exactDate).inDays < 52) {
     difference =
-        (currentTime.difference(exactDate).inDays / 7).toString() + 'w';
+        (currentTime.difference(exactDate).inDays ~/ 7).toString() + 'w';
   }
 
   return difference;
