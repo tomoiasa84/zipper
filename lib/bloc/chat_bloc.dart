@@ -48,7 +48,7 @@ class ChatBloc {
     if (response.statusCode == 200) {
       var myString = response.body.substring(response.body.length - 19);
       _timestamp = myString.substring(0, myString.length - 2);
-      _addMessageToList(response);
+      await _addMessageToList(response);
       subscribeToChannel(channelName, currentUserId);
     } else {
       print("Subscribe request failed with status: ${response.body}.");
@@ -63,7 +63,7 @@ class ChatBloc {
     return await _repository.createConversation(user);
   }
 
-  void _addMessageToList(http.Response response) {
+  Future _addMessageToList(http.Response response) {
     List<dynamic> messageListenerResponse = convert.jsonDecode(response.body);
     List<dynamic> messagesList = messageListenerResponse[0];
 
@@ -71,7 +71,9 @@ class ChatBloc {
       PnGCM pnGCM = PnGCM.fromJson(messagesList[0]);
       UserMessage message = pnGCM.wrappedMessage.message;
       ctrl.sink.add(message);
+      return ctrl.sink.done;
     }
+    return ctrl.sink.done;
   }
 
   void _addHistoryMessagesToList(http.Response response) {
