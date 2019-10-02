@@ -477,7 +477,7 @@ class AccountScreenState extends State<AccountScreen> {
           Image.asset('assets/images/ic_replies_gray.png'),
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
-            child: Text(card.recommends.toString() + Localization.of(context).getString('replies'),
+            child: Text(card.recommendsCount.toString() + Localization.of(context).getString('replies'),
                 style: TextStyle(color: ColorUtils.darkerGray)),
           ),
         ],

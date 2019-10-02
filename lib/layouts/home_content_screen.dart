@@ -193,7 +193,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 4.0, right: 8.0),
                 child: AutoSizeText(
-                  card.recommends.toString() +
+                  card.recommendsCount.toString() +
                       Localization.of(context).getString('replies'),
                   style: TextStyle(color: ColorUtils.darkerGray),
                   overflow: TextOverflow.ellipsis,

@@ -73,6 +73,19 @@ class ApiProvider {
                             user{
                               name
                             }
+                            reviews{
+                              id
+                              author{
+                                name
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
                           }
                             text
                           }
@@ -211,7 +224,23 @@ class ApiProvider {
                       }
                       createdAt
                       text
-                      recommands
+                      recommandsCount
+                      recommandsList{
+                         id
+                         card{
+                           id
+                         }
+                         userAsk{
+                           name
+                         }
+                         userSend{
+                           name
+                         }
+                         userRecommand{
+                           name
+                         }
+                         acceptedFlag
+                      }
                     }
                   }''',
     ));
@@ -373,6 +402,19 @@ class ApiProvider {
                             user{
                               name
                             }
+                            reviews{
+                              id
+                              author{
+                                name
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
                           }
                             text
                           }
@@ -502,12 +544,26 @@ class ApiProvider {
                             name
                           }
                           userTag{
-                            user{
-                              name
-                            }
+                            id
                             tag{
                               name
                             }
+                            user{
+                              name
+                            }
+                            reviews{
+                              id
+                              author{
+                                name
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
                           }
                           stars
                           text
