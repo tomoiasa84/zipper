@@ -90,7 +90,10 @@ class AddCardScreenState extends State<AddCardScreen> {
       centerTitle: true,
       title: Text(
         Localization.of(context).getString('addPost'),
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
       ),
       leading: buildBackButton(Icons.clear, () {
         Navigator.pop(context);

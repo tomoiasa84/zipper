@@ -28,7 +28,10 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     return AppBar(
       title: Text(
         Localization.of(context).getString('post'),
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
       ),
       centerTitle: true,
       leading: buildBackButton(Icons.arrow_back, () {
@@ -138,7 +141,9 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
           Image.asset('assets/images/ic_replies_gray.png'),
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
-            child: Text(widget.card.recommendsCount.toString() + Localization.of(context).getString('replies'),
+            child: Text(
+                widget.card.recommendsCount.toString() +
+                    Localization.of(context).getString('replies'),
                 style: TextStyle(
                   color: ColorUtils.darkerGray,
                 )),
@@ -162,12 +167,12 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
 
   GestureDetector _buildRecommendButton() {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => RecommendFriendScreen(card: widget.card
-                )));
+                builder: (context) =>
+                    RecommendFriendScreen(card: widget.card)));
       },
       child: Container(
           decoration: BoxDecoration(

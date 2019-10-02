@@ -115,7 +115,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     return AppBar(
         title: Text(
           Localization.of(context).getString('sendInChat'),
-          style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
+          style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold, fontSize: 14,),
         ),
         centerTitle: true,
         leading: IconButton(

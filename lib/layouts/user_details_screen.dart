@@ -117,7 +117,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         centerTitle: true,
         title: Text(
           _user.name != null ? _user.name : _user.phoneNumber,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,),
         ),
         leading: IconButton(
           icon: Icon(

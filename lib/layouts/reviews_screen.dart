@@ -15,7 +15,6 @@ class ReviewsScreen extends StatefulWidget {
 }
 
 class ReviewsScreenState extends State<ReviewsScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +27,10 @@ class ReviewsScreenState extends State<ReviewsScreen> {
     return AppBar(
       title: Text(
         Localization.of(context).getString('reviews'),
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
       ),
       centerTitle: true,
       leading: buildBackButton(Icons.arrow_back, () {
@@ -76,63 +78,61 @@ class ReviewsScreenState extends State<ReviewsScreen> {
 
   Row _buildRating(Review review) {
     return Row(
-              children: <Widget>[
-                Text(
-                  'Excellent!',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: StarDisplay(
-                    value: review.stars,
-                  ),
-                ),
-              ],
-            );
+      children: <Widget>[
+        Text(
+          'Excellent!',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: StarDisplay(
+            value: review.stars,
+          ),
+        ),
+      ],
+    );
   }
 
   Padding _buildDecription(Review review) {
     return Padding(
-              padding: const EdgeInsets.only(top: 18.0, bottom: 16.0),
-              child: Text.rich(
-                TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                        text: '#' + review.userTag.tag.name + ' ',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: ColorUtils.orangeAccent)),
-                    TextSpan(
-                        text: review.text,
-                        style: TextStyle(
-                            color: ColorUtils.lightGray, height: 1.5)),
-                  ],
-                ),
-                textAlign: TextAlign.start,
-              ),
-            );
+      padding: const EdgeInsets.only(top: 18.0, bottom: 16.0),
+      child: Text.rich(
+        TextSpan(
+          children: <TextSpan>[
+            TextSpan(
+                text: '#' + review.userTag.tag.name + ' ',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: ColorUtils.orangeAccent)),
+            TextSpan(
+                text: review.text,
+                style: TextStyle(color: ColorUtils.lightGray, height: 1.5)),
+          ],
+        ),
+        textAlign: TextAlign.start,
+      ),
+    );
   }
 
   Row _buildAuthor(Review review) {
     return Row(
-              children: <Widget>[
-                Container(
-                    margin: EdgeInsets.only(
-                      right: 8.0,
-                    ),
-                    width: 24,
-                    height: 24,
-                    decoration: new BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: new DecorationImage(
-                            fit: BoxFit.cover,
-                            image: new NetworkImage(
-                                "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))),
-                Text(review.author.name,
-                    style: TextStyle(
-                        color: ColorUtils.darkGray,
-                        fontWeight: FontWeight.bold))
-              ],
-            );
+      children: <Widget>[
+        Container(
+            margin: EdgeInsets.only(
+              right: 8.0,
+            ),
+            width: 24,
+            height: 24,
+            decoration: new BoxDecoration(
+                shape: BoxShape.circle,
+                image: new DecorationImage(
+                    fit: BoxFit.cover,
+                    image: new NetworkImage(
+                        "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))),
+        Text(review.author.name,
+            style: TextStyle(
+                color: ColorUtils.darkGray, fontWeight: FontWeight.bold))
+      ],
+    );
   }
 }

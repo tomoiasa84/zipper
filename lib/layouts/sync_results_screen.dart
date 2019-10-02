@@ -38,7 +38,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
   AppBar _buildAppBar() {
     return AppBar(
       title: Text(Localization.of(context).getString("syncResults"),
-          style: TextStyle(fontWeight: FontWeight.bold)),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)),
       centerTitle: true,
       actions: <Widget>[
         widget.syncResult.existingUsers.isEmpty ||

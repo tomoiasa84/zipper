@@ -62,7 +62,11 @@ class UsersScreenState extends State<UsersScreen> {
     return AppBar(
         title: Text(
           Localization.of(context).getString('contacts'),
-          style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontFamily: 'Arial',
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
         ),
         centerTitle: true,
         actions: <Widget>[

@@ -52,7 +52,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     return AppBar(
       title: Text(
         Localization.of(context).getString('settings'),
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,),
       ),
       centerTitle: true,
       leading: buildBackButton(Icons.arrow_back, () {

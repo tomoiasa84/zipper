@@ -236,7 +236,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       centerTitle: true,
       title: Text(
         Localization.of(context).getString('myProfile'),
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,),
       ),
       leading: buildBackButton(Icons.arrow_back, () {
         Navigator.pop(context);

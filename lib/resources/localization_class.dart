@@ -261,7 +261,7 @@ class Localization {
       'allowPushNotifications': 'Permiteti notificari',
       'home': 'Acasa',
       'emptyPostsList': 'Nu exista postari',
-      'sendInChat': 'Trimite in Chat',
+      'sendInChat': 'Trimite',
       'post': 'Postare',
       'tapAndRecommendAFriend': 'Recomanda un prieten',
       'searchs': 'Cautari',
@@ -279,7 +279,7 @@ class Localization {
       'Sunday': 'Duminica',
       'sharedPost': 'Postare distribuita',
       'today': 'Astazi',
-      'replies': ' respunsuri',
+      'replies': ' raspunsuri',
       'sentARecommend': ' a trimis o recomandare pentru ',
     },
   };

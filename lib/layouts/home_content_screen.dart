@@ -71,7 +71,11 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     return AppBar(
         title: Text(
           Localization.of(context).getString('home'),
-          style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontFamily: 'Arial',
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
         ),
         centerTitle: true,
         actions: <Widget>[
@@ -179,57 +183,54 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       padding: const EdgeInsets.only(top: 16.0),
       child: Row(
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Image.asset('assets/images/ic_access_time.png'),
-              Padding(
-                padding: const EdgeInsets.only(left: 4.0, right: 8.0),
-                child: AutoSizeText(
-                  difference + ' ago',
-                  style: TextStyle(color: ColorUtils.darkerGray),
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                Image.asset('assets/images/ic_access_time.png'),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0, right: 8.0),
+                  child: AutoSizeText(
+                    difference + ' ago',
+                    style: TextStyle(color: ColorUtils.darkerGray),
+                  ),
                 ),
-              ),
-              Image.asset('assets/images/ic_replies_gray.png'),
-              Padding(
-                padding: const EdgeInsets.only(left: 4.0, right: 8.0),
-                child: AutoSizeText(
-                  card.recommendsCount.toString() +
-                      Localization.of(context).getString('replies'),
-                  style: TextStyle(color: ColorUtils.darkerGray),
-                  overflow: TextOverflow.ellipsis,
+                Image.asset('assets/images/ic_replies_gray.png'),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0, right: 8.0),
+                  child: AutoSizeText(
+                    card.recommendsCount.toString(),
+                    style: TextStyle(color: ColorUtils.darkerGray),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          Flexible(
-            flex: 1,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            SendInChatScreen(cardModel: card)));
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  AutoSizeText(
-                    Localization.of(context).getString('sendInChat'),
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: ColorUtils.orangeAccent,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4.0),
-                    child: Icon(
-                      Icons.send,
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SendInChatScreen(cardModel: card)));
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                AutoSizeText(
+                  Localization.of(context).getString('sendInChat'),
+                  style: TextStyle(
+                      fontSize: 14,
                       color: ColorUtils.orangeAccent,
-                    ),
+                      fontWeight: FontWeight.bold),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Icon(
+                    Icons.send,
+                    color: ColorUtils.orangeAccent,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
