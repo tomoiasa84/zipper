@@ -1,11 +1,11 @@
 import 'dart:ui';
 
 import 'package:contractor_search/bloc/account_bloc.dart';
-import 'package:contractor_search/layouts/sign_up_screen.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
 import 'package:contractor_search/layouts/replies_screen.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
 import 'package:contractor_search/layouts/settings_screen.dart';
+import 'package:contractor_search/layouts/sign_up_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
@@ -94,7 +94,7 @@ class AccountScreenState extends State<AccountScreen> {
     setState(() {
       _saving = true;
     });
-    _accountBloc.removeSharedPreferences().then((_) {
+    _accountBloc.clearUserSession().then((_) {
       setState(() {
         _saving = false;
       });

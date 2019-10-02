@@ -20,9 +20,10 @@ class AccountBloc {
     return _repository.deleteCard(cardId);
   }
 
-  Future removeSharedPreferences() async {
+  Future clearUserSession() async {
     await FirebaseAuth.instance.signOut().then((_) async {
       await SharedPreferencesHelper.clear();
+      await _repository.unsubscribeFromPushNotifications();
     });
   }
 }

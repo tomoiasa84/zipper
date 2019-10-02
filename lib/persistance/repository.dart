@@ -133,6 +133,11 @@ class Repository {
     appApiProvider.subscribeToPushNotifications(channelId);
   }
 
+  Future unsubscribeFromPushNotifications() async {
+    var channels = await getStringOfChannelIds();
+    return await appApiProvider.unsubscribeFromPushNotifications(channels);
+  }
+
   Future<String> uploadPic(File image) async {
     return await appApiProvider.uploadPic(image);
   }
