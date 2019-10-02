@@ -2,7 +2,6 @@ import 'package:contractor_search/bloc/send_in_chat_bloc.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PnGCM.dart';
-import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/PushNotification.dart';
 import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/models/WrappedMessage.dart';
@@ -71,6 +70,9 @@ class SendInChatScreenState extends State<SendInChatScreen> {
   }
 
   void _sendCardToUser(User user) {
+    setState(() {
+      _saving = true;
+    });
     _sendInChatBloc.createConversation(user).then((pubNubConversation) {
       var pnGCM = PnGCM(WrappedMessage(
           PushNotification(
