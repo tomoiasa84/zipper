@@ -205,7 +205,24 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       setState(() {
         _listOfMessages.insert(0, message);
       });
+      if (lastMessageHasDifferentDate()) {
+        setState(() {
+          _listOfMessages.insert(
+              1, MessageHeader((message as UserMessage).timestamp));
+        });
+      }
     });
+  }
+
+  bool lastMessageHasDifferentDate() {
+    var firstBeforeLastMessage = _listOfMessages[1] as UserMessage;
+    var lastMessage = _listOfMessages[0] as UserMessage;
+    if (firstBeforeLastMessage.timestamp.day == lastMessage.timestamp.day &&
+        firstBeforeLastMessage.timestamp.month == lastMessage.timestamp.month &&
+        firstBeforeLastMessage.timestamp.year == lastMessage.timestamp.year) {
+      return false;
+    }
+    return true;
   }
 
   void _addHeadersIfNecessary() {
@@ -835,7 +852,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           Image.asset('assets/images/ic_replies_gray.png'),
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
-            child: Text(cardModel.recommendsCount.toString() + Localization.of(context).getString('replies'),
+            child: Text(
+                cardModel.recommendsCount.toString() +
+                    Localization.of(context).getString('replies'),
                 style: TextStyle(
                   color: ColorUtils.darkerGray,
                 )),
