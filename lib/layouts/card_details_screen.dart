@@ -45,6 +45,24 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       child: Column(
         children: <Widget>[
           _buildCardDetails(),
+          ListView.builder(
+              shrinkWrap: true,
+              primary: false,
+              itemCount: widget.card.recommendsList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: generateContactUI(
+                      widget.card.recommendsList.elementAt(index).userRecommend,
+                      widget.card.recommendsList
+                          .elementAt(index)
+                          .card
+                          .searchFor
+                          .name,
+                      () {},
+                      Localization.of(context).getString('recommendedBy')),
+                );
+              })
         ],
       ),
     );

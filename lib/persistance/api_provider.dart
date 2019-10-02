@@ -292,6 +292,9 @@ class ApiProvider {
                          id
                          card{
                            id
+                           searchFor{
+                              name
+                           }
                          }
                          userAsk{
                            name
