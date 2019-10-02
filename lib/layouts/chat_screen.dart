@@ -109,13 +109,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     );
     //Do something with the result
     getCurrentUserId().then((userId) {
-      _chatBloc.sendMessage(
-          _pubNubConversation.id,
-          PnGCM(WrappedMessage(
-              PushNotification(_currentUserName,
-                  Localization.of(context).getString('sharedContact')),
-              new UserMessage.withSharedContact(DateTime.now(), userId,
-                  sharedContact, _pubNubConversation.id))));
+      if (sharedContact != null || sharedContact.isNotEmpty){
+        _chatBloc.sendMessage(
+            _pubNubConversation.id,
+            PnGCM(WrappedMessage(
+                PushNotification(_currentUserName,
+                    Localization.of(context).getString('sharedContact')),
+                new UserMessage.withSharedContact(DateTime.now(), userId,
+                    sharedContact, _pubNubConversation.id))));
+      }
     });
   }
 
