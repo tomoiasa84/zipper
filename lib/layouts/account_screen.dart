@@ -123,8 +123,7 @@ class AccountScreenState extends State<AccountScreen> {
 
   void _getMainTag() {
     if (_user.tags != null) {
-      _mainUserTag =
-          _user.tags.firstWhere((tag) => tag.defaultTag, orElse: () => null);
+      _mainUserTag = getMainTag(_user);
     }
     if (_mainUserTag != null) {
       _mainUserTagStarts = getReviewForMainTag(_user, _mainUserTag);
@@ -384,7 +383,7 @@ class AccountScreenState extends State<AccountScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   _buildCardText(card.searchFor),
-                  _buildCreatedAtInfo(card.createdAt)
+                  _buildCreatedAtInfo(card)
                 ],
               ),
             ),
@@ -461,8 +460,8 @@ class AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  Padding _buildCreatedAtInfo(String createdAt) {
-    String difference = getTimeDifference(createdAt);
+  Padding _buildCreatedAtInfo(CardModel card) {
+    String difference = getTimeDifference(card.createdAt);
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: Row(
@@ -478,7 +477,7 @@ class AccountScreenState extends State<AccountScreen> {
           Image.asset('assets/images/ic_replies_gray.png'),
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
-            child: Text('3 replies',
+            child: Text(card.recommendsCount.toString() + Localization.of(context).getString('replies'),
                 style: TextStyle(color: ColorUtils.darkerGray)),
           ),
         ],

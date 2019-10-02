@@ -86,6 +86,19 @@ class ApiProvider {
                             user{
                               name
                             }
+                            reviews{
+                              id
+                              author{
+                                name
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
                           }
                             text
                           }
@@ -224,7 +237,23 @@ class ApiProvider {
                       }
                       createdAt
                       text
-                      recommands
+                      recommandsCount
+                      recommandsList{
+                         id
+                         card{
+                           id
+                         }
+                         userAsk{
+                           name
+                         }
+                         userSend{
+                           name
+                         }
+                         userRecommand{
+                           name
+                         }
+                         acceptedFlag
+                      }
                     }
                   }''',
     ));
@@ -386,6 +415,19 @@ class ApiProvider {
                             user{
                               name
                             }
+                            reviews{
+                              id
+                              author{
+                                name
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
                           }
                             text
                           }
@@ -515,12 +557,26 @@ class ApiProvider {
                             name
                           }
                           userTag{
-                            user{
-                              name
-                            }
+                            id
                             tag{
                               name
                             }
+                            user{
+                              name
+                            }
+                            reviews{
+                              id
+                              author{
+                                name
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
                           }
                           stars
                           text
@@ -602,5 +658,33 @@ class ApiProvider {
 
   void dispose() {
     _pubNubClient.close();
+  }
+
+  Future<QueryResult> createRecommend(
+      int cardId, String userAskId, String userSendId, String userRecId) async {
+    final QueryResult result = await _client.mutate(
+      MutationOptions(
+        document: '''mutation{
+                            create_recommand(cardId:$cardId, userAskId:"$userAskId", userSendId:"$userSendId", userRecId:"$userRecId"){
+                              id
+                              card{
+                                id
+                              }
+                              userAsk{
+                                name
+                              }
+                              userSend{
+                                name
+                              }
+                              userRecommand{
+                                name
+                              }
+                              acceptedFlag
+                            }
+                          }''',
+      ),
+    );
+
+    return result;
   }
 }

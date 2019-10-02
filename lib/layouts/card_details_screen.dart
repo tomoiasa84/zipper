@@ -138,7 +138,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
           Image.asset('assets/images/ic_replies_gray.png'),
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
-            child: Text('3 replies',
+            child: Text(widget.card.recommendsCount.toString() + Localization.of(context).getString('replies'),
                 style: TextStyle(
                   color: ColorUtils.darkerGray,
                 )),
@@ -166,7 +166,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => RecommendFriendScreen(searchedTag: widget.card.searchFor
+                builder: (context) => RecommendFriendScreen(card: widget.card
                 )));
       },
       child: Container(

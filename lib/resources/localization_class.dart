@@ -122,13 +122,7 @@ class Localization {
       'generalSettings': 'General Settings',
       'recommendSearchNotification': 'Recommend search notification',
       'messageNotification': 'Message notfication',
-      'allowPushNotifications': 'Allow push notification',
-      'privacySettings': 'Privacy Settings',
-      'whoCanSeeYourProfile': 'Who can see your profile?',
-      'whoCanSendYouFriendRequest': 'Who can send you friend request?',
-      'whoCanSendYouMessage': 'Who can send you message?',
-      'everyone': 'Everyone',
-      'friendsOf': 'Friends of...',
+      'allowPushNotifications': 'Allow push notifications',
       'home': 'Home',
       'emptyPostsList': 'Empty posts list',
       'sendInChat': 'Send in Chat',
@@ -148,7 +142,9 @@ class Localization {
       'Saturday': 'Saturday',
       'Sunday': 'Sunday',
       'sharedPost': 'Shared Post',
-      'today': 'Today'
+      'today': 'Today',
+      'replies': ' replies',
+      'sentARecommend': ' sent a recommend for ',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -263,13 +259,6 @@ class Localization {
       'recommendSearchNotification': 'Notificare de cautare a recomandarilor',
       'messageNotification': 'Notificare mesaj',
       'allowPushNotifications': 'Permiteti notificari',
-      'privacySettings': 'Setari de Securitate',
-      'whoCanSeeYourProfile': 'Cine iti poate vedea profilul?',
-      'whoCanSendYouFriendRequest':
-          'Cine iti poate trimite o cerere de prietenie?',
-      'whoCanSendYouMessage': 'Cine iti poate trimite mesaj?',
-      'everyone': 'Oricine',
-      'friendsOf': 'Prietenii lui...',
       'home': 'Acasa',
       'emptyPostsList': 'Nu exista postari',
       'sendInChat': 'Trimite in Chat',
@@ -289,7 +278,9 @@ class Localization {
       'Saturday': 'Sambata',
       'Sunday': 'Duminica',
       'sharedPost': 'Postare distribuita',
-      'today': 'Astazi'
+      'today': 'Astazi',
+      'replies': ' respunsuri',
+      'sentARecommend': ' a trimis o recomandare pentru ',
     },
   };
 

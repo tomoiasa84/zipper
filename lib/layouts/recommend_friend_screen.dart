@@ -1,6 +1,12 @@
 import 'package:contractor_search/bloc/recommend_friend_bloc.dart';
+import 'package:contractor_search/model/card.dart';
+import 'package:contractor_search/model/recommand.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/models/PnGCM.dart';
+import 'package:contractor_search/models/PushNotification.dart';
+import 'package:contractor_search/models/UserMessage.dart';
+import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -10,9 +16,9 @@ import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class RecommendFriendScreen extends StatefulWidget {
-  final Tag searchedTag;
+  final CardModel card;
 
-  const RecommendFriendScreen({Key key, this.searchedTag}) : super(key: key);
+  const RecommendFriendScreen({Key key, this.card}) : super(key: key);
 
   @override
   RecommendFriendScreenState createState() => RecommendFriendScreenState();
@@ -58,7 +64,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
   bool hasSearchedTag(User user) {
     bool hasTag = false;
     user.tags.forEach((tag) {
-      if (tag.tag.id == widget.searchedTag.id) {
+      if (tag.tag.id == widget.card.searchFor.id) {
         hasTag = true;
       }
     });
@@ -77,21 +83,12 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
     return AppBar(
       centerTitle: true,
       title: Text(
-        '#' + widget.searchedTag.name,
+        '#' + widget.card.searchFor.name,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
       ),
       leading: buildBackButton(Icons.arrow_back, () {
         Navigator.pop(context);
       }),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.check,
-            color: ColorUtils.darkGray,
-          ),
-          onPressed: () {},
-        )
-      ],
     );
   }
 
@@ -102,7 +99,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
             ? Container()
             : Center(
                 child: Text(Localization.of(context).getString('noUsersWith') +
-                    widget.searchedTag.name),
+                    widget.card.searchFor.name),
               ));
   }
 
@@ -121,7 +118,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
               Text(
                 Localization.of(context).getString('usersWithTag') +
                     '#' +
-                    widget.searchedTag.name,
+                    widget.card.searchFor.name,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               usersWithSearchedTag.isNotEmpty
@@ -140,9 +137,18 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
         primary: false,
         itemCount: users.length,
         itemBuilder: (BuildContext context, int index) {
-          return Container(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: _buildUserItem(users, index),
+          return GestureDetector(
+            onTap: (){
+              _recommendBloc.createRecommend(widget.card.id, widget.card.postedBy.id, users.elementAt(index).id).then((result){
+                if(result.errors == null){
+
+                }
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.only(top: 12.0),
+              child: _buildUserItem(users, index),
+            ),
           );
         });
   }

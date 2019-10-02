@@ -193,7 +193,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 4.0, right: 8.0),
                 child: AutoSizeText(
-                  '3 replies',
+                  card.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
                   style: TextStyle(color: ColorUtils.darkerGray),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -207,7 +208,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => SendInChatScreen(cardModel: card)));
+                        builder: (context) =>
+                            SendInChatScreen(cardModel: card)));
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,

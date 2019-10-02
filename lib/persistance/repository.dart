@@ -185,4 +185,10 @@ class Repository {
   void dispose() {
     appApiProvider.dispose();
   }
+
+  Future<QueryResult> createRecommends(
+      int cardId, String userAskId, String userSendId, String userRecId) async {
+    return await appApiProvider.createRecommend(
+        cardId, userAskId, userSendId, userRecId);
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:contractor_search/model/recommand.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 
@@ -10,7 +11,10 @@ class CardModel {
             json['searchFor'] != null ? Tag.fromJson(json['searchFor']) : null,
         createdAt = json['createdAt'],
         text = json['text'],
-        recommends = json['recommands'];
+        recommendsCount = json['recommandsCount'],
+        recommendsList = json['recommandsList'] != null
+            ? (json['recommandsList'] as List)?.map((i) => Recommend.fromJson(i))?.toList()
+            : null;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -18,7 +22,8 @@ class CardModel {
         'searchFor': searchFor,
         'createdAt': createdAt,
         'text': text,
-        'recommands': recommends,
+        'recommendsCount': recommendsCount,
+        'recommendsList': recommendsList,
       };
 
   final int id;
@@ -26,5 +31,6 @@ class CardModel {
   final Tag searchFor;
   final String createdAt;
   final String text;
-  final int recommends;
+  final int recommendsCount;
+  final List<Recommend> recommendsList;
 }
