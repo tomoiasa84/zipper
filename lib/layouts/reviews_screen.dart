@@ -20,7 +20,15 @@ class ReviewsScreenState extends State<ReviewsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _buildBody(),
+      body: widget.reviews.isNotEmpty
+          ? _buildBody()
+          : Center(
+              child: Text(
+                Localization.of(context).getString('emptyReviewsList'),
+                style: TextStyle(
+                    fontSize: 18.0, color: ColorUtils.lightGray30Opacity),
+              ),
+            ),
     );
   }
 

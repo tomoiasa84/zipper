@@ -235,7 +235,11 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            goToReviewsScreen(_user.reviews);
+                            List<Review> reviews = [];
+                            _user.tags.forEach((item) {
+                              reviews.addAll(item.reviews);
+                            });
+                            goToReviewsScreen(reviews);
                           },
                           child: Text(
                             Localization.of(context)
@@ -295,19 +299,22 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
       setState(() {
         _saving = true;
       });
+      String currentUserId = await getCurrentUserId();
       _userDetailsBloc
-          .createReview(widget.userId, userTagId, dialogResult.rating,
+          .createReview(currentUserId, userTagId, dialogResult.rating,
               dialogResult.message)
           .then((result) {
-        setState(() {
-          _saving = false;
-        });
-
         if (result.errors == null) {
-          getCurrentUser();
+          setState(() {
+            getCurrentUser();
+            _saving = false;
+          });
           _showDialog(Localization.of(context).getString('success'),
               Localization.of(context).getString('reviewAdded'));
         } else {
+          setState(() {
+            _saving = false;
+          });
           _showDialog(Localization.of(context).getString('error'),
               result.errors[0].message);
         }

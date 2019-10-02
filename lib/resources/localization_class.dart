@@ -151,6 +151,7 @@ class Localization {
       'good': 'Good!',
       'poor': 'Poor!',
       'veryPoor': 'Very poor!',
+      'emptyReviewsList': 'Empty reviews list',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -293,6 +294,7 @@ class Localization {
       'good': 'Bun!',
       'poor': 'Slab!',
       'veryPoor': 'Foarte slab!',
+      'emptyReviewsList': 'Nu exista nici un review',
     },
   };
 

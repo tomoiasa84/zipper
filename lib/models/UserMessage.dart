@@ -1,3 +1,5 @@
+import 'dart:convert' as jsonUtil;
+
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 

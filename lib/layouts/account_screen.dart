@@ -7,6 +7,7 @@ import 'package:contractor_search/layouts/reviews_screen.dart';
 import 'package:contractor_search/layouts/settings_screen.dart';
 import 'package:contractor_search/layouts/sign_up_screen.dart';
 import 'package:contractor_search/model/card.dart';
+import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
@@ -178,7 +179,7 @@ class AccountScreenState extends State<AccountScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               _buildMainInfoCard(),
-                              _user.reviews != null && _user.reviews.isNotEmpty
+                              _user.tags != null && _user.tags.isNotEmpty
                                   ? _buildSkillsCard()
                                   : Container(),
                               _user.cards != null
@@ -334,13 +335,23 @@ class AccountScreenState extends State<AccountScreen> {
                     Localization.of(context).getString("skills"),
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Text(Localization.of(context).getString("viewAllReviews"))
+                  GestureDetector(
+                      onTap: () {
+                        List<Review> reviews = [];
+                        _user.tags.forEach((item) {
+                          reviews.addAll(item.reviews);
+                        });
+                        goToReviewsScreen(reviews);
+                      },
+                      child: Text(
+                          Localization.of(context).getString("viewAllReviews")))
                 ],
               ),
               Container(
                 child: Column(
-                  children:
-                      generateSkills(_user.tags, (_) {}, goToReviewsScreen,  Localization.of(context).getString('noReviews')),
+                  children: generateSkills(_user.tags, (_) {}, (reviews) {
+                    goToReviewsScreen(reviews);
+                  }, Localization.of(context).getString('noReviews')),
                 ),
               )
             ],
@@ -496,12 +507,12 @@ class AccountScreenState extends State<AccountScreen> {
     _getCurrentUserInfo();
   }
 
-  void goToReviewsScreen() {
+  void goToReviewsScreen(List<Review> reviews) {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => ReviewsScreen(
-                  reviews: _user.reviews,
+                  reviews: reviews,
                 )));
   }
 }
