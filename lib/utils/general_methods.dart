@@ -114,16 +114,6 @@ DateTime parseDateFromString(String time) {
   return date;
 }
 
-String getReviewForMainTag(User user, UserTag mainUserTag) {
-  String stars = '';
-  user.reviews.forEach((review) {
-    if (review.userTag.id == mainUserTag.id) {
-      stars = review.stars.toString();
-    }
-  });
-  return stars;
-}
-
 UserTag getMainTag(User user) {
   return user.tags.firstWhere((tag) => tag.defaultTag, orElse: () => null);
 }

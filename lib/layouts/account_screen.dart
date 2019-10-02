@@ -35,7 +35,6 @@ class AccountScreenState extends State<AccountScreen> {
   User _user;
   UserTag _mainUserTag;
   bool _saving = false;
-  String _mainUserTagStarts = '';
 
   static List<PopupMenuEntry<Object>> getMoreOptions(BuildContext context) {
     return [
@@ -125,9 +124,6 @@ class AccountScreenState extends State<AccountScreen> {
   void _getMainTag() {
     if (_user.tags != null) {
       _mainUserTag = getMainTag(_user);
-    }
-    if (_mainUserTag != null) {
-      _mainUserTagStarts = getReviewForMainTag(_user, _mainUserTag);
     }
   }
 
@@ -287,7 +283,7 @@ class AccountScreenState extends State<AccountScreen> {
                           '#' + _mainUserTag.tag.name,
                           style: TextStyle(color: ColorUtils.orangeAccent),
                         ),
-                        _mainUserTagStarts.isNotEmpty
+                        _mainUserTag.reviews.isNotEmpty
                             ? Padding(
                                 padding:
                                     const EdgeInsets.only(left: 8.0, top: 4.0),
@@ -297,11 +293,13 @@ class AccountScreenState extends State<AccountScreen> {
                                 ),
                               )
                             : Container(),
-                        Text(
-                          _mainUserTagStarts,
-                          style: TextStyle(
-                              fontSize: 14.0, color: ColorUtils.darkGray),
-                        )
+                        _mainUserTag.reviews.isNotEmpty
+                            ? Text(
+                                _mainUserTag.score.toString(),
+                                style: TextStyle(
+                                    fontSize: 14.0, color: ColorUtils.darkGray),
+                              )
+                            : Container()
                       ],
                     )
                   : Container()

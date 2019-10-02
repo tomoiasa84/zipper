@@ -156,18 +156,22 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                           '#' + _mainUserTag.tag.name,
                           style: TextStyle(color: ColorUtils.orangeAccent),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0, top: 4.0),
-                          child: Icon(
-                            Icons.star,
-                            color: ColorUtils.orangeAccent,
-                          ),
-                        ),
-                        Text(
-                          getReviewForMainTag(_user, _mainUserTag),
-                          style: TextStyle(
-                              fontSize: 14.0, color: ColorUtils.darkGray),
-                        )
+                        _mainUserTag.reviews.isNotEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Icon(
+                                  Icons.star,
+                                  color: ColorUtils.orangeAccent,
+                                ),
+                              )
+                            : Container(),
+                        _mainUserTag.reviews.isNotEmpty
+                            ? Text(
+                                _mainUserTag.score.toString(),
+                                style: TextStyle(
+                                    fontSize: 14.0, color: ColorUtils.darkGray),
+                              )
+                            : Container()
                       ],
                     )
                   : Container()
