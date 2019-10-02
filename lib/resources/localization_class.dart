@@ -142,6 +142,7 @@ class Localization {
       'Saturday': 'Saturday',
       'Sunday': 'Sunday',
       'sharedPost': 'Shared Post',
+      'today': 'Today',
       'replies': ' replies',
       'sentARecommend': ' sent a recommend for ',
     },
@@ -277,6 +278,7 @@ class Localization {
       'Saturday': 'Sambata',
       'Sunday': 'Duminica',
       'sharedPost': 'Postare distribuita',
+      'today': 'Astazi',
       'replies': ' respunsuri',
       'sentARecommend': ' a trimis o recomandare pentru ',
     },
@@ -287,11 +289,17 @@ class Localization {
   }
 
   String getFormattedDateTime(DateTime dateTime) {
-    if (DateTime.now().difference(dateTime) <
-        Duration(seconds: DateTime.daysPerWeek * 24 * 3600)) {
-      return getString(DateFormat("EEEE").format(dateTime));
+    if (DateTime.now().day == dateTime.day &&
+        DateTime.now().month == dateTime.month &&
+        DateTime.now().year == dateTime.year) {
+      return getString('today');
     } else {
-      return DateFormat("dd/MM/yyyy").format(dateTime);
+      if (DateTime.now().difference(dateTime) <
+          Duration(seconds: DateTime.daysPerWeek * 24 * 3600)) {
+        return getString(DateFormat("EEEE").format(dateTime));
+      } else {
+        return DateFormat("dd/MM/yyyy").format(dateTime);
+      }
     }
   }
 }
