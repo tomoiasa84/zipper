@@ -72,6 +72,36 @@ class ApiProvider {
                             id
                             name
                           }
+                          score
+                          reviews{
+                            author{
+                              name
+                            }
+                            stars
+                           userTag{
+                            id
+                            tag{
+                              name
+                            }
+                            user{
+                              name
+                            }
+                            reviews{
+                              id
+                              author{
+                                name
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
+                          }
+                            text
+                          }
                         }
                          reviews{
                             author{
@@ -395,6 +425,36 @@ class ApiProvider {
                           tag{
                             id
                             name
+                          }
+                          score
+                          reviews{
+                            author{
+                              name
+                            }
+                            stars
+                           userTag{
+                            id
+                            tag{
+                              name
+                            }
+                            user{
+                              name
+                            }
+                            reviews{
+                              id
+                              author{
+                                name
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
+                          }
+                            text
                           }
                           default
                         }

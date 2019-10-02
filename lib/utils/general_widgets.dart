@@ -1,6 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/star_display.dart';
@@ -112,61 +112,61 @@ GestureDetector buildBackButton(IconData iconData, Function onClickAction) {
   );
 }
 
-List<Widget> generateSkills(
-  List<Review> reviews,
-  Function onTapAction,
-  Function onStarsTapAction,
-) {
+List<Widget> generateSkills(List<UserTag> userTag, Function onTapAction,
+    Function onStarsTapAction, String noReviewsMessage) {
   List<Widget> skills = [];
-  reviews.forEach((item) {
-    skills.add(GestureDetector(
-      onTap: () {
-        onTapAction(item);
-      },
-      child: Container(
+  userTag.forEach((item) {
+    skills.add(
+      Container(
         padding: const EdgeInsets.symmetric(vertical: 10.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Flexible(
-              child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(color: ColorUtils.lightLightGray),
-                      borderRadius: BorderRadius.all(Radius.circular(6.0))),
-                  padding: const EdgeInsets.only(
-                      top: 8.0, bottom: 8.0, left: 16.0, right: 10.0),
-                  child: AutoSizeText(
-                    '#' + item.userTag.tag.name,
-                    style: TextStyle(fontSize: 14),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  )),
-            ),
-            GestureDetector(
-              onTap: () {
-                onStarsTapAction();
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  StarDisplay(
-                    value: item.stars,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      item.stars.toString(),
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  )
-                ],
+              child: GestureDetector(
+                onTap: () {
+                  onTapAction(item.id);
+                },
+                child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(color: ColorUtils.lightLightGray),
+                        borderRadius: BorderRadius.all(Radius.circular(6.0))),
+                    padding: const EdgeInsets.only(
+                        top: 8.0, bottom: 8.0, left: 16.0, right: 10.0),
+                    child: AutoSizeText(
+                      '#' + item.tag.name,
+                      style: TextStyle(fontSize: 14),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )),
               ),
             ),
+            item.reviews.isNotEmpty
+                ? GestureDetector(
+                    onTap: () {
+                      onStarsTapAction(item.reviews);
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        StarDisplay(
+                          value: item.score,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            item.score.toString(),
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      ],
+                    ))
+                : Text(noReviewsMessage),
           ],
         ),
       ),
-    ));
+    );
   });
   if (skills.length > 5) {
     return skills.sublist(0, 5);

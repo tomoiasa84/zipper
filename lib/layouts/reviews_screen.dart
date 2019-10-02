@@ -1,6 +1,7 @@
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/star_display.dart';
 import 'package:flutter/material.dart';
@@ -80,7 +81,7 @@ class ReviewsScreenState extends State<ReviewsScreen> {
     return Row(
       children: <Widget>[
         Text(
-          'Excellent!',
+          Localization.of(context).getString(getReviewQualifier(review)),
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         Padding(

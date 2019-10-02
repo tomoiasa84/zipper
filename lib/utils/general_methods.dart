@@ -1,4 +1,5 @@
 import 'package:contractor_search/model/conversation_model.dart';
+import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
@@ -37,6 +38,31 @@ String getInterlocutorName(User user1, User user2, String currentUserId) {
     return user2.name;
   } else {
     return user1.name;
+  }
+}
+
+String getReviewQualifier(Review review) {
+  switch (review.stars) {
+    case 0:
+      return 'veryPoor';
+      break;
+    case 1:
+      return 'veryPoor';
+      break;
+    case 2:
+      return 'poor';
+      break;
+    case 3:
+      return 'good';
+      break;
+    case 4:
+      return 'veryGood';
+      break;
+    case 5:
+      return 'excellent';
+      break;
+    default:
+      return 'excellent';
   }
 }
 

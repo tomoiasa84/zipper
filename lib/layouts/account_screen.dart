@@ -340,7 +340,7 @@ class AccountScreenState extends State<AccountScreen> {
               Container(
                 child: Column(
                   children:
-                      generateSkills(_user.reviews, () {}, goToReviewsScreen),
+                      generateSkills(_user.tags, (_) {}, goToReviewsScreen,  Localization.of(context).getString('noReviews')),
                 ),
               )
             ],

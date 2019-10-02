@@ -86,6 +86,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                                     top: 24.0,
                                     bottom: 44.0),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     _buildNameRow(),
                                     _buildDescription(),
@@ -117,7 +118,10 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         centerTitle: true,
         title: Text(
           _user.name != null ? _user.name : _user.phoneNumber,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
         ),
         leading: IconButton(
           icon: Icon(
@@ -180,6 +184,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
             padding: const EdgeInsets.only(top: 16.0),
             child: Text(
               _user.description,
+              textAlign: TextAlign.left,
               style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
             ),
           )
@@ -230,7 +235,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            goToReviewsScreen();
+                            goToReviewsScreen(_user.reviews);
                           },
                           child: Text(
                             Localization.of(context)
@@ -241,8 +246,11 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                     ),
                     Container(
                       child: Column(
-                        children: generateSkills(_user.reviews,
-                            openLeaveReviewDialog, goToReviewsScreen),
+                        children: generateSkills(_user.tags, (userTagId) {
+                          openLeaveReviewDialog(userTagId);
+                        }, (reviews) {
+                          goToReviewsScreen(reviews);
+                        }, Localization.of(context).getString('noReviews')),
                       ),
                     )
                   ],
@@ -277,7 +285,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         ));
   }
 
-  void openLeaveReviewDialog(Review review) async {
+  void openLeaveReviewDialog(int userTagId) async {
     LeaveReviewModel dialogResult = await showDialog(
       context: context,
       builder: (BuildContext context) => LeaveReviewDialog(),
@@ -288,7 +296,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         _saving = true;
       });
       _userDetailsBloc
-          .createReview(widget.userId, review.userTag.id, dialogResult.rating,
+          .createReview(widget.userId, userTagId, dialogResult.rating,
               dialogResult.message)
           .then((result) {
         setState(() {
@@ -318,12 +326,12 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     );
   }
 
-  void goToReviewsScreen() {
+  void goToReviewsScreen(List<Review> reviews) {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => ReviewsScreen(
-                  reviews: _user.reviews,
+                  reviews: reviews,
                 )));
   }
 }

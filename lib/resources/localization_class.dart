@@ -145,6 +145,12 @@ class Localization {
       'today': 'Today',
       'replies': ' replies',
       'sentARecommend': ' sent a recommend for ',
+      'noReviews': 'No review',
+      'excellent': 'Excellent!',
+      'veryGood': 'Very good!',
+      'good': 'Good!',
+      'poor': 'Poor!',
+      'veryPoor': 'Very poor!',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -281,6 +287,12 @@ class Localization {
       'today': 'Astazi',
       'replies': ' raspunsuri',
       'sentARecommend': ' a trimis o recomandare pentru ',
+      'noReviews': 'Nici o recenzie',
+      'excellent': 'Excelent!',
+      'veryGood': 'Foarte bun!',
+      'good': 'Bun!',
+      'poor': 'Slab!',
+      'veryPoor': 'Foarte slab!',
     },
   };
 
