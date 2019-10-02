@@ -541,6 +541,14 @@ class ApiProvider {
     });
   }
 
+  Future unsubscribeFromPushNotifications(String channels) async {
+    _firebaseMessaging.getToken().then((deviceId) {
+      var url =
+          "$_baseUrl/v1/push/sub-key/$_subscribeKey/devices/$deviceId?remove=$channels&type=gcm";
+      _pubNubClient.get(url);
+    });
+  }
+
   Future<String> uploadPic(File image) async {
     final StorageReference reference =
         _storage.ref().child(DateTime.now().toIso8601String());
