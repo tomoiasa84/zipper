@@ -1,12 +1,6 @@
 import 'package:contractor_search/bloc/recommend_friend_bloc.dart';
 import 'package:contractor_search/model/card.dart';
-import 'package:contractor_search/model/recommand.dart';
-import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
-import 'package:contractor_search/models/PnGCM.dart';
-import 'package:contractor_search/models/PushNotification.dart';
-import 'package:contractor_search/models/UserMessage.dart';
-import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -138,10 +132,18 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
         itemCount: users.length,
         itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
-            onTap: (){
-              _recommendBloc.createRecommend(widget.card.id, widget.card.postedBy.id, users.elementAt(index).id).then((result){
-                if(result.errors == null){
-
+            onTap: () {
+              setState(() {
+                _saving = true;
+              });
+              _recommendBloc
+                  .createRecommend(widget.card.id, widget.card.postedBy.id,
+                      users.elementAt(index).id)
+                  .then((result) {
+                if (result.errors == null) {
+                  setState(() {
+                    _saving = false;
+                  });
                 }
               });
             },

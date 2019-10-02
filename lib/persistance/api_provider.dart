@@ -60,6 +60,26 @@ class ApiProvider {
                                 name
                             }
                             text
+                            recommandsCount
+                            recommandsList{
+                               id
+                              card{
+                                id
+                                searchFor{
+                                  name
+                                }
+                              }
+                              userAsk{
+                                name
+                              }
+                              userSend{
+                                name
+                              }
+                              userRecommand{
+                                name
+                              }
+                              acceptedFlag
+                            }
                         }
                         description
                         tags{

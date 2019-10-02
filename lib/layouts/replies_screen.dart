@@ -23,27 +23,30 @@ class RepliesScreenState extends State<RepliesScreen> {
         child: Column(
           children: <Widget>[
             _buildCardDetails(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: generateContactUI(
-                  widget.card.postedBy,
-                  widget.card.searchFor.name,
-                  () {},
-                  Localization.of(context).getString("recommendedBy")),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 24.0),
-              child: generateContactUI(
-                  widget.card.postedBy,
-                  widget.card.searchFor.name,
-                  () {},
-                  Localization.of(context).getString("recommendedBy")),
-            ),
+            widget.card.recommendsList != null
+                ? Column(
+                    children: _buildRecommends(),
+                  )
+                : Container(),
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _buildRecommends() {
+    List<Widget> recommends = [];
+    widget.card.recommendsList.forEach((recommend) {
+      recommends.add(Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: generateContactUI(
+            recommend.userRecommend,
+            recommend.card.searchFor.name,
+            () {},
+            Localization.of(context).getString('recommendedBy')),
+      ));
+    });
+    return recommends;
   }
 
   AppBar _buildAppBar() {
