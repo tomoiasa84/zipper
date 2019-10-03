@@ -1,4 +1,5 @@
 import 'package:contractor_search/layouts/recommend_friend_screen.dart';
+import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -63,7 +64,14 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                       getScoreForSearchedTag(
                           widget.card.recommendsList.elementAt(index)),
                       () {},
-                      Localization.of(context).getString('recommendedBy')),
+                      Localization.of(context).getString('recommendedBy'),
+                      (userSend) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                UserDetailsScreen(userSend.id)));
+                  }),
                 );
               })
         ],

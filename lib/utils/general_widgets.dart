@@ -176,7 +176,7 @@ List<Widget> generateSkills(List<UserTag> userTag, Function onTapAction,
 }
 
 Widget generateContactUI(User userRec, User userSend, String tagName, int score,
-    Function clickAction, String bottomDescription) {
+    Function clickAction, String bottomDescription, Function goToUserDetailsScreen) {
   return Container(
     padding: const EdgeInsets.only(top: 16.0),
     child: Column(
@@ -261,23 +261,33 @@ Widget generateContactUI(User userRec, User userSend, String tagName, int score,
         Visibility(
           visible: bottomDescription != null,
           child: Container(
-            margin: const EdgeInsets.only(top: 8.0),
-            alignment: Alignment.centerRight,
-            child: Text.rich(
-              TextSpan(
-                style: TextStyle(color: ColorUtils.almostBlack, fontSize: 12.0),
-                children: <TextSpan>[
-                  TextSpan(
-                      text: bottomDescription == null ? '' : bottomDescription),
-                  TextSpan(
-                      text: userSend.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      )),
-                ],
+              margin: const EdgeInsets.only(top: 8.0),
+              alignment: Alignment.centerRight,
+              child: bottomDescription != null
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          bottomDescription,
+                          style: TextStyle(
+                              fontSize: 12.0, color: ColorUtils.almostBlack),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            goToUserDetailsScreen(userSend);
+                          },
+                          child: Text(
+                            userSend.name,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12.0,
+                                color: ColorUtils.almostBlack),
+                          ),
+                        )
+                      ],
+                    )
+                  : Container()
               ),
-            ),
-          ),
         ),
       ],
     ),

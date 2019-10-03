@@ -383,7 +383,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             "#hardCodedTag",
             0,
             () => _startConversation(item.sharedContact),
-            null);
+            null,(){});
       }
 
       if (item.cardModel != null) {

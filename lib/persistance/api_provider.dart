@@ -74,6 +74,7 @@ class ApiProvider {
                                 name
                               }
                               userSend{
+                                id
                                 name
                               }
                               userRecommand{
@@ -313,6 +314,7 @@ class ApiProvider {
                            name
                          }
                          userSend{
+                           id
                            name
                          }
                          userRecommand{
@@ -785,6 +787,7 @@ class ApiProvider {
                                 name
                               }
                               userSend{
+                                id
                                 name
                               }
                                userRecommand{

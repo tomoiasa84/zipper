@@ -1,3 +1,4 @@
+import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -45,7 +46,12 @@ class RepliesScreenState extends State<RepliesScreen> {
             recommend.card.searchFor.name,
             getScoreForSearchedTag(recommend),
             () {},
-            Localization.of(context).getString('recommendedBy')),
+            Localization.of(context).getString('recommendedBy'), (userSend) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => UserDetailsScreen(userSend.id)));
+        }),
       ));
     });
     return recommends;
