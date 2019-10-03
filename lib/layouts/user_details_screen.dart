@@ -13,6 +13,8 @@ import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
+import 'chat_screen.dart';
+
 class UserDetailsScreen extends StatefulWidget {
   final String userId;
 
@@ -56,6 +58,17 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     if (_user.tags != null) {
       _mainUserTag = getMainTag(_user);
     }
+  }
+
+  void sendMessage() {
+    setState(() {
+      _saving = true;
+    });
+    _userDetailsBloc.createConversation(_user).then((pubNubConversation) {
+      Navigator.of(context).pushReplacement(new MaterialPageRoute(
+          builder: (BuildContext context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)));
+    });
   }
 
   @override
@@ -203,9 +216,12 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
             padding: const EdgeInsets.only(left: 16.0),
             child: Image.asset('assets/images/ic_contact_accent_bg.png'),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: Image.asset('assets/images/ic_message_accent_bg.png'),
+          GestureDetector(
+            onTap: () => sendMessage(),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Image.asset('assets/images/ic_message_accent_bg.png'),
+            ),
           ),
         ],
       ),

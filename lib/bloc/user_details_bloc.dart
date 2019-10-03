@@ -1,3 +1,5 @@
+import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/persistance/repository.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -6,6 +8,10 @@ class UserDetailsBloc {
 
   Future<QueryResult> getCurrentUser(String userId) async {
     return await _repository.getUserById(userId);
+  }
+
+  Future<PubNubConversation> createConversation(User user) async {
+    return await _repository.createConversation(user);
   }
 
   Future<QueryResult> createReview(
