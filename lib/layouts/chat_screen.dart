@@ -109,13 +109,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     );
     //Do something with the result
     getCurrentUserId().then((userId) {
-      _chatBloc.sendMessage(
-          _pubNubConversation.id,
-          PnGCM(WrappedMessage(
-              PushNotification(_currentUserName,
-                  Localization.of(context).getString('sharedContact')),
-              new UserMessage.withSharedContact(DateTime.now(), userId,
-                  sharedContact, _pubNubConversation.id))));
+      if (sharedContact != null || sharedContact.isNotEmpty) {
+        _chatBloc.sendMessage(
+            _pubNubConversation.id,
+            PnGCM(WrappedMessage(
+                PushNotification(_currentUserName,
+                    Localization.of(context).getString('sharedContact')),
+                new UserMessage.withSharedContact(DateTime.now(), userId,
+                    sharedContact, _pubNubConversation.id))));
+      }
     });
   }
 
@@ -205,7 +207,24 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       setState(() {
         _listOfMessages.insert(0, message);
       });
+      if (lastMessageHasDifferentDate()) {
+        setState(() {
+          _listOfMessages.insert(
+              1, MessageHeader((message as UserMessage).timestamp));
+        });
+      }
     });
+  }
+
+  bool lastMessageHasDifferentDate() {
+    var firstBeforeLastMessage = _listOfMessages[1] as UserMessage;
+    var lastMessage = _listOfMessages[0] as UserMessage;
+    if (firstBeforeLastMessage.timestamp.day == lastMessage.timestamp.day &&
+        firstBeforeLastMessage.timestamp.month == lastMessage.timestamp.month &&
+        firstBeforeLastMessage.timestamp.year == lastMessage.timestamp.year) {
+      return false;
+    }
+    return true;
   }
 
   void _addHeadersIfNecessary() {
@@ -361,7 +380,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         return generateContactUI(
             item.sharedContact,
             item.sharedContact,
-            item.cardModel.searchFor.name,
+            "#hardCodedTag",
             0,
             () => _startConversation(item.sharedContact),
             null);
@@ -838,18 +857,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             ),
           ),
           Image.asset('assets/images/ic_replies_gray.png'),
-          Flexible(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 4.0, right: 16.0),
-              child: Text(
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, right: 16.0),
+            child: Text(
                 cardModel.recommendsCount.toString() +
                     Localization.of(context).getString('replies'),
                 style: TextStyle(
                   color: ColorUtils.darkerGray,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+                )),
           ),
         ],
       ),

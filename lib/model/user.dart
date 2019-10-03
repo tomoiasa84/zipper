@@ -11,10 +11,7 @@ import 'location.dart';
 class User {
   Map<String, dynamic> toJson() => {
         'id': id,
-        'firebaseId': firebaseId,
         'name': name,
-        'location': location,
-        'description': description,
         'phoneNumber': phoneNumber,
         'isActive': isActive
       };
@@ -23,7 +20,7 @@ class User {
       : id = json['id'],
         firebaseId = json['firebaseId'],
         name = json['name'],
-        location = json["location"] != null
+        location = json['location'] != null
             ? LocationModel.fromJson(json['location'])
             : null,
         phoneNumber = json['phoneNumber'],
