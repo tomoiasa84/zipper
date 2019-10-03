@@ -209,10 +209,12 @@ class ApiProvider {
                         user1{
                           id
                           name
+                          profileURL
                         }
                         user2{
                           id
                           name
+                          profileURL
                         }
                       }
                     }
