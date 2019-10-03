@@ -54,11 +54,14 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: generateContactUI(
                       widget.card.recommendsList.elementAt(index).userRecommend,
+                      widget.card.recommendsList.elementAt(index).userSend,
                       widget.card.recommendsList
                           .elementAt(index)
                           .card
                           .searchFor
                           .name,
+                      getScoreForSearchedTag(
+                          widget.card.recommendsList.elementAt(index)),
                       () {},
                       Localization.of(context).getString('recommendedBy')),
                 );

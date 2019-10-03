@@ -358,8 +358,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Widget _selectMessageLayout(Object item, int position) {
     if (item is UserMessage) {
       if (item.sharedContact != null) {
-        return generateContactUI(item.sharedContact, "#hardcodedtag",
-            () => _startConversation(item.sharedContact), null);
+        return generateContactUI(
+            item.sharedContact,
+            item.sharedContact,
+            item.cardModel.searchFor.name,
+            0,
+            () => _startConversation(item.sharedContact),
+            null);
       }
 
       if (item.cardModel != null) {

@@ -66,6 +66,7 @@ class ApiProvider {
                               card{
                                 id
                                 searchFor{
+                                  id
                                   name
                                 }
                               }
@@ -77,6 +78,17 @@ class ApiProvider {
                               }
                               userRecommand{
                                 name
+                                tags{
+                                  id
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                                }
                               }
                               acceptedFlag
                             }
@@ -293,6 +305,7 @@ class ApiProvider {
                          card{
                            id
                            searchFor{
+                              id
                               name
                            }
                          }
@@ -304,6 +317,21 @@ class ApiProvider {
                          }
                          userRecommand{
                            name
+                            tags{
+                                id
+                                default
+                                user{
+                                  name
+                                }
+                                score
+                                reviews{
+                                  id
+                                }
+                                tag{
+                                  id
+                                  name
+                                }
+                              }
                          }
                          acceptedFlag
                       }
@@ -759,9 +787,23 @@ class ApiProvider {
                               userSend{
                                 name
                               }
-                              userRecommand{
-                                name
-                              }
+                               userRecommand{
+                                   name
+                                    tags{
+                                        id
+                                        default
+                                        reviews{
+                                           id
+                                        }
+                                        user{
+                                          name
+                                        }
+                                        tag{
+                                          id
+                                          name
+                                        }
+                                      }
+                                 }
                               acceptedFlag
                             }
                           }''',

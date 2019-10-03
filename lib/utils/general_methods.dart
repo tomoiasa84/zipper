@@ -1,4 +1,5 @@
 import 'package:contractor_search/model/conversation_model.dart';
+import 'package:contractor_search/model/recommand.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
@@ -116,4 +117,20 @@ DateTime parseDateFromString(String time) {
 
 UserTag getMainTag(User user) {
   return user.tags.firstWhere((tag) => tag.defaultTag, orElse: () => null);
+}
+
+int getScoreForSearchedTag(Recommend recommend) {
+  UserTag tag = recommend.userRecommend.tags.firstWhere(
+      (tag) => tag.tag.id == recommend.card.searchFor.id,
+      orElse: () => null);
+  if (tag != null) {
+    if(tag.reviews.isEmpty){
+      return -1;
+    }
+    else {
+      return tag.score;
+    }
+  } else {
+    return -1;
+  }
 }

@@ -41,7 +41,9 @@ class RepliesScreenState extends State<RepliesScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: generateContactUI(
             recommend.userRecommend,
+            recommend.userSend,
             recommend.card.searchFor.name,
+            getScoreForSearchedTag(recommend),
             () {},
             Localization.of(context).getString('recommendedBy')),
       ));

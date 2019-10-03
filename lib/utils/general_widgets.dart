@@ -175,8 +175,8 @@ List<Widget> generateSkills(List<UserTag> userTag, Function onTapAction,
   }
 }
 
-Widget generateContactUI(
-    User user, String tagName, Function clickAction, String bottomDescription) {
+Widget generateContactUI(User userRec, User userSend, String tagName, int score,
+    Function clickAction, String bottomDescription) {
   return Container(
     padding: const EdgeInsets.only(top: 16.0),
     child: Column(
@@ -198,7 +198,7 @@ Widget generateContactUI(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            user.name,
+                            userRec.name,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                                 color: ColorUtils.white,
@@ -210,17 +210,21 @@ Widget generateContactUI(
                                 '#' + tagName,
                                 style: TextStyle(color: ColorUtils.white),
                               ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(45, 0, 0, 0),
-                                child: Icon(
-                                  Icons.star,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                              ),
-                              Text("4.8",
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.white))
+                              score != -1
+                                  ? Padding(
+                                      padding: EdgeInsets.fromLTRB(45, 0, 0, 0),
+                                      child: Icon(
+                                        Icons.star,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    )
+                                  : Container(),
+                              score != -1
+                                  ? Text(score.toString(),
+                                      style: TextStyle(
+                                          fontSize: 14, color: Colors.white))
+                                  : Container()
                             ],
                           )
                         ],
@@ -266,7 +270,7 @@ Widget generateContactUI(
                   TextSpan(
                       text: bottomDescription == null ? '' : bottomDescription),
                   TextSpan(
-                      text: user.name,
+                      text: userSend.name,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       )),
