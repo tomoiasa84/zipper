@@ -1,6 +1,7 @@
 import 'package:contractor_search/bloc/user_details_bloc.dart';
 import 'package:contractor_search/layouts/leave_review_dialog.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
+import 'package:contractor_search/layouts/send_in_chat_screen.dart';
 import 'package:contractor_search/model/leave_review_model.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
@@ -60,12 +61,19 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     }
   }
 
-  void sendMessage() {
+  void _sendContactToSomeone() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SendInChatScreen(userToBeShared: _user)));
+  }
+
+  void _createConversation() {
     setState(() {
       _saving = true;
     });
     _userDetailsBloc.createConversation(_user).then((pubNubConversation) {
-      Navigator.of(context).pushReplacement(new MaterialPageRoute(
+      Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) =>
               ChatScreen(pubNubConversation: pubNubConversation)));
     });
@@ -211,13 +219,15 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          Image.asset('assets/images/ic_share_accent_bg.png'),
+          GestureDetector(
+              onTap: _sendContactToSomeone,
+              child: Image.asset('assets/images/ic_share_accent_bg.png')),
           Padding(
             padding: const EdgeInsets.only(left: 16.0),
             child: Image.asset('assets/images/ic_contact_accent_bg.png'),
           ),
           GestureDetector(
-            onTap: () => sendMessage(),
+            onTap: () => _createConversation(),
             child: Padding(
               padding: const EdgeInsets.only(left: 16.0),
               child: Image.asset('assets/images/ic_message_accent_bg.png'),
