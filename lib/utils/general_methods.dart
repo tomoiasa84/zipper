@@ -1,6 +1,7 @@
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/recommand.dart';
 import 'package:contractor_search/model/review.dart';
+import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
@@ -119,9 +120,9 @@ UserTag getMainTag(User user) {
   return user.tags.firstWhere((tag) => tag.defaultTag, orElse: () => null);
 }
 
-int getScoreForSearchedTag(Recommend recommend) {
-  UserTag tag = recommend.userRecommend.tags.firstWhere(
-      (tag) => tag.tag.id == recommend.card.searchFor.id,
+int getScoreForSearchedTag(List<UserTag> tags, Tag searchedTag) {
+  UserTag tag = tags.firstWhere(
+      (tag) => tag.tag.id == searchedTag.id,
       orElse: () => null);
   if (tag != null) {
     if(tag.reviews.isEmpty){

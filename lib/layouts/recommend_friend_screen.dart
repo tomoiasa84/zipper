@@ -202,6 +202,8 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
   }
 
   Widget _buildUserItem(List<User> users, int index) {
+    int score = getScoreForSearchedTag(
+        users.elementAt(index).tags, widget.card.searchFor);
     return Column(
       children: <Widget>[
         Row(
@@ -225,14 +227,23 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
                 ),
               ),
             ),
-            Icon(
-              Icons.star,
-              color: ColorUtils.orangeAccent,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 6.0),
-              child: Text('4.8'),
-            )
+            score != -1
+                ? Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.star,
+                        color: ColorUtils.orangeAccent,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 6.0),
+                        child: Text(score.toString()),
+                      ),
+                    ],
+                  )
+                : Text(
+                    Localization.of(context).getString('noReviews'),
+                    style: TextStyle(color: ColorUtils.lightGray),
+                  )
           ],
         ),
         index != users.length - 1

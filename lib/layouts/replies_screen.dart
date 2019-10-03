@@ -44,7 +44,7 @@ class RepliesScreenState extends State<RepliesScreen> {
             recommend.userRecommend,
             recommend.userSend,
             recommend.card.searchFor.name,
-            getScoreForSearchedTag(recommend),
+            getScoreForSearchedTag(recommend.userRecommend.tags,recommend.card.searchFor),
             () {},
             Localization.of(context).getString('recommendedBy'), (userSend) {
           Navigator.push(

@@ -145,7 +145,7 @@ class Localization {
       'today': 'Today',
       'replies': ' replies',
       'sentARecommend': ' sent a recommend for ',
-      'noReviews': 'No review',
+      'noReviews': 'No reviews',
       'excellent': 'Excellent!',
       'veryGood': 'Very good!',
       'good': 'Good!',

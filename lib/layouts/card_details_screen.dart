@@ -99,7 +99,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   }
 
   Widget _generateContactUI(int index) {
-    int score = getScoreForSearchedTag(_card.recommendsList.elementAt(index));
+    int score = getScoreForSearchedTag(_card.recommendsList.elementAt(index).userRecommend.tags, _card.recommendsList.elementAt(index).card.searchFor);
     return Container(
       padding: const EdgeInsets.only(top: 16.0),
       child: Column(
