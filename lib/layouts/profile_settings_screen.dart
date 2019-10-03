@@ -9,6 +9,7 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:graphql/src/core/query_result.dart';
@@ -102,8 +103,9 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     var profilePicUrl;
 
     if (_profilePic != null) {
-      await _uploadUserProfilePicture().then((imageUrl) {
+      await _uploadUserProfilePicture().then((imageUrl) async {
         profilePicUrl = imageUrl;
+        await SharedPreferencesHelper.saveProfileImageUrl(imageUrl);
       });
     } else {
       profilePicUrl = widget.user.profilePicUrl;
@@ -138,7 +140,9 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   void _selectImage() async {
     await ImagePicker.pickImage(source: ImageSource.gallery).then((image) {
       if (image != null) {
-        _profilePic = image;
+        setState(() {
+          _profilePic = image;
+        });
       }
     });
   }
@@ -309,6 +313,18 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     );
   }
 
+  ImageProvider _backgroundImage() {
+    if (_profilePic != null) {
+      return FileImage(_profilePic);
+    } else {
+      if (widget.user.profilePicUrl == null) {
+        return null;
+      } else {
+        return NetworkImage(widget.user.profilePicUrl);
+      }
+    }
+  }
+
   Row _buildProfilePictureRow() {
     return Row(
       children: <Widget>[
@@ -317,9 +333,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               ? Text(getInitials(widget.user.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: widget.user.profilePicUrl != null
-              ? NetworkImage(widget.user.profilePicUrl)
-              : null,
+          backgroundImage: _backgroundImage(),
           backgroundColor: ColorUtils.lightLightGray,
         ),
         GestureDetector(
