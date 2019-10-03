@@ -13,8 +13,7 @@ class User {
         'id': id,
         'name': name,
         'phoneNumber': phoneNumber,
-        'isActive': isActive,
-        'profileURL': profilePicUrl
+        'isActive': isActive
       };
 
   User.fromJson(Map<String, dynamic> json)
