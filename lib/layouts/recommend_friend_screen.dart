@@ -1,13 +1,21 @@
 import 'package:contractor_search/bloc/recommend_friend_bloc.dart';
 import 'package:contractor_search/model/card.dart';
+import 'package:contractor_search/model/recommand.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/models/PnGCM.dart';
+import 'package:contractor_search/models/PushNotification.dart';
+import 'package:contractor_search/models/UserMessage.dart';
+import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+
+import 'chat_screen.dart';
 
 class RecommendFriendScreen extends StatefulWidget {
   final CardModel card;
@@ -141,9 +149,21 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
                       users.elementAt(index).id)
                   .then((result) {
                 if (result.errors == null) {
+                  Recommend recommend =
+                      Recommend.fromJson(result.data['create_recommand']);
+                  _shareContact(context, recommend);
+                } else {
                   setState(() {
                     _saving = false;
                   });
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => CustomDialog(
+                      title: Localization.of(context).getString('error'),
+                      description: result.errors[0].message,
+                      buttonText: Localization.of(context).getString('ok'),
+                    ),
+                  );
                 }
               });
             },
@@ -153,6 +173,32 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
             ),
           );
         });
+  }
+
+  void _shareContact(BuildContext context, Recommend recommend) async {
+    _recommendBloc
+        .createConversation(recommend.userAsk)
+        .then((pubNubConversation) {
+      var pnGCM = PnGCM(WrappedMessage(
+          PushNotification(recommend.userSend.name,
+              Localization.of(context).getString('sharedContact')),
+          UserMessage.withSharedContact(DateTime.now(), recommend.userSend.id,
+              recommend.userRecommend, pubNubConversation.id)));
+      _recommendBloc
+          .sendMessage(pubNubConversation.id, pnGCM)
+          .then((messageSent) {
+        if (messageSent) {
+          setState(() {
+            _saving = false;
+          });
+          Navigator.of(context).pushReplacement(new MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  ChatScreen(pubNubConversation: pubNubConversation)));
+        } else {
+          print('Could not send message');
+        }
+      });
+    });
   }
 
   Widget _buildUserItem(List<User> users, int index) {

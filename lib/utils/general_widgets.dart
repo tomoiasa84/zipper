@@ -175,8 +175,14 @@ List<Widget> generateSkills(List<UserTag> userTag, Function onTapAction,
   }
 }
 
-Widget generateContactUI(User userRec, User userSend, String tagName, int score,
-    Function clickAction, String bottomDescription, Function goToUserDetailsScreen) {
+Widget generateContactUI(
+    User userRec,
+    User userSend,
+    String tagName,
+    int score,
+    Function clickAction,
+    String bottomDescription,
+    Function goToUserDetailsScreen) {
   return Container(
     padding: const EdgeInsets.only(top: 16.0),
     child: Column(
@@ -286,8 +292,7 @@ Widget generateContactUI(User userRec, User userSend, String tagName, int score,
                         )
                       ],
                     )
-                  : Container()
-              ),
+                  : Container()),
         ),
       ],
     ),

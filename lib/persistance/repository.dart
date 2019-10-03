@@ -24,6 +24,10 @@ class Repository {
     return await appApiProvider.getUserById(userId);
   }
 
+  Future<QueryResult> getCardById(int cardId) async {
+    return await appApiProvider.getCardById(cardId);
+  }
+
   Future<QueryResult> deleteCard(int cardId) async {
     return await appApiProvider.deleteCard(cardId);
   }

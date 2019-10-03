@@ -71,6 +71,7 @@ class ApiProvider {
                                 }
                               }
                               userAsk{
+                                id
                                 name
                               }
                               userSend{
@@ -311,6 +312,67 @@ class ApiProvider {
                            }
                          }
                          userAsk{
+                           id
+                           name
+                         }
+                         userSend{
+                           id
+                           name
+                         }
+                         userRecommand{
+                           name
+                            tags{
+                                id
+                                default
+                                user{
+                                  name
+                                }
+                                score
+                                reviews{
+                                  id
+                                }
+                                tag{
+                                  id
+                                  name
+                                }
+                              }
+                         }
+                         acceptedFlag
+                      }
+                    }
+                  }''',
+    ));
+
+    return result;
+  }
+
+  Future<QueryResult> getCardById(int cardId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                    get_card(cardId:$cardId){
+                      id
+                      postedBy{
+                        name
+                        id
+                      }
+                      searchFor{
+                        name
+                        id
+                      }
+                      createdAt
+                      text
+                      recommandsCount
+                      recommandsList{
+                         id
+                         card{
+                           id
+                           searchFor{
+                              id
+                              name
+                           }
+                         }
+                         userAsk{
+                           id
                            name
                          }
                          userSend{
@@ -784,6 +846,7 @@ class ApiProvider {
                                 id
                               }
                               userAsk{
+                                id
                                 name
                               }
                               userSend{

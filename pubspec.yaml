@@ -79,6 +79,7 @@ flutter:
     - assets/images/ic_share_gray_bg.png
     - assets/images/ic_inbox_orange.png
     - assets/images/ic_replies_gray.png
+    - assets/images/ic_inbox_circle_accent.png
 
   fonts:
     - family: Arial

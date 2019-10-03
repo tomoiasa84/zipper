@@ -240,13 +240,14 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     );
   }
 
-  void _goToCardDetailsScreen(CardModel card) {
-    Navigator.push(
+  Future<void> _goToCardDetailsScreen(CardModel card) async {
+    await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => CardDetailsScreen(
-              card: card,
-            )));
+                  cardId: card.id,
+                )));
+    getCards();
   }
 
   void _goToSendInChatScreen(card) {

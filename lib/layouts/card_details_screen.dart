@@ -1,3 +1,4 @@
+import 'package:contractor_search/bloc/card_details_bloc.dart';
 import 'package:contractor_search/layouts/recommend_friend_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
@@ -6,22 +7,51 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class CardDetailsScreen extends StatefulWidget {
-  final CardModel card;
+  final int cardId;
 
-  const CardDetailsScreen({Key key, this.card}) : super(key: key);
+  const CardDetailsScreen({Key key, this.cardId}) : super(key: key);
 
   @override
   CardDetailsScreenState createState() => CardDetailsScreenState();
 }
 
 class CardDetailsScreenState extends State<CardDetailsScreen> {
+  CardModel _card;
+  CardDetailsBloc _cardDetailsBloc;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    getCurrentCard();
+    super.initState();
+  }
+
+  void getCurrentCard() {
+    _cardDetailsBloc = CardDetailsBloc();
+    setState(() {
+      _saving = true;
+    });
+    _cardDetailsBloc.getCardById(widget.cardId).then((result) {
+      if (result.errors == null) {
+        setState(() {
+          _saving = false;
+          _card = CardModel.fromJson(result.data['get_card']);
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: _buildContent(),
+    return ModalProgressHUD(
+      inAsyncCall: _saving,
+      child: Scaffold(
+        appBar: _buildAppBar(),
+        body: _buildContent(),
+      ),
     );
   }
 
@@ -42,38 +72,166 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   }
 
   Widget _buildContent() {
-    return SingleChildScrollView(
+    return _card != null
+        ? SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                _buildCardDetails(),
+                ListView.builder(
+                    shrinkWrap: true,
+                    primary: false,
+                    itemCount: _card.recommendsList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                            left: 16.0,
+                            right: 16.0,
+                            bottom: index == _card.recommendsList.length - 1
+                                ? 24.0
+                                : 0.0),
+                        child: _generateContactUI(index),
+                      );
+                    })
+              ],
+            ),
+          )
+        : Container();
+  }
+
+  Widget _generateContactUI(int index) {
+    int score = getScoreForSearchedTag(_card.recommendsList.elementAt(index));
+    return Container(
+      padding: const EdgeInsets.only(top: 16.0),
       child: Column(
         children: <Widget>[
-          _buildCardDetails(),
-          ListView.builder(
-              shrinkWrap: true,
-              primary: false,
-              itemCount: widget.card.recommendsList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: generateContactUI(
-                      widget.card.recommendsList.elementAt(index).userRecommend,
-                      widget.card.recommendsList.elementAt(index).userSend,
-                      widget.card.recommendsList
-                          .elementAt(index)
-                          .card
-                          .searchFor
-                          .name,
-                      getScoreForSearchedTag(
-                          widget.card.recommendsList.elementAt(index)),
-                      () {},
-                      Localization.of(context).getString('recommendedBy'),
-                      (userSend) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                UserDetailsScreen(userSend.id)));
-                  }),
-                );
-              })
+          Stack(
+            children: <Widget>[
+              Container(
+                margin: const EdgeInsets.only(left: 28.0),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(48.0, 18.0, 18.0, 16.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                _card.recommendsList
+                                    .elementAt(index)
+                                    .userRecommend
+                                    .name,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: ColorUtils.textBlack,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  Text(
+                                    '#' +
+                                        _card.recommendsList
+                                            .elementAt(index)
+                                            .card
+                                            .searchFor
+                                            .name,
+                                    style: TextStyle(
+                                        color: ColorUtils.orangeAccent),
+                                  ),
+                                  score != -1
+                                      ? Padding(
+                                          padding:
+                                              EdgeInsets.fromLTRB(8, 5, 0, 0),
+                                          child: Icon(
+                                            Icons.star,
+                                            color: ColorUtils.darkGray,
+                                            size: 16,
+                                          ),
+                                        )
+                                      : Container(),
+                                  score != -1
+                                      ? Text(score.toString(),
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: ColorUtils.darkGray))
+                                      : Container()
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                        Container(
+                          decoration: getRoundWhiteCircle(),
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: Image.asset(
+                              "assets/images/ic_inbox_circle_accent.png",
+                              color: ColorUtils.messageOrange,
+                            ),
+                          ),
+                          width: 40,
+                          height: 40,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 8,
+                bottom: 8,
+                child: Container(
+                    margin: EdgeInsets.fromLTRB(0, 4, 0, 4),
+                    width: 56,
+                    height: 56,
+                    decoration: new BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: new DecorationImage(
+                            fit: BoxFit.cover,
+                            image: new NetworkImage(
+                                "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))),
+              ),
+            ],
+          ),
+          Container(
+              margin: const EdgeInsets.only(top: 8.0),
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Text(
+                    Localization.of(context).getString('recommendedBy'),
+                    style: TextStyle(
+                        fontSize: 12.0, color: ColorUtils.almostBlack),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => UserDetailsScreen(_card
+                                  .recommendsList
+                                  .elementAt(index)
+                                  .userSend
+                                  .id)));
+                    },
+                    child: Text(
+                      _card.recommendsList.elementAt(index).userSend.name,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.0,
+                          color: ColorUtils.almostBlack),
+                    ),
+                  )
+                ],
+              )),
         ],
       ),
     );
@@ -117,7 +275,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(widget.card.postedBy.name),
+          child: Text(getInitials(_card.postedBy.name),
               style: TextStyle(color: ColorUtils.darkerGray)),
           backgroundColor: ColorUtils.lightLightGray,
         ),
@@ -130,7 +288,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                 TextSpan(
                   children: <TextSpan>[
                     TextSpan(
-                        text: widget.card.postedBy.name,
+                        text: _card.postedBy.name,
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(
                         text:
@@ -141,7 +299,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                 textAlign: TextAlign.center,
               ),
               Text(
-                "#" + widget.card.searchFor.name,
+                "#" + _card.searchFor.name,
                 style: TextStyle(
                     color: ColorUtils.orangeAccent,
                     fontWeight: FontWeight.bold),
@@ -154,7 +312,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   }
 
   Padding _buildCreatedAtInfo() {
-    String difference = getTimeDifference(widget.card.createdAt);
+    String difference = getTimeDifference(_card.createdAt);
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: Row(
@@ -171,7 +329,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
             child: Text(
-                widget.card.recommendsCount.toString() +
+                _card.recommendsCount.toString() +
                     Localization.of(context).getString('replies'),
                 style: TextStyle(
                   color: ColorUtils.darkerGray,
@@ -185,9 +343,9 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   Padding _buildDetailsText() {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
-      child: (widget.card.text != null && widget.card.text.isNotEmpty)
+      child: (_card.text != null && _card.text.isNotEmpty)
           ? Text(
-              widget.card.text,
+              _card.text,
               style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
             )
           : Container(),
@@ -197,11 +355,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   GestureDetector _buildRecommendButton() {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    RecommendFriendScreen(card: widget.card)));
+        goToRecommendScreen();
       },
       child: Container(
           decoration: BoxDecoration(
@@ -220,5 +374,14 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
             ),
           )),
     );
+  }
+
+  Future<void> goToRecommendScreen() async {
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => RecommendFriendScreen(card: _card)));
+
+    getCurrentCard();
   }
 }
