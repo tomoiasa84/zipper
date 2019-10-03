@@ -17,7 +17,7 @@ class SmsCodeVerificationBloc {
   Future<QueryResult> updateUser(String name, int location, String id,
       String phoneNumber, bool isActive) async {
     return _repository.updateUser(
-        name, location, id, phoneNumber, isActive, "");
+        name, location, id, phoneNumber, isActive, "", null);
   }
 
   Future<QueryResult> createLocation(String city) async {

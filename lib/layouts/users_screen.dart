@@ -115,13 +115,16 @@ class UsersScreenState extends State<UsersScreen> {
                 MaterialPageRoute(
                     builder: (context) => UserDetailsScreen(user.id)));
           },
-          leading: (image != null && image.length > 0)
-              ? CircleAvatar(backgroundImage: MemoryImage(image))
-              : CircleAvatar(
-                  child: Text(getInitials(user.name),
-                      style: TextStyle(color: ColorUtils.darkerGray)),
-                  backgroundColor: ColorUtils.lightLightGray,
-                ),
+          leading: CircleAvatar(
+            child: user.profilePicUrl == null
+                ? Text(getInitials(user.name),
+                    style: TextStyle(color: ColorUtils.darkerGray))
+                : null,
+            backgroundImage: user.profilePicUrl != null
+                ? NetworkImage(user.profilePicUrl)
+                : null,
+            backgroundColor: ColorUtils.lightLightGray,
+          ),
           title: Row(
             children: <Widget>[
               Flexible(

@@ -85,8 +85,13 @@ class RepliesScreenState extends State<RepliesScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(widget.card.postedBy.name),
-              style: TextStyle(color: ColorUtils.darkerGray)),
+          child: widget.card.postedBy.profilePicUrl == null
+              ? Text(getInitials(widget.card.postedBy.name),
+                  style: TextStyle(color: ColorUtils.darkerGray))
+              : null,
+          backgroundImage: widget.card.postedBy.profilePicUrl != null
+              ? NetworkImage(widget.card.postedBy.profilePicUrl)
+              : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Padding(
@@ -138,7 +143,9 @@ class RepliesScreenState extends State<RepliesScreen> {
           Image.asset('assets/images/ic_replies_gray.png'),
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
-            child: Text(widget.card.recommendsCount.toString() + Localization.of(context).getString('replies'),
+            child: Text(
+                widget.card.recommendsCount.toString() +
+                    Localization.of(context).getString('replies'),
                 style: TextStyle(
                   color: ColorUtils.darkerGray,
                 )),

@@ -13,12 +13,14 @@ class User {
         'id': id,
         'name': name,
         'phoneNumber': phoneNumber,
-        'isActive': isActive
+        'isActive': isActive,
+        'profileURL': profilePicUrl
       };
 
   User.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         firebaseId = json['firebaseId'],
+        profilePicUrl = json['profileURL'],
         name = json['name'],
         location = json['location'] != null
             ? LocationModel.fromJson(json['location'])
@@ -74,4 +76,5 @@ class User {
   final List<CardModel> cardsConnections;
   final List<Review> reviews;
   final List<Setting> settings;
+  final String profilePicUrl;
 }

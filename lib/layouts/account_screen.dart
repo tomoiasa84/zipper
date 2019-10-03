@@ -263,8 +263,13 @@ class AccountScreenState extends State<AccountScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(_user.name),
-              style: TextStyle(color: ColorUtils.darkerGray)),
+          child: _user.profilePicUrl == null
+              ? Text(getInitials(_user.name),
+              style: TextStyle(color: ColorUtils.darkerGray))
+              : null,
+          backgroundImage: _user.profilePicUrl != null
+              ? NetworkImage(_user.profilePicUrl)
+              : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Padding(
@@ -424,8 +429,13 @@ class AccountScreenState extends State<AccountScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(_user.name),
-              style: TextStyle(color: ColorUtils.darkerGray)),
+          child: _user.profilePicUrl == null
+              ? Text(getInitials(_user.name),
+              style: TextStyle(color: ColorUtils.darkerGray))
+              : null,
+          backgroundImage: _user.profilePicUrl != null
+              ? NetworkImage(_user.profilePicUrl)
+              : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Padding(

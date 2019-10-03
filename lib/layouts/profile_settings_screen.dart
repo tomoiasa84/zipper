@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:contractor_search/bloc/profile_settings_bloc.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
@@ -10,6 +12,7 @@ import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:graphql/src/core/query_result.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class ProfileSettingsScreen extends StatefulWidget {
@@ -36,6 +39,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   bool _saving = false;
   ProfileSettingsBloc _profileSettingsBloc;
   bool _autoValidate = false;
+  File _profilePic;
 
   @override
   void initState() {
@@ -94,7 +98,17 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     }
   }
 
-  void updateUser() {
+  Future updateUser() async {
+    var profilePicUrl;
+
+    if (_profilePic != null) {
+      await _uploadUserProfilePicture().then((imageUrl) {
+        profilePicUrl = imageUrl;
+      });
+    } else {
+      profilePicUrl = widget.user.profilePicUrl;
+    }
+
     _profileSettingsBloc
         .updateUser(
             _nameTextEditingController.text,
@@ -102,7 +116,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             widget.user.id,
             widget.user.phoneNumber,
             true,
-            _bioTextEditingController.text)
+            _bioTextEditingController.text,
+            profilePicUrl)
         .then((result) {
       setState(() {
         _saving = false;
@@ -112,6 +127,18 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       } else {
         _showDialog(Localization.of(context).getString('error'),
             result.errors[0].message, Localization.of(context).getString('ok'));
+      }
+    });
+  }
+
+  Future<String> _uploadUserProfilePicture() async {
+    return await _profileSettingsBloc.uploadPic(_profilePic);
+  }
+
+  void _selectImage() async {
+    await ImagePicker.pickImage(source: ImageSource.gallery).then((image) {
+      if (image != null) {
+        _profilePic = image;
       }
     });
   }
@@ -286,8 +313,13 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(widget.user.name),
-              style: TextStyle(color: ColorUtils.darkerGray)),
+          child: widget.user.profilePicUrl == null
+              ? Text(getInitials(widget.user.name),
+                  style: TextStyle(color: ColorUtils.darkerGray))
+              : null,
+          backgroundImage: widget.user.profilePicUrl != null
+              ? NetworkImage(widget.user.profilePicUrl)
+              : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         GestureDetector(
@@ -298,7 +330,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               style: TextStyle(color: ColorUtils.orangeAccent),
             ),
           ),
-          onTap: () {},
+          onTap: () => _selectImage(),
         ),
       ],
     );

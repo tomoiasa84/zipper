@@ -109,7 +109,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     );
     //Do something with the result
     getCurrentUserId().then((userId) {
-      if (sharedContact != null || sharedContact.isNotEmpty){
+      if (sharedContact != null || sharedContact.isNotEmpty) {
         _chatBloc.sendMessage(
             _pubNubConversation.id,
             PnGCM(WrappedMessage(
@@ -801,8 +801,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(cardModel.postedBy.name),
-              style: TextStyle(color: ColorUtils.darkerGray)),
+          child: cardModel.postedBy.profilePicUrl == null
+              ? Text(getInitials(cardModel.postedBy.name),
+                  style: TextStyle(color: ColorUtils.darkerGray))
+              : null,
+          backgroundImage: cardModel.postedBy.profilePicUrl != null
+              ? NetworkImage(cardModel.postedBy.profilePicUrl)
+              : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Padding(

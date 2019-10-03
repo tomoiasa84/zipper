@@ -81,9 +81,9 @@ class Repository {
   }
 
   Future<QueryResult> updateUser(String name, int location, String id,
-      String phoneNumber, bool isActive, String description) async {
+      String phoneNumber, bool isActive, String description, String profilePicUrl) async {
     return await appApiProvider.updateUser(
-        name, location, id, phoneNumber, isActive, description);
+        name, location, id, phoneNumber, isActive, description, profilePicUrl);
   }
 
   Future<QueryResult> createUserTag(String userId, int tagId) async {
