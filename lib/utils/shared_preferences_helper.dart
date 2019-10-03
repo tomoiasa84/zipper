@@ -28,18 +28,6 @@ class SharedPreferencesHelper {
     return prefs.setString(_accessToken, value);
   }
 
-  static Future<String> getProfileImageUrl() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getString(_profileImageUrl) ?? null;
-  }
-
-  static Future<bool> saveProfileImageUrl(String value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.setString(_profileImageUrl, value);
-  }
-
   static Future<String> getCurrentUserId() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 

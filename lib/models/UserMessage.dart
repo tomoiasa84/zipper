@@ -12,10 +12,9 @@ class UserMessage {
   bool showUserIcon = true;
   String _imageDownloadUrl;
   CardModel _cardModel;
-  String messageAuthorPicture;
 
-  UserMessage(this._message, this._timestamp, this._messageAuthor,
-      this._channelId, this.messageAuthorPicture);
+  UserMessage(
+      this._message, this._timestamp, this._messageAuthor, this._channelId);
 
   UserMessage.withImage(DateTime timestamp, String imageDownloadUrl,
       String messageAuthor, String channelId) {
@@ -62,7 +61,6 @@ class UserMessage {
         'message': _message,
         'timestamp': _timestamp.toIso8601String(),
         'messageAuthor': _messageAuthor,
-        'messageAuthorPicture': messageAuthorPicture,
         'imageDownloadUrl': _imageDownloadUrl,
         'sharedContact': _sharedContact,
         'click_action': _clickAction,
@@ -72,7 +70,6 @@ class UserMessage {
   UserMessage.fromJson(Map<String, dynamic> json)
       : _message = json['message'],
         _channelId = json['channelId'],
-        messageAuthorPicture = json['messageAuthorPicture'],
         _timestamp = DateTime.parse(json['timestamp']),
         _stringTimestamp = json['timestamp'],
         _messageAuthor = json['messageAuthor'],

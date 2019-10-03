@@ -9,7 +9,6 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:graphql/src/core/query_result.dart';
@@ -105,7 +104,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     if (_profilePic != null) {
       await _uploadUserProfilePicture().then((imageUrl) async {
         profilePicUrl = imageUrl;
-        await SharedPreferencesHelper.saveProfileImageUrl(imageUrl);
       });
     } else {
       profilePicUrl = widget.user.profilePicUrl;

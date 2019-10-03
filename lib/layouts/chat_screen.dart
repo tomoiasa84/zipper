@@ -17,7 +17,6 @@ import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
-import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loadmore/loadmore.dart';
@@ -42,9 +41,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   StreamSubscription _subscription;
   User _interlocutorUser;
   User _currentUser;
-  String _currentUserId;
   bool _loading = false;
-  String _currentUserImage;
 
   final TextEditingController _textEditingController =
       new TextEditingController();
@@ -58,7 +55,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             PnGCM(WrappedMessage(
                 PushNotification(_currentUser.name, escapeJsonCharacters(text)),
                 UserMessage(escapeJsonCharacters(text), DateTime.now(), userId,
-                    _pubNubConversation.id, _currentUserImage))));
+                    _pubNubConversation.id))));
       });
     }
   }
@@ -73,7 +70,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           UserMessage message = UserMessage.withImage(
               DateTime.now(),
               escapeJsonCharacters(imageDownloadUrl),
-              _currentUserId,
+              _currentUser.id,
               _pubNubConversation.id);
           _chatBloc
               .sendMessage(
@@ -138,9 +135,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _pubNubConversation = widget.pubNubConversation;
-    SharedPreferencesHelper.getProfileImageUrl().then((imageUrl) {
-      _currentUserImage = escapeJsonCharacters(imageUrl);
-    });
     _initScreen();
   }
 
@@ -155,8 +149,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void _initScreen() {
     getCurrentUserId().then((currentUserId) {
       setState(() async {
-        _currentUserId = currentUserId;
-
         if (_pubNubConversation == null) {
           await _chatBloc
               .getConversation(widget.conversationId)
@@ -164,15 +156,38 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             _pubNubConversation = pubNubConversation;
           });
         }
-        _interlocutorUser = getInterlocutorFromConversation(
-            _pubNubConversation.user1,
-            _pubNubConversation.user2,
-            _currentUserId);
-        _currentUser = getCurrentUserFromConversation(_pubNubConversation.user1,
-            _pubNubConversation.user2, _currentUserId);
+
+        if (currentUserId == _pubNubConversation.user1.id) {
+          _currentUser = _pubNubConversation.user1;
+          _interlocutorUser = _pubNubConversation.user2;
+        } else {
+          _currentUser = _pubNubConversation.user2;
+          _interlocutorUser = _pubNubConversation.user1;
+        }
+
+        await getConversationsUsers();
+
         _setMessagesListener(currentUserId);
         _chatBloc.subscribeToPushNotifications(_pubNubConversation.id);
       });
+    });
+  }
+
+  getConversationsUsers() async {
+    await _chatBloc.getUserById(_currentUser.id).then((result) {
+      if (result.data != null) {
+        setState(() {
+          _currentUser = User.fromJson(result.data['get_user']);
+        });
+      }
+    });
+
+    await _chatBloc.getUserById(_interlocutorUser.id).then((result) {
+      if (result.data != null) {
+        setState(() {
+          _interlocutorUser = User.fromJson(result.data['get_user']);
+        });
+      }
     });
   }
 
@@ -778,7 +793,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   bool _messageAuthorIsCurrentUser(UserMessage message) {
-    return message.messageAuthor == _currentUserId;
+    return message.messageAuthor == _currentUser.id;
   }
 
   Padding _buildCardDetails(CardModel cardModel) {
