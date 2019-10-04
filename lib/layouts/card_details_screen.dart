@@ -38,7 +38,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       _saving = true;
     });
     _cardDetailsBloc.getCardById(widget.cardId).then((result) {
-      if (result.errors == null) {
+      if (result.errors == null && mounted) {
         setState(() {
           _saving = false;
           _card = CardModel.fromJson(result.data['get_card']);

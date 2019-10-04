@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,11 @@ class SearchCard extends SearchDelegate<String> {
       IconButton(
         icon: Icon(Icons.clear),
         onPressed: () {
-          query = "";
+          if (query.isEmpty) {
+            close(context, null);
+          } else {
+            query = "";
+          }
         },
       )
     ];
@@ -65,24 +70,30 @@ class SearchCard extends SearchDelegate<String> {
   }
 
   Widget _buildCardItem(BuildContext context, CardModel card) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Stack(
-        children: <Widget>[
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                _buildCardText(context, card),
-                _buildCreatedAtInfo(context, card)
-              ],
+    return GestureDetector(
+      onTap: () {
+        close(context, null);
+        _onTagTapAction(card);
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Stack(
+          children: <Widget>[
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildCardText(context, card),
+                  _buildCreatedAtInfo(context, card)
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -100,31 +111,30 @@ class SearchCard extends SearchDelegate<String> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text.rich(
-                TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                        text: card.postedBy.name,
+              Row(
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: () {
+                      close(context, null);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  UserDetailsScreen(card.postedBy.id)));
+                    },
+                    child: Text(card.postedBy.name,
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(
-                        text: _userActionText,
-                        style: TextStyle(color: ColorUtils.darkerGray)),
-                  ],
-                ),
-                textAlign: TextAlign.center,
+                  ),
+                  Text(_userActionText,
+                      style: TextStyle(color: ColorUtils.darkerGray))
+                ],
               ),
-              GestureDetector(
-                onTap: () {
-                  close(context, null);
-                  _onTagTapAction(card);
-                },
-                child: Text(
-                  "#" + card.searchFor.name,
-                  style: TextStyle(
-                      color: ColorUtils.orangeAccent,
-                      fontWeight: FontWeight.bold),
-                ),
-              )
+              Text(
+                "#" + card.searchFor.name,
+                style: TextStyle(
+                    color: ColorUtils.orangeAccent,
+                    fontWeight: FontWeight.bold),
+              ),
             ],
           ),
         )
