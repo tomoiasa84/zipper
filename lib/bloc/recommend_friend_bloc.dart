@@ -8,10 +8,6 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 class RecommendFriendBloc {
   Repository _repository = Repository();
 
-  Future<QueryResult> getUsers() async {
-    return _repository.getUsers();
-  }
-
   Future<QueryResult> createRecommend(int cardId, String userAskId, String userRecId) async {
     String userSendId = await getCurrentUserId();
     return await _repository.createRecommends(cardId, userAskId, userSendId, userRecId);
@@ -23,5 +19,11 @@ class RecommendFriendBloc {
 
   Future<bool> sendMessage(String channelId, PnGCM pnGCM) async {
     return await _repository.sendMessage(channelId, pnGCM);
+  }
+
+  Future<QueryResult> getCurrentUser() async {
+    String userId = await getCurrentUserId();
+
+    return _repository.getUserById(userId);
   }
 }

@@ -47,7 +47,19 @@ class ApiProvider {
                         }
                         isActive
                         connections{
+                             id
                              name
+                             tags{
+                                  id
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                             }
                         }
                         cards{
                             id
@@ -920,6 +932,7 @@ class ApiProvider {
                                           id
                                           name
                                         }
+                                        score
                                       }
                                  }
                               acceptedFlag

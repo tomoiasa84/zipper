@@ -42,24 +42,34 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
     setState(() {
       _saving = true;
     });
-    getCurrentUserId().then((currentUserId) {
-      _recommendBloc.getUsers().then((result) {
-        if (result.data != null) {
-          if (mounted) {
-            setState(() {
-              final List<Map<String, dynamic>> users =
-                  result.data['get_users'].cast<Map<String, dynamic>>();
-              users.forEach((item) {
-                User user = User.fromJson(item);
-                if (user.id != currentUserId && hasSearchedTag(user)) {
-                  usersWithSearchedTag.add(user);
-                }
-              });
-              _saving = false;
+    _recommendBloc.getCurrentUser().then((result) {
+      if (result.data != null && mounted) {
+        User currentUser = User.fromJson(result.data['get_user']);
+        if (currentUser != null && currentUser.cardsConnections != null) {
+          setState(() {
+            currentUser.connections.forEach((user) {
+              if (hasSearchedTag(user) && user.id != widget.card.postedBy.id) {
+                usersWithSearchedTag.add(user);
+              }
             });
-          }
+            _saving = false;
+          });
+        } else {
+          setState(() {
+            _saving = false;
+          });
         }
-      });
+      }
+      if (result.errors != null) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: Localization.of(context).getString("error"),
+            description: result.errors[0].message,
+            buttonText: Localization.of(context).getString("ok"),
+          ),
+        );
+      }
     });
   }
 
