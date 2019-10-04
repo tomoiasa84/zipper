@@ -33,11 +33,11 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
 
   @override
   void initState() {
-    getCurrentUser();
+    getUser();
     super.initState();
   }
 
-  void getCurrentUser() {
+  void getUser() {
     _userDetailsBloc = UserDetailsBloc();
     if (mounted) {
       setState(() {
@@ -59,6 +59,22 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     if (_user.tags != null) {
       _mainUserTag = getMainTag(_user);
     }
+  }
+
+  void _createConnection() {
+    setState(() {
+      _saving = true;
+    });
+    getCurrentUserId().then((currentUserId) {
+      _userDetailsBloc
+          .createConnection(currentUserId, _user.id)
+          .then((onValue) {
+        setState(() {
+          _saving = false;
+        });
+        _showDialog('', Localization.of(context).getString('createdConnection'));
+      });
+    });
   }
 
   void _sendContactToSomeone() {
@@ -222,9 +238,12 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
           GestureDetector(
               onTap: _sendContactToSomeone,
               child: Image.asset('assets/images/ic_share_accent_bg.png')),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: Image.asset('assets/images/ic_contact_accent_bg.png'),
+          GestureDetector(
+            onTap: _createConnection,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Image.asset('assets/images/ic_contact_accent_bg.png'),
+            ),
           ),
           GestureDetector(
             onTap: () => _createConversation(),
@@ -327,7 +346,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         });
 
         if (result.errors == null) {
-          getCurrentUser();
+          getUser();
           _showDialog(Localization.of(context).getString('success'),
               Localization.of(context).getString('reviewAdded'));
         } else {

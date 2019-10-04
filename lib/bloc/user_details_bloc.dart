@@ -14,6 +14,10 @@ class UserDetailsBloc {
     return await _repository.createConversation(user);
   }
 
+  Future createConnection(String currentUserId, String targetUserId) async {
+    return await _repository.createConnection(currentUserId, targetUserId);
+  }
+
   Future<QueryResult> createReview(
       String userId, int userTagId, int stars, String text) async {
     return _repository.createReview(userId, userTagId, stars, text);

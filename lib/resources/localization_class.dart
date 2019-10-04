@@ -145,6 +145,8 @@ class Localization {
       'today': 'Today',
       'replies': ' replies',
       'sentARecommend': ' sent a recommend for ',
+      'createdConnection': 'Connection successfuly created',
+      'deletedConnection': 'Connection deleted'
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -281,6 +283,8 @@ class Localization {
       'today': 'Astazi',
       'replies': ' respunsuri',
       'sentARecommend': ' a trimis o recomandare pentru ',
+      'createdConnection': 'Conexiune creata',
+      'deletedConnection': 'Conexiune stearsa'
     },
   };
 

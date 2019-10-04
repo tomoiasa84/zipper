@@ -176,6 +176,16 @@ class ApiProvider {
     return result;
   }
 
+  Future<QueryResult> createConnection(
+      String currentUserId, String targetUserId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''mutation{
+                    create_connection(origin:"$currentUserId", target:"$targetUserId")
+                }''',
+    ));
+    return result;
+  }
+
   Future<QueryResult> createConversation(
       User user, String currentUserId) async {
     String userId = user.id;
