@@ -13,7 +13,9 @@ class CardModel {
         text = json['text'],
         recommendsCount = json['recommandsCount'],
         recommendsList = json['recommandsList'] != null
-            ? (json['recommandsList'] as List)?.map((i) => Recommend.fromJson(i))?.toList()
+            ? (json['recommandsList'] as List)
+                ?.map((i) => Recommend.fromJson(i))
+                ?.toList()
             : null;
 
   Map<String, dynamic> toJson() => {
@@ -22,8 +24,8 @@ class CardModel {
         'searchFor': searchFor,
         'createdAt': createdAt,
         'text': text,
-        'recommendsCount': recommendsCount,
-        'recommendsList': recommendsList,
+        'recommandsCount': recommendsCount,
+        'recommandsList': recommendsList,
       };
 
   final int id;
