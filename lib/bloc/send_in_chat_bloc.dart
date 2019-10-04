@@ -17,6 +17,7 @@ class SendInChatBloc {
 
     return _repository.getUserById(userId);
   }
+
   Future<List<PubNubConversation>> getPubNubConversations() async {
     return _repository.getPubNubConversations();
   }

@@ -1,4 +1,5 @@
 import 'package:contractor_search/persistance/repository.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class UsersBloc {
@@ -8,7 +9,9 @@ class UsersBloc {
     return await _repository.getContacts();
   }
 
-  Future<QueryResult> getUsers() async {
-    return _repository.getUsers();
+  Future<QueryResult> getCurrentUser() async {
+    String userId = await getCurrentUserId();
+
+    return _repository.getUserById(userId);
   }
 }

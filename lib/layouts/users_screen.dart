@@ -30,13 +30,11 @@ class UsersScreenState extends State<UsersScreen> {
     setState(() {
       _saving = true;
     });
-    _contactsBloc.getUsers().then((result) {
+    _contactsBloc.getCurrentUser().then((result) {
       if (result.data != null) {
-        final List<Map<String, dynamic>> users =
-            result.data['get_users'].cast<Map<String, dynamic>>();
-        users.forEach((item) {
-          var user = User.fromJson(item);
-          _usersList.add(user);
+        User currentUser = User.fromJson(result.data['get_user']);
+        currentUser.connections.forEach((item) {
+          _usersList.add(item);
         });
         if (mounted) {
           setState(() {

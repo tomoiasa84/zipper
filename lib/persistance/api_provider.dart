@@ -49,8 +49,11 @@ class ApiProvider {
                         connections{
                              id
                              name
+                             isActive
+                             phoneNumber
                              tags{
                                   id
+                                  default
                                   tag{
                                     id
                                     name
