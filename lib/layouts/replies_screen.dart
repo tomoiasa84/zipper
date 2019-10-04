@@ -99,8 +99,13 @@ class RepliesScreenState extends State<RepliesScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(widget.card.postedBy.name),
-              style: TextStyle(color: ColorUtils.darkerGray)),
+          child: widget.card.postedBy.profilePicUrl == null
+              ? Text(getInitials(widget.card.postedBy.name),
+                  style: TextStyle(color: ColorUtils.darkerGray))
+              : null,
+          backgroundImage: widget.card.postedBy.profilePicUrl != null
+              ? NetworkImage(widget.card.postedBy.profilePicUrl)
+              : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Padding(

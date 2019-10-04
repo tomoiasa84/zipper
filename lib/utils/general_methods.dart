@@ -1,5 +1,4 @@
 import 'package:contractor_search/model/conversation_model.dart';
-import 'package:contractor_search/model/recommand.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
@@ -35,11 +34,21 @@ Future<String> getCurrentUserId() async {
   return await SharedPreferencesHelper.getCurrentUserId();
 }
 
-String getInterlocutorName(User user1, User user2, String currentUserId) {
+User getInterlocutorFromConversation(
+    User user1, User user2, String currentUserId) {
   if (user1.id == currentUserId) {
-    return user2.name;
+    return user2;
   } else {
-    return user1.name;
+    return user1;
+  }
+}
+
+User getCurrentUserFromConversation(
+    User user1, User user2, String currentUserId) {
+  if (user1.id == currentUserId) {
+    return user1;
+  } else {
+    return user2;
   }
 }
 
@@ -78,8 +87,9 @@ String getStringOfChannelIds(List<ConversationModel> listOfConversation) {
   return channelIds;
 }
 
-String escapeJsonCharacters(String imageUrlDownload) {
-  return imageUrlDownload.replaceAll("?", "%3F");
+String escapeJsonCharacters(String myString) {
+  var string = myString.replaceAll("#", "%23");
+  return string.replaceAll("?", "%3F");
 }
 
 String getTimeDifference(String time) {
@@ -121,14 +131,12 @@ UserTag getMainTag(User user) {
 }
 
 int getScoreForSearchedTag(List<UserTag> tags, Tag searchedTag) {
-  UserTag tag = tags.firstWhere(
-      (tag) => tag.tag.id == searchedTag.id,
+  UserTag tag = tags.firstWhere((tag) => tag.tag.id == searchedTag.id,
       orElse: () => null);
   if (tag != null) {
-    if(tag.reviews.isEmpty){
+    if (tag.reviews.isEmpty) {
       return -1;
-    }
-    else {
+    } else {
       return tag.score;
     }
   } else {

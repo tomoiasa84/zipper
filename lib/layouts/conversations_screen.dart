@@ -143,6 +143,8 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   Widget _getConversationUI(PubNubConversation conversation) {
+    var user = getInterlocutorFromConversation(
+        conversation.user1, conversation.user2, _currentUserId);
     return Container(
       child: Row(
         children: <Widget>[
@@ -150,7 +152,16 @@ class _ConversationsScreenState extends State<ConversationsScreen>
             margin: EdgeInsets.fromLTRB(16, 16, 8, 16),
             width: 40,
             height: 40,
-            color: Colors.red,
+            child: CircleAvatar(
+              child: user.profilePicUrl == null
+                  ? Text(getInitials(user.name),
+                      style: TextStyle(color: ColorUtils.darkerGray))
+                  : null,
+              backgroundImage: user.profilePicUrl != null
+                  ? NetworkImage(user.profilePicUrl)
+                  : null,
+              backgroundColor: ColorUtils.lightLightGray,
+            ),
           ),
           Flexible(
             child: Column(
@@ -164,8 +175,8 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                       Container(
                         margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
                         child: Text(
-                          getInterlocutorName(conversation.user1,
-                              conversation.user2, _currentUserId),
+                          getInterlocutorFromConversation(conversation.user1,
+                              conversation.user2, _currentUserId).name,
                           style: TextStyle(
                               fontSize: 14,
                               color: ColorUtils.almostBlack,

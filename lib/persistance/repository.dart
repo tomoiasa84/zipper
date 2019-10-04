@@ -51,6 +51,10 @@ class Repository {
     return pubNubConversation;
   }
 
+  Future createConnection(String currentUserId, String targetUserId) async {
+    return await appApiProvider.createConnection(currentUserId, targetUserId);
+  }
+
   Future<PubNubConversation> createConversation(User user) async {
     String currentUserId = await getCurrentUserId();
     QueryResult result =
@@ -85,9 +89,9 @@ class Repository {
   }
 
   Future<QueryResult> updateUser(String name, int location, String id,
-      String phoneNumber, bool isActive, String description) async {
+      String phoneNumber, bool isActive, String description, String profilePicUrl) async {
     return await appApiProvider.updateUser(
-        name, location, id, phoneNumber, isActive, description);
+        name, location, id, phoneNumber, isActive, description, profilePicUrl);
   }
 
   Future<QueryResult> createUserTag(String userId, int tagId) async {

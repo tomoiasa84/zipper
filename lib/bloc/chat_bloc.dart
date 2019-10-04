@@ -7,6 +7,7 @@ import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/persistance/repository.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class ChatBloc {
@@ -16,6 +17,10 @@ class ChatBloc {
   Repository _repository = Repository();
   final int _numberOfMessagesToFetch = 100;
   final StreamController ctrl = StreamController();
+
+  Future<QueryResult> getUserById(String userId) async {
+    return await _repository.getUserById(userId);
+  }
 
   void subscribeToPushNotifications(String channelId) async {
     _repository.subscribeToPushNotifications(channelId);

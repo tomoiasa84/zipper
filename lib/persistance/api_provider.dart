@@ -41,6 +41,7 @@ class ApiProvider {
                         name
                         phoneNumber
                         id
+                        profileURL
                         location{
                             id
                             city
@@ -305,6 +306,16 @@ class ApiProvider {
     return result;
   }
 
+  Future<QueryResult> createConnection(
+      String currentUserId, String targetUserId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''mutation{
+                    create_connection(origin:"$currentUserId", target:"$targetUserId")
+                }''',
+    ));
+    return result;
+  }
+
   Future<QueryResult> createConversation(
       User user, String currentUserId) async {
     String userId = user.id;
@@ -338,10 +349,12 @@ class ApiProvider {
                         user1{
                           id
                           name
+                          profileURL
                         }
                         user2{
                           id
                           name
+                          profileURL
                         }
                       }
                     }
@@ -359,6 +372,7 @@ class ApiProvider {
                       id
                       postedBy{
                         name
+                        profileURL
                         id
                       }
                       searchFor{
@@ -473,8 +487,14 @@ class ApiProvider {
     return result;
   }
 
-  Future<QueryResult> updateUser(String name, int location, String id,
-      String phoneNumber, bool isActive, String description) async {
+  Future<QueryResult> updateUser(
+      String name,
+      int location,
+      String id,
+      String phoneNumber,
+      bool isActive,
+      String description,
+      String profilePicUrl) async {
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''
@@ -484,6 +504,7 @@ class ApiProvider {
                             location: $location,
                             isActive: $isActive,
                             phoneNumber: "$phoneNumber",
+                            profileURL: "$profilePicUrl",
                             description: "$description") {
                               name
                               phoneNumber
@@ -525,6 +546,22 @@ class ApiProvider {
       ),
     );
 
+    return queryResult;
+  }
+
+  Future<QueryResult> updateUserProfilePic(
+      String id, String profilePicUrl) async {
+    final QueryResult queryResult = await _client.mutate(
+      MutationOptions(
+        document: '''
+                    mutation{
+                           update_user(userId: "$id",
+                            profileURL: "$profilePicUrl"){
+                              profileURL
+                            }
+                  }''',
+      ),
+    );
     return queryResult;
   }
 
@@ -591,6 +628,7 @@ class ApiProvider {
                      get_users{
                         name
                         firebaseId
+                        profileURL
                         id
                         phoneNumber
                         isActive

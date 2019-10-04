@@ -148,8 +148,13 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(card.postedBy.name),
-              style: TextStyle(color: ColorUtils.darkerGray)),
+          child: card.postedBy.profilePicUrl == null
+              ? Text(getInitials(card.postedBy.name),
+                  style: TextStyle(color: ColorUtils.darkerGray))
+              : null,
+          backgroundImage: card.postedBy.profilePicUrl != null
+              ? NetworkImage(card.postedBy.profilePicUrl)
+              : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Padding(

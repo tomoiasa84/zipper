@@ -292,8 +292,13 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(_card.postedBy.name),
-              style: TextStyle(color: ColorUtils.darkerGray)),
+          child: _card.postedBy.profilePicUrl == null
+              ? Text(getInitials(_card.postedBy.name),
+                  style: TextStyle(color: ColorUtils.darkerGray))
+              : null,
+          backgroundImage: _card.postedBy.profilePicUrl != null
+              ? NetworkImage(_card.postedBy.profilePicUrl)
+              : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Padding(

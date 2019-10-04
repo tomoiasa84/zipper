@@ -35,15 +35,14 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
-  PubNubConversation _pubNubConversation;
-  bool _loading = false;
-  String _interlocutorName;
-  String _currentUserName;
-  String _currentUserId;
-  StreamSubscription _subscription;
-  final ChatBloc _chatBloc = ChatBloc();
-  final List<Object> _listOfMessages = new List();
   final ScrollController _listScrollController = new ScrollController();
+  final List<Object> _listOfMessages = new List();
+  final ChatBloc _chatBloc = ChatBloc();
+  PubNubConversation _pubNubConversation;
+  StreamSubscription _subscription;
+  User _interlocutorUser;
+  User _currentUser;
+  bool _loading = false;
 
   final TextEditingController _textEditingController =
       new TextEditingController();
@@ -55,16 +54,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _chatBloc.sendMessage(
             _pubNubConversation.id,
             PnGCM(WrappedMessage(
-                PushNotification(_currentUserName, _escapeJsonCharacters(text)),
-                UserMessage(_escapeJsonCharacters(text), DateTime.now(), userId,
+                PushNotification(_currentUser.name, escapeJsonCharacters(text)),
+                UserMessage(escapeJsonCharacters(text), DateTime.now(), userId,
                     _pubNubConversation.id))));
       });
     }
-  }
-
-  String _escapeJsonCharacters(String myString) {
-    var string = myString.replaceAll("#", "%23");
-    return string.replaceAll("?", "%3F");
   }
 
   Future _uploadImage(ImageSource imageSource) async {
@@ -77,13 +71,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           UserMessage message = UserMessage.withImage(
               DateTime.now(),
               escapeJsonCharacters(imageDownloadUrl),
-              _currentUserId,
+              _currentUser.id,
               _pubNubConversation.id);
           _chatBloc
               .sendMessage(
                   _pubNubConversation.id,
                   PnGCM(WrappedMessage(
-                      PushNotification(_currentUserName,
+                      PushNotification(_currentUser.name,
                           Localization.of(context).getString('image')),
                       message)))
               .then((messageSent) {
@@ -114,7 +108,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _chatBloc.sendMessage(
             _pubNubConversation.id,
             PnGCM(WrappedMessage(
-                PushNotification(_currentUserName,
+                PushNotification(_currentUser.name,
                     Localization.of(context).getString('sharedContact')),
                 new UserMessage.withSharedContact(DateTime.now(), userId,
                     sharedContact, _pubNubConversation.id))));
@@ -128,14 +122,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           builder: (BuildContext context) =>
               ChatScreen(pubNubConversation: pubNubConversation)));
     });
-  }
-
-  String _getCurrentUserName(User user1, User user2, String currentUserId) {
-    if (user1.id == currentUserId) {
-      return user1.name;
-    } else {
-      return user2.name;
-    }
   }
 
   @override
@@ -164,8 +150,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void _initScreen() {
     getCurrentUserId().then((currentUserId) {
       setState(() async {
-        _currentUserId = currentUserId;
-
         if (_pubNubConversation == null) {
           await _chatBloc
               .getConversation(widget.conversationId)
@@ -174,13 +158,37 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           });
         }
 
-        _interlocutorName = getInterlocutorName(_pubNubConversation.user1,
-            _pubNubConversation.user2, _currentUserId);
-        _currentUserName = _getCurrentUserName(_pubNubConversation.user1,
-            _pubNubConversation.user2, _currentUserId);
+        if (currentUserId == _pubNubConversation.user1.id) {
+          _currentUser = _pubNubConversation.user1;
+          _interlocutorUser = _pubNubConversation.user2;
+        } else {
+          _currentUser = _pubNubConversation.user2;
+          _interlocutorUser = _pubNubConversation.user1;
+        }
+
+        await getConversationsUsers();
+
         _setMessagesListener(currentUserId);
         _chatBloc.subscribeToPushNotifications(_pubNubConversation.id);
       });
+    });
+  }
+
+  getConversationsUsers() async {
+    await _chatBloc.getUserById(_currentUser.id).then((result) {
+      if (result.data != null) {
+        setState(() {
+          _currentUser = User.fromJson(result.data['get_user']);
+        });
+      }
+    });
+
+    await _chatBloc.getUserById(_interlocutorUser.id).then((result) {
+      if (result.data != null) {
+        setState(() {
+          _interlocutorUser = User.fromJson(result.data['get_user']);
+        });
+      }
     });
   }
 
@@ -298,13 +306,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    var name = _interlocutorUser == null ? "" : _interlocutorUser.name;
     return ModalProgressHUD(
       inAsyncCall: _loading,
       child: Scaffold(
         body: new Column(children: <Widget>[
           AppBar(
             title: Text(
-              'Message to $_interlocutorName',
+              'Message to $name',
               style: TextStyle(
                   color: ColorUtils.textBlack,
                   fontSize: 14,
@@ -505,12 +514,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             margin: EdgeInsets.fromLTRB(0, 16, 15, 0),
             width: 32,
             height: 32,
-            decoration: new BoxDecoration(
-                shape: BoxShape.circle,
-                image: new DecorationImage(
-                    fit: BoxFit.cover,
-                    image:
-                        new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
+            child: CircleAvatar(
+              child: _currentUser.profilePicUrl == null
+                  ? Text(getInitials(_currentUser.name),
+                      style: TextStyle(color: ColorUtils.darkerGray))
+                  : null,
+              backgroundImage: _currentUser.profilePicUrl != null
+                  ? NetworkImage(_currentUser.profilePicUrl)
+                  : null,
+              backgroundColor: ColorUtils.lightLightGray,
+            ),
           ),
         )
       ],
@@ -557,12 +570,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             margin: EdgeInsets.fromLTRB(0, 16, 15, 0),
             width: 32,
             height: 32,
-            decoration: new BoxDecoration(
-                shape: BoxShape.circle,
-                image: new DecorationImage(
-                    fit: BoxFit.cover,
-                    image:
-                        new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
+            child: CircleAvatar(
+              child: _currentUser.profilePicUrl == null
+                  ? Text(getInitials(_currentUser.name),
+                      style: TextStyle(color: ColorUtils.darkerGray))
+                  : null,
+              backgroundImage: _currentUser.profilePicUrl != null
+                  ? NetworkImage(_currentUser.profilePicUrl)
+                  : null,
+              backgroundColor: ColorUtils.lightLightGray,
+            ),
           ),
         )
       ],
@@ -582,12 +599,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               margin: EdgeInsets.fromLTRB(15, 16, 0, 0),
               width: 32,
               height: 32,
-              decoration: new BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: new DecorationImage(
-                      fit: BoxFit.cover,
-                      image:
-                          new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
+              child: CircleAvatar(
+                child: _interlocutorUser.profilePicUrl == null
+                    ? Text(getInitials(_interlocutorUser.name),
+                        style: TextStyle(color: ColorUtils.darkerGray))
+                    : null,
+                backgroundImage: _interlocutorUser.profilePicUrl != null
+                    ? NetworkImage(_interlocutorUser.profilePicUrl)
+                    : null,
+                backgroundColor: ColorUtils.lightLightGray,
+              ),
             ),
           ),
           Flexible(
@@ -629,12 +650,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               margin: EdgeInsets.fromLTRB(15, 16, 0, 0),
               width: 32,
               height: 32,
-              decoration: new BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: new DecorationImage(
-                      fit: BoxFit.cover,
-                      image:
-                          new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
+              child: CircleAvatar(
+                child: _interlocutorUser.profilePicUrl == null
+                    ? Text(getInitials(_interlocutorUser.name),
+                        style: TextStyle(color: ColorUtils.darkerGray))
+                    : null,
+                backgroundImage: _interlocutorUser.profilePicUrl != null
+                    ? NetworkImage(_interlocutorUser.profilePicUrl)
+                    : null,
+                backgroundColor: ColorUtils.lightLightGray,
+              ),
             ),
           ),
           Flexible(
@@ -779,7 +804,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   bool _messageAuthorIsCurrentUser(UserMessage message) {
-    return message.messageAuthor == _currentUserId;
+    return message.messageAuthor == _currentUser.id;
   }
 
   Padding _buildCardDetails(CardModel cardModel) {
@@ -812,8 +837,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(cardModel.postedBy.name),
-              style: TextStyle(color: ColorUtils.darkerGray)),
+          child: cardModel.postedBy.profilePicUrl == null
+              ? Text(getInitials(cardModel.postedBy.name),
+                  style: TextStyle(color: ColorUtils.darkerGray))
+              : null,
+          backgroundImage: cardModel.postedBy.profilePicUrl != null
+              ? NetworkImage(cardModel.postedBy.profilePicUrl)
+              : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Padding(

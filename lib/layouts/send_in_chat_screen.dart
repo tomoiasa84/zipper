@@ -15,8 +15,10 @@ import 'chat_screen.dart';
 
 class SendInChatScreen extends StatefulWidget {
   final CardModel cardModel;
+  final User userToBeShared;
 
-  SendInChatScreen({Key key, this.cardModel}) : super(key: key);
+  SendInChatScreen({Key key, this.cardModel, this.userToBeShared})
+      : super(key: key);
 
   @override
   SendInChatScreenState createState() => SendInChatScreenState();
@@ -65,7 +67,44 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     }
   }
 
-  void _sendCardToUser(User user) {
+  void _sendToUser(User user) {
+    setState(() {
+      _saving = true;
+    });
+
+    if (widget.cardModel == null) {
+      _shareUser(user);
+    } else {
+      _shareCard(user);
+    }
+  }
+
+  void _shareUser(User user) {
+    setState(() {
+      _saving = true;
+    });
+    _sendInChatBloc.createConversation(user).then((pubNubConversation) {
+      var pnGCM = PnGCM(WrappedMessage(
+          PushNotification(
+              "Test", Localization.of(context).getString('sharedContact')),
+          UserMessage.withSharedContact(DateTime.now(), _currentUserId,
+              widget.userToBeShared, pubNubConversation.id)));
+
+      _sendInChatBloc
+          .sendMessage(pubNubConversation.id, pnGCM)
+          .then((messageSent) {
+        if (messageSent) {
+          Navigator.of(context).pushReplacement(new MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  ChatScreen(pubNubConversation: pubNubConversation)));
+        } else {
+          print('Could not send message');
+        }
+      });
+    });
+  }
+
+  void _shareCard(User user) {
     setState(() {
       _saving = true;
     });
@@ -186,7 +225,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
         },
         onSuggestionSelected: (suggestion) {
           int index = _usersList.indexWhere((item) => item.name == suggestion);
-          _sendCardToUser(_usersList.elementAt(index));
+          _sendToUser(_usersList.elementAt(index));
         },
       ),
     );
@@ -256,7 +295,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
               ),
             ),
             GestureDetector(
-              onTap: () => _sendCardToUser(usersList.elementAt(index)),
+              onTap: () => _sendToUser(usersList.elementAt(index)),
               child: Text(
                 Localization.of(context).getString('send'),
                 style: TextStyle(

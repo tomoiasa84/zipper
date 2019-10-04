@@ -1,6 +1,7 @@
 import 'package:contractor_search/bloc/user_details_bloc.dart';
 import 'package:contractor_search/layouts/leave_review_dialog.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
+import 'package:contractor_search/layouts/send_in_chat_screen.dart';
 import 'package:contractor_search/model/leave_review_model.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
@@ -12,6 +13,8 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+
+import 'chat_screen.dart';
 
 class UserDetailsScreen extends StatefulWidget {
   final String userId;
@@ -56,6 +59,41 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     if (_user.tags != null) {
       _mainUserTag = getMainTag(_user);
     }
+  }
+
+  void _createConnection() {
+    setState(() {
+      _saving = true;
+    });
+    getCurrentUserId().then((currentUserId) {
+      _userDetailsBloc
+          .createConnection(currentUserId, _user.id)
+          .then((onValue) {
+        setState(() {
+          _saving = false;
+        });
+        _showDialog(
+            '', Localization.of(context).getString('createdConnection'));
+      });
+    });
+  }
+
+  void _sendContactToSomeone() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SendInChatScreen(userToBeShared: _user)));
+  }
+
+  void _createConversation() {
+    setState(() {
+      _saving = true;
+    });
+    _userDetailsBloc.createConversation(_user).then((pubNubConversation) {
+      Navigator.of(context).push(new MaterialPageRoute(
+          builder: (BuildContext context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)));
+    });
   }
 
   @override
@@ -136,8 +174,13 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: Text(getInitials(_user.name),
-              style: TextStyle(color: ColorUtils.darkerGray)),
+          child: _user.profilePicUrl == null
+              ? Text(getInitials(_user.name),
+                  style: TextStyle(color: ColorUtils.darkerGray))
+              : null,
+          backgroundImage: _user.profilePicUrl != null
+              ? NetworkImage(_user.profilePicUrl)
+              : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Padding(
@@ -202,14 +245,22 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          Image.asset('assets/images/ic_share_accent_bg.png'),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: Image.asset('assets/images/ic_contact_accent_bg.png'),
+          GestureDetector(
+              onTap: _sendContactToSomeone,
+              child: Image.asset('assets/images/ic_share_accent_bg.png')),
+          GestureDetector(
+            onTap: _createConnection,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Image.asset('assets/images/ic_contact_accent_bg.png'),
+            ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: Image.asset('assets/images/ic_message_accent_bg.png'),
+          GestureDetector(
+            onTap: () => _createConversation(),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Image.asset('assets/images/ic_message_accent_bg.png'),
+            ),
           ),
         ],
       ),
