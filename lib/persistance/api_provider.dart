@@ -135,6 +135,7 @@ class ApiProvider {
                         cardsConnections{
                            id
                       postedBy{
+                        profileURL
                         name
                         id
                       }
