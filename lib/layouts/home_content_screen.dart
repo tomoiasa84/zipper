@@ -3,6 +3,7 @@ import 'package:contractor_search/bloc/home_content_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/send_in_chat_screen.dart';
 import 'package:contractor_search/model/card.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -33,19 +34,16 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       });
     }
     _homeContentBloc = HomeContentBloc();
-    _homeContentBloc.getCards().then((result) {
-      if (result.errors == null) {
-        final List<Map<String, dynamic>> cards =
-            result.data['get_cards'].cast<Map<String, dynamic>>();
-        cards.forEach((item) {
-          _cardsList.add(CardModel.fromJson(item));
+    _homeContentBloc.getCurrentUser().then((result) {
+      if (result.data != null && mounted) {
+        setState(() {
+          User currentUser = User.fromJson(result.data['get_user']);
+          if (currentUser != null && currentUser.cardsConnections != null) {
+            _cardsList.addAll(currentUser.cardsConnections);
+            _cardsList = _cardsList.reversed.toList();
+          }
+          _saving = false;
         });
-        _cardsList = _cardsList.reversed.toList();
-        if (mounted) {
-          setState(() {
-            _saving = false;
-          });
-        }
       }
     });
   }
