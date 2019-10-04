@@ -249,6 +249,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
             builder: (context) => CardDetailsScreen(
                   cardId: card.id,
                 )));
+    _cardsList.clear();
     getCards();
   }
 

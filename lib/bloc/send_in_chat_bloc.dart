@@ -4,6 +4,7 @@ import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/persistance/repository.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -11,10 +12,11 @@ class SendInChatBloc {
   Repository _repository = Repository();
   String _currentUserId;
 
-  Future<QueryResult> getUsers() async {
-    return _repository.getUsers();
-  }
+  Future<QueryResult> getCurrentUser() async {
+    String userId = await getCurrentUserId();
 
+    return _repository.getUserById(userId);
+  }
   Future<List<PubNubConversation>> getPubNubConversations() async {
     return _repository.getPubNubConversations();
   }

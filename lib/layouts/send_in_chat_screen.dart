@@ -34,7 +34,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
   @override
   void initState() {
     _getRecentUsers();
-    _getAllUsers();
+    _getAllFriends();
     super.initState();
   }
 
@@ -44,16 +44,12 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     _hideLoading();
   }
 
-  void _getAllUsers() async {
-    _sendInChatBloc.getUsers().then((result) {
+  void _getAllFriends() async {
+    _sendInChatBloc.getCurrentUser().then((result) {
       if (result.data != null) {
-        final List<Map<String, dynamic>> users =
-            result.data['get_users'].cast<Map<String, dynamic>>();
-        users.forEach((item) {
-          var user = User.fromJson(item);
-          if (user.isActive) {
-            _usersList.add(user);
-          }
+        User currentUser = User.fromJson(result.data['get_user']);
+        currentUser.connections.forEach((friend) {
+          _usersList.add(friend);
         });
         _allUsersLoaded = true;
         _hideLoading();
@@ -117,7 +113,11 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     return AppBar(
         title: Text(
           Localization.of(context).getString('sendInChat'),
-          style: TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold, fontSize: 14,),
+          style: TextStyle(
+            fontFamily: 'Arial',
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
