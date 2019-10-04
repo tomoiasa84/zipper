@@ -113,24 +113,29 @@ class HomeContentScreenState extends State<HomeContentScreen> {
   }
 
   Widget _buildCardItem(CardModel card) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Stack(
-        children: <Widget>[
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                _buildCardText(card),
-                _buildCreatedAtInfo(card)
-              ],
+    return GestureDetector(
+      onTap: () {
+        _goToCardDetailsScreen(card);
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Stack(
+          children: <Widget>[
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildCardText(card),
+                  _buildCreatedAtInfo(card)
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -162,17 +167,12 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              GestureDetector(
-                onTap: () {
-                  _goToCardDetailsScreen(card);
-                },
-                child: Text(
-                  "#" + card.searchFor.name,
-                  style: TextStyle(
-                      color: ColorUtils.orangeAccent,
-                      fontWeight: FontWeight.bold),
-                ),
-              )
+              Text(
+                "#" + card.searchFor.name,
+                style: TextStyle(
+                    color: ColorUtils.orangeAccent,
+                    fontWeight: FontWeight.bold),
+              ),
             ],
           ),
         )
