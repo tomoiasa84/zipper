@@ -4,7 +4,7 @@ import Firebase
 
 @available(iOS 10.0, *)
 @UIApplicationMain
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, UNUserNotificationCenterDelegate {
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -26,26 +26,22 @@ import Firebase
     
     override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any],
                               fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-//        print(userInfo["channelId"]!)
-        if Auth.auth().canHandleNotification(userInfo) {
-            completionHandler(.noData)
-            return
-        }
-//        openChatScreen(conversationId: userInfo["channelId"] as! String)
+        print(userInfo["channelId"]!)
+        openChatScreen(conversationId: userInfo["channelId"] as! String)
         completionHandler(UIBackgroundFetchResult.newData)
     }
 
     @available(iOS 10.0, *)
-    override func userNotificationCenter(_ center: UNUserNotificationCenter,
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse, withCompletionHandler
         completionHandler: @escaping () -> Void) {
-        
+    
         print(response.notification.request.content.userInfo)
         openChatScreen(conversationId: response.notification.request.content.userInfo["channelId"] as! String)
         return completionHandler()
     }
     
-    override func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.alert, .badge, .sound])
     }
     
