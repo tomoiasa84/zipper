@@ -50,8 +50,8 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     _sendInChatBloc.getCurrentUser().then((result) {
       if (result.data != null) {
         User currentUser = User.fromJson(result.data['get_user']);
-        currentUser.connections.forEach((friend) {
-          _usersList.add(friend);
+        currentUser.connections.forEach((connection) {
+          _usersList.add(connection.targetUser);
         });
         _allUsersLoaded = true;
         _hideLoading();

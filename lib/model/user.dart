@@ -6,6 +6,7 @@ import 'package:contractor_search/model/settings.dart';
 import 'package:contractor_search/model/user_tag.dart';
 
 import 'card.dart';
+import 'connection_model.dart';
 import 'location.dart';
 
 class User {
@@ -42,7 +43,7 @@ class User {
             : null,
         connections = json['connections'] != null
             ? (json['connections'] as List)
-                ?.map((i) => User.fromJson(i))
+                ?.map((i) => Connection.fromJson(i))
                 ?.toList()
             : null,
         cardsConnections = json['cardsConnections'] != null
@@ -70,7 +71,7 @@ class User {
   final String phoneNumber;
   final bool isActive;
   final List<ConversationModel> conversations;
-  final List<User> connections;
+  final List<Connection> connections;
   List<CardModel> cards;
   final List<UserTag> tags;
   final List<CardModel> cardsConnections;

@@ -48,7 +48,9 @@ class ApiProvider {
                         }
                         isActive
                         connections{
-                             id
+                            id
+                            originUser{
+                              id
                              name
                              isActive
                              phoneNumber
@@ -64,6 +66,25 @@ class ApiProvider {
                                      id
                                   }
                              }
+                            }
+                            targetUser{
+                              id
+                             name
+                             isActive
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                             }
+                            }
                         }
                         cards{
                             id

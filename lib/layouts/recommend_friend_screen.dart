@@ -47,9 +47,9 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
         User currentUser = User.fromJson(result.data['get_user']);
         if (currentUser != null && currentUser.cardsConnections != null) {
           setState(() {
-            currentUser.connections.forEach((user) {
-              if (hasSearchedTag(user) && user.id != widget.card.postedBy.id) {
-                usersWithSearchedTag.add(user);
+            currentUser.connections.forEach((conenction) {
+              if (hasSearchedTag(conenction.targetUser) && conenction.id != widget.card.postedBy.id) {
+                usersWithSearchedTag.add(conenction.targetUser);
               }
             });
             _saving = false;

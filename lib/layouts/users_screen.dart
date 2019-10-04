@@ -33,8 +33,8 @@ class UsersScreenState extends State<UsersScreen> {
     _contactsBloc.getCurrentUser().then((result) {
       if (result.data != null) {
         User currentUser = User.fromJson(result.data['get_user']);
-        currentUser.connections.forEach((item) {
-          _usersList.add(item);
+        currentUser.connections.forEach((connection) {
+          _usersList.add(connection.targetUser);
         });
         if (mounted) {
           setState(() {
