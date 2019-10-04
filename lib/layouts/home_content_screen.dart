@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:contractor_search/bloc/home_content_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/send_in_chat_screen.dart';
+import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -162,19 +163,22 @@ class HomeContentScreenState extends State<HomeContentScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text.rich(
-                TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                        text: card.postedBy.name,
+              Row(
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  UserDetailsScreen(card.postedBy.id)));
+                    },
+                    child: Text(card.postedBy.name,
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(
-                        text:
-                            Localization.of(context).getString("isLookingFor"),
-                        style: TextStyle(color: ColorUtils.darkerGray)),
-                  ],
-                ),
-                textAlign: TextAlign.center,
+                  ),
+                  Text(Localization.of(context).getString("isLookingFor"),
+                      style: TextStyle(color: ColorUtils.darkerGray))
+                ],
               ),
               Text(
                 "#" + card.searchFor.name,
