@@ -14,8 +14,8 @@ class ProfileSettingsBloc {
     return _repository.createUserTag(userId, tagId);
   }
 
-  Future<QueryResult> updateMainUserTag(int userTagId, bool defaultFlag) async {
-    return _repository.updateMainUserTag(userTagId, defaultFlag);
+  Future<QueryResult> updateMainUserTag(int userTagId) async {
+    return _repository.updateMainUserTag(userTagId);
   }
 
   Future<QueryResult> deleteUserTag(int userTagId) async {

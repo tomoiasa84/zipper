@@ -548,11 +548,11 @@ class ApiProvider {
     return queryResult;
   }
 
-  Future<QueryResult> updateMainUserTag(int userTagId, bool defaultFlag) async {
+  Future<QueryResult> updateMainUserTag(int userTagId) async {
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
-                          update_userTag(userTagId:$userTagId, defaultFlag:$defaultFlag){
+                          update_userTag(userTagId:$userTagId){
                             id
                             user{
                               name

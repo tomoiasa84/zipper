@@ -94,8 +94,8 @@ class Repository {
     return await appApiProvider.createUserTag(userId, tagId);
   }
 
-  Future<QueryResult> updateMainUserTag(int userTagId, bool defaultFlag) async {
-    return await appApiProvider.updateMainUserTag(userTagId, defaultFlag);
+  Future<QueryResult> updateMainUserTag(int userTagId) async {
+    return await appApiProvider.updateMainUserTag(userTagId);
   }
 
   Future<QueryResult> deleteUserTag(int userTagId) async {

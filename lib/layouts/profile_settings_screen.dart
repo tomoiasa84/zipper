@@ -77,16 +77,10 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               skill.tag.name == _mainTextEditingController.text.substring(1),
           orElse: () => null);
       _profileSettingsBloc
-          .updateMainUserTag(userTag.id, false)
-          .then((updateOldTagResult) {
-        if (updateOldTagResult.errors == null) {
-          _profileSettingsBloc
-              .updateMainUserTag(newMainUserTag.id, true)
-              .then((newMainTagResult) {
-            if (newMainTagResult.errors == null) {
-              updateUser();
-            }
-          });
+          .updateMainUserTag(newMainUserTag.id)
+          .then((newMainTagResult) {
+        if (newMainTagResult.errors == null) {
+          updateUser();
         }
       });
     } else {
@@ -177,7 +171,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         _mainTextEditingController.clear();
       } else if (userTag != null && !skills.contains(userTag)) {
         _profileSettingsBloc
-            .updateMainUserTag(skills[0].id, true)
+            .updateMainUserTag(skills[0].id)
             .then((updateNewTagResult) {
           setState(() {
             _mainTextEditingController.text = '#' +
@@ -236,7 +230,10 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       centerTitle: true,
       title: Text(
         Localization.of(context).getString('myProfile'),
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
       ),
       leading: buildBackButton(Icons.arrow_back, () {
         Navigator.pop(context);
