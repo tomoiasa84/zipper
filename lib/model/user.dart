@@ -45,7 +45,7 @@ class User {
                 ?.toList()
             : null,
         cardsConnections = json['cardsConnections'] != null
-            ? (json['cards_feed'] as List)
+            ? (json['cardsConnections'] as List)
                 ?.map((i) => CardModel.fromJson(i))
                 ?.toList()
             : null,

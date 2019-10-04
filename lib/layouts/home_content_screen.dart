@@ -36,14 +36,18 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     _homeContentBloc = HomeContentBloc();
     _homeContentBloc.getCurrentUser().then((result) {
       if (result.data != null && mounted) {
-        setState(() {
-          User currentUser = User.fromJson(result.data['get_user']);
-          if (currentUser != null && currentUser.cardsConnections != null) {
-            _cardsList.addAll(currentUser.cardsConnections);
+        User currentUser = User.fromJson(result.data['get_user']);
+        if (currentUser != null && currentUser.cardsConnections != null) {
+          _cardsList.addAll(currentUser.cardsConnections);
+          setState(() {
             _cardsList = _cardsList.reversed.toList();
-          }
-          _saving = false;
-        });
+            _saving = false;
+          });
+        } else {
+          setState(() {
+            _saving = false;
+          });
+        }
       }
     });
   }
