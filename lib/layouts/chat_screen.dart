@@ -5,6 +5,7 @@ import 'package:contractor_search/layouts/image_preview_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/models/MessageHeader.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
@@ -377,13 +378,18 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Widget _selectMessageLayout(Object item, int position) {
     if (item is UserMessage) {
       if (item.sharedContact != null) {
+        UserTag mainTag;
+        if (item.sharedContact.tags != null) {
+          mainTag = getMainTag(item.sharedContact);
+        }
         return generateContactUI(
             item.sharedContact,
             item.sharedContact,
-            "#hardCodedTag",
-            0,
+            mainTag != null ? mainTag.tag.name : '',
+            mainTag != null ? mainTag.score : -1,
             () => _startConversation(item.sharedContact),
-            null,(){});
+            null,
+            () {});
       }
 
       if (item.cardModel != null) {

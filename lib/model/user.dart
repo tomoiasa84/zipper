@@ -13,7 +13,8 @@ class User {
         'id': id,
         'name': name,
         'phoneNumber': phoneNumber,
-        'isActive': isActive
+        'isActive': isActive,
+        'tags': tags
       };
 
   User.fromJson(Map<String, dynamic> json)

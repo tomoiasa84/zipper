@@ -3,6 +3,15 @@ import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 
 class UserTag {
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'user': user,
+        'tag': tag,
+        'reviews': reviews,
+        'score': score,
+        'default': defaultTag
+      };
+
   UserTag.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         user = json['user'] != null ? User.fromJson(json['user']) : null,
