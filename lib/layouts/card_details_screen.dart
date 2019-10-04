@@ -2,12 +2,15 @@ import 'package:contractor_search/bloc/card_details_bloc.dart';
 import 'package:contractor_search/layouts/recommend_friend_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+
+import 'chat_screen.dart';
 
 class CardDetailsScreen extends StatefulWidget {
   final int cardId;
@@ -98,8 +101,18 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
         : Container();
   }
 
+  void _startConversation(User user) {
+    _cardDetailsBloc.createConversation(user).then((pubNubConversation) {
+      Navigator.of(context).pushReplacement(new MaterialPageRoute(
+          builder: (BuildContext context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)));
+    });
+  }
+
   Widget _generateContactUI(int index) {
-    int score = getScoreForSearchedTag(_card.recommendsList.elementAt(index).userRecommend.tags, _card.recommendsList.elementAt(index).card.searchFor);
+    int score = getScoreForSearchedTag(
+        _card.recommendsList.elementAt(index).userRecommend.tags,
+        _card.recommendsList.elementAt(index).card.searchFor);
     return Container(
       padding: const EdgeInsets.only(top: 16.0),
       child: Column(
@@ -170,7 +183,11 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                         Container(
                           decoration: getRoundWhiteCircle(),
                           child: GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              _startConversation(_card.recommendsList
+                                  .elementAt(index)
+                                  .userRecommend);
+                            },
                             child: Image.asset(
                               "assets/images/ic_inbox_circle_accent.png",
                               color: ColorUtils.messageOrange,

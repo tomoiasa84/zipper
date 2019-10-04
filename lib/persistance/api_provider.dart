@@ -381,6 +381,7 @@ class ApiProvider {
                          }
                          userRecommand{
                            name
+                           id
                             tags{
                                 id
                                 default
