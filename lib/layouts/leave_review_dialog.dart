@@ -67,24 +67,27 @@ class LeaveReviewDialogState extends State<LeaveReviewDialog> {
               )
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 21.0),
-            child: TextFormField(
-              controller: _reviewDetailsController,
-              maxLines: 5,
-              style: TextStyle(color: ColorUtils.darkGray, height: 1.5),
-              textAlign: TextAlign.justify,
-              onChanged: (value) {},
-              decoration: InputDecoration(
-                hintText: Localization.of(context).getString('typeAMessage'),
-                border: InputBorder.none,
+          Flexible(
+            flex: 1,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 21.0),
+              child: TextFormField(
+                controller: _reviewDetailsController,
+                maxLines: 5,
+                style: TextStyle(color: ColorUtils.darkGray, height: 1.5),
+                textAlign: TextAlign.justify,
+                onChanged: (value) {},
+                decoration: InputDecoration(
+                  hintText: Localization.of(context).getString('typeAMessage'),
+                  border: InputBorder.none,
+                ),
               ),
             ),
           ),
           GestureDetector(
             onTap: () {
-              Navigator.pop(
-                  context, LeaveReviewModel(_reviewDetailsController.text, rating));
+              Navigator.pop(context,
+                  LeaveReviewModel(_reviewDetailsController.text, rating));
             },
             child: Container(
               alignment: Alignment.centerRight,
@@ -101,4 +104,3 @@ class LeaveReviewDialogState extends State<LeaveReviewDialog> {
     );
   }
 }
-
