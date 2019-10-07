@@ -28,7 +28,7 @@ class UserDetailsScreen extends StatefulWidget {
 }
 
 class UserDetailsScreenState extends State<UserDetailsScreen> {
-  UserDetailsBloc _userDetailsBloc;
+  UserDetailsBloc _userDetailsBloc = UserDetailsBloc();
   User _user;
   User _currentUser;
   Connection _connection;
@@ -85,12 +85,16 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     }
   }
 
-  void _onContactTapped() {
+  _onContactTapped() {
+    setState(() {
+      _saving = true;
+    });
     if (_connectedToUser) {
       _deleteConnection();
     } else {
       _createConnection();
     }
+    _getUserAndCurrentUser();
   }
 
   Future<PermissionStatus> _getContactPermission() async {
@@ -144,9 +148,6 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   void _deleteConnection() {
-    setState(() {
-      _saving = true;
-    });
     _userDetailsBloc.deleteConnection(_connection.id).then((onValue) {
       setState(() {
         _saving = false;
@@ -171,6 +172,10 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
       Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) =>
               ChatScreen(pubNubConversation: pubNubConversation)));
+    }).then((value){
+      setState(() {
+        _saving = false;
+      });
     });
   }
 

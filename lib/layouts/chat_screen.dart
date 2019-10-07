@@ -15,12 +15,10 @@ import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
-import 'package:contractor_search/utils/custom_load_more_delegate.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:loadmore/loadmore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -35,14 +33,14 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
-  final ScrollController _listScrollController = new ScrollController();
+  final ScrollController _controller = new ScrollController();
   final List<Object> _listOfMessages = new List();
   final ChatBloc _chatBloc = ChatBloc();
   PubNubConversation _pubNubConversation;
   StreamSubscription _subscription;
   User _interlocutorUser;
   User _currentUser;
-  bool _loading = false;
+  bool _loading = true;
 
   final TextEditingController _textEditingController =
       new TextEditingController();
@@ -137,6 +135,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _pubNubConversation = widget.pubNubConversation;
     _initScreen();
+    _controller.addListener(_scrollListener);
+    _loadMore().then((onValue) {
+      setState(() {
+        _loading = false;
+      });
+    });
+  }
+
+  _scrollListener() {
+    if (_controller.offset >= _controller.position.maxScrollExtent &&
+        !_controller.position.outOfRange) {
+      setState(() {
+        _loadMore();
+      });
+    }
   }
 
   @override
@@ -194,7 +207,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   Future<bool> _loadMore() async {
     if (_pubNubConversation == null) {
-      return true;
+      return false;
     }
     if (_chatBloc.historyStart != 0) {
       await _chatBloc
@@ -251,11 +264,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         var nextItem = _listOfMessages[i + 1];
         if (currentItem is UserMessage) {
           if (_datesDontMatch(currentItem, nextItem)) {
-            _listOfMessages.insert(i + 1, MessageHeader(currentItem.timestamp));
+            setState(() {
+              _listOfMessages.insert(
+                  i + 1, MessageHeader(currentItem.timestamp));
+            });
           }
         } else if (currentItem is MessageHeader) {
           if (_duplicateHeader(currentItem, i)) {
-            _listOfMessages.remove(currentItem);
+            setState(() {
+              _listOfMessages.remove(currentItem);
+            });
           }
         }
       }
@@ -264,7 +282,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   bool _duplicateHeader(MessageHeader currentItem, int i) {
     if (_listOfMessages.elementAt(_listOfMessages.length - 1) != currentItem) {
-      var previousItem = _listOfMessages[i] as UserMessage;
+      var previousItem = _listOfMessages[i - 1] as UserMessage;
       var nextItem = _listOfMessages[i + 1] as UserMessage;
       if (currentItem.timestamp.day == previousItem.timestamp.day &&
           currentItem.timestamp.day == nextItem.timestamp.day &&
@@ -351,25 +369,19 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   Widget getListView(List<Object> listOfMessages) {
-    var listView = LoadMore(
-      delegate: CustomLoadMoreDelegate(context),
-      isFinish: _chatBloc.historyStart == 0 || _chatBloc.stopFetchingMessages(),
-      onLoadMore: _loadMore,
-      child: ListView.builder(
-        reverse: true,
-        padding: EdgeInsets.fromLTRB(0, 0, 0, 8),
-        itemBuilder: (context, position) {
-          var item = listOfMessages[position];
-          return GestureDetector(
-            child: _selectMessageLayout(item, position),
-            onTap: () => _goToImagePreview(item),
-          );
-        },
-        itemCount: listOfMessages.length,
-        controller: _listScrollController,
-      ),
+    return ListView.builder(
+      reverse: true,
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 8),
+      itemBuilder: (context, position) {
+        var item = listOfMessages[position];
+        return GestureDetector(
+          child: _selectMessageLayout(item, position),
+          onTap: () => _goToImagePreview(item),
+        );
+      },
+      itemCount: listOfMessages.length,
+      controller: _controller,
     );
-    return listView;
   }
 
   void _goToImagePreview(Object item) {
