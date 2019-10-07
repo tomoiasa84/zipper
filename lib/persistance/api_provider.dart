@@ -200,6 +200,7 @@ class ApiProvider {
                           reviews{
                             author{
                               name
+                              profileURL
                             }
                             stars
                            userTag{
@@ -214,6 +215,7 @@ class ApiProvider {
                               id
                               author{
                                 name
+                                profileURL
                               }
                               userTag{
                                  id
@@ -230,6 +232,7 @@ class ApiProvider {
                          reviews{
                             author{
                               name
+                              profileURL
                             }
                             stars
                            userTag{
@@ -244,6 +247,7 @@ class ApiProvider {
                               id
                               author{
                                 name
+                                profileURL
                               }
                               userTag{
                                  id
@@ -671,6 +675,7 @@ class ApiProvider {
                           score
                           reviews{
                             author{
+                              profileURL
                               name
                             }
                             stars
@@ -685,6 +690,7 @@ class ApiProvider {
                             reviews{
                               id
                               author{
+                                profileURL
                                 name
                               }
                               userTag{
@@ -707,6 +713,7 @@ class ApiProvider {
                          reviews{
                             author{
                               name
+                              profileURL
                             }
                             stars
                            userTag{
@@ -721,6 +728,7 @@ class ApiProvider {
                               id
                               author{
                                 name
+                                profileURL
                               }
                               userTag{
                                  id
@@ -857,6 +865,7 @@ class ApiProvider {
                           id
                           author{
                             name
+                            profileURL
                           }
                           userTag{
                             id
@@ -870,6 +879,7 @@ class ApiProvider {
                               id
                               author{
                                 name
+                                profileURL
                               }
                               userTag{
                                  id

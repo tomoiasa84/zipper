@@ -127,17 +127,25 @@ class ReviewsScreenState extends State<ReviewsScreen> {
     return Row(
       children: <Widget>[
         Container(
-            margin: EdgeInsets.only(
-              right: 8.0,
-            ),
-            width: 24,
-            height: 24,
-            decoration: new BoxDecoration(
-                shape: BoxShape.circle,
-                image: new DecorationImage(
-                    fit: BoxFit.cover,
-                    image: new NetworkImage(
-                        "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))),
+          margin: EdgeInsets.only(
+            right: 8.0,
+          ),
+          width: 24,
+          height: 24,
+          decoration: new BoxDecoration(
+            shape: BoxShape.circle,
+          ),
+          child: CircleAvatar(
+            child: review.author.profilePicUrl == null
+                ? Text(getInitials(review.author.name),
+                    style: TextStyle(color: ColorUtils.darkerGray))
+                : null,
+            backgroundImage: review.author.profilePicUrl != null
+                ? NetworkImage(review.author.profilePicUrl)
+                : null,
+            backgroundColor: ColorUtils.lightLightGray,
+          ),
+        ),
         Text(review.author.name,
             style: TextStyle(
                 color: ColorUtils.darkGray, fontWeight: FontWeight.bold))
