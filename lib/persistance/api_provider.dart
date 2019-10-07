@@ -6,6 +6,7 @@ import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -52,6 +53,7 @@ class ApiProvider {
                             originUser{
                               id
                              name
+                             profileURL
                              isActive
                              phoneNumber
                              tags{
@@ -927,7 +929,8 @@ class ApiProvider {
   }
 
   Future<bool> sendMessage(String channelId, PnGCM pnGCM) async {
-    var encodedMessage = convert.jsonEncode(pnGCM.toJson());
+    var encodedMessage =
+        escapeJsonCharacters(convert.jsonEncode(pnGCM.toJson()));
     var url =
         "$_baseUrl/publish/$_publishKey/$_subscribeKey/0/$channelId/myCallback/$encodedMessage";
 
@@ -985,13 +988,16 @@ class ApiProvider {
                               userAsk{
                                 id
                                 name
+                                profileURL
                               }
                               userSend{
                                 id
                                 name
+                                profileURL
                               }
                                userRecommand{
                                    name
+                                   profileURL
                                     tags{
                                         id
                                         default

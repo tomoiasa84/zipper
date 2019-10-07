@@ -6,6 +6,8 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/star_display.dart';
 import 'package:flutter/material.dart';
 
+import 'general_methods.dart';
+
 Container buildLogo(BuildContext context) {
   return Container(
     margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.097),
@@ -253,15 +255,21 @@ Widget generateContactUI(
               ),
             ),
             Container(
-                margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
-                width: 56,
-                height: 56,
-                decoration: new BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: new DecorationImage(
-                        fit: BoxFit.cover,
-                        image: new NetworkImage(
-                            "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg"))))
+              margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
+              width: 56,
+              height: 56,
+              decoration: new BoxDecoration(shape: BoxShape.circle),
+              child: CircleAvatar(
+                child: userRec.profilePicUrl == null
+                    ? Text(getInitials(userRec.name),
+                        style: TextStyle(color: ColorUtils.darkerGray))
+                    : null,
+                backgroundImage: userRec.profilePicUrl != null
+                    ? NetworkImage(userRec.profilePicUrl)
+                    : null,
+                backgroundColor: ColorUtils.lightLightGray,
+              ),
+            )
           ],
         ),
         Visibility(
