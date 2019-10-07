@@ -2,6 +2,7 @@ import 'package:contractor_search/bloc/user_details_bloc.dart';
 import 'package:contractor_search/layouts/leave_review_dialog.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
 import 'package:contractor_search/layouts/send_in_chat_screen.dart';
+import 'package:contractor_search/model/connection_model.dart';
 import 'package:contractor_search/model/leave_review_model.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/user.dart';
@@ -28,30 +29,44 @@ class UserDetailsScreen extends StatefulWidget {
 class UserDetailsScreenState extends State<UserDetailsScreen> {
   UserDetailsBloc _userDetailsBloc;
   User _user;
+  User _currentUser;
+  Connection _connection;
   bool _saving = false;
+  bool _connectedToUser = false;
   UserTag _mainUserTag;
 
   @override
   void initState() {
-    getCurrentUser();
+    _getUserAndCurrentUser();
     super.initState();
   }
 
-  void getCurrentUser() {
+  Future _getUserAndCurrentUser() async {
     _userDetailsBloc = UserDetailsBloc();
     if (mounted) {
       setState(() {
         _saving = true;
       });
     }
-    _userDetailsBloc.getCurrentUser(widget.userId).then((result) {
+    await _userDetailsBloc.getUser(widget.userId).then((result) {
       if (result.data != null && mounted) {
         setState(() {
           _user = User.fromJson(result.data['get_user']);
-          _saving = false;
           _getMainTag();
         });
       }
+    });
+    await getCurrentUserId().then((currentUserId) {
+      _userDetailsBloc.getUser(currentUserId).then((result) {
+        if (result.data != null && mounted) {
+          setState(() {
+            _currentUser = User.fromJson(result.data['get_user']);
+          });
+        }
+      });
+    });
+    setState(() {
+      _saving = false;
     });
   }
 
@@ -61,20 +76,41 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     }
   }
 
+  void _onContactTapped(){
+    if (_connectedToUser){
+      _deleteConnection();
+    } else {
+      _createConnection();
+    }
+  }
+
   void _createConnection() {
     setState(() {
       _saving = true;
     });
-    getCurrentUserId().then((currentUserId) {
-      _userDetailsBloc
-          .createConnection(currentUserId, _user.id)
-          .then((onValue) {
-        setState(() {
-          _saving = false;
-        });
-        _showDialog(
-            '', Localization.of(context).getString('createdConnection'));
+    _userDetailsBloc
+        .createConnection(_currentUser.id, _user.id)
+        .then((onValue) {
+      setState(() {
+        _saving = false;
+        _connectedToUser = true;
+        _setFollowButtonState();
       });
+      _showDialog('', Localization.of(context).getString('createdConnection'));
+    });
+  }
+
+  void _deleteConnection() {
+    setState(() {
+      _saving = true;
+    });
+    _userDetailsBloc.deleteConnection(_connection.id).then((onValue) {
+      setState(() {
+        _saving = false;
+        _connectedToUser = false;
+        _setFollowButtonState();
+      });
+      _showDialog('', Localization.of(context).getString('deletedConnection'));
     });
   }
 
@@ -238,6 +274,21 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         : Container();
   }
 
+  Image _setFollowButtonState() {
+    for (var connection in _currentUser.connections) {
+      if (connection.targetUser.id == widget.userId) {
+        _connection = connection;
+        _connectedToUser = true;
+        break;
+      }
+    }
+    if (_connectedToUser) {
+      return Image.asset('assets/images/ic_contact_accent_bg.png');
+    } else {
+      return Image.asset('assets/images/ic_contact_gray_bg.png');
+    }
+  }
+
   Container _buildActionsButtons() {
     return Container(
       alignment: Alignment.bottomRight,
@@ -249,10 +300,10 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
               onTap: _sendContactToSomeone,
               child: Image.asset('assets/images/ic_share_accent_bg.png')),
           GestureDetector(
-            onTap: _createConnection,
+            onTap: _onContactTapped,
             child: Padding(
               padding: const EdgeInsets.only(left: 16.0),
-              child: Image.asset('assets/images/ic_contact_accent_bg.png'),
+              child: _setFollowButtonState(),
             ),
           ),
           GestureDetector(
@@ -361,7 +412,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
           .then((result) {
         if (result.errors == null) {
           setState(() {
-            getCurrentUser();
+            _getUserAndCurrentUser();
             _saving = false;
           });
           _showDialog(Localization.of(context).getString('success'),
