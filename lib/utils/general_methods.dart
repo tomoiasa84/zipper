@@ -92,6 +92,10 @@ String escapeJsonCharacters(String myString) {
   return string.replaceAll("?", "%3F");
 }
 
+String removeMultilineCharacters(String text){
+  return text.replaceAll("\n", " ");
+}
+
 String getTimeDifference(String time) {
   DateTime date = parseDateFromString(time);
 

@@ -2,6 +2,7 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/persistance/repository.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class UserDetailsBloc {
@@ -25,7 +26,8 @@ class UserDetailsBloc {
 
   Future<QueryResult> createReview(
       String userId, int userTagId, int stars, String text) async {
-    return _repository.createReview(userId, userTagId, stars, text);
+    return _repository.createReview(
+        userId, userTagId, stars, removeMultilineCharacters(text));
   }
 
   Future<dynamic> addContact(String displayName, String phoneNumber) {
