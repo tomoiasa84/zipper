@@ -1,3 +1,4 @@
+import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/persistance/repository.dart';
@@ -25,5 +26,12 @@ class UserDetailsBloc {
   Future<QueryResult> createReview(
       String userId, int userTagId, int stars, String text) async {
     return _repository.createReview(userId, userTagId, stars, text);
+  }
+
+  Future<dynamic> addContact(String displayName, String phoneNumber) {
+    Contact contact = Contact();
+    contact.familyName = displayName;
+    contact.phones = [Item(label: "mobile", value: phoneNumber)];
+    return ContactsService.addContact(contact);
   }
 }

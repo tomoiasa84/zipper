@@ -14,6 +14,7 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'chat_screen.dart';
 
@@ -76,28 +77,61 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     }
   }
 
-  void _onContactTapped(){
-    if (_connectedToUser){
+  void _onContactTapped() {
+    if (_connectedToUser) {
       _deleteConnection();
     } else {
       _createConnection();
     }
   }
 
+  Future<PermissionStatus> _getContactPermission() async {
+    PermissionStatus permission = await PermissionHandler()
+        .checkPermissionStatus(PermissionGroup.contacts);
+    if (permission != PermissionStatus.granted &&
+        permission != PermissionStatus.disabled) {
+      Map<PermissionGroup, PermissionStatus> permissionStatus =
+          await PermissionHandler()
+              .requestPermissions([PermissionGroup.contacts]);
+      return permissionStatus[PermissionGroup.contacts] ??
+          PermissionStatus.unknown;
+    } else {
+      return permission;
+    }
+  }
+
   void _createConnection() {
-    setState(() {
-      _saving = true;
-    });
-    _userDetailsBloc
-        .createConnection(_currentUser.id, _user.id)
-        .then((onValue) {
+    _getContactPermission().then((permission) {
       setState(() {
-        _saving = false;
-        _connectedToUser = true;
-        _setFollowButtonState();
+        _saving = true;
       });
-      _showDialog('', Localization.of(context).getString('createdConnection'));
+      if (permission == PermissionStatus.granted) {
+        _userDetailsBloc
+            .createConnection(_currentUser.id, _user.id)
+            .then((onValue) {
+          _addContactToPhoneAgenda();
+        });
+      } else {
+        _userDetailsBloc.createConnection(_currentUser.id, _user.id).then((result){
+          _reflectConnectionUI();
+        });
+      }
     });
+  }
+
+  Future<void> _addContactToPhoneAgenda() async {
+    _userDetailsBloc.addContact(_user.name, _user.phoneNumber).then((_) {
+      _reflectConnectionUI();
+    });
+  }
+
+  void _reflectConnectionUI() {
+    setState(() {
+      _saving = false;
+      _connectedToUser = true;
+      _setFollowButtonState();
+    });
+    _showDialog('', Localization.of(context).getString('createdConnection'));
   }
 
   void _deleteConnection() {
