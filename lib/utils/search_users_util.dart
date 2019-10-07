@@ -56,10 +56,18 @@ class UserSearch extends SearchDelegate<String> {
           width: 32,
           height: 32,
           decoration: new BoxDecoration(
-              shape: BoxShape.circle,
-              image: new DecorationImage(
-                  fit: BoxFit.cover,
-                  image: new NetworkImage("https://i.imgur.com/BoN9kdC.png"))),
+            shape: BoxShape.circle,
+          ),
+          child: CircleAvatar(
+            child: _users.elementAt(index).profilePicUrl == null
+                ? Text(getInitials(_users.elementAt(index).name),
+                    style: TextStyle(color: ColorUtils.darkerGray))
+                : null,
+            backgroundImage: _users.elementAt(index).profilePicUrl != null
+                ? NetworkImage(_users.elementAt(index).profilePicUrl)
+                : null,
+            backgroundColor: ColorUtils.lightLightGray,
+          ),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
