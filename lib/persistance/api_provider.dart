@@ -70,6 +70,7 @@ class ApiProvider {
                             targetUser{
                               id
                              name
+                             profileURL
                              isActive
                              phoneNumber
                              tags{
@@ -456,6 +457,7 @@ class ApiProvider {
                       postedBy{
                         name
                         id
+                        profileURL
                       }
                       searchFor{
                         name
@@ -484,6 +486,7 @@ class ApiProvider {
                          userRecommand{
                            name
                            id
+                           profileURL
                             tags{
                                 id
                                 default
@@ -536,9 +539,6 @@ class ApiProvider {
                                   city
                               }
                               isActive
-                              connections{
-                                   name
-                              }
                               cards{
                                   id
                                   createdAt

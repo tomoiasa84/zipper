@@ -47,9 +47,10 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
         User currentUser = User.fromJson(result.data['get_user']);
         if (currentUser != null && currentUser.cardsConnections != null) {
           setState(() {
-            currentUser.connections.forEach((conenction) {
-              if (hasSearchedTag(conenction.targetUser) && conenction.id != widget.card.postedBy.id) {
-                usersWithSearchedTag.add(conenction.targetUser);
+            currentUser.connections.forEach((connection) {
+              if (hasSearchedTag(connection.targetUser) &&
+                  connection.targetUser.id != widget.card.postedBy.id) {
+                usersWithSearchedTag.add(connection.targetUser);
               }
             });
             _saving = false;
@@ -219,15 +220,20 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
         Row(
           children: <Widget>[
             Container(
-                margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
-                width: 24,
-                height: 24,
-                decoration: new BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: new DecorationImage(
-                        fit: BoxFit.cover,
-                        image: new NetworkImage(
-                            "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))),
+              margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
+              width: 24,
+              height: 24,
+              child: CircleAvatar(
+                child: users.elementAt(index).profilePicUrl == null
+                    ? Text(getInitials(users.elementAt(index).name),
+                        style: TextStyle(color: ColorUtils.darkerGray))
+                    : null,
+                backgroundImage: users.elementAt(index).profilePicUrl != null
+                    ? NetworkImage(users.elementAt(index).profilePicUrl)
+                    : null,
+                backgroundColor: ColorUtils.lightLightGray,
+              ),
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 12.0),

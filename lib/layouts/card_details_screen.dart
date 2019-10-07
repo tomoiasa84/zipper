@@ -205,15 +205,35 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                 top: 8,
                 bottom: 8,
                 child: Container(
-                    margin: EdgeInsets.fromLTRB(0, 4, 0, 4),
-                    width: 56,
-                    height: 56,
-                    decoration: new BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: new DecorationImage(
-                            fit: BoxFit.cover,
-                            image: new NetworkImage(
-                                "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))),
+                  margin: EdgeInsets.fromLTRB(0, 4, 0, 4),
+                  width: 56,
+                  height: 56,
+                  child: CircleAvatar(
+                    child: _card.recommendsList
+                                .elementAt(index)
+                                .userRecommend
+                                .profilePicUrl ==
+                            null
+                        ? Text(
+                            getInitials(_card.recommendsList
+                                .elementAt(index)
+                                .userRecommend
+                                .name),
+                            style: TextStyle(color: ColorUtils.darkerGray))
+                        : null,
+                    backgroundImage: _card.recommendsList
+                                .elementAt(index)
+                                .userRecommend
+                                .profilePicUrl !=
+                            null
+                        ? NetworkImage(_card.recommendsList
+                            .elementAt(index)
+                            .userRecommend
+                            .profilePicUrl)
+                        : null,
+                    backgroundColor: ColorUtils.lightLightGray,
+                  ),
+                ),
               ),
             ],
           ),
