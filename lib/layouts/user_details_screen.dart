@@ -51,23 +51,31 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     }
     await _userDetailsBloc.getUser(widget.userId).then((result) {
       if (result.data != null && mounted) {
-        setState(() {
-          _user = User.fromJson(result.data['get_user']);
-          _getMainTag();
+        getCurrentUserId().then((currentUserId) {
+          _userDetailsBloc.getUser(currentUserId).then((currentUserResult) {
+            if (currentUserResult.data != null && mounted) {
+              setState(() {
+                _user = User.fromJson(result.data['get_user']);
+                _currentUser =
+                    User.fromJson(currentUserResult.data['get_user']);
+                for (var connection in _currentUser.connections) {
+                  if (connection.targetUser.id == widget.userId) {
+                    _connection = connection;
+                    _connectedToUser = true;
+                    break;
+                  }
+                }
+                _getMainTag();
+                _saving = false;
+              });
+            } else {
+              setState(() {
+                _saving = false;
+              });
+            }
+          });
         });
       }
-    });
-    await getCurrentUserId().then((currentUserId) {
-      _userDetailsBloc.getUser(currentUserId).then((result) {
-        if (result.data != null && mounted) {
-          setState(() {
-            _currentUser = User.fromJson(result.data['get_user']);
-          });
-        }
-      });
-    });
-    setState(() {
-      _saving = false;
     });
   }
 
@@ -112,7 +120,9 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
           _addContactToPhoneAgenda();
         });
       } else {
-        _userDetailsBloc.createConnection(_currentUser.id, _user.id).then((result){
+        _userDetailsBloc
+            .createConnection(_currentUser.id, _user.id)
+            .then((result) {
           _reflectConnectionUI();
         });
       }
@@ -129,7 +139,6 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     setState(() {
       _saving = false;
       _connectedToUser = true;
-      _setFollowButtonState();
     });
     _showDialog('', Localization.of(context).getString('createdConnection'));
   }
@@ -142,7 +151,6 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
       setState(() {
         _saving = false;
         _connectedToUser = false;
-        _setFollowButtonState();
       });
       _showDialog('', Localization.of(context).getString('deletedConnection'));
     });
@@ -309,13 +317,6 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   Image _setFollowButtonState() {
-    for (var connection in _currentUser.connections) {
-      if (connection.targetUser.id == widget.userId) {
-        _connection = connection;
-        _connectedToUser = true;
-        break;
-      }
-    }
     if (_connectedToUser) {
       return Image.asset('assets/images/ic_contact_accent_bg.png');
     } else {
