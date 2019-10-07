@@ -7,6 +7,7 @@ import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -232,7 +233,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
   }
 
   Container _buildRecentConversations() {
-    return _usersList.isNotEmpty
+    return _recentUserConversations.isNotEmpty
         ? Container(
             margin: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Card(
@@ -276,15 +277,24 @@ class SendInChatScreenState extends State<SendInChatScreen> {
         Row(
           children: <Widget>[
             Container(
-                margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
-                width: 24,
-                height: 24,
-                decoration: new BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: new DecorationImage(
-                        fit: BoxFit.cover,
-                        image: new NetworkImage(
-                            "https://image.shutterstock.com/image-photo/close-portrait-smiling-handsome-man-260nw-1011569245.jpg")))),
+              margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
+              width: 24,
+              height: 24,
+              decoration: new BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              child: CircleAvatar(
+                child: usersList.elementAt(index).profilePicUrl == null
+                    ? Text(getInitials(usersList.elementAt(index).name),
+                        style: TextStyle(color: ColorUtils.darkerGray))
+                    : null,
+                backgroundImage:
+                    usersList.elementAt(index).profilePicUrl != null
+                        ? NetworkImage(usersList.elementAt(index).profilePicUrl)
+                        : null,
+                backgroundColor: ColorUtils.lightLightGray,
+              ),
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 12.0),
