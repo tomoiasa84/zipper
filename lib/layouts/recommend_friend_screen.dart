@@ -31,6 +31,8 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
   RecommendFriendBloc _recommendBloc;
   bool _saving = false;
 
+  var selectedUserIndex = -1;
+
   @override
   void initState() {
     getCurrentUser();
@@ -118,7 +120,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
 
   Container _buildUsersWithTagCard() {
     return Container(
-      margin: const EdgeInsets.only(right: 16.0, left: 16.0, top: 16.0),
+      margin: const EdgeInsets.only(right: 12.0, left: 12.0, top: 16.0),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -153,6 +155,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
           return GestureDetector(
             onTap: () {
               setState(() {
+                selectedUserIndex = index;
                 _saving = true;
               });
               _recommendBloc
@@ -179,7 +182,12 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
               });
             },
             child: Container(
-              padding: const EdgeInsets.only(top: 12.0),
+              padding: const EdgeInsets.only(top: 12.0, left: 4.0, right: 4.0),
+              decoration: BoxDecoration(
+                  color: selectedUserIndex != index
+                      ? ColorUtils.white
+                      : ColorUtils.messageGray,
+                  borderRadius: BorderRadius.all(Radius.circular(6.0))),
               child: _buildUserItem(users, index),
             ),
           );
