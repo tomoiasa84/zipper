@@ -264,11 +264,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         var nextItem = _listOfMessages[i + 1];
         if (currentItem is UserMessage) {
           if (_datesDontMatch(currentItem, nextItem)) {
-            _listOfMessages.insert(i + 1, MessageHeader(currentItem.timestamp));
+            setState(() {
+              _listOfMessages.insert(
+                  i + 1, MessageHeader(currentItem.timestamp));
+            });
           }
         } else if (currentItem is MessageHeader) {
           if (_duplicateHeader(currentItem, i)) {
-            _listOfMessages.remove(currentItem);
+            setState(() {
+              _listOfMessages.remove(currentItem);
+            });
           }
         }
       }
@@ -277,7 +282,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   bool _duplicateHeader(MessageHeader currentItem, int i) {
     if (_listOfMessages.elementAt(_listOfMessages.length - 1) != currentItem) {
-      var previousItem = _listOfMessages[i] as UserMessage;
+      var previousItem = _listOfMessages[i - 1] as UserMessage;
       var nextItem = _listOfMessages[i + 1] as UserMessage;
       if (currentItem.timestamp.day == previousItem.timestamp.day &&
           currentItem.timestamp.day == nextItem.timestamp.day &&
