@@ -16,7 +16,11 @@ class UserSearch extends SearchDelegate<String> {
       IconButton(
         icon: Icon(Icons.clear),
         onPressed: () {
-          query = "";
+          if (query.isEmpty) {
+            close(context, null);
+          } else {
+            query = "";
+          }
         },
       )
     ];
