@@ -88,8 +88,14 @@ class Repository {
     return await appApiProvider.getCards();
   }
 
-  Future<QueryResult> updateUser(String name, int location, String id,
-      String phoneNumber, bool isActive, String description, String profilePicUrl) async {
+  Future<QueryResult> updateUser(
+      String name,
+      int location,
+      String id,
+      String phoneNumber,
+      bool isActive,
+      String description,
+      String profilePicUrl) async {
     return await appApiProvider.updateUser(
         name, location, id, phoneNumber, isActive, description, profilePicUrl);
   }
@@ -130,6 +136,10 @@ class Repository {
 
   Future<QueryResult> checkContacts(List<String> phoneContacts) async {
     return await appApiProvider.checkContacts(phoneContacts);
+  }
+
+  Future<QueryResult> deleteConnection(int connectionId) async {
+    return await appApiProvider.deleteConnection(connectionId);
   }
 
   Future<QueryResult> createReview(

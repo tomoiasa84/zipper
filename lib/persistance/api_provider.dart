@@ -339,7 +339,9 @@ class ApiProvider {
       String currentUserId, String targetUserId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
-                    create_connection(origin:"$currentUserId", target:"$targetUserId")
+                    create_connection(origin:"$currentUserId", target:"$targetUserId"){
+                      id
+                    }
                 }''',
     ));
     return result;
@@ -1017,6 +1019,17 @@ class ApiProvider {
                               acceptedFlag
                             }
                           }''',
+      ),
+    );
+
+    return result;
+  }
+
+  Future<QueryResult> deleteConnection(int connectionId) async {
+    final QueryResult result = await _client.mutate(
+      MutationOptions(
+        document: '''  mutation{
+                delete_connection(connectionId: $connectionId)}''',
       ),
     );
 

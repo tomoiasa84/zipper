@@ -6,7 +6,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 class UserDetailsBloc {
   Repository _repository = Repository();
 
-  Future<QueryResult> getCurrentUser(String userId) async {
+  Future<QueryResult> getUser(String userId) async {
     return await _repository.getUserById(userId);
   }
 
@@ -16,6 +16,10 @@ class UserDetailsBloc {
 
   Future createConnection(String currentUserId, String targetUserId) async {
     return await _repository.createConnection(currentUserId, targetUserId);
+  }
+
+  Future deleteConnection(int connectionId) async {
+    return await _repository.deleteConnection(connectionId);
   }
 
   Future<QueryResult> createReview(
