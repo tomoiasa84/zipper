@@ -185,6 +185,7 @@ class _HomePageState extends State<HomePage> {
                 case NavBarItem.ACCOUNT:
                   return AccountScreen(
                     onChanged: _onBlurredChanged,
+                    isStartedFromHomeScreen: true,
                   );
                 default:
                   return Container();

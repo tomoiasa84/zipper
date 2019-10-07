@@ -21,8 +21,10 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AccountScreen extends StatefulWidget {
   final ValueChanged<bool> onChanged;
+  final bool isStartedFromHomeScreen;
 
-  const AccountScreen({Key key, this.onChanged}) : super(key: key);
+  const AccountScreen({Key key, this.onChanged, this.isStartedFromHomeScreen})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -192,39 +194,49 @@ class AccountScreenState extends State<AccountScreen> {
 
   AppBar _buildAppBar(String popupInitialValue) {
     return AppBar(
-      centerTitle: true,
-      title: Text(
-        Localization.of(context).getString('myProfile'),
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        ),
-      ),
-      actions: <Widget>[
-        Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(10.0))),
-          child: PopupMenuButton<Object>(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0)),
-            elevation: 13.2,
-            offset: Offset(100, 110),
-            initialValue: CustomPopupMenu(title: popupInitialValue),
-            onCanceled: () {
-              widget.onChanged(false);
-            },
-            onSelected: (_) {
-              _select(_);
-            },
-            itemBuilder: (BuildContext context) {
-              widget.onChanged(true);
-              return getMoreOptions(context);
-            },
+        centerTitle: true,
+        title: Text(
+          Localization.of(context).getString('myProfile'),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
           ),
         ),
-      ],
-      automaticallyImplyLeading: false,
-    );
+        actions: <Widget>[
+          widget.isStartedFromHomeScreen
+              ? Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                  child: PopupMenuButton<Object>(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0)),
+                    elevation: 13.2,
+                    offset: Offset(100, 110),
+                    initialValue: CustomPopupMenu(title: popupInitialValue),
+                    onCanceled: () {
+                      widget.onChanged(false);
+                    },
+                    onSelected: (_) {
+                      _select(_);
+                    },
+                    itemBuilder: (BuildContext context) {
+                      widget.onChanged(true);
+                      return getMoreOptions(context);
+                    },
+                  ),
+                )
+              : Container(),
+        ],
+        automaticallyImplyLeading: false,
+        leading: widget.isStartedFromHomeScreen
+            ? Container()
+            : IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: ColorUtils.darkerGray,
+                ),
+                onPressed: () => Navigator.pop(context, false),
+              ));
   }
 
   Card _buildMainInfoCard() {
@@ -265,7 +277,7 @@ class AccountScreenState extends State<AccountScreen> {
         CircleAvatar(
           child: _user.profilePicUrl == null
               ? Text(getInitials(_user.name),
-              style: TextStyle(color: ColorUtils.darkerGray))
+                  style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: _user.profilePicUrl != null
               ? NetworkImage(_user.profilePicUrl)
@@ -312,17 +324,19 @@ class AccountScreenState extends State<AccountScreen> {
           ),
         ),
         new Spacer(),
-        GestureDetector(
-          child: Image.asset('assets/images/ic_edit_accent_bg.png'),
-          onTap: () {
-            _goToSettingsScreen();
-          },
-        )
+        widget.isStartedFromHomeScreen
+            ? GestureDetector(
+                child: Image.asset('assets/images/ic_edit_accent_bg.png'),
+                onTap: () {
+                  _goToSettingsScreen();
+                },
+              )
+            : Container()
       ],
     );
   }
 
-  Card _buildSkillsCard() {
+  Widget _buildSkillsCard() {
     return Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -362,19 +376,21 @@ class AccountScreenState extends State<AccountScreen> {
         ));
   }
 
-  ListView _buildCardsList() {
-    return ListView.builder(
-        shrinkWrap: true,
-        primary: false,
-        itemCount: _user.cards.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Container(
-              margin: EdgeInsets.only(
-                top: (index == 0) ? 8.0 : 0.0,
-                bottom: (index == _user.cards.length - 1) ? 24.0 : 0.0,
-              ),
-              child: _buildCardItem(_user.cards.elementAt(index)));
-        });
+  Widget _buildCardsList() {
+    return widget.isStartedFromHomeScreen
+        ? ListView.builder(
+            shrinkWrap: true,
+            primary: false,
+            itemCount: _user.cards.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Container(
+                  margin: EdgeInsets.only(
+                    top: (index == 0) ? 8.0 : 0.0,
+                    bottom: (index == _user.cards.length - 1) ? 24.0 : 0.0,
+                  ),
+                  child: _buildCardItem(_user.cards.elementAt(index)));
+            })
+        : Container();
   }
 
   GestureDetector _buildCardItem(CardModel card) {
@@ -443,7 +459,7 @@ class AccountScreenState extends State<AccountScreen> {
         CircleAvatar(
           child: _user.profilePicUrl == null
               ? Text(getInitials(_user.name),
-              style: TextStyle(color: ColorUtils.darkerGray))
+                  style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: _user.profilePicUrl != null
               ? NetworkImage(_user.profilePicUrl)

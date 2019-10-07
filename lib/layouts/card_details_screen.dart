@@ -1,4 +1,5 @@
 import 'package:contractor_search/bloc/card_details_bloc.dart';
+import 'package:contractor_search/layouts/account_screen.dart';
 import 'package:contractor_search/layouts/recommend_friend_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
@@ -250,14 +251,26 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => UserDetailsScreen(_card
-                                  .recommendsList
-                                  .elementAt(index)
-                                  .userSend
-                                  .id)));
+                      getCurrentUserId().then((currentUserId) {
+                        if (currentUserId ==
+                            _card.recommendsList.elementAt(index).userSend.id) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AccountScreen(
+                                    isStartedFromHomeScreen: false
+                                      )));
+                        } else {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UserDetailsScreen(_card
+                                      .recommendsList
+                                      .elementAt(index)
+                                      .userSend
+                                      .id)));
+                        }
+                      });
                     },
                     child: Text(
                       _card.recommendsList.elementAt(index).userSend.name,
