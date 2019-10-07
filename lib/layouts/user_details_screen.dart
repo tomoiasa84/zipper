@@ -115,6 +115,10 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
       Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) =>
               ChatScreen(pubNubConversation: pubNubConversation)));
+    }).then((value){
+      setState(() {
+        _saving = false;
+      });
     });
   }
 
