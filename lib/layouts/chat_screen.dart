@@ -35,7 +35,7 @@ class ChatScreen extends StatefulWidget {
   _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
+class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _controller = new ScrollController();
   final List<Object> _listOfMessages = new List();
   final ChatBloc _chatBloc = ChatBloc();
@@ -135,7 +135,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     _pubNubConversation = widget.pubNubConversation;
     _initScreen();
     _controller.addListener(_scrollListener);
@@ -152,14 +151,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       setState(() {
         _loadMore();
       });
-    }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      _initScreen();
     }
   }
 
