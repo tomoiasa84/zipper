@@ -27,9 +27,16 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   CardDetailsBloc _cardDetailsBloc;
   bool _saving = false;
 
+  String _currentUserId;
+
   @override
   void initState() {
     getCurrentCard();
+    getCurrentUserId().then((currentUserId) {
+      setState(() {
+        _currentUserId = currentUserId;
+      });
+    });
     super.initState();
   }
 
@@ -181,22 +188,28 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                             ],
                           ),
                         ),
-                        Container(
-                          decoration: getRoundWhiteCircle(),
-                          child: GestureDetector(
-                            onTap: () {
-                              _startConversation(_card.recommendsList
-                                  .elementAt(index)
-                                  .userRecommend);
-                            },
-                            child: Image.asset(
-                              "assets/images/ic_inbox_circle_accent.png",
-                              color: ColorUtils.messageOrange,
-                            ),
-                          ),
-                          width: 40,
-                          height: 40,
-                        )
+                        _card.recommendsList
+                                    .elementAt(index)
+                                    .userRecommend
+                                    .id !=
+                                _currentUserId
+                            ? Container(
+                                decoration: getRoundWhiteCircle(),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    _startConversation(_card.recommendsList
+                                        .elementAt(index)
+                                        .userRecommend);
+                                  },
+                                  child: Image.asset(
+                                    "assets/images/ic_inbox_circle_accent.png",
+                                    color: ColorUtils.messageOrange,
+                                  ),
+                                ),
+                                width: 40,
+                                height: 40,
+                              )
+                            : Container()
                       ],
                     ),
                   ),
@@ -258,8 +271,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AccountScreen(
-                                    isStartedFromHomeScreen: false
-                                      )));
+                                      isStartedFromHomeScreen: false)));
                         } else {
                           Navigator.push(
                               context,
