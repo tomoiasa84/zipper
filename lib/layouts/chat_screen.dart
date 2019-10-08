@@ -19,6 +19,7 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -908,8 +909,20 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
             child: Text(
-                cardModel.recommendsCount.toString() +
-                    Localization.of(context).getString('replies'),
+                Intl.plural(
+                  cardModel.recommendsCount,
+                  zero: Localization.of(context).getString('noReplies'),
+                  one: cardModel.recommendsCount.toString() +
+                      Localization.of(context).getString('reply'),
+                  two: cardModel.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                  few: cardModel.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                  many: cardModel.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                  other: cardModel.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                ),
                 style: TextStyle(
                   color: ColorUtils.darkerGray,
                 )),

@@ -10,7 +10,7 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-
+import 'package:intl/intl.dart';
 import 'chat_screen.dart';
 
 class CardDetailsScreen extends StatefulWidget {
@@ -396,8 +396,15 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
             child: Text(
-                _card.recommendsCount.toString() +
-                    Localization.of(context).getString('replies'),
+              Intl.plural(
+    _card.recommendsCount,
+                zero: Localization.of(context).getString('noReplies'),
+                one: _card.recommendsCount.toString() + Localization.of(context).getString('reply'),
+                two: _card.recommendsCount.toString() + Localization.of(context).getString('replies'),
+                few: _card.recommendsCount.toString() + Localization.of(context).getString('replies'),
+                many: _card.recommendsCount.toString() + Localization.of(context).getString('replies'),
+                other: _card.recommendsCount.toString() + Localization.of(context).getString('replies'),
+              ),
                 style: TextStyle(
                   color: ColorUtils.darkerGray,
                 )),

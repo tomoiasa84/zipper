@@ -5,6 +5,7 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class RepliesScreen extends StatefulWidget {
   final CardModel card;
@@ -44,7 +45,8 @@ class RepliesScreenState extends State<RepliesScreen> {
             recommend.userRecommend,
             recommend.userSend,
             recommend.card.searchFor.name,
-            getScoreForSearchedTag(recommend.userRecommend.tags,recommend.card.searchFor),
+            getScoreForSearchedTag(
+                recommend.userRecommend.tags, recommend.card.searchFor),
             () {},
             Localization.of(context).getString('recommendedBy'), (userSend) {
           Navigator.push(
@@ -158,8 +160,20 @@ class RepliesScreenState extends State<RepliesScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
             child: Text(
-                widget.card.recommendsCount.toString() +
-                    Localization.of(context).getString('replies'),
+                Intl.plural(
+                  widget.card.recommendsCount,
+                  zero: Localization.of(context).getString('noReplies'),
+                  one: widget.card.recommendsCount.toString() +
+                      Localization.of(context).getString('reply'),
+                  two: widget.card.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                  few: widget.card.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                  many: widget.card.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                  other: widget.card.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                ),
                 style: TextStyle(
                   color: ColorUtils.darkerGray,
                 )),
