@@ -26,19 +26,17 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
 
   @override
   void initState() {
-    _selectContactBloc.getUsers().then((result) {
+    _selectContactBloc.getCurrentUser().then((result) {
       if (result.data != null) {
-        final List<Map<String, dynamic>> users =
-            result.data['get_users'].cast<Map<String, dynamic>>();
-        users.forEach((item) {
-          var user = User.fromJson(item);
-          if (user.isActive) {
-            _usersList.add(user);
-          }
+        User currentUser = User.fromJson(result.data['get_user']);
+        currentUser.connections.forEach((connection) {
+          _usersList.add(connection.targetUser);
         });
-        setState(() {
-          _loading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _loading = false;
+          });
+        }
       }
     });
     super.initState();
