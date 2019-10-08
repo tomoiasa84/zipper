@@ -38,6 +38,14 @@ class MyAppState extends State<MyApp> {
       DeviceOrientation.portraitDown,
     ]);
     return MaterialApp(
+        localeResolutionCallback: (deviceLocale, supportedLocales) {
+          for (var supportedLocale in supportedLocales) {
+            if (deviceLocale.languageCode == supportedLocale.languageCode) {
+              return supportedLocale;
+            }
+          }
+          return supportedLocales.elementAt(0);
+        },
         localizationsDelegates: [
           const LocalizationDelegate(),
           GlobalMaterialLocalizations.delegate,

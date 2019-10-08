@@ -14,5 +14,5 @@ class LocalizationDelegate extends LocalizationsDelegate<Localization> {
   }
 
   @override
-  bool shouldReload(LocalizationDelegate old) => false;
+  bool shouldReload(LocalizationDelegate old) => true;
 }
