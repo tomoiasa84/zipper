@@ -22,6 +22,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
+import 'card_details_screen.dart';
+
 class ChatScreen extends StatefulWidget {
   final PubNubConversation pubNubConversation;
   final String conversationId;
@@ -820,28 +822,38 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     return message.messageAuthor == _currentUser.id;
   }
 
-  Padding _buildCardDetails(CardModel cardModel) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
-      child: Stack(
-        children: <Widget>[
-          Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  _buildCardText(cardModel),
-                  _buildDetailsText(cardModel),
-                  _buildCreatedAtInfo(cardModel),
-                ],
+  Widget _buildCardDetails(CardModel cardModel) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => CardDetailsScreen(
+                      cardId: cardModel.id,
+                    )));
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+        child: Stack(
+          children: <Widget>[
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
               ),
-            ),
-          )
-        ],
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    _buildCardText(cardModel),
+                    _buildDetailsText(cardModel),
+                    _buildCreatedAtInfo(cardModel),
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
