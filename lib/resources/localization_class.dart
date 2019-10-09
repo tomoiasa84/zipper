@@ -154,8 +154,10 @@ class Localization {
       'poor': 'Poor!',
       'veryPoor': 'Very poor!',
       'emptyReviewsList': 'Empty reviews list',
-   'createdConnection': 'Connection successfuly created',
-   'deletedConnection': 'Connection deleted'
+      'createdConnection': 'Connection successfuly created',
+      'deletedConnection': 'Connection deleted',
+      'selectAll': 'Select all',
+      'deselectAll': 'Deselect all'
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -300,9 +302,11 @@ class Localization {
       'good': 'Bun!',
       'poor': 'Slab!',
       'veryPoor': 'Foarte slab!',
-   'emptyReviewsList': 'Nu exista nici un review',
-   'createdConnection': 'Conexiune creata',
-   'deletedConnection': 'Conexiune stearsa'
+      'emptyReviewsList': 'Nu exista nici un review',
+      'createdConnection': 'Conexiune creata',
+      'deletedConnection': 'Conexiune stearsa',
+      'selectAll': 'Selecteaza tot',
+      'deselectAll': 'Deselecteaza tot'
     },
   };
 

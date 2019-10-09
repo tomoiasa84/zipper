@@ -16,6 +16,27 @@ class UnjoinedContactsScreen extends StatefulWidget {
 }
 
 class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
+  bool _allContactsSelected;
+
+  @override
+  void initState() {
+    _setAllContactsSelectedState();
+    super.initState();
+  }
+
+  void _setAllContactsSelectedState() {
+    var i = 0;
+    for (var unjoinedContact in widget.unjoinedContacts) {
+      if (unjoinedContact.selected) {
+        i += 1;
+        break;
+      }
+    }
+    setState(() {
+      _allContactsSelected = i > 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,20 +70,66 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
     );
   }
 
-  ListView _buildUntaggedContactsList() {
-    return ListView.builder(
-        itemCount: widget.unjoinedContacts.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Container(
-              margin: EdgeInsets.only(
-                  top: (index == 0) ? 24.0 : 0.0,
-                  bottom: (index == widget.unjoinedContacts.length - 1)
-                      ? 24.0
-                      : 0.0,
-                  left: 16.0,
-                  right: 16.0),
-              child: _buildListItem(widget.unjoinedContacts.elementAt(index)));
-        });
+  Container _buildUntaggedContactsList() {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              GestureDetector(
+                onTap: _toggleAllContactsSelected,
+                child: Text(
+                    _allContactsSelected
+                        ? Localization.of(context).getString('deselectAll')
+                        : Localization.of(context).getString('selectAll'),
+                    style:
+                        TextStyle(fontSize: 14.0)),
+              ),
+              Container(
+                padding: const EdgeInsets.only(
+                    right: 36.0, left: 8.0, top: 16.0, bottom: 16.0),
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: _toggleAllContactsSelected,
+                  child: Icon(
+                    Icons.check_box,
+                    color: _allContactsSelected
+                        ? ColorUtils.orangeAccent
+                        : ColorUtils.lightLightGray,
+                  ),
+                ),
+              )
+            ],
+          ),
+          Flexible(
+            child: ListView.builder(
+                itemCount: widget.unjoinedContacts.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(
+                      margin: EdgeInsets.only(
+                          top: 0,
+                          bottom: (index == widget.unjoinedContacts.length - 1)
+                              ? 24.0
+                              : 0.0,
+                          left: 16.0,
+                          right: 16.0),
+                      child: _buildListItem(
+                          widget.unjoinedContacts.elementAt(index)));
+                }),
+          )
+        ],
+      ),
+    );
+  }
+
+  void _toggleAllContactsSelected() {
+    setState(() {
+      _allContactsSelected = !_allContactsSelected;
+      for (var unjoinedContact in widget.unjoinedContacts) {
+        unjoinedContact.selected = _allContactsSelected;
+      }
+    });
   }
 
   Card _buildListItem(UnjoinedContactsModel unjoinedContact) {
