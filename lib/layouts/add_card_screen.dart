@@ -317,6 +317,7 @@ class AddCardScreenState extends State<AddCardScreen> {
       children: <Widget>[
         TypeAheadFormField(
           getImmediateSuggestions: true,
+          autoFlipDirection: true,
           textFieldConfiguration: TextFieldConfiguration(
             controller: _addTagsTextEditingController,
             decoration: InputDecoration(
@@ -341,7 +342,8 @@ class AddCardScreenState extends State<AddCardScreen> {
           suggestionsCallback: (pattern) {
             List<String> list = [];
             tagsList
-                .where((it) => it.name.toLowerCase().startsWith(pattern.toLowerCase()))
+                .where((it) =>
+                    it.name.toLowerCase().startsWith(pattern.toLowerCase()))
                 .toList()
                 .forEach((tag) => list.add(tag.name));
             return list;

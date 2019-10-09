@@ -130,7 +130,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   }
 
   void _selectImage() async {
-    await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 15).then((image) {
+    await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 15)
+        .then((image) {
       if (image != null) {
         setState(() {
           _profilePic = image;
@@ -229,6 +230,16 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     _bioTextEditingController.value = new TextEditingValue(
         text: widget.user.description != null ? widget.user.description : "");
     name = widget.user.name;
+  }
+
+  void _addTag() {
+    setState(() {
+      if (_addSkillsTextEditingController.text.isNotEmpty) {
+        _createNewUserTag();
+      }
+    });
+    _addSkillsTextEditingController.clear();
+    FocusScope.of(context).requestFocus(FocusNode());
   }
 
   @override
@@ -558,6 +569,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         children: <Widget>[
           TypeAheadFormField(
             getImmediateSuggestions: true,
+            autoFlipDirection: true,
             textFieldConfiguration: TextFieldConfiguration(
               controller: _addSkillsTextEditingController,
               decoration: InputDecoration(
@@ -581,7 +593,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             suggestionsCallback: (pattern) {
               List<String> list = [];
               tagsList
-                  .where((it) => it.name.startsWith(pattern))
+                  .where((it) =>
+                      it.name.toLowerCase().startsWith(pattern.toLowerCase()))
                   .toList()
                   .forEach((tag) => list.add(tag.name));
               return list;
@@ -608,13 +621,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             padding: const EdgeInsets.all(16.0),
             child: GestureDetector(
               onTap: () {
-                setState(() {
-                  if (_addSkillsTextEditingController.text.isNotEmpty) {
-                    _createNewUserTag();
-                  }
-                });
-                _addSkillsTextEditingController.clear();
-                FocusScope.of(context).requestFocus(FocusNode());
+                _addTag();
               },
               child: Text(
                 Localization.of(context).getString('add'),
