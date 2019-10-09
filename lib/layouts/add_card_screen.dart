@@ -68,6 +68,21 @@ class AddCardScreenState extends State<AddCardScreen> {
     return await SharedPreferencesHelper.getCurrentUserId();
   }
 
+  void _addSelectedTag() {
+    if (_addTagsTextEditingController.text.isNotEmpty) {
+      var tagFound = tagsList.firstWhere(
+          (tag) => tag.name == _addTagsTextEditingController.text.substring(1),
+          orElse: () => null);
+      if (tagFound != null) {
+        setState(() {
+          tag = tagFound;
+        });
+      }
+    }
+    _addTagsTextEditingController.clear();
+    FocusScope.of(context).requestFocus(FocusNode());
+  }
+
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
@@ -251,7 +266,7 @@ class AddCardScreenState extends State<AddCardScreen> {
           CircleAvatar(
             child: _user.profilePicUrl == null
                 ? Text(getInitials(_user.name),
-                style: TextStyle(color: ColorUtils.darkerGray))
+                    style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
             backgroundImage: _user.profilePicUrl != null
                 ? NetworkImage(_user.profilePicUrl)
@@ -341,6 +356,7 @@ class AddCardScreenState extends State<AddCardScreen> {
           },
           onSuggestionSelected: (suggestion) {
             this._addTagsTextEditingController.text = '#' + suggestion;
+            _addSelectedTag();
           },
           validator: (value) {
             if (value.isEmpty) {
@@ -348,32 +364,6 @@ class AddCardScreenState extends State<AddCardScreen> {
             }
             return null;
           },
-        ),
-        Container(
-          padding: const EdgeInsets.all(16.0),
-          child: GestureDetector(
-            onTap: () {
-              if (_addTagsTextEditingController.text.isNotEmpty) {
-                var tagFound = tagsList.firstWhere(
-                    (tag) =>
-                        tag.name ==
-                        _addTagsTextEditingController.text.substring(1),
-                    orElse: () => null);
-                if (tagFound != null) {
-                  setState(() {
-                    tag = tagFound;
-                  });
-                }
-              }
-              _addTagsTextEditingController.clear();
-              FocusScope.of(context).requestFocus(FocusNode());
-            },
-            child: Text(
-              Localization.of(context).getString('add'),
-              style: TextStyle(
-                  color: ColorUtils.orangeAccent, fontWeight: FontWeight.bold),
-            ),
-          ),
         )
       ],
     );
