@@ -130,7 +130,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   }
 
   void _selectImage() async {
-    await ImagePicker.pickImage(source: ImageSource.gallery).then((image) {
+    await ImagePicker.pickImage(source: ImageSource.gallery, imageQuality: 15).then((image) {
       if (image != null) {
         setState(() {
           _profilePic = image;
