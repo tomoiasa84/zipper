@@ -341,7 +341,7 @@ class AddCardScreenState extends State<AddCardScreen> {
           suggestionsCallback: (pattern) {
             List<String> list = [];
             tagsList
-                .where((it) => it.name.startsWith(pattern))
+                .where((it) => it.name.toLowerCase().startsWith(pattern.toLowerCase()))
                 .toList()
                 .forEach((tag) => list.add(tag.name));
             return list;
