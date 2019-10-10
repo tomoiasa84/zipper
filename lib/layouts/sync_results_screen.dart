@@ -223,6 +223,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
               context,
               MaterialPageRoute(
                   builder: (context) => ShareSelectedContactsScreen(
+                    existingUsers: widget.syncResult.existingUsers,
                         unjoinedContacts: widget.syncResult.unjoinedContacts,
                         countryCode: widget.syncResult.countryCode,
                       )),
