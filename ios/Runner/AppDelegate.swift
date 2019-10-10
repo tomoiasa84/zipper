@@ -26,16 +26,24 @@ import Firebase
     
     override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any],
                               fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        print(userInfo["channelId"]!)
-        openChatScreen(conversationId: userInfo["channelId"] as! String)
+        
+        if Auth.auth().canHandleNotification(userInfo) {
+            completionHandler(.noData)
+            return
+        }
+        
+        if let channelInfo = userInfo["channelId"] as? String {
+            print(channelInfo)
+            openChatScreen(conversationId: channelInfo)
+        }
         completionHandler(UIBackgroundFetchResult.newData)
     }
-
+    
     @available(iOS 10.0, *)
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse, withCompletionHandler
         completionHandler: @escaping () -> Void) {
-    
+        
         print(response.notification.request.content.userInfo)
         openChatScreen(conversationId: response.notification.request.content.userInfo["channelId"] as! String)
         return completionHandler()
