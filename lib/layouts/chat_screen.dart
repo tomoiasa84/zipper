@@ -154,8 +154,9 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void _initScreen() {
-    getCurrentUserId().then((currentUserId) {
+  Future _initScreen() async {
+    return getCurrentUserId().then((currentUserId) async {
+      await _setMessagesListener(currentUserId);
       setState(() async {
         if (_pubNubConversation == null) {
           await _chatBloc
@@ -174,8 +175,6 @@ class _ChatScreenState extends State<ChatScreen> {
         }
 
         await getConversationsUsers();
-
-        _setMessagesListener(currentUserId);
         _chatBloc.subscribeToPushNotifications(_pubNubConversation.id);
       });
     });
@@ -217,7 +216,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return true;
   }
 
-  void _setMessagesListener(String currentUserId) {
+  Future _setMessagesListener(String currentUserId) async {
     _chatBloc.subscribeToChannel(_pubNubConversation.id, currentUserId);
     _subscription = _chatBloc.ctrl.stream.listen((message) {
       setState(() {

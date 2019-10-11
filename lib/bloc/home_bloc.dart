@@ -1,13 +1,9 @@
 import 'dart:async';
 
-import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/model/conversation_model.dart';
-import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/persistance/repository.dart';
-import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
 enum NavBarItem { HOME, CONTACTS, PLUS, INBOX, ACCOUNT }
