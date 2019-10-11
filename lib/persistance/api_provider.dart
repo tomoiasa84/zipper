@@ -786,6 +786,30 @@ class ApiProvider {
     return queryResult;
   }
 
+  Future<QueryResult> loadConnections(List<String> existingUsers) async {
+    var existingUsersJson = jsonEncode(existingUsers);
+
+    final QueryResult queryResult = await _client.mutate(
+      MutationOptions(
+        document: '''mutation{
+                        load_connections(existingUsers:$existingUsersJson){
+                          id
+                          originUser{
+                            name
+                            id
+                          }
+                          targetUser{
+                            name
+                            id
+                          }
+                        }
+                      }''',
+      ),
+    );
+
+    return queryResult;
+  }
+
   Future<QueryResult> getLocations() async {
     final QueryResult result = await _unauthenticatedClient.query(QueryOptions(
       // query: readChars,

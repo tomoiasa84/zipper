@@ -43,6 +43,9 @@ class UsersScreenState extends State<UsersScreen> {
         currentUser.connections.forEach((connection) {
           _usersList.add(connection.targetUser);
         });
+        _usersList.sort((a, b) {
+          return b.isActive.toString().compareTo(a.isActive.toString());
+        });
         if (mounted) {
           setState(() {
             _saving = false;
@@ -127,7 +130,7 @@ class UsersScreenState extends State<UsersScreen> {
           leading: CircleAvatar(
             child: user.profilePicUrl == null
                 ? Text(getInitials(user.name),
-                style: TextStyle(color: ColorUtils.darkerGray))
+                    style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
             backgroundImage: user.profilePicUrl != null
                 ? NetworkImage(user.profilePicUrl)
@@ -139,29 +142,29 @@ class UsersScreenState extends State<UsersScreen> {
               Flexible(
                 child: Container(
                     child: Text(
-                      user.isActive ? user.name : user.phoneNumber,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontFamily: 'Arial', fontWeight: FontWeight.bold),
-                    )),
+                  user.isActive ? user.name : user.phoneNumber,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontFamily: 'Arial', fontWeight: FontWeight.bold),
+                )),
               ),
               user.isActive
                   ? Container(
-                padding: const EdgeInsets.only(left: 4.0),
-                child: Image.asset(
-                  "assets/images/ic_contacts.png",
-                  height: 16.0,
-                  width: 16.0,
-                ),
-              )
+                      padding: const EdgeInsets.only(left: 4.0),
+                      child: Image.asset(
+                        "assets/images/ic_contacts.png",
+                        height: 16.0,
+                        width: 16.0,
+                      ),
+                    )
                   : Container()
             ],
           ),
           subtitle: user.isActive
               ? Text(
-            mainTag != null ? '#' + mainTag.tag.name : '',
-            style: TextStyle(color: ColorUtils.messageOrange),
-          )
+                  mainTag != null ? '#' + mainTag.tag.name : '',
+                  style: TextStyle(color: ColorUtils.messageOrange),
+                )
               : null,
         ),
       ),

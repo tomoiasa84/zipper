@@ -39,9 +39,11 @@ class MyAppState extends State<MyApp> {
     ]);
     return MaterialApp(
         localeResolutionCallback: (deviceLocale, supportedLocales) {
-          for (var supportedLocale in supportedLocales) {
-            if (deviceLocale.languageCode == supportedLocale.languageCode) {
-              return supportedLocale;
+          if(deviceLocale!=null) {
+            for (var supportedLocale in supportedLocales) {
+              if (deviceLocale.languageCode == supportedLocale.languageCode) {
+                return supportedLocale;
+              }
             }
           }
           return supportedLocales.elementAt(0);

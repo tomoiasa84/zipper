@@ -120,6 +120,10 @@ class Repository {
     return await appApiProvider.loadContacts(phoneContacts);
   }
 
+  Future<QueryResult> loadConnections(List<String> existingUsers) async {
+    return await appApiProvider.loadConnections(existingUsers);
+  }
+
   Future<QueryResult> getLocations() async {
     return await appApiProvider.getLocations();
   }
