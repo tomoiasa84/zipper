@@ -234,9 +234,11 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
     _smsCodeVerificationBloc = SmsCodeVerificationBloc();
     verificationId = widget.verificationId;
     _codeTimer = Timer(widget.timeOut, () {
-      setState(() {
-        _codeTimedOut = true;
-      });
+      if(mounted) {
+        setState(() {
+          _codeTimedOut = true;
+        });
+      }
     });
     super.initState();
   }
