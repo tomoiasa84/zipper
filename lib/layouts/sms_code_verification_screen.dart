@@ -22,9 +22,10 @@ class SmsCodeVerificationScreen extends StatefulWidget {
   final String location;
   final String phoneNumber;
   final int authType;
+  final Duration timeOut;
 
   SmsCodeVerificationScreen(this.verificationId, this.name, this.location,
-      this.phoneNumber, this.authType);
+      this.phoneNumber, this.authType, this.timeOut);
 
   @override
   SmsCodeVerificationScreenState createState() =>
@@ -232,7 +233,7 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
   void initState() {
     _smsCodeVerificationBloc = SmsCodeVerificationBloc();
     verificationId = widget.verificationId;
-    _codeTimer = Timer(_timeOut, () {
+    _codeTimer = Timer(widget.timeOut, () {
       setState(() {
         _codeTimedOut = true;
       });

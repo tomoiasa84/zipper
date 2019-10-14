@@ -242,7 +242,7 @@ class SignUpScreenState extends State<SignUpScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => SmsCodeVerificationScreen(verificationId,
-                name, _typeAheadController.text, phoneNumber, authType)));
+                name, _typeAheadController.text, phoneNumber, authType, _timeOut)));
   }
 
   @override

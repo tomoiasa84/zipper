@@ -1,12 +1,18 @@
+import 'package:contractor_search/bloc/login_bloc.dart';
 import 'package:contractor_search/layouts/sms_code_verification_screen.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
+import 'package:contractor_search/layouts/tutorial_screen.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/auth_type.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -20,6 +26,9 @@ class LoginScreenState extends State<LoginScreen> {
   String phoneNumber;
   bool _saving = false;
   String verificationId;
+  Duration _timeOut = const Duration(minutes: 1);
+  bool _smsCodeSent = false;
+  LoginBloc _loginBloc;
 
   Future<void> verifyPhone() async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -28,6 +37,7 @@ class LoginScreenState extends State<LoginScreen> {
 
     final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
       this.verificationId = verId;
+      _smsCodeSent = true;
       setState(() {
         _saving = false;
       });
@@ -35,27 +45,131 @@ class LoginScreenState extends State<LoginScreen> {
           context,
           MaterialPageRoute(
               builder: (context) => SmsCodeVerificationScreen(
-                  verificationId, "", "", phoneNumber, AuthType.login)));
+                  verificationId, "", "", phoneNumber, AuthType.login, _timeOut)));
     };
 
-    final PhoneVerificationCompleted verifiedSuccess = (AuthCredential user) {
-      print('verified');
-      setState(() {
-        _saving = false;
-      });
+    final PhoneVerificationCompleted verifiedSuccess =
+        (AuthCredential credential) {
+      if (!_smsCodeSent && credential != null) {
+        signIn(credential);
+      } else {
+        print('verified');
+        setState(() {
+          _saving = false;
+        });
+      }
     };
 
     final PhoneVerificationFailed veriFailed = (AuthException exception) {
       print('${exception.message}');
+      setState(() {
+        _saving = false;
+      });
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => CustomDialog(
+          title: Localization.of(context).getString("error"),
+          description: exception.message,
+          buttonText: Localization.of(context).getString("ok"),
+        ),
+      );
     };
 
     await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: this.phoneNumber,
         codeAutoRetrievalTimeout: autoRetrieve,
         codeSent: smsCodeSent,
-        timeout: const Duration(seconds: 5),
+        timeout: _timeOut,
         verificationCompleted: verifiedSuccess,
         verificationFailed: veriFailed);
+  }
+
+  void _showDialog(String title, String description) {
+    setState(() {
+      _saving = false;
+    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description:
+        description,
+        buttonText: Localization.of(context).getString("ok"),
+      ),
+    );
+  }
+
+  signIn(AuthCredential credential) async {
+    setState(() {
+      _saving = true;
+    });
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    try {
+      final AuthResult user = await _auth.signInWithCredential(credential);
+
+      final FirebaseUser currentUser = await _auth.currentUser();
+      assert(user.user.uid == currentUser.uid);
+
+      if (user != null) {
+        user.user.getIdToken().then((token) {
+          _loginBloc.saveAccessToken(token.token).then((token) {
+            _checkUser(user);
+          });
+        });
+      } else {
+        _showDialog(
+            Localization.of(context).getString('error'),
+            Localization.of(context).getString('loginErrorMessage'));
+      }
+    } on PlatformException catch (e) {
+      _showDialog(Localization.of(context).getString('error'), e.message);
+    }
+  }
+
+  void _checkUser(AuthResult authResult) {
+    List<User> usersList = [];
+    _loginBloc.getUsers().then((result) {
+      if (result.data != null) {
+        final List<Map<String, dynamic>> users =
+        result.data['get_users'].cast<Map<String, dynamic>>();
+        users.forEach((item) {
+          usersList.add(User.fromJson(item));
+        });
+        User user = usersList.firstWhere(
+                (user) => user.phoneNumber == phoneNumber,
+            orElse: () => null);
+
+          if (user == null) {
+            SharedPreferencesHelper.clear().then((_) {
+              _showDialog(
+                  Localization.of(context).getString('error'),
+                  Localization.of(context).getString('loginErrorMessage'));
+            });
+          } else {
+            _finishLogin(user.id, user.name);
+          }
+      }
+    });
+  }
+
+  void _finishLogin(String userId, String userName) {
+    _loginBloc.saveCurrentUserId(userId).then((userId) {
+      _loginBloc.saveCurrentUserName(userName).then((value) {
+        setState(() {
+          _saving = false;
+        });
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => TutorialScreen()),
+            ModalRoute.withName("/homepage"));
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    _loginBloc = LoginBloc();
+    super.initState();
   }
 
   @override
