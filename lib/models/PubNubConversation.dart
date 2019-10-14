@@ -11,6 +11,7 @@ class PubNubConversation {
   User _user1;
   User _user2;
   LastMessage _lastMessage;
+  bool read = true;
 
   PubNubConversation(this._id, this._name, this._hashTag, this._messagePreview,
       this._lastMessage);

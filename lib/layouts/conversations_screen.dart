@@ -4,8 +4,10 @@ import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'chat_screen.dart';
 
@@ -39,8 +41,23 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       setState(() {
         _pubNubConversations = conversations;
         _loading = false;
+        _setConversationReadState(conversations);
       });
     });
+  }
+
+  Future _setConversationReadState(List<PubNubConversation> conversations) async {
+    for (var conversation in _pubNubConversations) {
+      var lastMessageTimestamp =
+      await SharedPreferencesHelper.getLastMessageTimestamp(
+          conversation.id);
+      if (lastMessageTimestamp !=
+          conversation.lastMessage.message.timestamp.toIso8601String()) {
+        setState(() {
+          conversation.read = false;
+        });
+      }
+    }
   }
 
   @override
@@ -176,7 +193,8 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                         margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
                         child: Text(
                           getInterlocutorFromConversation(conversation.user1,
-                              conversation.user2, _currentUserId).name,
+                                  conversation.user2, _currentUserId)
+                              .name,
                           style: TextStyle(
                               fontSize: 14,
                               color: ColorUtils.almostBlack,
@@ -193,8 +211,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                 Text(_showConversationLastMessage(conversation),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style:
-                        TextStyle(fontSize: 12, color: ColorUtils.darkerGray))
+                    style: _getLastMessageTextStyle(conversation))
               ],
             ),
           )
@@ -204,6 +221,18 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       decoration: _getRoundedWhiteDecoration(),
       height: 73,
     );
+  }
+
+  TextStyle _getLastMessageTextStyle(PubNubConversation pubNubConversation) {
+    if (pubNubConversation.read) {
+      return TextStyle(fontSize: 12, color: ColorUtils.darkerGray);
+    } else {
+      return TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          color: ColorUtils.almostBlack);
+      ;
+    }
   }
 
   String _showConversationLastMessage(PubNubConversation pubNubConversation) {

@@ -17,6 +17,7 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -129,7 +130,12 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _chatBloc.dispose();
     _subscription.cancel();
-    super.dispose();
+  }
+
+  Future<bool> _saveLastMessage() {
+    var item = _listOfMessages[0] as UserMessage;
+    return SharedPreferencesHelper.saveLastMessage(
+        _pubNubConversation.id, item.timestamp);
   }
 
   @override
@@ -317,32 +323,35 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     var name = _interlocutorUser == null ? "" : _interlocutorUser.name;
-    return ModalProgressHUD(
-      inAsyncCall: _loading,
-      child: Scaffold(
-        body: new Column(children: <Widget>[
-          AppBar(
-            title: Text(
-              'Message to $name',
-              style: TextStyle(
-                  color: ColorUtils.textBlack,
-                  fontSize: 14,
-                  fontFamily: 'Arial',
-                  fontWeight: FontWeight.bold),
-            ),
-            centerTitle: true,
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: ColorUtils.almostBlack,
+    return WillPopScope(
+      onWillPop: _saveLastMessage,
+      child: ModalProgressHUD(
+        inAsyncCall: _loading,
+        child: Scaffold(
+          body: new Column(children: <Widget>[
+            AppBar(
+              title: Text(
+                'Message to $name',
+                style: TextStyle(
+                    color: ColorUtils.textBlack,
+                    fontSize: 14,
+                    fontFamily: 'Arial',
+                    fontWeight: FontWeight.bold),
               ),
-              onPressed: () => Navigator.pop(context),
+              centerTitle: true,
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: ColorUtils.almostBlack,
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
+              backgroundColor: Colors.white,
             ),
-            backgroundColor: Colors.white,
-          ),
-          _showMessagesUI(),
-          _showUserInputUI()
-        ]),
+            _showMessagesUI(),
+            _showUserInputUI()
+          ]),
+        ),
       ),
     );
   }

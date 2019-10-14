@@ -52,6 +52,18 @@ class SharedPreferencesHelper {
     return prefs.setString(_currentUserName, value);
   }
 
+  static Future<String> getLastMessageTimestamp(String conversation) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(conversation) ?? "";
+  }
+
+  static Future<bool> saveLastMessage(
+      String conversation, DateTime lastMessageTimestamp) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setString(
+        conversation, lastMessageTimestamp.toIso8601String());
+  }
+
   static Future<bool> getSyncContactsFlag() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
