@@ -14,7 +14,7 @@ import 'package:http/http.dart' as http;
 
 class ApiProvider {
   static HttpLink link =
-      HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+      HttpLink(uri: 'https://xfriends.azurewebsites.net');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
