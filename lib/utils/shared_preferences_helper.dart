@@ -64,34 +64,16 @@ class SharedPreferencesHelper {
     return prefs.setBool(_syncContactsFlag, value);
   }
 
-  static Future<bool> arePushNotificationAllowed() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getBool(_allowPushNotifications) ?? false;
-  }
-
   static Future<bool> setPushNotificationAllowed(bool value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     return prefs.setBool(_allowPushNotifications, value);
   }
 
-  static Future<bool> areMessageNotificationAllowed() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getBool(_allowMessageNotification) ?? false;
-  }
-
   static Future<bool> setMessageNotificationAllowed(bool value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     return prefs.setBool(_allowMessageNotification, value);
-  }
-
-  static Future<bool> areRecommendsSearchNotificationAllowed() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getBool(_allowRecommendSearchNotification) ?? false;
   }
 
   static Future<bool> setRecommendsSearchNotificationAllowed(bool value) async {
