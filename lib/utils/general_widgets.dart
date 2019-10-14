@@ -215,7 +215,7 @@ Widget generateContactUI(
                           Row(
                             children: <Widget>[
                               Text(
-                                '#' + tagName,
+                                tagName.length > 0 ? '#' + tagName : "",
                                 style: TextStyle(color: ColorUtils.white),
                               ),
                               score != -1
