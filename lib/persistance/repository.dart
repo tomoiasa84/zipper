@@ -100,6 +100,10 @@ class Repository {
         name, location, id, phoneNumber, isActive, description, profilePicUrl);
   }
 
+  Future<QueryResult> updateDeviceToken(String id, String deviceToken) async {
+    return await appApiProvider.updateDeviceToken(id, deviceToken);
+  }
+
   Future<QueryResult> createUserTag(String userId, int tagId) async {
     return await appApiProvider.createUserTag(userId, tagId);
   }
@@ -149,10 +153,6 @@ class Repository {
   Future<QueryResult> createReview(
       String userId, int userTagId, int stars, String text) async {
     return await appApiProvider.createReview(userId, userTagId, stars, text);
-  }
-
-  void subscribeToPushNotifications(String channelId) async {
-    appApiProvider.subscribeToPushNotifications(channelId);
   }
 
   Future unsubscribeFromPushNotifications() async {

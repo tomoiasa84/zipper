@@ -579,17 +579,15 @@ class ApiProvider {
     return queryResult;
   }
 
-  Future<QueryResult> updateUserProfilePic(
-      String id, String profilePicUrl) async {
+  Future<QueryResult> updateDeviceToken(String id, String deviceToken) async {
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''
                     mutation{
-                           update_user(userId: "$id",
-                            profileURL: "$profilePicUrl"){
-                              profileURL
-                            }
-                  }''',
+                      update_user(userId: "$id", deviceToken:"$deviceToken"){
+                        deviceToken
+                       }
+                    }''',
       ),
     );
     return queryResult;
@@ -926,15 +924,6 @@ class ApiProvider {
     );
 
     return result;
-  }
-
-  void subscribeToPushNotifications(String channelId) async {
-    _firebaseMessaging.getToken().then((deviceId) {
-      print('DEVICE ID: $deviceId');
-      var url =
-          "$_baseUrl/v1/push/sub-key/$_subscribeKey/devices/$deviceId?add=$channelId&type=gcm";
-      _pubNubClient.get(url);
-    });
   }
 
   Future unsubscribeFromPushNotifications(String channels) async {

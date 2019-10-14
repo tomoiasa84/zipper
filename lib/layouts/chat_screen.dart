@@ -175,7 +175,6 @@ class _ChatScreenState extends State<ChatScreen> {
         }
 
         await getConversationsUsers();
-        _chatBloc.subscribeToPushNotifications(_pubNubConversation.id);
       });
     });
   }
