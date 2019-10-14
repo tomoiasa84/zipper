@@ -1,23 +1,13 @@
 import 'dart:async';
 
-import 'package:contacts_service/contacts_service.dart';
-import 'package:contractor_search/model/conversation_model.dart';
-import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/persistance/repository.dart';
-import 'package:contractor_search/utils/custom_auth_link.dart';
-import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:http/http.dart' as http;
 
 enum NavBarItem { HOME, CONTACTS, PLUS, INBOX, ACCOUNT }
 
 class HomeBloc {
   Repository _repository = Repository();
-
-  final String _subscribeKey = "sub-c-e742fad6-c8a5-11e9-9d00-8a58a5558306";
-  final String _baseUrl = "https://ps.pndsn.com";
-  final http.Client _pubNubClient = new http.Client();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   final StreamController<NavBarItem> _navBarController =
@@ -47,28 +37,12 @@ class HomeBloc {
     }
   }
 
-  void subscribeToAllChannels() async {
-    _firebaseMessaging.getToken().then((deviceId) {
-      _getListOfIdsFromBackend().then((listOfIds) async {
-        var channels = getStringOfChannelIds(listOfIds);
-        var url =
-            "http://ps.pndsn.com/v1/push/sub-key/$_subscribeKey/devices/$deviceId?add=$channels&type=gcm";
-
-        var response = await _pubNubClient.get(url);
-
-        if (response.statusCode == 200) {
-          print('Succesfully subscribed to all channels');
-        } else {
-          print("Request failed with status: ${response.statusCode}.");
-        }
+  void updateDeviceToken() {
+    SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
+      _firebaseMessaging.getToken().then((deviceToken) {
+        _repository.updateDeviceToken(currentUserId, deviceToken);
       });
     });
-  }
-
-  Future<List<ConversationModel>> _getListOfIdsFromBackend() async {
-    var conversationsList = await _repository.getListOfIdsFromBackend();
-
-    return conversationsList;
   }
 
   void dispose() {

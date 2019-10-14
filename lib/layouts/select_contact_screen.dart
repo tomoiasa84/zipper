@@ -147,7 +147,7 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
               ],
             ),
             subtitle: Text(
-              "#installer",
+              "",
               style: TextStyle(color: ColorUtils.messageOrange),
             ),
           ),

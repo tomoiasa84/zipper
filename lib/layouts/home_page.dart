@@ -47,9 +47,7 @@ class _HomePageState extends State<HomePage> {
     }
     _initFirebaseClientMessaging();
     _initLocalNotifications();
-    getCurrentUserId().then((currentUserId) {
-      _homeBloc.subscribeToAllChannels();
-    });
+    _homeBloc.updateDeviceToken();
     channel.setMessageHandler((String message) async {
       print('Received: $message');
       Navigator.pushAndRemoveUntil(

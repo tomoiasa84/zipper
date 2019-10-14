@@ -4,7 +4,6 @@ import 'package:contractor_search/bloc/account_bloc.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
 import 'package:contractor_search/layouts/replies_screen.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
-import 'package:contractor_search/layouts/settings_screen.dart';
 import 'package:contractor_search/layouts/sign_up_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/review.dart';
@@ -42,23 +41,14 @@ class AccountScreenState extends State<AccountScreen> {
   static List<PopupMenuEntry<Object>> getMoreOptions(BuildContext context) {
     return [
       PopupMenuItem(
-          value: 0,
+          value: 1,
           child: Container(
               width: 140.0,
               child: Text(
-                Localization.of(context).getString('settings'),
+                Localization.of(context).getString('signOut'),
                 style: TextStyle(
-                    fontWeight: FontWeight.bold, color: ColorUtils.darkGray),
+                    color: ColorUtils.red, fontWeight: FontWeight.bold),
               ))),
-      PopupMenuDivider(
-        height: 1.0,
-      ),
-      PopupMenuItem(
-        value: 1,
-        child: Text(Localization.of(context).getString('signOut')),
-        textStyle:
-            TextStyle(color: ColorUtils.red, fontWeight: FontWeight.bold),
-      ),
     ];
   }
 
@@ -78,12 +68,6 @@ class AccountScreenState extends State<AccountScreen> {
 
   void _select(Object item) {
     switch (item as int) {
-      case 0:
-        {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SettingsScreen()));
-          break;
-        }
       case 1:
         {
           signOut();

@@ -22,10 +22,6 @@ class ChatBloc {
     return await _repository.getUserById(userId);
   }
 
-  void subscribeToPushNotifications(String channelId) async {
-    _repository.subscribeToPushNotifications(channelId);
-  }
-
   Future<String> uploadPic(File image) async {
     return await _repository.uploadPic(image);
   }
