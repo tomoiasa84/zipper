@@ -65,20 +65,12 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
           });
         });
       } else {
-        setState(() {
-          _saving = false;
-        });
         _showDialog(
             Localization.of(context).getString('error'),
-            Localization.of(context).getString('loginErrorMessage'),
-            Localization.of(context).getString('ok'));
+            Localization.of(context).getString('loginErrorMessage'));
       }
     } on PlatformException catch (e) {
-      _showDialog(Localization.of(context).getString('error'), e.message,
-          Localization.of(context).getString('ok'));
-      setState(() {
-        _saving = false;
-      });
+      _showDialog(Localization.of(context).getString('error'), e.message);
     }
   }
 
@@ -94,6 +86,7 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
         User user = usersList.firstWhere(
             (user) => user.phoneNumber == widget.phoneNumber,
             orElse: () => null);
+
         if (widget.authType == AuthType.signUp) {
           if (user == null) {
             _signUp(authResult);
@@ -103,23 +96,15 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
             SharedPreferencesHelper.clear().then((_) {
               _showDialog(
                   Localization.of(context).getString('error'),
-                  Localization.of(context).getString('alreadySignedUp'),
-                  Localization.of(context).getString('ok'));
-              setState(() {
-                _saving = false;
-              });
+                  Localization.of(context).getString('alreadySignedUp'));
             });
           }
         } else if (widget.authType == AuthType.login) {
           if (user == null) {
             SharedPreferencesHelper.clear().then((_) {
-              setState(() {
-                _saving = false;
-              });
               _showDialog(
                   Localization.of(context).getString('error'),
-                  Localization.of(context).getString('loginErrorMessage'),
-                  Localization.of(context).getString('ok'));
+                  Localization.of(context).getString('loginErrorMessage'));
             });
           } else {
             _finishLogin(user.id, user.name);
@@ -148,14 +133,9 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
               _createUser(user,
                   LocationModel.fromJson(result.data['create_location']).id);
             } else {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => CustomDialog(
-                  title: Localization.of(context).getString('error'),
-                  description: result.errors[0].message,
-                  buttonText: Localization.of(context).getString('ok'),
-                ),
-              );
+              _showDialog(
+                  Localization.of(context).getString('error'),
+                  result.errors[0].message);
             }
           });
         }
@@ -178,8 +158,7 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
         SharedPreferencesHelper.clear().then((_) {
           _showDialog(
               Localization.of(context).getString('error'),
-              result.errors[0].message,
-              Localization.of(context).getString('ok'));
+              result.errors[0].message);
         });
       }
     });
@@ -204,14 +183,9 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
               _updateUserData(user,
                   LocationModel.fromJson(result.data['create_location']).id);
             } else {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => CustomDialog(
-                  title: Localization.of(context).getString('error'),
-                  description: result.errors[0].message,
-                  buttonText: Localization.of(context).getString('ok'),
-                ),
-              );
+              _showDialog(
+                  Localization.of(context).getString('error'),
+                  result.errors[0].message);
             }
           });
         }
@@ -234,8 +208,7 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
         SharedPreferencesHelper.clear().then((_) {
           _showDialog(
               Localization.of(context).getString('error'),
-              result.errors[0].message,
-              Localization.of(context).getString('ok'));
+              result.errors[0].message);
         });
       }
     });
@@ -244,6 +217,9 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
   void _finishLogin(String userId, String userName) {
     _smsCodeVerificationBloc.saveCurrentUserId(userId).then((userId) {
       _smsCodeVerificationBloc.saveCurrentUserName(userName).then((value) {
+        setState(() {
+          _saving = false;
+        });
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => TutorialScreen()),
@@ -372,13 +348,16 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
     );
   }
 
-  void _showDialog(String title, String message, String buttonText) {
+  void _showDialog(String title, String message) {
+    setState(() {
+      _saving = false;
+    });
     showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialog(
         title: title,
         description: message,
-        buttonText: buttonText,
+        buttonText:  Localization.of(context).getString('ok'),
       ),
     );
   }
@@ -425,8 +404,7 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
         } else {
           _showDialog(
             Localization.of(context).getString("error"),
-            Localization.of(context).getString("cantRetry"),
-            Localization.of(context).getString("ok"),
+            Localization.of(context).getString("cantRetry")
           );
         }
         _resendVerificationCode();
