@@ -36,10 +36,9 @@ class SignUpScreenState extends State<SignUpScreen> {
   List<String> locations = [];
   SignUpBloc _signUpBloc;
   Duration _timeOut = const Duration(minutes: 1);
-
   List<LocationModel> locationsList = [];
-
   bool _smsCodeSent = false;
+  bool _isSmsVerificationScreenOpened = false;
 
   Future<void> verifyPhone(int authType) async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -52,16 +51,22 @@ class SignUpScreenState extends State<SignUpScreen> {
         _saving = false;
       });
       this.verificationId = verId;
-      goToSmsVerificationPage(authType);
+      if (!_isSmsVerificationScreenOpened) {
+        goToSmsVerificationPage(authType);
+        _isSmsVerificationScreenOpened = true;
+      }
     };
 
-    final PhoneVerificationCompleted verifiedSuccess = (AuthCredential authCredential) {
+    final PhoneVerificationCompleted verifiedSuccess =
+        (AuthCredential authCredential) {
       setState(() {
         _saving = false;
       });
       print('verified');
-      if(!_smsCodeSent && authCredential!=null) {
+      if (!_smsCodeSent && authCredential != null) {
         signIn(authCredential);
+      } else {
+        _smsCodeSent = false;
       }
     };
 
@@ -103,23 +108,23 @@ class SignUpScreenState extends State<SignUpScreen> {
           });
         });
       } else {
-        _showDialog(Localization.of(context).getString("error"),Localization.of(context).getString('loginErrorMessage'));
+        _showDialog(Localization.of(context).getString("error"),
+            Localization.of(context).getString('loginErrorMessage'));
       }
     } on PlatformException catch (e) {
-     _showDialog(Localization.of(context).getString("error"),e.message);
+      _showDialog(Localization.of(context).getString("error"), e.message);
     }
   }
 
   void _showDialog(String title, String description) {
-     setState(() {
+    setState(() {
       _saving = false;
     });
     showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialog(
         title: title,
-        description:
-            description,
+        description: description,
         buttonText: Localization.of(context).getString("ok"),
       ),
     );
@@ -144,7 +149,8 @@ class SignUpScreenState extends State<SignUpScreen> {
           _updateUser(authResult);
         } else {
           SharedPreferencesHelper.clear().then((_) {
-            _showDialog("", Localization.of(context).getString('alreadySignedUp'));
+            _showDialog(
+                "", Localization.of(context).getString('alreadySignedUp'));
           });
         }
       }
@@ -163,7 +169,8 @@ class SignUpScreenState extends State<SignUpScreen> {
           _createUser(
               user, LocationModel.fromJson(result.data['create_location']).id);
         } else {
-          _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+          _showDialog(Localization.of(context).getString('error'),
+              result.errors[0].message);
         }
       });
     }
@@ -181,7 +188,8 @@ class SignUpScreenState extends State<SignUpScreen> {
         _finishLogin(user.id, user.name);
       } else {
         SharedPreferencesHelper.clear().then((_) {
-          _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+          _showDialog(Localization.of(context).getString('error'),
+              result.errors[0].message);
         });
       }
     });
@@ -189,22 +197,23 @@ class SignUpScreenState extends State<SignUpScreen> {
 
   void _updateUser(AuthResult user) {
     var loc = locationsList.firstWhere(
-            (location) => location.city == _typeAheadController.text,
+        (location) => location.city == _typeAheadController.text,
         orElse: () => null);
-      setState(() {
-        if (loc != null) {
-          _updateUserData(user, loc.id);
-        } else {
-          _signUpBloc.createLocation(_typeAheadController.text).then((result) {
-            if (result.data != null) {
-              _updateUserData(user,
-                  LocationModel.fromJson(result.data['create_location']).id);
-            } else {
-              _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
-            }
-          });
-        }
-      });
+    setState(() {
+      if (loc != null) {
+        _updateUserData(user, loc.id);
+      } else {
+        _signUpBloc.createLocation(_typeAheadController.text).then((result) {
+          if (result.data != null) {
+            _updateUserData(user,
+                LocationModel.fromJson(result.data['create_location']).id);
+          } else {
+            _showDialog(Localization.of(context).getString('error'),
+                result.errors[0].message);
+          }
+        });
+      }
+    });
   }
 
   void _updateUserData(AuthResult user, int locationId) {
@@ -217,7 +226,8 @@ class SignUpScreenState extends State<SignUpScreen> {
         _finishLogin(user.id, user.name);
       } else {
         SharedPreferencesHelper.clear().then((_) {
-          _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+          _showDialog(Localization.of(context).getString('error'),
+              result.errors[0].message);
         });
       }
     });
@@ -237,12 +247,23 @@ class SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
-  void goToSmsVerificationPage(int authType) {
-    Navigator.push(
+  Future<void> goToSmsVerificationPage(int authType) async {
+    await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => SmsCodeVerificationScreen(verificationId,
-                name, _typeAheadController.text, phoneNumber, authType, _timeOut)));
+            builder: (context) => SmsCodeVerificationScreen(
+                    verificationId,
+                    name,
+                    _typeAheadController.text,
+                    phoneNumber,
+                    authType,
+                    _timeOut, () {
+                  setState(() {
+                    _saving = true;
+                  });
+                  verifyPhone(authType);
+                })));
+    _isSmsVerificationScreenOpened = false;
   }
 
   @override

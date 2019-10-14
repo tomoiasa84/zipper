@@ -23,9 +23,10 @@ class SmsCodeVerificationScreen extends StatefulWidget {
   final String phoneNumber;
   final int authType;
   final Duration timeOut;
+  final Function resendVerificationCode;
 
   SmsCodeVerificationScreen(this.verificationId, this.name, this.location,
-      this.phoneNumber, this.authType, this.timeOut);
+      this.phoneNumber, this.authType, this.timeOut, this.resendVerificationCode);
 
   @override
   SmsCodeVerificationScreenState createState() =>
@@ -39,7 +40,6 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
   bool _autoValidate = false;
   bool _saving = false;
   Timer _codeTimer;
-  Duration _timeOut = const Duration(minutes: 1);
   String verificationId;
   bool _codeTimedOut = false;
   TextEditingController _codeTextEditingController = TextEditingController();
@@ -403,47 +403,14 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
         });
 
         if (_codeTimedOut) {
-          await _resendVerificationCode();
+           widget.resendVerificationCode();
         } else {
           _showDialog(
             Localization.of(context).getString("error"),
             Localization.of(context).getString("cantRetry")
           );
         }
-        _resendVerificationCode();
       },
     );
-  }
-
-  Future<void> _resendVerificationCode() async {
-    final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
-      verificationId = verId;
-    };
-
-    final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
-      this.verificationId = verId;
-      setState(() {
-        _saving = false;
-      });
-    };
-
-    final PhoneVerificationCompleted verifiedSuccess = (AuthCredential user) {
-      print('verified');
-      setState(() {
-        _saving = false;
-      });
-    };
-
-    final PhoneVerificationFailed veriFailed = (AuthException exception) {
-      print('${exception.message}');
-    };
-
-    await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: widget.phoneNumber,
-        codeAutoRetrievalTimeout: autoRetrieve,
-        codeSent: smsCodeSent,
-        timeout: const Duration(seconds: 5),
-        verificationCompleted: verifiedSuccess,
-        verificationFailed: veriFailed);
   }
 }

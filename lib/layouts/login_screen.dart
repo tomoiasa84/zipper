@@ -29,6 +29,7 @@ class LoginScreenState extends State<LoginScreen> {
   Duration _timeOut = const Duration(minutes: 1);
   bool _smsCodeSent = false;
   LoginBloc _loginBloc;
+  bool _isSmsVerificationScreenOpened = false;
 
   Future<void> verifyPhone() async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -41,11 +42,10 @@ class LoginScreenState extends State<LoginScreen> {
       setState(() {
         _saving = false;
       });
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => SmsCodeVerificationScreen(
-                  verificationId, "", "", phoneNumber, AuthType.login, _timeOut)));
+      if(!_isSmsVerificationScreenOpened) {
+        goToSmsVerificationCodeScreen();
+        _isSmsVerificationScreenOpened = true;
+      }
     };
 
     final PhoneVerificationCompleted verifiedSuccess =
@@ -57,6 +57,7 @@ class LoginScreenState extends State<LoginScreen> {
         setState(() {
           _saving = false;
         });
+        _smsCodeSent = false;
       }
     };
 
@@ -82,6 +83,26 @@ class LoginScreenState extends State<LoginScreen> {
         timeout: _timeOut,
         verificationCompleted: verifiedSuccess,
         verificationFailed: veriFailed);
+  }
+
+  Future<void> goToSmsVerificationCodeScreen() async {
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                SmsCodeVerificationScreen(
+                    verificationId,
+                    "",
+                    "",
+                    phoneNumber,
+                    AuthType.login,
+                    _timeOut, () {
+                  setState(() {
+                    _saving = true;
+                  });
+                  verifyPhone();
+                })));
+    _isSmsVerificationScreenOpened = false;
   }
 
   void _showDialog(String title, String description) {
