@@ -5,6 +5,9 @@ import Firebase
 @available(iOS 10.0, *)
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate, UNUserNotificationCenterDelegate {
+    
+    var currentUserId: String = ""
+    
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -12,7 +15,7 @@ import Firebase
         GeneratedPluginRegistrant.register(with: self)
         
         UNUserNotificationCenter.current().delegate = self
-        
+        getCurrentUserId()
         application.registerForRemoteNotifications()
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
@@ -50,7 +53,12 @@ import Firebase
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.alert, .badge, .sound])
+        let messageAuthor = notification.request.content.userInfo["messageAuthor"] as! String
+        if (currentUserId != messageAuthor){
+             completionHandler([.alert, .badge, .sound])
+        } else {
+            completionHandler([])
+        }
     }
     
     func openChatScreen(conversationId: String){
@@ -62,5 +70,18 @@ import Firebase
             codec: FlutterStringCodec.sharedInstance())
         
         channel.sendMessage(conversationId)
+    }
+    
+    func getCurrentUserId(){
+        let rootViewController : FlutterViewController = window?.rootViewController as! FlutterViewController
+        
+        let channel = FlutterBasicMessageChannel(
+            name: "currentUserId",
+            binaryMessenger: rootViewController as! FlutterBinaryMessenger,
+            codec: FlutterStringCodec.sharedInstance())
+        
+        channel.setMessageHandler { (message, flutter) in
+            self.currentUserId = message as! String
+        }
     }
 }

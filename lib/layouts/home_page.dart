@@ -36,8 +36,9 @@ class _HomePageState extends State<HomePage> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   UserMessage _message;
-  var channel =
+  var _notificationsChannel =
       BasicMessageChannel<String>('iosNotificationTapped', StringCodec());
+  var _currentUserChannel = BasicMessageChannel<String>('currentUserId', StringCodec());
 
   @override
   void initState() {
@@ -48,7 +49,13 @@ class _HomePageState extends State<HomePage> {
     _initFirebaseClientMessaging();
     _initLocalNotifications();
     _homeBloc.updateDeviceToken();
-    channel.setMessageHandler((String message) async {
+    SharedPreferencesHelper.getCurrentUserId().then((currentUserId){
+      _currentUserChannel.send(currentUserId);
+    });
+
+
+
+    _notificationsChannel.setMessageHandler((String message) async {
       print('Received: $message');
       Navigator.pushAndRemoveUntil(
           context,
@@ -57,6 +64,10 @@ class _HomePageState extends State<HomePage> {
           ModalRoute.withName("/"));
       return '';
     });
+
+
+
+
     super.initState();
   }
 
