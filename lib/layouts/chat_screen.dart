@@ -344,7 +344,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Icons.arrow_back,
                   color: ColorUtils.almostBlack,
                 ),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.maybePop(context),
               ),
               backgroundColor: Colors.white,
             ),
