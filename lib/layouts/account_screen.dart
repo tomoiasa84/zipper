@@ -97,7 +97,7 @@ class AccountScreenState extends State<AccountScreen> {
       _saving = true;
     });
     _accountBloc.getCurrentUser().then((result) {
-      if (result.data != null && mounted) {
+      if (result.errors == null && mounted) {
         setState(() {
           _user = User.fromJson(result.data['get_user']);
           _user.cards = _user.cards.reversed.toList();
@@ -105,7 +105,24 @@ class AccountScreenState extends State<AccountScreen> {
           _getMainTag();
         });
       }
+      else{
+        _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+      }
     });
+  }
+
+  void _showDialog(String title, String description) {
+    setState(() {
+      _saving = false;
+    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: description,
+        buttonText: Localization.of(context).getString("ok"),
+      ),
+    );
   }
 
   void _getMainTag() {

@@ -49,7 +49,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
   void getTags() {
     _profileSettingsBloc.getTags().then((result) {
-      if (result.data != null) {
+      if (result.errors == null) {
         final List<Map<String, dynamic>> tags =
             result.data['get_tags'].cast<Map<String, dynamic>>();
         tags.forEach((item) {
@@ -65,6 +65,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             tagsList.add(tagItem);
           }
         });
+      } else{
+        _showDialog(Localization.of(context).getString("error"), result.errors[0].message, Localization.of(context).getString('ok'));
       }
     });
   }
@@ -637,6 +639,9 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   }
 
   void _showDialog(String title, String message, String buttonText) {
+    setState(() {
+      _saving = false;
+    });
     showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialog(

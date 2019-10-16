@@ -45,7 +45,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
       _saving = true;
     });
     _recommendBloc.getCurrentUser().then((result) {
-      if (result.data != null && mounted) {
+      if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);
         if (currentUser != null && currentUser.cardsConnections != null) {
           setState(() {
@@ -62,8 +62,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
             _saving = false;
           });
         }
-      }
-      if (result.errors != null) {
+      } else {
         showDialog(
           context: context,
           builder: (BuildContext context) => CustomDialog(

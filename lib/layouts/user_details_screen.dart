@@ -50,10 +50,10 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
       });
     }
     await _userDetailsBloc.getUser(widget.userId).then((result) {
-      if (result.data != null && mounted) {
+      if (result.errors == null && mounted) {
         getCurrentUserId().then((currentUserId) {
           _userDetailsBloc.getUser(currentUserId).then((currentUserResult) {
-            if (currentUserResult.data != null && mounted) {
+            if (currentUserResult.errors == null && mounted) {
               setState(() {
                 _user = User.fromJson(result.data['get_user']);
                 _currentUser =
@@ -72,9 +72,12 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
               setState(() {
                 _saving = false;
               });
+              _showDialog(Localization.of(context).getString("error"), result.errors[0].message);
             }
           });
         });
+      } else{
+        _showDialog(Localization.of(context).getString("error"), result.errors[0].message);
       }
     });
   }

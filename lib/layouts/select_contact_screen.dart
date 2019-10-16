@@ -5,6 +5,7 @@ import 'package:contractor_search/layouts/chat_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -27,7 +28,7 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
   @override
   void initState() {
     _selectContactBloc.getCurrentUser().then((result) {
-      if (result.data != null) {
+      if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
         currentUser.connections.forEach((connection) {
           _usersList.add(connection.targetUser);
@@ -38,8 +39,22 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
           });
         }
       }
+      else{
+        _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+      }
     });
     super.initState();
+  }
+
+  void _showDialog(String title, String description) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: description,
+        buttonText: Localization.of(context).getString("ok"),
+      ),
+    );
   }
 
   void _onItemTapped(User user) {

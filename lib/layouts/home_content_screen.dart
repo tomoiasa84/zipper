@@ -7,6 +7,7 @@ import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/search_card_utils.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     }
     _homeContentBloc = HomeContentBloc();
     _homeContentBloc.getCurrentUser().then((result) {
-      if (result.data != null && mounted) {
+      if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);
         if (currentUser != null && currentUser.cardsConnections != null) {
           _cardsList.addAll(currentUser.cardsConnections);
@@ -49,8 +50,24 @@ class HomeContentScreenState extends State<HomeContentScreen> {
             _saving = false;
           });
         }
+      } else{
+        _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
       }
     });
+  }
+
+  void _showDialog(String title, String description) {
+    setState(() {
+      _saving = false;
+    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: description,
+        buttonText: Localization.of(context).getString("ok"),
+      ),
+    );
   }
 
   @override

@@ -38,14 +38,31 @@ class AddCardScreenState extends State<AddCardScreen> {
 
   void getTags() {
     _addCardBloc.getTags().then((result) {
-      if (result.data != null) {
+      if (result.errors == null) {
         final List<Map<String, dynamic>> tags =
             result.data['get_tags'].cast<Map<String, dynamic>>();
         tags.forEach((item) {
           tagsList.add(Tag.fromJson(item));
         });
       }
+      else{
+        _showDialog(Localization.of(context).getString("error"), result.errors[0].message);
+      }
     });
+  }
+
+  void _showDialog(String title, String message) {
+    setState(() {
+      _saving = false;
+    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText:  Localization.of(context).getString('ok'),
+      ),
+    );
   }
 
   void _getCurrentUserInfo() {
@@ -54,11 +71,13 @@ class AddCardScreenState extends State<AddCardScreen> {
     });
     getCurrentUserId().then((userId) {
       _addCardBloc.getCurrentUser(userId).then((result) {
-        if (result.data != null) {
+        if (result.errors == null) {
           setState(() {
             _user = User.fromJson(result.data['get_user']);
             _saving = false;
           });
+        } else{
+          _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
         }
       });
     });

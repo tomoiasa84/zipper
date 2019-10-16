@@ -133,7 +133,7 @@ class SignUpScreenState extends State<SignUpScreen> {
   void _checkUser(AuthResult authResult) {
     List<User> usersList = [];
     _signUpBloc.getUsers().then((result) {
-      if (result.data != null) {
+      if (result.errors == null) {
         final List<Map<String, dynamic>> users =
             result.data['get_users'].cast<Map<String, dynamic>>();
         users.forEach((item) {
@@ -154,6 +154,9 @@ class SignUpScreenState extends State<SignUpScreen> {
           });
         }
       }
+      else{
+        _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+      }
     });
   }
 
@@ -165,7 +168,7 @@ class SignUpScreenState extends State<SignUpScreen> {
       _createUser(user, loc.id);
     } else {
       _signUpBloc.createLocation(_typeAheadController.text).then((result) {
-        if (result.data != null) {
+        if (result.errors == null) {
           _createUser(
               user, LocationModel.fromJson(result.data['create_location']).id);
         } else {
@@ -183,7 +186,7 @@ class SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _saving = false;
       });
-      if (result.data != null) {
+      if (result.errors == null) {
         User user = User.fromJson(result.data['create_user']);
         _finishLogin(user.id, user.name);
       } else {
@@ -204,7 +207,7 @@ class SignUpScreenState extends State<SignUpScreen> {
         _updateUserData(user, loc.id);
       } else {
         _signUpBloc.createLocation(_typeAheadController.text).then((result) {
-          if (result.data != null) {
+          if (result.errors == null) {
             _updateUserData(user,
                 LocationModel.fromJson(result.data['create_location']).id);
           } else {
@@ -221,7 +224,7 @@ class SignUpScreenState extends State<SignUpScreen> {
         .updateUser(
             name, locationId, user.user.uid, user.user.phoneNumber, true)
         .then((result) {
-      if (result.data != null) {
+      if (result.errors == null) {
         User user = User.fromJson(result.data['update_user']);
         _finishLogin(user.id, user.name);
       } else {

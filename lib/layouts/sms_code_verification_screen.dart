@@ -66,8 +66,7 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
           });
         });
       } else {
-        _showDialog(
-            Localization.of(context).getString('error'),
+        _showDialog(Localization.of(context).getString('error'),
             Localization.of(context).getString('loginErrorMessage'));
       }
     } on PlatformException catch (e) {
@@ -78,14 +77,16 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
   void _checkUser(AuthResult authResult) {
     List<User> usersList = [];
     _smsCodeVerificationBloc.getUsers().then((result) {
-      if (result.data != null) {
+      if (result.errors == null) {
         final List<Map<String, dynamic>> users =
             result.data['get_users'].cast<Map<String, dynamic>>();
         users.forEach((item) {
           usersList.add(User.fromJson(item));
         });
         User user = usersList.firstWhere(
-            (user) => user.phoneNumber == widget.phoneNumber,
+            (user) =>
+                user.phoneNumber.replaceAll(new RegExp(r"\s+\b|\b\s"), "") ==
+                widget.phoneNumber.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
             orElse: () => null);
 
         if (widget.authType == AuthType.signUp) {
@@ -95,22 +96,23 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
             _doUpdateUser(authResult);
           } else {
             SharedPreferencesHelper.clear().then((_) {
-              _showDialog(
-                  Localization.of(context).getString('error'),
+              _showDialog(Localization.of(context).getString('error'),
                   Localization.of(context).getString('alreadySignedUp'));
             });
           }
         } else if (widget.authType == AuthType.login) {
           if (user == null) {
             SharedPreferencesHelper.clear().then((_) {
-              _showDialog(
-                  Localization.of(context).getString('error'),
+              _showDialog(Localization.of(context).getString('error'),
                   Localization.of(context).getString('loginErrorMessage'));
             });
           } else {
             _finishLogin(user.id, user.name);
           }
         }
+      } else {
+        _showDialog(Localization.of(context).getString("error"),
+            result.errors[0].message);
       }
     });
   }
@@ -130,12 +132,11 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
           _smsCodeVerificationBloc
               .createLocation(widget.location)
               .then((result) {
-            if (result.data != null) {
+            if (result.errors == null) {
               _createUser(user,
                   LocationModel.fromJson(result.data['create_location']).id);
             } else {
-              _showDialog(
-                  Localization.of(context).getString('error'),
+              _showDialog(Localization.of(context).getString('error'),
                   result.errors[0].message);
             }
           });
@@ -152,13 +153,12 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
       setState(() {
         _saving = false;
       });
-      if (result.data != null) {
+      if (result.errors == null) {
         User user = User.fromJson(result.data['create_user']);
         _finishLogin(user.id, user.name);
       } else {
         SharedPreferencesHelper.clear().then((_) {
-          _showDialog(
-              Localization.of(context).getString('error'),
+          _showDialog(Localization.of(context).getString('error'),
               result.errors[0].message);
         });
       }
@@ -180,12 +180,11 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
           _smsCodeVerificationBloc
               .createLocation(widget.location)
               .then((result) {
-            if (result.data != null) {
+            if (result.errors == null) {
               _updateUserData(user,
                   LocationModel.fromJson(result.data['create_location']).id);
             } else {
-              _showDialog(
-                  Localization.of(context).getString('error'),
+              _showDialog(Localization.of(context).getString('error'),
                   result.errors[0].message);
             }
           });
@@ -202,13 +201,12 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
       setState(() {
         _saving = false;
       });
-      if (result.data != null) {
+      if (result.errors != null) {
         User user = User.fromJson(result.data['update_user']);
         _finishLogin(user.id, user.name);
       } else {
         SharedPreferencesHelper.clear().then((_) {
-          _showDialog(
-              Localization.of(context).getString('error'),
+          _showDialog(Localization.of(context).getString('error'),
               result.errors[0].message);
         });
       }
@@ -234,7 +232,7 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
     _smsCodeVerificationBloc = SmsCodeVerificationBloc();
     verificationId = widget.verificationId;
     _codeTimer = Timer(widget.timeOut, () {
-      if(mounted) {
+      if (mounted) {
         setState(() {
           _codeTimedOut = true;
         });
@@ -360,7 +358,7 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
       builder: (BuildContext context) => CustomDialog(
         title: title,
         description: message,
-        buttonText:  Localization.of(context).getString('ok'),
+        buttonText: Localization.of(context).getString('ok'),
       ),
     );
   }
@@ -403,12 +401,10 @@ class SmsCodeVerificationScreenState extends State<SmsCodeVerificationScreen> {
         });
 
         if (_codeTimedOut) {
-           widget.resendVerificationCode();
+          widget.resendVerificationCode();
         } else {
-          _showDialog(
-            Localization.of(context).getString("error"),
-            Localization.of(context).getString("cantRetry")
-          );
+          _showDialog(Localization.of(context).getString("error"),
+              Localization.of(context).getString("cantRetry"));
         }
       },
     );

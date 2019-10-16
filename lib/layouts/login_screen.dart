@@ -150,7 +150,7 @@ class LoginScreenState extends State<LoginScreen> {
   void _checkUser(AuthResult authResult) {
     List<User> usersList = [];
     _loginBloc.getUsers().then((result) {
-      if (result.data != null) {
+      if (result.errors == null) {
         final List<Map<String, dynamic>> users =
         result.data['get_users'].cast<Map<String, dynamic>>();
         users.forEach((item) {
@@ -169,6 +169,8 @@ class LoginScreenState extends State<LoginScreen> {
           } else {
             _finishLogin(user.id, user.name);
           }
+      } else{
+        _showDialog(Localization.of(context).getString("error"), result.errors[0].message);
       }
     });
   }
