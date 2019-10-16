@@ -8,6 +8,8 @@ import 'package:contractor_search/models/BatchHistoryResponse.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -21,24 +23,34 @@ class Repository {
   }
 
   Future<QueryResult> getUserById(String userId) async {
-    return await appApiProvider.getUserById(userId);
+    var result = await appApiProvider.getUserById(userId);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> getCardById(int cardId) async {
-    return await appApiProvider.getCardById(cardId);
+    var result = await appApiProvider.getCardById(cardId);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> deleteCard(int cardId) async {
-    return await appApiProvider.deleteCard(cardId);
+    var result = await appApiProvider.deleteCard(cardId);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> getTags() async {
-    return await appApiProvider.getTags();
+    var result = await appApiProvider.getTags();
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> createCard(
       String postedBy, int searchFor, String details) async {
-    return await appApiProvider.createCard(postedBy, searchFor, details);
+    var result = await appApiProvider.createCard(postedBy, searchFor, details);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<PubNubConversation> getConversation(String conversationId) async {
@@ -52,7 +64,10 @@ class Repository {
   }
 
   Future createConnection(String currentUserId, String targetUserId) async {
-    return await appApiProvider.createConnection(currentUserId, targetUserId);
+    var result =
+        await appApiProvider.createConnection(currentUserId, targetUserId);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<PubNubConversation> createConversation(User user) async {
@@ -69,7 +84,10 @@ class Repository {
 
   Future<List<ConversationModel>> getListOfIdsFromBackend() async {
     String currentUserId = await getCurrentUserId();
-    return await appApiProvider.getListOfIdsFromBackend(currentUserId);
+    var result = await appApiProvider.getListOfIdsFromBackend(currentUserId);
+    checkExpiredSession(result);
+    User currentUser = User.fromJson(result.data['get_user']);
+    return currentUser.conversations;
   }
 
   Future<String> getStringOfChannelIds() async {
@@ -85,7 +103,9 @@ class Repository {
   }
 
   Future<QueryResult> getCards() async {
-    return await appApiProvider.getCards();
+    var result = await appApiProvider.getCards();
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> updateUser(
@@ -96,36 +116,52 @@ class Repository {
       bool isActive,
       String description,
       String profilePicUrl) async {
-    return await appApiProvider.updateUser(
+    var result = await appApiProvider.updateUser(
         name, location, id, phoneNumber, isActive, description, profilePicUrl);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> updateDeviceToken(String id, String deviceToken) async {
-    return await appApiProvider.updateDeviceToken(id, deviceToken);
+    var result = await appApiProvider.updateDeviceToken(id, deviceToken);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> createUserTag(String userId, int tagId) async {
-    return await appApiProvider.createUserTag(userId, tagId);
+    var result = await appApiProvider.createUserTag(userId, tagId);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> updateMainUserTag(int userTagId) async {
-    return await appApiProvider.updateMainUserTag(userTagId);
+    var result = await appApiProvider.updateMainUserTag(userTagId);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> deleteUserTag(int userTagId) async {
-    return await appApiProvider.deleteUserTag(userTagId);
+    var result = await appApiProvider.deleteUserTag(userTagId);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> getUsers() async {
-    return await appApiProvider.getUsers();
+    var result = await appApiProvider.getUsers();
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> loadContacts(List<String> phoneContacts) async {
-    return await appApiProvider.loadContacts(phoneContacts);
+    var result = await appApiProvider.loadContacts(phoneContacts);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> loadConnections(List<String> existingUsers) async {
-    return await appApiProvider.loadConnections(existingUsers);
+    var result = await appApiProvider.loadConnections(existingUsers);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> getLocations() async {
@@ -134,30 +170,42 @@ class Repository {
 
   Future<QueryResult> createUser(
       String name, int location, String firebaseId, String phoneNumber) async {
-    return await appApiProvider.createUser(
+    var result = await appApiProvider.createUser(
         name, location, firebaseId, phoneNumber);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> createLocation(String city) async {
-    return await appApiProvider.createLocation(city);
+    var result = await appApiProvider.createLocation(city);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> checkContacts(List<String> phoneContacts) async {
-    return await appApiProvider.checkContacts(phoneContacts);
+    var result = await appApiProvider.checkContacts(phoneContacts);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> deleteConnection(int connectionId) async {
-    return await appApiProvider.deleteConnection(connectionId);
+    var result = await appApiProvider.deleteConnection(connectionId);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future<QueryResult> createReview(
       String userId, int userTagId, int stars, String text) async {
-    return await appApiProvider.createReview(userId, userTagId, stars, text);
+    var result =
+        await appApiProvider.createReview(userId, userTagId, stars, text);
+    checkExpiredSession(result);
+    return result;
   }
 
   Future unsubscribeFromPushNotifications() async {
     var channels = await getStringOfChannelIds();
-    return await appApiProvider.unsubscribeFromPushNotifications(channels);
+    return
+        await appApiProvider.unsubscribeFromPushNotifications(channels);
   }
 
   Future<String> uploadPic(File image) async {
@@ -210,7 +258,31 @@ class Repository {
 
   Future<QueryResult> createRecommends(
       int cardId, String userAskId, String userSendId, String userRecId) async {
-    return await appApiProvider.createRecommend(
+    var result = await appApiProvider.createRecommend(
         cardId, userAskId, userSendId, userRecId);
+    checkExpiredSession(result);
+    return result;
+  }
+
+  void checkExpiredSession(QueryResult result) {
+    if (result.errors != null &&
+        result.errors.isNotEmpty &&
+        result.errors[0].extensions != null &&
+        result.errors[0].extensions["exception"] != null &&
+        result.errors[0].extensions["exception"]["errorInfo"] != null &&
+        result.errors[0].extensions["exception"]["errorInfo"]['code'] &&
+        result.errors[0].extensions["exception"]["errorInfo"]["code"] ==
+            "auth/id-token-expired") {
+      clearUserSession(true);
+    }
+  }
+
+  Future clearUserSession(bool showExpiredSessionMessage) async {
+    await FirebaseAuth.instance.signOut().then((_) async {
+      await unsubscribeFromPushNotifications();
+      SharedPreferencesHelper.clear().then((_) {
+        logout(showExpiredSessionMessage);
+      });
+    });
   }
 }

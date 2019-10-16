@@ -78,9 +78,9 @@ class SyncContactsBloc {
       Contact contact = contactsResult.firstWhere(
           (contact) => (contact.phones != null &&
                   contact.phones.toList().isNotEmpty)
-              ? (contact.phones.toList().elementAt(0).value ==
-                      contactModel.number ||
-                  countryCode + contact.phones.toList().elementAt(0).value ==
+              ? (contact.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), "") ==
+                      contactModel.number.replaceAll(new RegExp(r"\s+\b|\b\s"), "") ||
+                  countryCode + contact.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), "") ==
                       contactModel.number)
               : false,
           orElse: () => null);

@@ -85,9 +85,6 @@ class AccountScreenState extends State<AccountScreen> {
       setState(() {
         _saving = false;
       });
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => SignUpScreen()),
-          (Route<dynamic> route) => false);
     });
   }
 

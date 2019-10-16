@@ -2,6 +2,7 @@ import 'package:contractor_search/layouts/tutorial_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_delegate.dart';
 import 'package:contractor_search/utils/auth_status.dart';
+import 'package:contractor_search/utils/global_variables.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import 'layouts/home_page.dart';
 import 'layouts/sign_up_screen.dart';
 
 class MyApp extends StatefulWidget {
+
   @override
   State<StatefulWidget> createState() {
     return MyAppState();
@@ -57,6 +59,7 @@ class MyAppState extends State<MyApp> {
           const Locale('en', ''),
           const Locale('ro', ''),
         ],
+        navigatorKey: GlobalVariable.navigatorKey,
         title: 'Flutter Demo',
         theme: ThemeData(primaryColor: ColorUtils.white, fontFamily: "Arial"),
         home: Builder(
@@ -67,13 +70,13 @@ class MyAppState extends State<MyApp> {
                     )
                   : TutorialScreen())
               : (authStatus == AuthStatus.NOT_LOGGED_IN
-                  ? SignUpScreen()
+                  ? SignUpScreen(showExpiredSessionMessage: false)
                   : Container(
                       color: ColorUtils.white,
                     )),
         ),
         routes: <String, WidgetBuilder>{
-          '/phoneAuthScreen': (BuildContext context) => SignUpScreen(),
+          '/phoneAuthScreen': (BuildContext context) => SignUpScreen(showExpiredSessionMessage: false,),
           '/homepage': (BuildContext context) => HomePage(
                 syncContactsFlagRequired: false,
               ),

@@ -1,10 +1,14 @@
+import 'package:contractor_search/layouts/sign_up_screen.dart';
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import 'global_variables.dart';
 
 String validatePhoneNumber(String value, String validationMessage) {
   final RegExp phoneExp =
@@ -146,4 +150,10 @@ int getScoreForSearchedTag(List<UserTag> tags, Tag searchedTag) {
   } else {
     return -1;
   }
+}
+
+void logout(bool showExpiredSessionMessage){
+  GlobalVariable.navigatorKey.currentState.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => SignUpScreen(showExpiredSessionMessage: showExpiredSessionMessage)),
+          (Route<dynamic> route) => false);
 }

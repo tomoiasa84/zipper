@@ -370,7 +370,7 @@ class ApiProvider {
     return result;
   }
 
-  Future<List<ConversationModel>> getListOfIdsFromBackend(
+  Future<QueryResult> getListOfIdsFromBackend(
       String currentUserId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
@@ -391,9 +391,8 @@ class ApiProvider {
                     }
                 }''',
     ));
-    User currentUser = User.fromJson(result.data['get_user']);
 
-    return currentUser.conversations;
+    return result;
   }
 
   Future<QueryResult> getCards() async {

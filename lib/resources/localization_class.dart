@@ -157,7 +157,9 @@ class Localization {
       'createdConnection': 'Connection successfuly created',
       'deletedConnection': 'Connection deleted',
       'selectAll': 'Select all',
-      'deselectAll': 'Deselect all'
+      'deselectAll': 'Deselect all',
+      'yourSessionExpired': 'Your session expired!',
+      'pleaseLoginAgain': 'Please login again.'
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -306,7 +308,9 @@ class Localization {
       'createdConnection': 'Conexiune creata',
       'deletedConnection': 'Conexiune stearsa',
       'selectAll': 'Selecteaza tot',
-      'deselectAll': 'Deselecteaza tot'
+      'deselectAll': 'Deselecteaza tot',
+      'yourSessionExpired': 'Sesiunea a expirat!',
+      'pleaseLoginAgain': 'Va rugam sa va autentificati din nou..'
     },
   };
 

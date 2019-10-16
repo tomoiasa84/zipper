@@ -21,9 +21,6 @@ class AccountBloc {
   }
 
   Future clearUserSession() async {
-    await FirebaseAuth.instance.signOut().then((_) async {
-      await _repository.unsubscribeFromPushNotifications();
-      await SharedPreferencesHelper.clear();
-    });
+   return await _repository.clearUserSession(false);
   }
 }

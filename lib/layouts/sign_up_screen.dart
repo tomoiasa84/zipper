@@ -14,11 +14,17 @@ import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class SignUpScreen extends StatefulWidget {
+  final bool showExpiredSessionMessage;
+
+  const SignUpScreen({Key key, this.showExpiredSessionMessage})
+      : super(key: key);
+
   @override
   SignUpScreenState createState() {
     return SignUpScreenState();
@@ -77,11 +83,12 @@ class SignUpScreenState extends State<SignUpScreen> {
       });
       showDialog(
         context: context,
-        builder: (BuildContext context) => CustomDialog(
-          title: Localization.of(context).getString("error"),
-          description: exception.message,
-          buttonText: Localization.of(context).getString("ok"),
-        ),
+        builder: (BuildContext context) =>
+            CustomDialog(
+              title: Localization.of(context).getString("error"),
+              description: exception.message,
+              buttonText: Localization.of(context).getString("ok"),
+            ),
       );
     };
 
@@ -122,11 +129,12 @@ class SignUpScreenState extends State<SignUpScreen> {
     });
     showDialog(
       context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: description,
-        buttonText: Localization.of(context).getString("ok"),
-      ),
+      builder: (BuildContext context) =>
+          CustomDialog(
+            title: title,
+            description: description,
+            buttonText: Localization.of(context).getString("ok"),
+          ),
     );
   }
 
@@ -135,12 +143,12 @@ class SignUpScreenState extends State<SignUpScreen> {
     _signUpBloc.getUsers().then((result) {
       if (result.errors == null) {
         final List<Map<String, dynamic>> users =
-            result.data['get_users'].cast<Map<String, dynamic>>();
+        result.data['get_users'].cast<Map<String, dynamic>>();
         users.forEach((item) {
           usersList.add(User.fromJson(item));
         });
         User user = usersList.firstWhere(
-            (user) => user.phoneNumber == phoneNumber,
+                (user) => user.phoneNumber == phoneNumber,
             orElse: () => null);
 
         if (user == null) {
@@ -153,16 +161,16 @@ class SignUpScreenState extends State<SignUpScreen> {
                 "", Localization.of(context).getString('alreadySignedUp'));
           });
         }
-      }
-      else{
-        _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+      } else {
+        _showDialog(Localization.of(context).getString('error'),
+            result.errors[0].message);
       }
     });
   }
 
   void _signUp(AuthResult user) {
     var loc = locationsList.firstWhere(
-        (location) => location.city == _typeAheadController.text,
+            (location) => location.city == _typeAheadController.text,
         orElse: () => null);
     if (loc != null) {
       _createUser(user, loc.id);
@@ -170,7 +178,9 @@ class SignUpScreenState extends State<SignUpScreen> {
       _signUpBloc.createLocation(_typeAheadController.text).then((result) {
         if (result.errors == null) {
           _createUser(
-              user, LocationModel.fromJson(result.data['create_location']).id);
+              user, LocationModel
+              .fromJson(result.data['create_location'])
+              .id);
         } else {
           _showDialog(Localization.of(context).getString('error'),
               result.errors[0].message);
@@ -200,7 +210,7 @@ class SignUpScreenState extends State<SignUpScreen> {
 
   void _updateUser(AuthResult user) {
     var loc = locationsList.firstWhere(
-        (location) => location.city == _typeAheadController.text,
+            (location) => location.city == _typeAheadController.text,
         orElse: () => null);
     setState(() {
       if (loc != null) {
@@ -209,7 +219,9 @@ class SignUpScreenState extends State<SignUpScreen> {
         _signUpBloc.createLocation(_typeAheadController.text).then((result) {
           if (result.errors == null) {
             _updateUserData(user,
-                LocationModel.fromJson(result.data['create_location']).id);
+                LocationModel
+                    .fromJson(result.data['create_location'])
+                    .id);
           } else {
             _showDialog(Localization.of(context).getString('error'),
                 result.errors[0].message);
@@ -222,7 +234,7 @@ class SignUpScreenState extends State<SignUpScreen> {
   void _updateUserData(AuthResult user, int locationId) {
     _signUpBloc
         .updateUser(
-            name, locationId, user.user.uid, user.user.phoneNumber, true)
+        name, locationId, user.user.uid, user.user.phoneNumber, true)
         .then((result) {
       if (result.errors == null) {
         User user = User.fromJson(result.data['update_user']);
@@ -254,7 +266,8 @@ class SignUpScreenState extends State<SignUpScreen> {
     await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => SmsCodeVerificationScreen(
+            builder: (context) =>
+                SmsCodeVerificationScreen(
                     verificationId,
                     name,
                     _typeAheadController.text,
@@ -282,6 +295,13 @@ class SignUpScreenState extends State<SignUpScreen> {
         });
       }
     });
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (widget.showExpiredSessionMessage) {
+        _showDialog(Localization.of(context).getString('yourSessionExpired'),
+            Localization.of(context).getString('pleaseLoginAgain'));
+      }
+    }
+    );
     super.initState();
   }
 
@@ -296,7 +316,7 @@ class SignUpScreenState extends State<SignUpScreen> {
           backgroundColor: ColorUtils.white,
           body: Container(
             padding:
-                const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 31.0),
+            const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 31.0),
             height: double.infinity,
             child: LayoutBuilder(builder: (context, constraint) {
               return SingleChildScrollView(
