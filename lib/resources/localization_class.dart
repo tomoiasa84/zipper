@@ -304,7 +304,7 @@ class Localization {
       'good': 'Bun!',
       'poor': 'Slab!',
       'veryPoor': 'Foarte slab!',
-      'emptyReviewsList': 'Nu exista nici un review',
+      'emptyReviewsList': 'Nu exista nici o recenzie',
       'createdConnection': 'Conexiune creata',
       'deletedConnection': 'Conexiune stearsa',
       'selectAll': 'Selecteaza tot',

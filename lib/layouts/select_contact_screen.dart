@@ -38,9 +38,9 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
             _loading = false;
           });
         }
-      }
-      else{
-        _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+      } else {
+        _showDialog(Localization.of(context).getString('error'),
+            result.errors[0].message);
       }
     });
     super.initState();
@@ -161,10 +161,12 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
                 )
               ],
             ),
-            subtitle: Text(
-              "",
-              style: TextStyle(color: ColorUtils.messageOrange),
-            ),
+            subtitle: (user.tags != null && user.tags.isNotEmpty)
+                ? Text(
+                    getMainTag(user).tag.name,
+                    style: TextStyle(color: ColorUtils.messageOrange),
+                  )
+                : null,
           ),
         ),
       ),

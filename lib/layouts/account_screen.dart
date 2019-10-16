@@ -4,7 +4,6 @@ import 'package:contractor_search/bloc/account_bloc.dart';
 import 'package:contractor_search/layouts/profile_settings_screen.dart';
 import 'package:contractor_search/layouts/replies_screen.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
-import 'package:contractor_search/layouts/sign_up_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/tag.dart';
@@ -101,9 +100,9 @@ class AccountScreenState extends State<AccountScreen> {
           _saving = false;
           _getMainTag();
         });
-      }
-      else{
-        _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+      } else {
+        _showDialog(Localization.of(context).getString('error'),
+            result.errors[0].message);
       }
     });
   }
@@ -165,7 +164,7 @@ class AccountScreenState extends State<AccountScreen> {
             appBar:
                 _buildAppBar(Localization.of(context).getString('settings')),
             body: SafeArea(
-              top: true,
+              top: false,
               child: _user != null
                   ? Container(
                       margin: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -245,7 +244,7 @@ class AccountScreenState extends State<AccountScreen> {
       ),
       child: Container(
         padding: const EdgeInsets.only(
-            left: 16.0, right: 16.0, top: 24.0, bottom: 44.0),
+            left: 16.0, right: 16.0, top: 24.0, bottom: 24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -258,7 +257,7 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   Container _buildDescription() {
-    return _user.description != null
+    return _user.description != null && _user.description.isNotEmpty
         ? Container(
             padding: const EdgeInsets.only(top: 16.0),
             child: Text(
@@ -283,54 +282,62 @@ class AccountScreenState extends State<AccountScreen> {
               : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                _user.name,
-                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
-              ),
-              _mainUserTag != null
-                  ? Row(
-                      children: <Widget>[
-                        Text(
-                          '#' + _mainUserTag.tag.name,
-                          style: TextStyle(color: ColorUtils.orangeAccent),
-                        ),
-                        _mainUserTag.reviews.isNotEmpty
-                            ? Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8.0, top: 4.0),
-                                child: Icon(
-                                  Icons.star,
-                                  color: ColorUtils.orangeAccent,
-                                ),
-                              )
-                            : Container(),
-                        _mainUserTag.reviews.isNotEmpty
-                            ? Text(
-                                _mainUserTag.score.toString(),
-                                style: TextStyle(
-                                    fontSize: 14.0, color: ColorUtils.darkGray),
-                              )
-                            : Container()
-                      ],
-                    )
-                  : Container()
-            ],
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  _user.name,
+                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+                ),
+                _mainUserTag != null
+                    ? Row(
+                        children: <Widget>[
+                          Flexible(
+                            child: Text(
+                              '#' + _mainUserTag.tag.name,
+                              overflow: TextOverflow.clip,
+                              style: TextStyle(color: ColorUtils.orangeAccent),
+                            ),
+                          ),
+                          _mainUserTag.reviews.isNotEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 8.0, top: 4.0),
+                                  child: Icon(
+                                    Icons.star,
+                                    color: ColorUtils.orangeAccent,
+                                  ),
+                                )
+                              : Container(),
+                          _mainUserTag.reviews.isNotEmpty
+                              ? Text(
+                                  _mainUserTag.score.toString(),
+                                  style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: ColorUtils.darkGray),
+                                )
+                              : Container()
+                        ],
+                      )
+                    : Container()
+              ],
+            ),
           ),
         ),
-        new Spacer(),
-        widget.isStartedFromHomeScreen
-            ? GestureDetector(
-                child: Image.asset('assets/images/ic_edit_accent_bg.png'),
-                onTap: () {
-                  _goToSettingsScreen();
-                },
-              )
-            : Container()
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: widget.isStartedFromHomeScreen
+              ? GestureDetector(
+                  child: Image.asset('assets/images/ic_edit_accent_bg.png'),
+                  onTap: () {
+                    _goToSettingsScreen();
+                  },
+                )
+              : Container(),
+        )
       ],
     );
   }

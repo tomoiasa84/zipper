@@ -52,9 +52,9 @@ class UsersScreenState extends State<UsersScreen> {
             _saving = false;
           });
         }
-      }
-      else{
-        _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+      } else {
+        _showDialog(Localization.of(context).getString('error'),
+            result.errors[0].message);
       }
     });
   }
@@ -76,6 +76,7 @@ class UsersScreenState extends State<UsersScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      top: false,
       child: ModalProgressHUD(
         inAsyncCall: _saving,
         child: Scaffold(appBar: _buildAppBar(), body: _buildUsersListView()),
@@ -178,9 +179,9 @@ class UsersScreenState extends State<UsersScreen> {
                   : Container()
             ],
           ),
-          subtitle: user.isActive
+          subtitle: user.isActive && mainTag != null
               ? Text(
-                  mainTag != null ? '#' + mainTag.tag.name : '',
+                  '#' + mainTag.tag.name,
                   style: TextStyle(color: ColorUtils.messageOrange),
                 )
               : null,
