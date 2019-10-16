@@ -281,7 +281,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                                 fontWeight: FontWeight.bold),
                           ),
                         ),
-                        Text("",
+                        Text(user.tags != null? "#" + getMainTag(user).tag.name : "",
                             style: TextStyle(
                                 fontSize: 12, color: ColorUtils.orangeAccent))
                       ],
