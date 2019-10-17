@@ -72,12 +72,14 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
               setState(() {
                 _saving = false;
               });
-              _showDialog(Localization.of(context).getString("error"), result.errors[0].message);
+              _showDialog(Localization.of(context).getString("error"),
+                  result.errors[0].message);
             }
           });
         });
-      } else{
-        _showDialog(Localization.of(context).getString("error"), result.errors[0].message);
+      } else {
+        _showDialog(Localization.of(context).getString("error"),
+            result.errors[0].message);
       }
     });
   }
@@ -175,7 +177,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
       Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) =>
               ChatScreen(pubNubConversation: pubNubConversation)));
-    }).then((value){
+    }).then((value) {
       setState(() {
         _saving = false;
       });
@@ -269,42 +271,48 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
               : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                _user.name != null ? _user.name : _user.phoneNumber,
-                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
-              ),
-              _mainUserTag != null
-                  ? Row(
-                      children: <Widget>[
-                        Text(
-                          '#' + _mainUserTag.tag.name,
-                          style: TextStyle(color: ColorUtils.orangeAccent),
-                        ),
-                        _mainUserTag.reviews.isNotEmpty
-                            ? Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Icon(
-                                  Icons.star,
-                                  color: ColorUtils.orangeAccent,
-                                ),
-                              )
-                            : Container(),
-                        _mainUserTag.reviews.isNotEmpty
-                            ? Text(
-                                _mainUserTag.score.toString(),
-                                style: TextStyle(
-                                    fontSize: 14.0, color: ColorUtils.darkGray),
-                              )
-                            : Container()
-                      ],
-                    )
-                  : Container()
-            ],
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  _user.name != null ? _user.name : _user.phoneNumber,
+                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+                ),
+                _mainUserTag != null
+                    ? Row(
+                        children: <Widget>[
+                          Flexible(
+                            child: Text(
+                              '#' + _mainUserTag.tag.name,
+                              overflow: TextOverflow.clip,
+                              style: TextStyle(color: ColorUtils.orangeAccent),
+                            ),
+                          ),
+                          _mainUserTag.reviews.isNotEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Icon(
+                                    Icons.star,
+                                    color: ColorUtils.orangeAccent,
+                                  ),
+                                )
+                              : Container(),
+                          _mainUserTag.reviews.isNotEmpty
+                              ? Text(
+                                  _mainUserTag.score.toString(),
+                                  style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: ColorUtils.darkGray),
+                                )
+                              : Container()
+                        ],
+                      )
+                    : Container()
+              ],
+            ),
           ),
         )
       ],
