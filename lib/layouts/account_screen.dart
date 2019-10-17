@@ -472,32 +472,35 @@ class AccountScreenState extends State<AccountScreen> {
               : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text.rich(
-                TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                        text: _user.name,
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(
-                        text:
-                            Localization.of(context).getString("isLookingFor"),
-                        style: TextStyle(color: ColorUtils.darkerGray)),
-                  ],
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text.rich(
+                  TextSpan(
+                    children: <TextSpan>[
+                      TextSpan(
+                          text: _user.name,
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(
+                          text: Localization.of(context)
+                              .getString("isLookingFor"),
+                          style: TextStyle(color: ColorUtils.darkerGray)),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                "#" + searchFor.name,
-                style: TextStyle(
-                    color: ColorUtils.orangeAccent,
-                    fontWeight: FontWeight.bold),
-              )
-            ],
+                Text(
+                  "#" + searchFor.name,
+                  overflow: TextOverflow.clip,
+                  style: TextStyle(
+                      color: ColorUtils.orangeAccent,
+                      fontWeight: FontWeight.bold),
+                )
+              ],
+            ),
           ),
         )
       ],

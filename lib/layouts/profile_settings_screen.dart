@@ -65,8 +65,9 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             tagsList.add(tagItem);
           }
         });
-      } else{
-        _showDialog(Localization.of(context).getString("error"), result.errors[0].message, Localization.of(context).getString('ok'));
+      } else {
+        _showDialog(Localization.of(context).getString("error"),
+            result.errors[0].message, Localization.of(context).getString('ok'));
       }
     });
   }
@@ -523,7 +524,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   }
 
   List<Widget> _buildSkillsItems() {
-    List<Widget> lines = []; // this will hold Rows according to available lines
+    List<Widget> lines = [];
     skills.forEach((item) {
       lines.add(
         Container(
@@ -575,22 +576,22 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             textFieldConfiguration: TextFieldConfiguration(
               controller: _addSkillsTextEditingController,
               decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6.0),
-                    borderSide: BorderSide(
-                        color: ColorUtils.lightLightGray, width: 1.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6.0),
-                    borderSide: BorderSide(
-                        color: ColorUtils.lightLightGray, width: 1.0),
-                  ),
-                  hintText: Localization.of(context).getString('addMoreSkills'),
-                  hintStyle: TextStyle(
-                    fontSize: 14.0,
-                    color: ColorUtils.darkerGray,
-                  ),
-                  suffix: Text('          ')),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                  borderSide:
+                      BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                  borderSide:
+                      BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
+                ),
+                hintText: Localization.of(context).getString('addMoreSkills'),
+                hintStyle: TextStyle(
+                  fontSize: 14.0,
+                  color: ColorUtils.darkerGray,
+                ),
+              ),
             ),
             suggestionsCallback: (pattern) {
               List<String> list = [];
@@ -611,6 +612,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             },
             onSuggestionSelected: (suggestion) {
               this._addSkillsTextEditingController.text = '#' + suggestion;
+              _addTag();
             },
             validator: (value) {
               if (value.isEmpty) {
@@ -619,20 +621,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               return null;
             },
           ),
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            child: GestureDetector(
-              onTap: () {
-                _addTag();
-              },
-              child: Text(
-                Localization.of(context).getString('add'),
-                style: TextStyle(
-                    color: ColorUtils.orangeAccent,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-          )
         ],
       ),
     );
