@@ -50,16 +50,16 @@ class SendInChatScreenState extends State<SendInChatScreen> {
 
   void _getAllFriends() async {
     _sendInChatBloc.getCurrentUser().then((result) {
-      if (result.errors != null) {
+      if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
         currentUser.connections.forEach((connection) {
           _usersList.add(connection.targetUser);
         });
         _allUsersLoaded = true;
         _hideLoading();
-      }
-      else{
-        _showDialog(Localization.of(context).getString("error"), result.errors[0].message);
+      } else {
+        _showDialog(Localization.of(context).getString("error"),
+            result.errors[0].message);
       }
     });
   }

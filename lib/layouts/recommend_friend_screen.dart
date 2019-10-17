@@ -112,8 +112,11 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
         : (_saving
             ? Container()
             : Center(
-                child: Text(Localization.of(context).getString('noUsersWith') +
-                    widget.card.searchFor.name),
+                child: Text(
+                  Localization.of(context).getString('noUsersWith') +
+                      widget.card.searchFor.name,
+                  textAlign: TextAlign.center,
+                ),
               ));
   }
 
