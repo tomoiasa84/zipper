@@ -217,10 +217,16 @@ Widget generateContactUI(
                           ),
                           Row(
                             children: <Widget>[
-                              Text(
-                                tagName.length > 0 ? '#' + tagName : "",
-                                style: TextStyle(color: ColorUtils.white),
-                              ),
+                              tagName.length > 0
+                                  ? Flexible(
+                                      child: Text(
+                                        '#' + tagName,
+                                        overflow: TextOverflow.clip,
+                                        style:
+                                            TextStyle(color: ColorUtils.white),
+                                      ),
+                                    )
+                                  : Container(),
                               score != -1
                                   ? Padding(
                                       padding: EdgeInsets.fromLTRB(45, 0, 0, 0),
@@ -242,6 +248,7 @@ Widget generateContactUI(
                       ),
                     ),
                     Container(
+                      margin: const EdgeInsets.only(left: 4.0),
                       decoration: getRoundWhiteCircle(),
                       child: new IconButton(
                         onPressed: clickAction,
