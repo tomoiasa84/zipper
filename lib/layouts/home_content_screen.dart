@@ -50,8 +50,9 @@ class HomeContentScreenState extends State<HomeContentScreen> {
             _saving = false;
           });
         }
-      } else{
-        _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+      } else {
+        _showDialog(Localization.of(context).getString('error'),
+            result.errors[0].message);
       }
     });
   }
@@ -175,35 +176,38 @@ class HomeContentScreenState extends State<HomeContentScreen> {
               : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  UserDetailsScreen(card.postedBy.id)));
-                    },
-                    child: Text(card.postedBy.name,
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Text(Localization.of(context).getString("isLookingFor"),
-                      style: TextStyle(color: ColorUtils.darkerGray))
-                ],
-              ),
-              Text(
-                "#" + card.searchFor.name,
-                style: TextStyle(
-                    color: ColorUtils.orangeAccent,
-                    fontWeight: FontWeight.bold),
-              ),
-            ],
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    UserDetailsScreen(card.postedBy.id)));
+                      },
+                      child: Text(card.postedBy.name,
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    Text(Localization.of(context).getString("isLookingFor"),
+                        style: TextStyle(color: ColorUtils.darkerGray))
+                  ],
+                ),
+                Text(
+                  "#" + card.searchFor.name,
+                  overflow: TextOverflow.clip,
+                  style: TextStyle(
+                      color: ColorUtils.orangeAccent,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
         )
       ],
