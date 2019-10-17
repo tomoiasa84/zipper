@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-              builder: (context) => ChatScreen(conversationId: message)),
+              builder: (context) => ChatScreen(conversationId: message,  maybePop: true,)),
           ModalRoute.withName("/"));
       return '';
     });
@@ -120,7 +120,7 @@ class _HomePageState extends State<HomePage> {
         context,
         MaterialPageRoute(
             builder: (context) =>
-                ChatScreen(conversationId: _message.channelId)),
+                ChatScreen(conversationId: _message.channelId, maybePop: true,)),
         ModalRoute.withName("/"));
   }
 
@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage> {
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    ChatScreen(conversationId: _message.channelId)),
+                    ChatScreen(conversationId: _message.channelId, maybePop: true)),
             ModalRoute.withName("/"));
       },
       onLaunch: (Map<String, dynamic> message) async {
@@ -149,7 +149,7 @@ class _HomePageState extends State<HomePage> {
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    ChatScreen(conversationId: _message.channelId)),
+                    ChatScreen(conversationId: _message.channelId, maybePop: true)),
             ModalRoute.withName("/"));
       },
     );

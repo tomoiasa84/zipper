@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:convert' as convert;
 import 'dart:io';
 
-import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
@@ -13,8 +12,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class ApiProvider {
-  static HttpLink link =
-      HttpLink(uri: 'https://xfriends.azurewebsites.net');
+  static HttpLink link = HttpLink(uri: 'https://xfriends.azurewebsites.net');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
@@ -370,8 +368,7 @@ class ApiProvider {
     return result;
   }
 
-  Future<QueryResult> getListOfIdsFromBackend(
-      String currentUserId) async {
+  Future<QueryResult> getListOfIdsFromBackend(String currentUserId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_user(userId: "$currentUserId"){
@@ -1099,6 +1096,7 @@ class ApiProvider {
                               }
                                userRecommand{
                                    name
+                                   id
                                    profileURL
                                     tags{
                                         id

@@ -114,7 +114,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     _cardDetailsBloc.createConversation(user).then((pubNubConversation) {
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
           builder: (BuildContext context) =>
-              ChatScreen(pubNubConversation: pubNubConversation)));
+              ChatScreen(pubNubConversation: pubNubConversation, maybePop: false,)));
     });
   }
 

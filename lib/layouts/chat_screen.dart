@@ -28,8 +28,9 @@ import 'card_details_screen.dart';
 class ChatScreen extends StatefulWidget {
   final PubNubConversation pubNubConversation;
   final String conversationId;
+  final bool maybePop;
 
-  ChatScreen({Key key, this.pubNubConversation, this.conversationId})
+  ChatScreen({Key key, this.pubNubConversation, this.conversationId, this.maybePop})
       : super(key: key);
 
   @override
@@ -122,7 +123,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _chatBloc.createConversation(user).then((pubNubConversation) {
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
           builder: (BuildContext context) =>
-              ChatScreen(pubNubConversation: pubNubConversation)));
+              ChatScreen(pubNubConversation: pubNubConversation, maybePop: false)));
     });
   }
 
@@ -344,7 +345,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   Icons.arrow_back,
                   color: ColorUtils.almostBlack,
                 ),
-                onPressed: () => Navigator.maybePop(context),
+                onPressed: () {
+                  if(widget.maybePop){
+                    Navigator.maybePop(context);
+                  }else{
+                    Navigator.pop(context);
+                  }
+                },
               ),
               backgroundColor: Colors.white,
             ),

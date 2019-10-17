@@ -41,9 +41,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)),
       centerTitle: true,
       actions: <Widget>[
-        widget.syncResult.existingUsers.isEmpty ||
-                widget.syncResult.unjoinedContacts.isEmpty
-            ? GestureDetector(
+         GestureDetector(
                 onTap: () {
                   Navigator.pushAndRemoveUntil(
                       context,
@@ -65,7 +63,6 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
                   )),
                 ),
               )
-            : Container()
       ],
     );
   }
