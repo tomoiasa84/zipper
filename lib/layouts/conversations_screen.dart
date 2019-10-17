@@ -1,4 +1,5 @@
 import 'package:contractor_search/bloc/conversations_bloc.dart';
+import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -7,7 +8,6 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'chat_screen.dart';
 
@@ -46,11 +46,12 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     });
   }
 
-  Future _setConversationReadState(List<PubNubConversation> conversations) async {
+  Future _setConversationReadState(
+      List<PubNubConversation> conversations) async {
     for (var conversation in _pubNubConversations) {
       var lastMessageTimestamp =
-      await SharedPreferencesHelper.getLastMessageTimestamp(
-          conversation.id);
+          await SharedPreferencesHelper.getLastMessageTimestamp(
+              conversation.id);
       if (lastMessageTimestamp !=
           conversation.lastMessage.message.timestamp.toIso8601String()) {
         setState(() {
@@ -87,6 +88,18 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       MaterialPageRoute(
           builder: (context) =>
               ChatScreen(pubNubConversation: pubNubConversation)),
+    ).then((onValue) {
+      _getConversations();
+    });
+  }
+
+  void _goToCardDetailsScreen(PubNubConversation pubNubConversation) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => CardDetailsScreen(
+                cardId: pubNubConversation.lastMessage.cardId,
+              )),
     ).then((onValue) {
       _getConversations();
     });
@@ -149,10 +162,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     var listView = ListView.builder(
       padding: EdgeInsets.all(0),
       itemBuilder: (context, position) {
-        return GestureDetector(
-          child: _getConversationUI(pubNubConversations[position]),
-          onTap: () => _goToChatScreen(pubNubConversations[position]),
-        );
+        return _getConversationUI(pubNubConversations[position]);
       },
       itemCount: pubNubConversations.length,
     );
@@ -160,66 +170,136 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   Widget _getConversationUI(PubNubConversation conversation) {
+    if (conversation.lastMessage.backendMessage) {
+      return _getRecommendationConversation(conversation);
+    } else {
+      return _getConversationWithUsersUI(conversation);
+    }
+  }
+
+  Widget _getRecommendationConversation(PubNubConversation conversation) {
+    return GestureDetector(
+      onTap: () => _goToCardDetailsScreen(conversation),
+      child: Container(
+        child: Row(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.fromLTRB(16, 16, 8, 16),
+              width: 40,
+              height: 40,
+              child: CircleAvatar(
+                child: conversation.read
+                    ? Image.asset('assets/images/ic_bell_gray')
+                    : Image.asset('assets/images/ic_bell_orange_accent'),
+                backgroundColor: ColorUtils.lightLightGray,
+              ),
+            ),
+            Flexible(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                          child: Text(
+                            conversation.lastMessage.conversationTitle,
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: ColorUtils.almostBlack,
+                                fontFamily: 'Arial',
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Text("",
+                            style: TextStyle(
+                                fontSize: 12, color: ColorUtils.orangeAccent))
+                      ],
+                    ),
+                  ),
+                  Text(conversation.lastMessage.conversationPreview,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: _getLastMessageTextStyle(conversation))
+                ],
+              ),
+            )
+          ],
+        ),
+        margin: EdgeInsets.fromLTRB(0, 0, 0, 4),
+        decoration: _getRoundedWhiteDecoration(),
+        height: 73,
+      ),
+    );
+  }
+
+  Widget _getConversationWithUsersUI(PubNubConversation conversation) {
     var user = getInterlocutorFromConversation(
         conversation.user1, conversation.user2, _currentUserId);
-    return Container(
-      child: Row(
-        children: <Widget>[
-          Container(
-            margin: EdgeInsets.fromLTRB(16, 16, 8, 16),
-            width: 40,
-            height: 40,
-            child: CircleAvatar(
-              child: user.profilePicUrl == null
-                  ? Text(getInitials(user.name),
-                      style: TextStyle(color: ColorUtils.darkerGray))
-                  : null,
-              backgroundImage: user.profilePicUrl != null
-                  ? NetworkImage(user.profilePicUrl)
-                  : null,
-              backgroundColor: ColorUtils.lightLightGray,
+    return GestureDetector(
+      onTap: () => _goToChatScreen(conversation),
+      child: Container(
+        child: Row(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.fromLTRB(16, 16, 8, 16),
+              width: 40,
+              height: 40,
+              child: CircleAvatar(
+                child: user.profilePicUrl == null
+                    ? Text(getInitials(user.name),
+                        style: TextStyle(color: ColorUtils.darkerGray))
+                    : null,
+                backgroundImage: user.profilePicUrl != null
+                    ? NetworkImage(user.profilePicUrl)
+                    : null,
+                backgroundColor: ColorUtils.lightLightGray,
+              ),
             ),
-          ),
-          Flexible(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                        child: Text(
-                          getInterlocutorFromConversation(conversation.user1,
-                                  conversation.user2, _currentUserId)
-                              .name,
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: ColorUtils.almostBlack,
-                              fontFamily: 'Arial',
-                              fontWeight: FontWeight.bold),
+            Flexible(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                          child: Text(
+                            getInterlocutorFromConversation(conversation.user1,
+                                    conversation.user2, _currentUserId)
+                                .name,
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: ColorUtils.almostBlack,
+                                fontFamily: 'Arial',
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      ),
-                      Text("",
-                          style: TextStyle(
-                              fontSize: 12, color: ColorUtils.orangeAccent))
-                    ],
+                        Text(user.tags != null? "#" + getMainTag(user).tag.name : "",
+                            style: TextStyle(
+                                fontSize: 12, color: ColorUtils.orangeAccent))
+                      ],
+                    ),
                   ),
-                ),
-                Text(_showConversationLastMessage(conversation),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: _getLastMessageTextStyle(conversation))
-              ],
-            ),
-          )
-        ],
+                  Text(_showConversationLastMessage(conversation),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: _getLastMessageTextStyle(conversation))
+                ],
+              ),
+            )
+          ],
+        ),
+        margin: EdgeInsets.fromLTRB(0, 0, 0, 4),
+        decoration: _getRoundedWhiteDecoration(),
+        height: 73,
       ),
-      margin: EdgeInsets.fromLTRB(0, 0, 0, 4),
-      decoration: _getRoundedWhiteDecoration(),
-      height: 73,
     );
   }
 
@@ -231,7 +311,6 @@ class _ConversationsScreenState extends State<ConversationsScreen>
           fontWeight: FontWeight.bold,
           fontSize: 12,
           color: ColorUtils.almostBlack);
-      ;
     }
   }
 
