@@ -111,36 +111,38 @@ class SearchCard extends SearchDelegate<String> {
               : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      close(context, null);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  UserDetailsScreen(card.postedBy.id)));
-                    },
-                    child: Text(card.postedBy.name,
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Text(_userActionText,
-                      style: TextStyle(color: ColorUtils.darkerGray))
-                ],
-              ),
-              Text(
-                "#" + card.searchFor.name,
-                style: TextStyle(
-                    color: ColorUtils.orangeAccent,
-                    fontWeight: FontWeight.bold),
-              ),
-            ],
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
+                        close(context, null);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    UserDetailsScreen(card.postedBy.id)));
+                      },
+                      child: Text(card.postedBy.name,
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    Text(_userActionText,
+                        style: TextStyle(color: ColorUtils.darkerGray))
+                  ],
+                ),
+                Text(
+                  "#" + card.searchFor.name,
+                  style: TextStyle(
+                      color: ColorUtils.orangeAccent,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
         )
       ],
