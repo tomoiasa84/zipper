@@ -9,8 +9,9 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:intl/intl.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
+
 import 'chat_screen.dart';
 
 class CardDetailsScreen extends StatefulWidget {
@@ -346,32 +347,35 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
               : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text.rich(
-                TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                        text: _card.postedBy.name,
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(
-                        text:
-                            Localization.of(context).getString("isLookingFor"),
-                        style: TextStyle(color: ColorUtils.darkerGray)),
-                  ],
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text.rich(
+                  TextSpan(
+                    children: <TextSpan>[
+                      TextSpan(
+                          text: _card.postedBy.name,
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(
+                          text: Localization.of(context)
+                              .getString("isLookingFor"),
+                          style: TextStyle(color: ColorUtils.darkerGray)),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                "#" + _card.searchFor.name,
-                style: TextStyle(
-                    color: ColorUtils.orangeAccent,
-                    fontWeight: FontWeight.bold),
-              )
-            ],
+                Text(
+                  "#" + _card.searchFor.name,
+                  overflow: TextOverflow.clip,
+                  style: TextStyle(
+                      color: ColorUtils.orangeAccent,
+                      fontWeight: FontWeight.bold),
+                )
+              ],
+            ),
           ),
         )
       ],
@@ -396,15 +400,20 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 4.0, right: 16.0),
             child: Text(
-              Intl.plural(
-    _card.recommendsCount,
-                zero: Localization.of(context).getString('noReplies'),
-                one: _card.recommendsCount.toString() + Localization.of(context).getString('reply'),
-                two: _card.recommendsCount.toString() + Localization.of(context).getString('replies'),
-                few: _card.recommendsCount.toString() + Localization.of(context).getString('replies'),
-                many: _card.recommendsCount.toString() + Localization.of(context).getString('replies'),
-                other: _card.recommendsCount.toString() + Localization.of(context).getString('replies'),
-              ),
+                Intl.plural(
+                  _card.recommendsCount,
+                  zero: Localization.of(context).getString('noReplies'),
+                  one: _card.recommendsCount.toString() +
+                      Localization.of(context).getString('reply'),
+                  two: _card.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                  few: _card.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                  many: _card.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                  other: _card.recommendsCount.toString() +
+                      Localization.of(context).getString('replies'),
+                ),
                 style: TextStyle(
                   color: ColorUtils.darkerGray,
                 )),
