@@ -344,7 +344,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
       return false;
     } else if (authScreenType == AuthScreenType.SMS_VERIFICATION) {
       setState(() {
-        authScreenType = AuthScreenType.LOGIN;
+        authScreenType = prevAuthScreenType;
       });
       return false;
     } else {
