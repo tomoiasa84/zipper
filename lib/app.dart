@@ -4,13 +4,14 @@ import 'package:contractor_search/resources/localization_delegate.dart';
 import 'package:contractor_search/utils/auth_status.dart';
 import 'package:contractor_search/utils/global_variables.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'layouts/authentication_screen.dart';
 import 'layouts/home_page.dart';
-import 'layouts/sign_up_screen.dart';
 
 class MyApp extends StatefulWidget {
 
@@ -70,13 +71,13 @@ class MyAppState extends State<MyApp> {
                     )
                   : TutorialScreen())
               : (authStatus == AuthStatus.NOT_LOGGED_IN
-                  ? SignUpScreen(showExpiredSessionMessage: false)
+                  ? AuthenticationScreen(showExpiredSessionMessage: false)
                   : Container(
                       color: ColorUtils.white,
                     )),
         ),
         routes: <String, WidgetBuilder>{
-          '/phoneAuthScreen': (BuildContext context) => SignUpScreen(showExpiredSessionMessage: false,),
+          '/phoneAuthScreen': (BuildContext context) => AuthenticationScreen(showExpiredSessionMessage: false,),
           '/homepage': (BuildContext context) => HomePage(
                 syncContactsFlagRequired: false,
               ),
@@ -90,6 +91,7 @@ class MyAppState extends State<MyApp> {
   Future checkAuthStatus() async {
     var accessToken = await SharedPreferencesHelper.getAccessToken();
     if (accessToken == null || accessToken.isEmpty) {
+      checkFirebaseUserAuthStatus();
       setState(() {
         authStatus = AuthStatus.NOT_LOGGED_IN;
       });
@@ -99,5 +101,13 @@ class MyAppState extends State<MyApp> {
       });
     }
     print("ACCESS TOKEN: $accessToken");
+  }
+
+  void checkFirebaseUserAuthStatus() async {
+    final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
+
+    if(currentUser!=null){
+      await FirebaseAuth.instance.signOut();
+    }
   }
 }

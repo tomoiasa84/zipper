@@ -79,7 +79,7 @@ Future<String> refreshToken(String accessToken) async {
   try {
     final FirebaseUser currentUser = await _auth.currentUser();
 
-    if (currentUser != null) {
+    if (currentUser != null && accessToken.isNotEmpty) {
       var token = await currentUser.getIdToken();
       if (token.token != accessToken) {
         return token.token;

@@ -1,4 +1,4 @@
-import 'package:contractor_search/layouts/sign_up_screen.dart';
+import 'package:contractor_search/layouts/authentication_screen.dart';
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/tag.dart';
@@ -154,6 +154,6 @@ int getScoreForSearchedTag(List<UserTag> tags, Tag searchedTag) {
 
 void logout(bool showExpiredSessionMessage){
   GlobalVariable.navigatorKey.currentState.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => SignUpScreen(showExpiredSessionMessage: showExpiredSessionMessage)),
+      MaterialPageRoute(builder: (context) => AuthenticationScreen(showExpiredSessionMessage: showExpiredSessionMessage)),
           (Route<dynamic> route) => false);
 }

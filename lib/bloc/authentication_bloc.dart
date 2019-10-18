@@ -1,12 +1,27 @@
+import 'package:contractor_search/model/location.dart';
 import 'package:contractor_search/persistance/repository.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-class SmsCodeVerificationBloc {
+class AuthenticationBloc {
   Repository _repository = Repository();
 
-  Future<QueryResult> getLocations() async {
-    return _repository.getLocations();
+  Future<List<LocationModel>> getLocations() async {
+    QueryResult data = await _repository.getLocations();
+
+    final List<Map<String, dynamic>> locations =
+    data.data['get_locations'].cast<Map<String, dynamic>>();
+    List<LocationModel> list = [];
+    locations.forEach((location) => list.add(LocationModel.fromJson(location)));
+    return list;
+  }
+
+  Future saveAccessToken(String accessToken) async {
+    await SharedPreferencesHelper.saveAccessToken(accessToken);
+  }
+
+  Future<QueryResult> getUsers() async {
+    return _repository.getUsers();
   }
 
   Future<QueryResult> createUser(
@@ -22,14 +37,6 @@ class SmsCodeVerificationBloc {
 
   Future<QueryResult> createLocation(String city) async {
     return _repository.createLocation(city);
-  }
-
-  Future<QueryResult> getUsers() async {
-    return _repository.getUsers();
-  }
-
-  Future saveAccessToken(String accessToken) async {
-    await SharedPreferencesHelper.saveAccessToken(accessToken);
   }
 
   Future saveCurrentUserId(String userId) async {

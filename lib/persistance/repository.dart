@@ -24,32 +24,32 @@ class Repository {
 
   Future<QueryResult> getUserById(String userId) async {
     var result = await appApiProvider.getUserById(userId);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> getCardById(int cardId) async {
     var result = await appApiProvider.getCardById(cardId);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> deleteCard(int cardId) async {
     var result = await appApiProvider.deleteCard(cardId);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> getTags() async {
     var result = await appApiProvider.getTags();
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> createCard(
       String postedBy, int searchFor, String details) async {
     var result = await appApiProvider.createCard(postedBy, searchFor, details);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
@@ -66,7 +66,7 @@ class Repository {
   Future createConnection(String currentUserId, String targetUserId) async {
     var result =
         await appApiProvider.createConnection(currentUserId, targetUserId);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
@@ -85,7 +85,7 @@ class Repository {
   Future<List<ConversationModel>> getListOfIdsFromBackend() async {
     String currentUserId = await getCurrentUserId();
     var result = await appApiProvider.getListOfIdsFromBackend(currentUserId);
-    checkExpiredSession(result);
+    checkTokenError(result);
     User currentUser = User.fromJson(result.data['get_user']);
     return currentUser.conversations;
   }
@@ -104,7 +104,7 @@ class Repository {
 
   Future<QueryResult> getCards() async {
     var result = await appApiProvider.getCards();
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
@@ -118,49 +118,49 @@ class Repository {
       String profilePicUrl) async {
     var result = await appApiProvider.updateUser(
         name, location, id, phoneNumber, isActive, description, profilePicUrl);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> updateDeviceToken(String id, String deviceToken) async {
     var result = await appApiProvider.updateDeviceToken(id, deviceToken);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> createUserTag(String userId, int tagId) async {
     var result = await appApiProvider.createUserTag(userId, tagId);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> updateMainUserTag(int userTagId) async {
     var result = await appApiProvider.updateMainUserTag(userTagId);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> deleteUserTag(int userTagId) async {
     var result = await appApiProvider.deleteUserTag(userTagId);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> getUsers() async {
     var result = await appApiProvider.getUsers();
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> loadContacts(List<String> phoneContacts) async {
     var result = await appApiProvider.loadContacts(phoneContacts);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> loadConnections(List<String> existingUsers) async {
     var result = await appApiProvider.loadConnections(existingUsers);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
@@ -172,25 +172,25 @@ class Repository {
       String name, int location, String firebaseId, String phoneNumber) async {
     var result = await appApiProvider.createUser(
         name, location, firebaseId, phoneNumber);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> createLocation(String city) async {
     var result = await appApiProvider.createLocation(city);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> checkContacts(List<String> phoneContacts) async {
     var result = await appApiProvider.checkContacts(phoneContacts);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> deleteConnection(int connectionId) async {
     var result = await appApiProvider.deleteConnection(connectionId);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
@@ -198,14 +198,13 @@ class Repository {
       String userId, int userTagId, int stars, String text) async {
     var result =
         await appApiProvider.createReview(userId, userTagId, stars, text);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
   Future unsubscribeFromPushNotifications() async {
     var channels = await getStringOfChannelIds();
-    return
-        await appApiProvider.unsubscribeFromPushNotifications(channels);
+    return await appApiProvider.unsubscribeFromPushNotifications(channels);
   }
 
   Future<String> uploadPic(File image) async {
@@ -260,19 +259,29 @@ class Repository {
       int cardId, String userAskId, String userSendId, String userRecId) async {
     var result = await appApiProvider.createRecommend(
         cardId, userAskId, userSendId, userRecId);
-    checkExpiredSession(result);
+    checkTokenError(result);
     return result;
   }
 
-  void checkExpiredSession(QueryResult result) {
-    if (result.errors != null &&
-        result.errors.isNotEmpty &&
-        result.errors[0].extensions != null &&
-        result.errors[0].extensions["exception"] != null &&
-        result.errors[0].extensions["exception"]["errorInfo"] != null &&
-        result.errors[0].extensions["exception"]["errorInfo"]['code'] &&
-        result.errors[0].extensions["exception"]["errorInfo"]["code"] ==
-            "auth/id-token-expired") {
+  void checkTokenError(QueryResult result) {
+    if ((result.errors != null &&
+            result.errors.isNotEmpty &&
+            result.errors[0].extensions != null &&
+            result.errors[0].extensions["exception"] != null &&
+            result.errors[0].extensions["exception"]["errorInfo"] != null &&
+            result.errors[0].extensions["exception"]["errorInfo"]['code'] !=
+                null &&
+            result.errors[0].extensions["exception"]["errorInfo"]["code"] ==
+                "auth/id-token-expired") ||
+        (result.errors != null &&
+            result.errors.isNotEmpty &&
+            result.errors[0].extensions != null &&
+            result.errors[0].extensions["exception"] != null &&
+            result.errors[0].extensions["exception"]["errorInfo"] != null &&
+            result.errors[0].extensions["exception"]["errorInfo"]['code'] !=
+                null &&
+            result.errors[0].extensions["exception"]["errorInfo"]["code"] ==
+                "auth/argument-error")) {
       clearUserSession(true);
     }
   }
