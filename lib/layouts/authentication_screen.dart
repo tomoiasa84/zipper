@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:contractor_search/bloc/authentication_bloc.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/layouts/tutorial_screen.dart';
@@ -17,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AuthenticationScreen extends StatefulWidget {
@@ -32,15 +35,14 @@ class AuthenticationScreen extends StatefulWidget {
 }
 
 class AuthenticationScreenState extends State<AuthenticationScreen> {
-
   //Text Field controller
   final TextEditingController _typeAheadController = TextEditingController();
   final TextEditingController _singUpPhoneNumberController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _loginPhoneNumberController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _signUpNameTextFieldController =
-  TextEditingController();
+      TextEditingController();
 
   var authScreenType = AuthScreenType.SIGN_UP;
   var prevAuthScreenType = AuthScreenType.SIGN_UP;
@@ -65,6 +67,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
   String verificationId;
   bool _saving = false;
   String phoneNumber;
+  Timer _codeTimer;
   String smsCode;
 
   @override
@@ -90,6 +93,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
   }
 
   Future<void> verifyPhone() async {
+    _codeTimedOut = false;
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
       this.verificationId = verId;
     };
@@ -104,6 +108,13 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
         prevAuthScreenType = authScreenType;
         authScreenType = AuthScreenType.SMS_VERIFICATION;
       });
+      _codeTimer = Timer(_timeOut, () {
+        if (mounted) {
+          setState(() {
+            _codeTimedOut = true;
+          });
+        }
+      });
     };
 
     final PhoneVerificationCompleted verifiedSuccess =
@@ -112,6 +123,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
         _saving = false;
       });
       print('verified');
+      _codeTimedOut = true;
       if (!_smsCodeSent && authCredential != null) {
         authenticate(authCredential);
       }
@@ -162,14 +174,16 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     _authBloc.getUsers().then((result) {
       if (result.errors == null) {
         final List<Map<String, dynamic>> users =
-        result.data['get_users'].cast<Map<String, dynamic>>();
+            result.data['get_users'].cast<Map<String, dynamic>>();
         users.forEach((item) {
           usersList.add(User.fromJson(item));
         });
-        var phoneNumber = authType == AuthType.signUp ? _singUpPhoneNumberController.text : _loginPhoneNumberController.text;
+        var phoneNumber = authType == AuthType.signUp
+            ? _singUpPhoneNumberController.text
+            : _loginPhoneNumberController.text;
         User user = usersList.firstWhere(
-                (user) =>
-            user.phoneNumber.replaceAll(new RegExp(r"\s+\b|\b\s"), "") ==
+            (user) =>
+                user.phoneNumber.replaceAll(new RegExp(r"\s+\b|\b\s"), "") ==
                 phoneNumber.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
             orElse: () => null);
 
@@ -203,7 +217,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
 
   void _signUp(AuthResult user) {
     var loc = locationsList.firstWhere(
-            (location) => location.city == _typeAheadController.text,
+        (location) => location.city == _typeAheadController.text,
         orElse: () => null);
     if (loc != null) {
       _createUser(user, loc.id);
@@ -223,7 +237,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
   void _createUser(AuthResult user, int locationId) {
     _authBloc
         .createUser(_signUpNameTextFieldController.text, locationId,
-        user.user.uid, user.user.phoneNumber)
+            user.user.uid, user.user.phoneNumber)
         .then((result) {
       setState(() {
         _saving = false;
@@ -242,15 +256,15 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
 
   void _updateUser(AuthResult user) {
     var loc = locationsList.firstWhere(
-            (location) => location.city == _typeAheadController.text,
+        (location) => location.city == _typeAheadController.text,
         orElse: () => null);
     if (loc != null) {
       _updateUserData(user, loc.id);
     } else {
       _authBloc.createLocation(_typeAheadController.text).then((result) {
         if (result.errors == null) {
-          _updateUserData(user,
-              LocationModel.fromJson(result.data['create_location']).id);
+          _updateUserData(
+              user, LocationModel.fromJson(result.data['create_location']).id);
         } else {
           _showDialog(Localization.of(context).getString('error'),
               result.errors[0].message);
@@ -262,7 +276,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
   void _updateUserData(AuthResult user, int locationId) {
     _authBloc
         .updateUser(_signUpNameTextFieldController.text, locationId,
-        user.user.uid, user.user.phoneNumber, true)
+            user.user.uid, user.user.phoneNumber, true)
         .then((result) {
       if (result.errors == null) {
         User user = User.fromJson(result.data['update_user']);
@@ -729,6 +743,14 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
         });
 
         if (_codeTimedOut) {
+          Fluttertoast.showToast(
+              msg: Localization.of(context).getString("resendSmsCodeMessage"),
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIos: 1,
+              backgroundColor: ColorUtils.lightLightGray,
+              textColor: ColorUtils.textBlack,
+              fontSize: 16.0);
           verifyPhone();
         } else {
           _showDialog(Localization.of(context).getString("error"),
