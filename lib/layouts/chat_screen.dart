@@ -30,7 +30,8 @@ class ChatScreen extends StatefulWidget {
   final String conversationId;
   final bool maybePop;
 
-  ChatScreen({Key key, this.pubNubConversation, this.conversationId, this.maybePop})
+  ChatScreen(
+      {Key key, this.pubNubConversation, this.conversationId, this.maybePop})
       : super(key: key);
 
   @override
@@ -66,7 +67,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future _uploadImage(ImageSource imageSource) async {
     await ImagePicker.pickImage(source: imageSource).then((image) {
-      if (image != null) {
+      if (image != null && mounted) {
         setState(() {
           _loading = true;
         });
@@ -90,9 +91,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   Localization.of(context).getString('somethingWentWrong'),
                   Localization.of(context).getString('ok'));
             }
-            setState(() {
-              _loading = false;
-            });
+            if (mounted) {
+              setState(() {
+                _loading = false;
+              });
+            }
           });
         });
       }
@@ -122,8 +125,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void _startConversation(User user) {
     _chatBloc.createConversation(user).then((pubNubConversation) {
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (BuildContext context) =>
-              ChatScreen(pubNubConversation: pubNubConversation, maybePop: false)));
+          builder: (BuildContext context) => ChatScreen(
+              pubNubConversation: pubNubConversation, maybePop: false)));
     });
   }
 
@@ -131,12 +134,16 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _chatBloc.dispose();
     _subscription.cancel();
+    super.dispose();
   }
 
-  Future<bool> _saveLastMessage() {
-    var item = _listOfMessages[0] as UserMessage;
-    return SharedPreferencesHelper.saveLastMessage(
-        _pubNubConversation.id, item.timestamp);
+  Future<bool> _saveLastMessage() async {
+    if(_listOfMessages.isNotEmpty) {
+      var item = _listOfMessages[0] as UserMessage;
+     return  SharedPreferencesHelper.saveLastMessage(
+          _pubNubConversation.id, item.timestamp);
+    }
+    return true;
   }
 
   @override
@@ -146,33 +153,39 @@ class _ChatScreenState extends State<ChatScreen> {
     _initScreen();
     _controller.addListener(_scrollListener);
     _loadMore().then((onValue) {
-      setState(() {
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     });
   }
 
   _scrollListener() {
     if (_controller.offset >= _controller.position.maxScrollExtent &&
         !_controller.position.outOfRange) {
-      setState(() {
-        _loadMore();
-      });
+      if (mounted) {
+        setState(() {
+          _loadMore();
+        });
+      }
     }
   }
 
   Future _initScreen() async {
     return getCurrentUserId().then((currentUserId) async {
       await _setMessagesListener(currentUserId);
-      setState(() async {
-        if (_pubNubConversation == null) {
-          await _chatBloc
-              .getConversation(widget.conversationId)
-              .then((pubNubConversation) {
+      if (_pubNubConversation == null) {
+        await _chatBloc
+            .getConversation(widget.conversationId)
+            .then((pubNubConversation) {
+          setState(() {
             _pubNubConversation = pubNubConversation;
           });
-        }
+        });
+      }
 
+      setState(() {
         if (currentUserId == _pubNubConversation.user1.id) {
           _currentUser = _pubNubConversation.user1;
           _interlocutorUser = _pubNubConversation.user2;
@@ -180,15 +193,15 @@ class _ChatScreenState extends State<ChatScreen> {
           _currentUser = _pubNubConversation.user2;
           _interlocutorUser = _pubNubConversation.user1;
         }
-
-        await getConversationsUsers();
       });
+
+      await getConversationsUsers();
     });
   }
 
   getConversationsUsers() async {
     await _chatBloc.getUserById(_currentUser.id).then((result) {
-      if (result.data != null) {
+      if (result.data != null && mounted) {
         setState(() {
           _currentUser = User.fromJson(result.data['get_user']);
         });
@@ -196,7 +209,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     await _chatBloc.getUserById(_interlocutorUser.id).then((result) {
-      if (result.data != null) {
+      if (result.data != null && mounted) {
         setState(() {
           _interlocutorUser = User.fromJson(result.data['get_user']);
         });
@@ -212,10 +225,12 @@ class _ChatScreenState extends State<ChatScreen> {
       await _chatBloc
           .getHistoryMessages(_pubNubConversation.id)
           .then((historyMessages) {
-        setState(() {
-          _listOfMessages.addAll(historyMessages.reversed);
-          _addHeadersIfNecessary();
-        });
+        if (mounted) {
+          setState(() {
+            _listOfMessages.addAll(historyMessages.reversed);
+            _addHeadersIfNecessary();
+          });
+        }
       });
       return true;
     }
@@ -225,10 +240,12 @@ class _ChatScreenState extends State<ChatScreen> {
   Future _setMessagesListener(String currentUserId) async {
     _chatBloc.subscribeToChannel(_pubNubConversation.id, currentUserId);
     _subscription = _chatBloc.ctrl.stream.listen((message) {
-      setState(() {
-        _listOfMessages.insert(0, message);
-      });
-      if (lastMessageHasDifferentDate()) {
+      if (mounted) {
+        setState(() {
+          _listOfMessages.insert(0, message);
+        });
+      }
+      if (lastMessageHasDifferentDate() && mounted) {
         setState(() {
           _listOfMessages.insert(
               1, MessageHeader((message as UserMessage).timestamp));
@@ -251,7 +268,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _addHeadersIfNecessary() {
     if (_listOfMessages.length > 0) {
       var lastItem = _listOfMessages[_listOfMessages.length - 1];
-      if (lastItem is UserMessage) {
+      if (lastItem is UserMessage && mounted) {
         setState(() {
           _listOfMessages.insert(
               _listOfMessages.length, MessageHeader(lastItem.timestamp));
@@ -262,14 +279,14 @@ class _ChatScreenState extends State<ChatScreen> {
         var currentItem = _listOfMessages[i];
         var nextItem = _listOfMessages[i + 1];
         if (currentItem is UserMessage) {
-          if (_datesDontMatch(currentItem, nextItem)) {
+          if (_datesDontMatch(currentItem, nextItem) && mounted) {
             setState(() {
               _listOfMessages.insert(
                   i + 1, MessageHeader(currentItem.timestamp));
             });
           }
         } else if (currentItem is MessageHeader) {
-          if (_duplicateHeader(currentItem, i)) {
+          if (_duplicateHeader(currentItem, i) && mounted) {
             setState(() {
               _listOfMessages.remove(currentItem);
             });
@@ -346,9 +363,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   color: ColorUtils.almostBlack,
                 ),
                 onPressed: () {
-                  if(widget.maybePop){
+                  if (widget.maybePop) {
                     Navigator.maybePop(context);
-                  }else{
+                  } else {
                     Navigator.pop(context);
                   }
                 },
