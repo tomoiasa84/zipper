@@ -111,11 +111,14 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
         ? SingleChildScrollView(child: _buildUsersWithTagCard())
         : (_saving
             ? Container()
-            : Center(
-                child: Text(
-                  Localization.of(context).getString('noUsersWith') +
-                      widget.card.searchFor.name,
-                  textAlign: TextAlign.center,
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Center(
+                  child: Text(
+                    Localization.of(context).getString('noUsersWith') +
+                        widget.card.searchFor.name,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ));
   }
@@ -213,8 +216,8 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
             _saving = false;
           });
           Navigator.of(context).pushReplacement(new MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  ChatScreen(pubNubConversation: pubNubConversation, maybePop: true)));
+              builder: (BuildContext context) => ChatScreen(
+                  pubNubConversation: pubNubConversation, maybePop: true)));
         } else {
           print('Could not send message');
         }

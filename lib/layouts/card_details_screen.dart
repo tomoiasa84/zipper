@@ -225,7 +225,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                 top: 8,
                 bottom: 8,
                 child: Container(
-                  margin: EdgeInsets.fromLTRB(0, 4, 0, 4),
+                  margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
                   width: 56,
                   height: 56,
                   child: CircleAvatar(
