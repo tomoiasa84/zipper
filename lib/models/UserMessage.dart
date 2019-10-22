@@ -1,5 +1,3 @@
-import 'dart:convert' as jsonUtil;
-
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 
@@ -14,6 +12,10 @@ class UserMessage {
   bool showUserIcon = true;
   String _imageDownloadUrl;
   CardModel _cardModel;
+  bool backendMessage = false;
+  int cardId;
+  String conversationTitle;
+  String conversationPreview;
 
   UserMessage(
       this._message, this._timestamp, this._messageAuthor, this._channelId);
@@ -66,7 +68,7 @@ class UserMessage {
         'imageDownloadUrl': _imageDownloadUrl,
         'sharedContact': _sharedContact,
         'click_action': _clickAction,
-        'cardModel': _cardModel
+        'cardModel': _cardModel,
       };
 
   UserMessage.fromJson(Map<String, dynamic> json)
@@ -74,12 +76,17 @@ class UserMessage {
         _channelId = json['channelId'],
         _timestamp = DateTime.parse(json['timestamp']),
         _stringTimestamp = json['timestamp'],
+        backendMessage =
+            json['backendMessage'] != null ? json['backendMessage'] : false,
         _messageAuthor = json['messageAuthor'],
         _imageDownloadUrl = json['imageDownloadUrl'],
         _clickAction = json['clickAction'],
         _cardModel = json['cardModel'] != null
             ? CardModel.fromJson(json['cardModel'])
             : null,
+        cardId = json['cardId'] != null? int.parse(json['cardId']) : null,
+        conversationTitle = json['conversationTitle'],
+        conversationPreview = json['conversationPreview'],
         _sharedContact = json['sharedContact'] != null
             ? User.fromJson(json['sharedContact'])
             : null;

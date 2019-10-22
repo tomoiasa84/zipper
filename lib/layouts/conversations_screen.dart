@@ -86,8 +86,10 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) =>
-              ChatScreen(pubNubConversation: pubNubConversation, maybePop: true,)),
+          builder: (context) => ChatScreen(
+                pubNubConversation: pubNubConversation,
+                maybePop: true,
+              )),
     ).then((onValue) {
       _getConversations();
     });
@@ -98,7 +100,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       context,
       MaterialPageRoute(
           builder: (context) => CardDetailsScreen(
-                cardId: pubNubConversation.lastMessage.cardId,
+                cardId: pubNubConversation.lastMessage.message.cardId,
               )),
     ).then((onValue) {
       _getConversations();
@@ -170,7 +172,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   Widget _getConversationUI(PubNubConversation conversation) {
-    if (conversation.lastMessage.backendMessage) {
+    if (conversation.lastMessage.message.backendMessage) {
       return _getRecommendationConversation(conversation);
     } else {
       return _getConversationWithUsersUI(conversation);
@@ -189,8 +191,8 @@ class _ConversationsScreenState extends State<ConversationsScreen>
               height: 40,
               child: CircleAvatar(
                 child: conversation.read
-                    ? Image.asset('assets/images/ic_bell_gray')
-                    : Image.asset('assets/images/ic_bell_orange_accent'),
+                    ? Image.asset('assets/images/ic_bell_gray.png')
+                    : Image.asset('assets/images/ic_bell_orange_accent.png'),
                 backgroundColor: ColorUtils.lightLightGray,
               ),
             ),
@@ -204,9 +206,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                     child: Row(
                       children: <Widget>[
                         Container(
-                          margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                          child: Text(
-                            conversation.lastMessage.conversationTitle,
+                          child: Text(Localization.of(context).getString('imLookingFor'),
                             style: TextStyle(
                                 fontSize: 14,
                                 color: ColorUtils.almostBlack,
@@ -214,13 +214,16 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                                 fontWeight: FontWeight.bold),
                           ),
                         ),
-                        Text("",
-                            style: TextStyle(
-                                fontSize: 12, color: ColorUtils.orangeAccent))
+                        Flexible(
+                            child: Text(getRecommendedTitle(conversation.lastMessage.message.conversationTitle),
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: ColorUtils.orangeAccent)))
                       ],
                     ),
                   ),
-                  Text(conversation.lastMessage.conversationPreview,
+                  Text(conversation.lastMessage.message.conversationPreview,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: _getLastMessageTextStyle(conversation))
@@ -283,7 +286,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                         ),
                         Flexible(
                           child: Text(
-                              user.tags != null
+                              user.tags.length > 0
                                   ? "#" + getMainTag(user).tag.name
                                   : "",
                               overflow: TextOverflow.ellipsis,

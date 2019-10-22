@@ -19,6 +19,11 @@ String validatePhoneNumber(String value, String validationMessage) {
     return validationMessage;
 }
 
+String getRecommendedTitle(String myString) {
+  var specialString = addSpecialCharacters(myString);
+  return specialString.substring(specialString.lastIndexOf('#'));
+}
+
 getInitials(String name) {
   if (name != null) {
     var n = name.split(" "), it = "", i = 0;
@@ -96,7 +101,12 @@ String escapeJsonCharacters(String myString) {
   return string.replaceAll("?", "%3F");
 }
 
-String removeMultilineCharacters(String text){
+String addSpecialCharacters(String myString) {
+  var string = myString.replaceAll("%23", "#");
+  return string.replaceAll("%3F", "?");
+}
+
+String removeMultilineCharacters(String text) {
   return text.replaceAll("\n", " ");
 }
 
@@ -152,8 +162,10 @@ int getScoreForSearchedTag(List<UserTag> tags, Tag searchedTag) {
   }
 }
 
-void logout(bool showExpiredSessionMessage){
+void logout(bool showExpiredSessionMessage) {
   GlobalVariable.navigatorKey.currentState.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => AuthenticationScreen(showExpiredSessionMessage: showExpiredSessionMessage)),
-          (Route<dynamic> route) => false);
+      MaterialPageRoute(
+          builder: (context) => AuthenticationScreen(
+              showExpiredSessionMessage: showExpiredSessionMessage)),
+      (Route<dynamic> route) => false);
 }

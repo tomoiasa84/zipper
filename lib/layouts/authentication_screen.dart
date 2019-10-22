@@ -373,10 +373,12 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     switch (authScreenType) {
       case AuthScreenType.SIGN_UP:
         {
+          this.phoneNumber = _singUpPhoneNumberController.text;
           return _buildSignUpScreen();
         }
       case AuthScreenType.LOGIN:
         {
+          this.phoneNumber = _loginPhoneNumberController.text;
           return _buildLoginScreen();
         }
       case AuthScreenType.SMS_VERIFICATION:
