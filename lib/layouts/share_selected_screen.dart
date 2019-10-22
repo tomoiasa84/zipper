@@ -32,28 +32,8 @@ class ShareSelectedContactsScreenState
     List<String> phoneContactsToBeLoaded = _generateContactsToBeLoaded();
 
     _bloc.loadContacts(phoneContactsToBeLoaded).then((result) {
-      if (result.errors != null) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CustomDialog(
-            title: Localization.of(context).getString("error"),
-            description: result.errors.elementAt(0).message,
-            buttonText: Localization.of(context).getString("ok"),
-          ),
-        );
-      }
     });
     _bloc.loadConnections(_generateExistingUsers()).then((result) {
-      if (result.errors != null) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CustomDialog(
-            title: Localization.of(context).getString("error"),
-            description: result.errors.elementAt(0).message,
-            buttonText: Localization.of(context).getString("ok"),
-          ),
-        );
-      }
     });
     super.initState();
   }

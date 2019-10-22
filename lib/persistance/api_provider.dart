@@ -841,25 +841,7 @@ class ApiProvider {
       MutationOptions(
         document: '''mutation{
                          load_contacts(phoneContacts: $phoneContactsJson) {
-                           name
-                        firebaseId
-                        id
-                        phoneNumber
-                        isActive
-                        location{
                             id
-                            city
-                        }
-                        tags{
-                          id
-                          user{
-                            name
-                          }
-                        }
-                        description
-                        cards{
-                            text
-                        }
                        }
                   }''',
       ),
