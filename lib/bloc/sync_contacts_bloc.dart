@@ -56,10 +56,10 @@ class SyncContactsBloc {
             .value
             .toString()
             .startsWith("+")) {
-          phoneContacts.add(item.phones.toList().elementAt(0).value);
+          phoneContacts.add(item.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), ""));
         } else {
           phoneContacts
-              .add(countryCode + item.phones.toList().elementAt(0).value);
+              .add(countryCode + item.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), ""));
         }
       }
     });

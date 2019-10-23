@@ -113,8 +113,10 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   void _startConversation(User user) {
     _cardDetailsBloc.createConversation(user).then((pubNubConversation) {
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (BuildContext context) =>
-              ChatScreen(pubNubConversation: pubNubConversation, maybePop: false,)));
+          builder: (BuildContext context) => ChatScreen(
+                pubNubConversation: pubNubConversation,
+                maybePop: false,
+              )));
     });
   }
 
@@ -157,15 +159,18 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                               ),
                               Row(
                                 children: <Widget>[
-                                  Text(
-                                    '#' +
-                                        _card.recommendsList
-                                            .elementAt(index)
-                                            .card
-                                            .searchFor
-                                            .name,
-                                    style: TextStyle(
-                                        color: ColorUtils.orangeAccent),
+                                  Flexible(
+                                    child: Text(
+                                      '#' +
+                                          _card.recommendsList
+                                              .elementAt(index)
+                                              .card
+                                              .searchFor
+                                              .name,
+                                      overflow: TextOverflow.clip,
+                                      style: TextStyle(
+                                          color: ColorUtils.orangeAccent),
+                                    ),
                                   ),
                                   score != -1
                                       ? Padding(
@@ -220,7 +225,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                 top: 8,
                 bottom: 8,
                 child: Container(
-                  margin: EdgeInsets.fromLTRB(0, 4, 0, 4),
+                  margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
                   width: 56,
                   height: 56,
                   child: CircleAvatar(

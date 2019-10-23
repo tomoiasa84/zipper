@@ -92,6 +92,15 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _typeAheadController.dispose();
+    _signUpNameTextFieldController.dispose();
+    _loginPhoneNumberController.dispose();
+    _singUpPhoneNumberController.dispose();
+    super.dispose();
+  }
+
   Future<void> verifyPhone() async {
     _codeTimedOut = false;
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -161,8 +170,10 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
           });
         });
       } else {
-        _showDialog(Localization.of(context).getString("error"),
-            Localization.of(context).getString('loginErrorMessage'));
+        await _auth.signOut().then((_){
+          _showDialog(Localization.of(context).getString("error"),
+              Localization.of(context).getString('loginErrorMessage'));
+        });
       }
     } on PlatformException catch (e) {
       _showDialog(Localization.of(context).getString("error"), e.message);
@@ -193,24 +204,30 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
           } else if (!user.isActive) {
             _updateUser(authResult);
           } else {
-            SharedPreferencesHelper.clear().then((_) {
-              _showDialog(Localization.of(context).getString('error'),
-                  Localization.of(context).getString('alreadySignedUp'));
+             FirebaseAuth.instance.signOut().then((_){
+               SharedPreferencesHelper.clear().then((_) {
+                 _showDialog(Localization.of(context).getString('error'),
+                     Localization.of(context).getString('alreadySignedUp'));
+               });
             });
           }
         } else if (authType == AuthType.login) {
           if (user == null) {
-            SharedPreferencesHelper.clear().then((_) {
-              _showDialog(Localization.of(context).getString('error'),
-                  Localization.of(context).getString('loginErrorMessage'));
+            FirebaseAuth.instance.signOut().then((_){
+              SharedPreferencesHelper.clear().then((_) {
+                _showDialog(Localization.of(context).getString('error'),
+                    Localization.of(context).getString('loginErrorMessage'));
+              });
             });
           } else {
             _finishLogin(user.id, user.name);
           }
         }
       } else {
-        _showDialog(Localization.of(context).getString("error"),
-            result.errors[0].message);
+        FirebaseAuth.instance.signOut().then((_){
+          _showDialog(Localization.of(context).getString("error"),
+              result.errors[0].message);
+        });
       }
     });
   }
