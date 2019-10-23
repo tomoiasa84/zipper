@@ -278,6 +278,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
         MaterialPageRoute(
             builder: (context) => CardDetailsScreen(
                   cardId: card.id,
+                  maybePop: false,
                 )));
     _cardsList.clear();
     getCards();

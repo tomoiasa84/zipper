@@ -21,7 +21,12 @@ String validatePhoneNumber(String value, String validationMessage) {
 
 String getRecommendedTitle(String myString) {
   var specialString = addSpecialCharacters(myString);
-  return specialString.substring(specialString.lastIndexOf('#'));
+  if (specialString.contains("#")){
+    return specialString.substring(specialString.lastIndexOf('#'));
+  } else {
+    return "";
+  }
+
 }
 
 getInitials(String name) {

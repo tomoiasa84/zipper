@@ -14,6 +14,7 @@ class UserMessage {
   CardModel _cardModel;
   bool backendMessage = false;
   int cardId;
+  int cardRecommendationsCount = 0;
   String conversationTitle;
   String conversationPreview;
 
@@ -84,7 +85,10 @@ class UserMessage {
         _cardModel = json['cardModel'] != null
             ? CardModel.fromJson(json['cardModel'])
             : null,
-        cardId = json['cardId'] != null? int.parse(json['cardId']) : null,
+        cardId = json['cardId'] is String
+            ? int.parse(json['cardId'])
+            : json['cardId'],
+        cardRecommendationsCount = json['cardRecommendationsCount'],
         conversationTitle = json['conversationTitle'],
         conversationPreview = json['conversationPreview'],
         _sharedContact = json['sharedContact'] != null

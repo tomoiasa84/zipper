@@ -64,6 +64,17 @@ class SharedPreferencesHelper {
         conversation, lastMessageTimestamp.toIso8601String());
   }
 
+  static Future<int> getCardRecommendsCount(String cardId) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(cardId) ?? null;
+  }
+
+  static Future<bool> saveCardRecommendsCount(
+      String cardId, int numberOfRecommends) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setInt(cardId, numberOfRecommends);
+  }
+
   static Future<bool> getSyncContactsFlag() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 

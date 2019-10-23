@@ -49,14 +49,33 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   Future _setConversationReadState(
       List<PubNubConversation> conversations) async {
     for (var conversation in _pubNubConversations) {
-      var lastMessageTimestamp =
-          await SharedPreferencesHelper.getLastMessageTimestamp(
-              conversation.id);
-      if (lastMessageTimestamp !=
-          conversation.lastMessage.message.timestamp.toIso8601String()) {
-        setState(() {
+      if (conversation.lastMessage.message.cardId == null) {
+        var lastMessageTimestamp =
+            await SharedPreferencesHelper.getLastMessageTimestamp(
+                conversation.id);
+        if (lastMessageTimestamp !=
+            conversation.lastMessage.message.timestamp.toIso8601String()) {
+          setState(() {
+            conversation.read = false;
+          });
+        }
+      } else {
+        var lastRecommendCount =
+            await SharedPreferencesHelper.getCardRecommendsCount(
+                conversation.lastMessage.message.cardId.toString());
+        if (lastRecommendCount == null){
+          setState(() {
+            conversation.read = false;
+          });
+        }
+        if (lastRecommendCount ==
+            conversation.lastMessage.message.cardRecommendationsCount) {
+          setState(() {
+            conversation.read = true;
+          });
+        } else {
           conversation.read = false;
-        });
+        }
       }
     }
   }
@@ -101,6 +120,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       MaterialPageRoute(
           builder: (context) => CardDetailsScreen(
                 cardId: pubNubConversation.lastMessage.message.cardId,
+                maybePop: false,
               )),
     ).then((onValue) {
       _getConversations();
@@ -206,7 +226,8 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                     child: Row(
                       children: <Widget>[
                         Container(
-                          child: Text(Localization.of(context).getString('imLookingFor'),
+                          child: Text(
+                            Localization.of(context).getString('imLookingFor'),
                             style: TextStyle(
                                 fontSize: 14,
                                 color: ColorUtils.almostBlack,
@@ -215,7 +236,9 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                           ),
                         ),
                         Flexible(
-                            child: Text(getRecommendedTitle(conversation.lastMessage.message.conversationTitle),
+                            child: Text(
+                                getRecommendedTitle(conversation
+                                    .lastMessage.message.conversationTitle),
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                     fontSize: 12,

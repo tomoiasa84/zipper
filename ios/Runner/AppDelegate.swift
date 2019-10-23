@@ -39,6 +39,12 @@ import Firebase
             print(channelInfo)
             openChatScreen(conversationId: channelInfo)
         }
+        
+        if let cardId = userInfo["cardId"] as? Int {
+            print(cardId)
+            openCardDetailsScreen(cardId: cardId)
+        }
+        
         completionHandler(UIBackgroundFetchResult.newData)
     }
     
@@ -48,7 +54,15 @@ import Firebase
         completionHandler: @escaping () -> Void) {
         
         print(response.notification.request.content.userInfo)
-        openChatScreen(conversationId: response.notification.request.content.userInfo["channelId"] as! String)
+        
+        if let cardId = response.notification.request.content.userInfo["cardId"] as? Int {
+            print(cardId)
+            openCardDetailsScreen(cardId: cardId)
+        } else {
+            openChatScreen(conversationId: response.notification.request.content.userInfo["channelId"] as! String)
+        }
+        
+   
         return completionHandler()
     }
     
@@ -70,6 +84,17 @@ import Firebase
             codec: FlutterStringCodec.sharedInstance())
         
         channel.sendMessage(conversationId)
+    }
+    
+    func openCardDetailsScreen(cardId: Int){
+        let rootViewController : FlutterViewController = window?.rootViewController as! FlutterViewController
+        
+        let channel = FlutterBasicMessageChannel(
+            name: "iosRecommendationTapped",
+            binaryMessenger: rootViewController as! FlutterBinaryMessenger,
+            codec: FlutterStringCodec.sharedInstance())
+        
+        channel.sendMessage(String(cardId))
     }
     
     func getCurrentUserId(){

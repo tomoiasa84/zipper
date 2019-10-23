@@ -138,9 +138,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<bool> _saveLastMessage() async {
-    if(_listOfMessages.isNotEmpty) {
+    if (_listOfMessages.isNotEmpty) {
       var item = _listOfMessages[0] as UserMessage;
-     return  SharedPreferencesHelper.saveLastMessage(
+      return SharedPreferencesHelper.saveLastMessage(
           _pubNubConversation.id, item.timestamp);
     }
     return true;
@@ -852,6 +852,7 @@ class _ChatScreenState extends State<ChatScreen> {
             MaterialPageRoute(
                 builder: (context) => CardDetailsScreen(
                       cardId: cardModel.id,
+                      maybePop: false,
                     )));
       },
       child: Padding(
