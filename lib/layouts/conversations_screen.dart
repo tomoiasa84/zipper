@@ -120,7 +120,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       MaterialPageRoute(
           builder: (context) => CardDetailsScreen(
                 cardId: pubNubConversation.lastMessage.message.cardId,
-                maybePop: false,
+                maybePop: true,
               )),
     ).then((onValue) {
       _getConversations();
