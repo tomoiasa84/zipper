@@ -176,7 +176,7 @@ class AccountScreenState extends State<AccountScreen> {
                             children: <Widget>[
                               _buildMainInfoCard(),
                               _user.tags != null && _user.tags.isNotEmpty
-                                  ? _buildSkillsCard()
+                                  ? _buildTagsCard()
                                   : Container(),
                               _user.cards != null
                                   ? _buildCardsList()
@@ -342,7 +342,7 @@ class AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  Widget _buildSkillsCard() {
+  Widget _buildTagsCard() {
     return Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -355,7 +355,7 @@ class AccountScreenState extends State<AccountScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
-                    Localization.of(context).getString("skills"),
+                    Localization.of(context).getString("tags"),
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   GestureDetector(
@@ -372,7 +372,7 @@ class AccountScreenState extends State<AccountScreen> {
               ),
               Container(
                 child: Column(
-                  children: generateSkills(_user.tags, (_) {}, (reviews) {
+                  children: generateTags(_user.tags, (_) {}, (reviews) {
                     goToReviewsScreen(reviews);
                   }, Localization.of(context).getString('noReviews')),
                 ),

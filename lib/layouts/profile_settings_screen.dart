@@ -30,10 +30,10 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   TextEditingController _nameTextEditingController = TextEditingController();
   TextEditingController _mainTextEditingController = TextEditingController();
   TextEditingController _bioTextEditingController = TextEditingController();
-  TextEditingController _addSkillsTextEditingController =
+  TextEditingController _addTagsTextEditingController =
       TextEditingController();
   String name;
-  List<UserTag> skills = [];
+  List<UserTag> userTagsList = [];
   List<Tag> tagsList = [];
   UserTag userTag;
   bool _saving = false;
@@ -54,8 +54,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             result.data['get_tags'].cast<Map<String, dynamic>>();
         tags.forEach((item) {
           var tagItem = Tag.fromJson(item);
-          if (skills.isNotEmpty) {
-            var tagFound = skills.firstWhere((tag) => tag.tag.id == tagItem.id,
+          if (userTagsList.isNotEmpty) {
+            var tagFound = userTagsList.firstWhere((tag) => tag.tag.id == tagItem.id,
                 orElse: () => null);
             if (tagFound == null &&
                 (userTag != null && userTag.tag.id != tagItem.id)) {
@@ -79,9 +79,9 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     if (userTag != null &&
         (_mainTextEditingController.text.isNotEmpty &&
             _mainTextEditingController.text.substring(1) != userTag.tag.name)) {
-      UserTag newMainUserTag = skills.firstWhere(
-          (skill) =>
-              skill.tag.name == _mainTextEditingController.text.substring(1),
+      UserTag newMainUserTag = userTagsList.firstWhere(
+          (userTag) =>
+              userTag.tag.name == _mainTextEditingController.text.substring(1),
           orElse: () => null);
       _profileSettingsBloc
           .updateMainUserTag(newMainUserTag.id)
@@ -148,7 +148,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       _saving = true;
     });
     Tag tag = tagsList.firstWhere(
-        (tag) => tag.name == _addSkillsTextEditingController.text.substring(1),
+        (tag) => tag.name == _addTagsTextEditingController.text.substring(1),
         orElse: () => null);
     if (tag != null) {
       _profileSettingsBloc.createUserTag(widget.user.id, tag.id).then((result) {
@@ -156,7 +156,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           _saving = false;
         });
         if (result.errors == null) {
-          _updateSkillAdded(tag, result);
+          _updateTagAdded(tag, result);
         } else {
           _showDialog(
               Localization.of(context).getString("error"),
@@ -167,11 +167,11 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     }
   }
 
-  void _updateSkillAdded(Tag tag, QueryResult result) {
+  void _updateTagAdded(Tag tag, QueryResult result) {
     setState(() {
       tagsList.remove(tag);
       UserTag userTagItem = UserTag.fromJson(result.data['create_userTag']);
-      skills.add(userTagItem);
+      userTagsList.add(userTagItem);
       if (userTag == null) {
         userTag = userTagItem;
         setState(() {
@@ -190,21 +190,21 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         _saving = false;
       });
       if (result.errors == null) {
-        _updateSkillDeleted(item);
+        _updateTagDeleted(item);
       }
     });
   }
 
-  void _updateSkillDeleted(UserTag item) {
+  void _updateTagDeleted(UserTag item) {
     setState(() {
       tagsList.add(item.tag);
-      skills.remove(item);
-      if (skills.isEmpty) {
+      userTagsList.remove(item);
+      if (userTagsList.isEmpty) {
         userTag = null;
         _mainTextEditingController.clear();
-      } else if (userTag != null && !skills.contains(userTag)) {
+      } else if (userTag != null && !userTagsList.contains(userTag)) {
         _profileSettingsBloc
-            .updateMainUserTag(skills[0].id)
+            .updateMainUserTag(userTagsList[0].id)
             .then((updateNewTagResult) {
           setState(() {
             _mainTextEditingController.text = '#' +
@@ -224,7 +224,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       if (item.defaultTag) {
         userTag = item;
       }
-      skills.add(item);
+      userTagsList.add(item);
     });
     _nameTextEditingController.value =
         new TextEditingValue(text: widget.user.name);
@@ -237,11 +237,11 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
   void _addTag() {
     setState(() {
-      if (_addSkillsTextEditingController.text.isNotEmpty) {
+      if (_addTagsTextEditingController.text.isNotEmpty) {
         _createNewUserTag();
       }
     });
-    _addSkillsTextEditingController.clear();
+    _addTagsTextEditingController.clear();
     FocusScope.of(context).requestFocus(FocusNode());
   }
 
@@ -258,7 +258,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               child: Column(
                 children: <Widget>[
                   _buildFirstDataSet(),
-                  _buildSkills(),
+                  _buildTagsSection(),
                 ],
               ),
             ),
@@ -434,7 +434,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               ),
               suggestionsCallback: (pattern) {
                 List<String> list = [];
-                skills
+                userTagsList
                     .where((it) => it.tag.name.startsWith(pattern))
                     .toList()
                     .forEach((tag) => list.add(tag.tag.name));
@@ -493,7 +493,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     );
   }
 
-  Container _buildSkills() {
+  Container _buildTagsSection() {
     return Container(
       width: double.infinity,
       child: Card(
@@ -504,7 +504,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                Localization.of(context).getString('skills'),
+                Localization.of(context).getString('tags'),
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               Container(
@@ -512,10 +512,10 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                 margin: const EdgeInsets.only(top: 16.0),
                 child: Wrap(
                   direction: Axis.horizontal,
-                  children: _buildSkillsItems(),
+                  children: _buildTagsItems(),
                 ),
               ),
-              _buildAddSkills()
+              _buildAddTags()
             ],
           ),
         ),
@@ -523,9 +523,9 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     );
   }
 
-  List<Widget> _buildSkillsItems() {
+  List<Widget> _buildTagsItems() {
     List<Widget> lines = [];
-    skills.forEach((item) {
+    userTagsList.forEach((item) {
       lines.add(
         Container(
           margin: const EdgeInsets.only(bottom: 8.0, right: 10.0),
@@ -563,7 +563,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     return lines;
   }
 
-  Padding _buildAddSkills() {
+  Padding _buildAddTags() {
     return Padding(
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -574,7 +574,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             getImmediateSuggestions: true,
             autoFlipDirection: true,
             textFieldConfiguration: TextFieldConfiguration(
-              controller: _addSkillsTextEditingController,
+              controller: _addTagsTextEditingController,
               decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(6.0),
@@ -586,7 +586,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                   borderSide:
                       BorderSide(color: ColorUtils.lightLightGray, width: 1.0),
                 ),
-                hintText: Localization.of(context).getString('addMoreSkills'),
+                hintText: Localization.of(context).getString('addMoreTags'),
                 hintStyle: TextStyle(
                   fontSize: 14.0,
                   color: ColorUtils.darkerGray,
@@ -611,7 +611,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               return suggestionsBox;
             },
             onSuggestionSelected: (suggestion) {
-              this._addSkillsTextEditingController.text = '#' + suggestion;
+              this._addTagsTextEditingController.text = '#' + suggestion;
               _addTag();
             },
             validator: (value) {

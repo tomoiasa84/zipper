@@ -229,7 +229,7 @@ class AddCardScreenState extends State<AddCardScreen> {
                 child: Wrap(
                   direction: Axis.horizontal,
                   children: <Widget>[
-                    _buildSkillsItem(),
+                    _buildTagItem(),
                   ],
                 ),
               ),
@@ -242,7 +242,7 @@ class AddCardScreenState extends State<AddCardScreen> {
     );
   }
 
-  Widget _buildSkillsItem() {
+  Widget _buildTagItem() {
     return tag != null
         ? Container(
             margin: const EdgeInsets.only(bottom: 8.0, right: 10.0),

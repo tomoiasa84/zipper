@@ -227,7 +227,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                               child: _buildActionsButtons()),
                         ],
                       ),
-                      _buildSkillsCard(),
+                      _buildTagsCard(),
                     ],
                   ),
                 )),
@@ -369,7 +369,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     );
   }
 
-  Stack _buildSkillsCard() {
+  Stack _buildTagsCard() {
     return Stack(
       children: <Widget>[
         Container(
@@ -387,7 +387,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(
-                          Localization.of(context).getString("skills"),
+                          Localization.of(context).getString("tags"),
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         GestureDetector(
@@ -407,7 +407,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                     ),
                     Container(
                       child: Column(
-                        children: generateSkills(_user.tags, (userTagId) {
+                        children: generateTags(_user.tags, (userTagId) {
                           openLeaveReviewDialog(userTagId);
                         }, (reviews) {
                           goToReviewsScreen(reviews);
@@ -436,7 +436,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(18.0),
           child: Text(
-            Localization.of(context).getString("tapOnSkillToLeaveAReview"),
+            Localization.of(context).getString("tapOnTagToLeaveAReview"),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: ColorUtils.white,
