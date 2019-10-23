@@ -1,0 +1,71 @@
+{
+  "project_info": {
+    "project_number": "239495170702",
+    "firebase_url": "https://contractorsearch-eeaf7.firebaseio.com",
+    "project_id": "contractorsearch-eeaf7",
+    "storage_bucket": "contractorsearch-eeaf7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:239495170702:android:3663cfb9d5f5c82c",
+        "android_client_info": {
+          "package_name": "com.example.contractor_search"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "239495170702-iqfe3p2bcjgu5r61903d1t78b5k2idc3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.contractor_search",
+            "certificate_hash": "8d489302ca34c2a1e461d6657e8309c217fd65d5"
+          }
+        },
+        {
+          "client_id": "239495170702-3901svl6fia2c0hhvgqk1np8vpifr8j8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.contractor_search",
+            "certificate_hash": "ae1a0b64b1e9c91f7539ac98694aaa54db9a2f71"
+          }
+        },
+        {
+          "client_id": "239495170702-f2bbq8b2eali7a9v5sjnl3p1sa2pf3eh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.contractor_search",
+            "certificate_hash": "4fe0a87fc56daf58d2a31edfc4547338906a3fda"
+          }
+        },
+        {
+          "client_id": "239495170702-snbhu5e2fmh39q7fut7hu3i5a48b523o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCU19VQmcklW4EO2t40aUySBZ5YzRLnGas"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "239495170702-snbhu5e2fmh39q7fut7hu3i5a48b523o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "239495170702-1h5hfhm3ru5s8dcjsf7vmdn9o2tlpplh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.zipper.contractorSearch"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
