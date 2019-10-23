@@ -42,7 +42,7 @@ class Localization {
       'ok': 'Ok',
       'nameValidation': 'Please provide a valid name',
       'locationValidation': 'Please provide a valid location',
-      'phoneNumberValidation': '#### (###) ### - Enter a valid phone number',
+      'phoneNumberValidation': '+# ###-###-#### - Enter a valid phone number',
       'verificationCodeValidation': 'The verification code cannot be empty',
       'loginErrorMessage':
           'There is no user associated with this phone number.',
@@ -160,8 +160,9 @@ class Localization {
       'deselectAll': 'Deselect all',
       'yourSessionExpired': 'Your session expired!',
       'pleaseLoginAgain': 'Please login again.',
-      'resendSmsCodeMessage': 'Please check your phone for the verification code.',
-      'imLookingFor' : 'I\'m looking for '
+      'resendSmsCodeMessage':
+          'Please check your phone for the verification code.',
+      'imLookingFor': 'I\'m looking for '
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -194,7 +195,7 @@ class Localization {
       'nameValidation': 'Introduceti un nume valid',
       'locationValidation': 'Introduceti o locatie valida',
       'phoneNumberValidation':
-          '#### (###) ### - Introduceti un numar de telefon valid',
+          '+# ###-###-#### - Introduceti un numar de telefon valid',
       'verificationCodeValidation': 'Introduceti codul de verificare',
       'loginErrorMessage':
           'Nu exista nici un cont asociat cu acest numar de telefon.',
@@ -263,8 +264,7 @@ class Localization {
       'addATag': 'Adauga un tag',
       'deletePost': 'Sterge Postarea',
       'recommendedBy': 'Recomandat de ',
-      'tapOnTagToLeaveAReview':
-          'Apasa pe o abilitate pentru a lasa o recenzie',
+      'tapOnTagToLeaveAReview': 'Apasa pe o abilitate pentru a lasa o recenzie',
       'leaveReview': 'Lasa o recenzie',
       'typeAMessage': 'Scrie un mesaj...',
       'publishReview': 'Publica Recenzia',
@@ -314,7 +314,7 @@ class Localization {
       'yourSessionExpired': 'Sesiunea a expirat!',
       'pleaseLoginAgain': 'Va rugam sa va autentificati din nou..',
       'resendSmsCodeMessage': 'Verificati mesageria pentru a gasi codul.',
-      'imLookingFor' : 'Caut'
+      'imLookingFor': 'Caut'
     },
   };
 

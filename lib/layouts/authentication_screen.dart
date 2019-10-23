@@ -43,6 +43,8 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
       TextEditingController();
   final TextEditingController _signUpNameTextFieldController =
       TextEditingController();
+  final TextEditingController _smsCodeVerificationController =
+      TextEditingController();
 
   var authScreenType = AuthScreenType.SIGN_UP;
   var prevAuthScreenType = AuthScreenType.SIGN_UP;
@@ -98,6 +100,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     _signUpNameTextFieldController.dispose();
     _loginPhoneNumberController.dispose();
     _singUpPhoneNumberController.dispose();
+    _smsCodeVerificationController.dispose();
     super.dispose();
   }
 
@@ -148,7 +151,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     };
 
     await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: this.phoneNumber,
+        phoneNumber: this.phoneNumber.split(" ").join(""),
         codeAutoRetrievalTimeout: autoRetrieve,
         codeSent: smsCodeSent,
         timeout: _timeOut,
@@ -194,8 +197,8 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
             : _loginPhoneNumberController.text;
         User user = usersList.firstWhere(
             (user) =>
-                user.phoneNumber.replaceAll(new RegExp(r"\s+\b|\b\s"), "") ==
-                phoneNumber.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
+                user.phoneNumber.split(" ").join("") ==
+                phoneNumber.split(" ").join(""),
             orElse: () => null);
 
         if (authType == AuthType.signUp) {
@@ -678,6 +681,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
           onChanged: (value) {
             smsCode = value;
           },
+          controller: _smsCodeVerificationController,
           autovalidate: _smsCodeAutoValidate,
           keyboardType: TextInputType.number,
           inputFormatters: <TextInputFormatter>[
@@ -755,8 +759,8 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
         ),
       ),
       onTap: () async {
+        _smsCodeVerificationController.clear();
         FocusScope.of(context).requestFocus(FocusNode());
-
         setState(() {
           _saving = true;
         });
