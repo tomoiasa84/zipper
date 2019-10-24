@@ -206,7 +206,8 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                     child: Row(
                       children: <Widget>[
                         Container(
-                          child: Text(Localization.of(context).getString('imLookingFor'),
+                          child: Text(
+                            Localization.of(context).getString('imLookingFor'),
                             style: TextStyle(
                                 fontSize: 14,
                                 color: ColorUtils.almostBlack,
@@ -215,7 +216,9 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                           ),
                         ),
                         Flexible(
-                            child: Text(getRecommendedTitle(conversation.lastMessage.message.conversationTitle),
+                            child: Text(
+                                getRecommendedTitle(conversation
+                                    .lastMessage.message.conversationTitle),
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                     fontSize: 12,
@@ -253,7 +256,10 @@ class _ConversationsScreenState extends State<ConversationsScreen>
               height: 40,
               child: CircleAvatar(
                 child: user.profilePicUrl == null
-                    ? Text(getInitials(user.name),
+                    ? Text(
+                        user.name.startsWith('+')
+                            ? '+'
+                            : getInitials(user.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
                 backgroundImage: user.profilePicUrl != null

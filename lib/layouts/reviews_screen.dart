@@ -137,7 +137,10 @@ class ReviewsScreenState extends State<ReviewsScreen> {
           ),
           child: CircleAvatar(
             child: review.author.profilePicUrl == null
-                ? Text(getInitials(review.author.name),
+                ? Text(
+                    review.author.name.startsWith('+')
+                        ? '+'
+                        : getInitials(review.author.name),
                     style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
             backgroundImage: review.author.profilePicUrl != null

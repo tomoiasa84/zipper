@@ -30,8 +30,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   TextEditingController _nameTextEditingController = TextEditingController();
   TextEditingController _mainTextEditingController = TextEditingController();
   TextEditingController _bioTextEditingController = TextEditingController();
-  TextEditingController _addTagsTextEditingController =
-      TextEditingController();
+  TextEditingController _addTagsTextEditingController = TextEditingController();
   String name;
   List<UserTag> userTagsList = [];
   List<Tag> tagsList = [];
@@ -55,7 +54,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         tags.forEach((item) {
           var tagItem = Tag.fromJson(item);
           if (userTagsList.isNotEmpty) {
-            var tagFound = userTagsList.firstWhere((tag) => tag.tag.id == tagItem.id,
+            var tagFound = userTagsList.firstWhere(
+                (tag) => tag.tag.id == tagItem.id,
                 orElse: () => null);
             if (tagFound == null &&
                 (userTag != null && userTag.tag.id != tagItem.id)) {
@@ -339,7 +339,10 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       children: <Widget>[
         CircleAvatar(
           child: widget.user.profilePicUrl == null
-              ? Text(getInitials(widget.user.name),
+              ? Text(
+                  widget.user.name.startsWith('+')
+                      ? '+'
+                      : getInitials(widget.user.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: _backgroundImage(),

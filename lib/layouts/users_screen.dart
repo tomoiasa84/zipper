@@ -148,7 +148,7 @@ class UsersScreenState extends State<UsersScreen> {
           },
           leading: CircleAvatar(
             child: user.profilePicUrl == null
-                ? Text(getInitials(user.name),
+                ? Text(user.name.startsWith('+') ? '+' : getInitials(user.name),
                     style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
             backgroundImage: user.profilePicUrl != null

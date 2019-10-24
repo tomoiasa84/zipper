@@ -274,7 +274,7 @@ class AccountScreenState extends State<AccountScreen> {
       children: <Widget>[
         CircleAvatar(
           child: _user.profilePicUrl == null
-              ? Text(getInitials(_user.name),
+              ? Text(_user.name.startsWith('+') ? '+' : getInitials(_user.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: _user.profilePicUrl != null
@@ -464,8 +464,8 @@ class AccountScreenState extends State<AccountScreen> {
       children: <Widget>[
         CircleAvatar(
           child: _user.profilePicUrl == null
-              ? Text(getInitials(_user.name),
-                  style: TextStyle(color: ColorUtils.darkerGray))
+              ? Text(_user.name.startsWith('+') ? '+' : getInitials(_user.name),
+              style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: _user.profilePicUrl != null
               ? NetworkImage(_user.profilePicUrl)

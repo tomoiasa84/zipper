@@ -102,7 +102,10 @@ class RepliesScreenState extends State<RepliesScreen> {
       children: <Widget>[
         CircleAvatar(
           child: widget.card.postedBy.profilePicUrl == null
-              ? Text(getInitials(widget.card.postedBy.name),
+              ? Text(
+                  widget.card.postedBy.name.startsWith('+')
+                      ? '+'
+                      : getInitials(widget.card.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: widget.card.postedBy.profilePicUrl != null

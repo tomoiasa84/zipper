@@ -23,7 +23,12 @@ class JoinedContactsScreenState extends State<JoinedContactsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Expanded(
-            child: widget.joinedContacts.isNotEmpty ?_buildUntaggedContactsList(): Center(child: Text(Localization.of(context).getString("emptyUsersList")),),
+            child: widget.joinedContacts.isNotEmpty
+                ? _buildUntaggedContactsList()
+                : Center(
+                    child: Text(
+                        Localization.of(context).getString("emptyUsersList")),
+                  ),
           )
         ],
       ),
@@ -37,7 +42,7 @@ class JoinedContactsScreenState extends State<JoinedContactsScreen> {
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
       ),
       centerTitle: true,
-      leading: buildBackButton(Icons.arrow_back,() {
+      leading: buildBackButton(Icons.arrow_back, () {
         Navigator.pop(context, true);
       }),
     );
@@ -70,7 +75,10 @@ class JoinedContactsScreenState extends State<JoinedContactsScreen> {
             (contact.avatar != null && contact.avatar.length > 0)
                 ? CircleAvatar(backgroundImage: MemoryImage(contact.avatar))
                 : CircleAvatar(
-                    child: Text(getInitials(contact.displayName),
+                    child: Text(
+                        contact.displayName.startsWith('+')
+                            ? '+'
+                            : getInitials(contact.displayName),
                         style: TextStyle(color: ColorUtils.darkerGray)),
                     backgroundColor: ColorUtils.lightLightGray,
                   ),

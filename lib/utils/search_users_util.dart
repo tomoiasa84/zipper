@@ -64,10 +64,14 @@ class UserSearch extends SearchDelegate<String> {
           ),
           child: CircleAvatar(
             child: suggestionList.elementAt(index).profilePicUrl == null
-                ? Text(getInitials(suggestionList.elementAt(index).name),
+                ? Text(
+                    suggestionList.elementAt(index).name.startsWith('+')
+                        ? '+'
+                        : getInitials(suggestionList.elementAt(index).name),
                     style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
-            backgroundImage: suggestionList.elementAt(index).profilePicUrl != null
+            backgroundImage: suggestionList.elementAt(index).profilePicUrl !=
+                    null
                 ? NetworkImage(suggestionList.elementAt(index).profilePicUrl)
                 : null,
             backgroundColor: ColorUtils.lightLightGray,

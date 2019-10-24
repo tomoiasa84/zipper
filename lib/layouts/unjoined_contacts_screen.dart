@@ -83,8 +83,7 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
                     _allContactsSelected
                         ? Localization.of(context).getString('deselectAll')
                         : Localization.of(context).getString('selectAll'),
-                    style:
-                        TextStyle(fontSize: 14.0)),
+                    style: TextStyle(fontSize: 14.0)),
               ),
               Container(
                 padding: const EdgeInsets.only(
@@ -148,7 +147,9 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
                         MemoryImage(unjoinedContact.contact.avatar))
                 : CircleAvatar(
                     child: Text(
-                        getInitials(unjoinedContact.contact.displayName),
+                        unjoinedContact.contact.displayName.startsWith('+')
+                            ? '+'
+                            : getInitials(unjoinedContact.contact.displayName),
                         style: TextStyle(color: ColorUtils.darkerGray)),
                     backgroundColor: ColorUtils.lightLightGray,
                   ),
