@@ -288,7 +288,6 @@ class Repository {
 
   Future clearUserSession(bool showExpiredSessionMessage) async {
     await FirebaseAuth.instance.signOut().then((_) async {
-      await unsubscribeFromPushNotifications();
       SharedPreferencesHelper.clear().then((_) {
         logout(showExpiredSessionMessage);
       });
