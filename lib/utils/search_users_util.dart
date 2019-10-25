@@ -54,7 +54,7 @@ class UserSearch extends SearchDelegate<String> {
         onTap: () {
           showResults(context);
           close(context, null);
-          onTapAction(_users.elementAt(index));
+          onTapAction(suggestionList.elementAt(index));
         },
         leading: Container(
           width: 32,
@@ -63,12 +63,16 @@ class UserSearch extends SearchDelegate<String> {
             shape: BoxShape.circle,
           ),
           child: CircleAvatar(
-            child: _users.elementAt(index).profilePicUrl == null
-                ? Text(getInitials(_users.elementAt(index).name),
+            child: suggestionList.elementAt(index).profilePicUrl == null
+                ? Text(
+                    suggestionList.elementAt(index).name.startsWith('+')
+                        ? '+'
+                        : getInitials(suggestionList.elementAt(index).name),
                     style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
-            backgroundImage: _users.elementAt(index).profilePicUrl != null
-                ? NetworkImage(_users.elementAt(index).profilePicUrl)
+            backgroundImage: suggestionList.elementAt(index).profilePicUrl !=
+                    null
+                ? NetworkImage(suggestionList.elementAt(index).profilePicUrl)
                 : null,
             backgroundColor: ColorUtils.lightLightGray,
           ),
@@ -94,8 +98,8 @@ class UserSearch extends SearchDelegate<String> {
                   ]),
             ),
             Text(
-              getMainTag(_users.elementAt(index)) != null
-                  ? '#' + getMainTag(_users.elementAt(index)).tag.name
+              getMainTag(suggestionList.elementAt(index)) != null
+                  ? '#' + getMainTag(suggestionList.elementAt(index)).tag.name
                   : '',
               style: TextStyle(color: ColorUtils.orangeAccent, fontSize: 12.0),
             )

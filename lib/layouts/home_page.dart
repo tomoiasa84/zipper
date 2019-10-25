@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
@@ -6,6 +5,7 @@ import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/layouts/home_content_screen.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PushNotification.dart';
 import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -43,6 +43,7 @@ class _HomePageState extends State<HomePage> {
       BasicMessageChannel<String>('currentUserId', StringCodec());
   var _recommendationChannel =
       BasicMessageChannel<String>('iosRecommendationTapped', StringCodec());
+  User _user;
 
   @override
   void initState() {
@@ -50,6 +51,11 @@ class _HomePageState extends State<HomePage> {
     if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
     }
+    _homeBloc.getCurrentUser().then((result) {
+      if (result.errors == null) {
+        _user = User.fromJson(result.data['get_user']);
+      }
+    });
     _initFirebaseClientMessaging();
     _initLocalNotifications();
     _homeBloc.updateDeviceToken();
@@ -93,7 +99,6 @@ class _HomePageState extends State<HomePage> {
     SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
       var messageData = new Map<String, dynamic>.from(notification['data']);
       _message = UserMessage.fromJson(messageData);
-
 
       if (_message.messageAuthor != currentUserId) {
         var notificationMap =
@@ -213,17 +218,31 @@ class _HomePageState extends State<HomePage> {
                 (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
               switch (snapshot.data) {
                 case NavBarItem.HOME:
-                  return HomeContentScreen();
+                  return HomeContentScreen(
+                    user: _user,
+                    onUserUpdated: (user) {
+                      _user = user;
+                    },
+                  );
                 case NavBarItem.CONTACTS:
-                  return UsersScreen();
+                  return UsersScreen(
+                    user: _user,
+                    updateCurrentUser: (newUser) {
+                      _user = newUser;
+                    },
+                  );
                 case NavBarItem.PLUS:
                   return Container();
                 case NavBarItem.INBOX:
                   return ConversationsScreen();
                 case NavBarItem.ACCOUNT:
                   return AccountScreen(
+                    user: _user,
                     onChanged: _onBlurredChanged,
                     isStartedFromHomeScreen: true,
+                    onUserChanged: (user) {
+                      _user = user;
+                    },
                   );
                 default:
                   return Container();
@@ -299,8 +318,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _goToAddCardScreen() async {
-    var result = await Navigator.of(context).push(
-        MaterialPageRoute(builder: (BuildContext context) => AddCardScreen()));
+    var result = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) => AddCardScreen(
+              user: _user,
+              updateUser: (newUser) {
+                _user = newUser;
+              },
+            )));
     _homeBloc.pickItem(0);
     if (result != null) {
       showDialog(

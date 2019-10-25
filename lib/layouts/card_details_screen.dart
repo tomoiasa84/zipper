@@ -250,10 +250,16 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                                 .profilePicUrl ==
                             null
                         ? Text(
-                            getInitials(_card.recommendsList
-                                .elementAt(index)
-                                .userRecommend
-                                .name),
+                            _card.recommendsList
+                                    .elementAt(index)
+                                    .userRecommend
+                                    .name
+                                    .startsWith('+')
+                                ? '+'
+                                : getInitials(_card.recommendsList
+                                    .elementAt(index)
+                                    .userRecommend
+                                    .name),
                             style: TextStyle(color: ColorUtils.darkerGray))
                         : null,
                     backgroundImage: _card.recommendsList
@@ -297,11 +303,11 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => UserDetailsScreen(_card
+                                  builder: (context) => UserDetailsScreen(user:_card
                                       .recommendsList
                                       .elementAt(index)
                                       .userSend
-                                      .id)));
+                                      )));
                         }
                       });
                     },
@@ -359,7 +365,10 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       children: <Widget>[
         CircleAvatar(
           child: _card.postedBy.profilePicUrl == null
-              ? Text(getInitials(_card.postedBy.name),
+              ? Text(
+                  _card.postedBy.name.startsWith('+')
+                      ? '+'
+                      : getInitials(_card.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: _card.postedBy.profilePicUrl != null

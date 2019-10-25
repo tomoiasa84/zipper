@@ -13,7 +13,8 @@ import 'global_variables.dart';
 String validatePhoneNumber(String value, String validationMessage) {
   final RegExp phoneExp =
       RegExp(r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$');
-  if (value.length == 12 && phoneExp.hasMatch(value)) {
+  if (value.split(" ").join("").length == 12 &&
+      phoneExp.hasMatch(value.split(" ").join(""))) {
     return null;
   } else
     return validationMessage;

@@ -96,6 +96,7 @@ class ApiProvider {
                             postedBy{
                                 id
                                 name
+                                profileURL
                             }
                             text
                             recommandsCount

@@ -557,7 +557,10 @@ class _ChatScreenState extends State<ChatScreen> {
             height: 32,
             child: CircleAvatar(
               child: _currentUser.profilePicUrl == null
-                  ? Text(getInitials(_currentUser.name),
+                  ? Text(
+                      _currentUser.name.startsWith('+')
+                          ? '+'
+                          : getInitials(_currentUser.name),
                       style: TextStyle(color: ColorUtils.darkerGray))
                   : null,
               backgroundImage: _currentUser.profilePicUrl != null
@@ -613,7 +616,10 @@ class _ChatScreenState extends State<ChatScreen> {
             height: 32,
             child: CircleAvatar(
               child: _currentUser.profilePicUrl == null
-                  ? Text(getInitials(_currentUser.name),
+                  ? Text(
+                      _currentUser.name.startsWith('+')
+                          ? '+'
+                          : getInitials(_currentUser.name),
                       style: TextStyle(color: ColorUtils.darkerGray))
                   : null,
               backgroundImage: _currentUser.profilePicUrl != null
@@ -642,7 +648,10 @@ class _ChatScreenState extends State<ChatScreen> {
               height: 32,
               child: CircleAvatar(
                 child: _interlocutorUser.profilePicUrl == null
-                    ? Text(getInitials(_interlocutorUser.name),
+                    ? Text(
+                        _interlocutorUser.name.startsWith('+')
+                            ? '+'
+                            : getInitials(_interlocutorUser.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
                 backgroundImage: _interlocutorUser.profilePicUrl != null
@@ -693,7 +702,10 @@ class _ChatScreenState extends State<ChatScreen> {
               height: 32,
               child: CircleAvatar(
                 child: _interlocutorUser.profilePicUrl == null
-                    ? Text(getInitials(_interlocutorUser.name),
+                    ? Text(
+                        _interlocutorUser.name.startsWith('+')
+                            ? '+'
+                            : getInitials(_interlocutorUser.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
                 backgroundImage: _interlocutorUser.profilePicUrl != null
@@ -890,7 +902,10 @@ class _ChatScreenState extends State<ChatScreen> {
       children: <Widget>[
         CircleAvatar(
           child: cardModel.postedBy.profilePicUrl == null
-              ? Text(getInitials(cardModel.postedBy.name),
+              ? Text(
+                  cardModel.postedBy.name.startsWith('+')
+                      ? '+'
+                      : getInitials(cardModel.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: cardModel.postedBy.profilePicUrl != null
