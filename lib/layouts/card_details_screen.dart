@@ -288,11 +288,11 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => UserDetailsScreen(_card
+                                  builder: (context) => UserDetailsScreen(user:_card
                                       .recommendsList
                                       .elementAt(index)
                                       .userSend
-                                      .id)));
+                                      )));
                         }
                       });
                     },

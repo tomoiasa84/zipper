@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:contractor_search/persistance/repository.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 enum NavBarItem { HOME, CONTACTS, PLUS, INBOX, ACCOUNT }
 
@@ -47,5 +49,11 @@ class HomeBloc {
 
   void dispose() {
     _navBarController?.close();
+  }
+
+  Future<QueryResult> getCurrentUser() async {
+    String userId = await getCurrentUserId();
+
+    return _repository.getUserById(userId);
   }
 }

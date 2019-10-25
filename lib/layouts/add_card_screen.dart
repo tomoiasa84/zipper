@@ -14,6 +14,11 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AddCardScreen extends StatefulWidget {
+  final User user;
+  final Function updateUser;
+
+  const AddCardScreen({Key key, this.user, this.updateUser}) : super(key: key);
+
   @override
   AddCardScreenState createState() => AddCardScreenState();
 }
@@ -31,22 +36,34 @@ class AddCardScreenState extends State<AddCardScreen> {
   @override
   void initState() {
     _addCardBloc = AddCardBloc();
-    _getCurrentUserInfo();
+    if (widget.user != null) {
+      _user = widget.user;
+    } else {
+      _getCurrentUserInfo();
+    }
     getTags();
     super.initState();
   }
 
   void getTags() {
+    setState(() {
+      _saving = true;
+    });
     _addCardBloc.getTags().then((result) {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+        });
+      }
       if (result.errors == null) {
         final List<Map<String, dynamic>> tags =
             result.data['get_tags'].cast<Map<String, dynamic>>();
         tags.forEach((item) {
           tagsList.add(Tag.fromJson(item));
         });
-      }
-      else{
-        _showDialog(Localization.of(context).getString("error"), result.errors[0].message);
+      } else {
+        _showDialog(Localization.of(context).getString("error"),
+            result.errors[0].message);
       }
     });
   }
@@ -60,7 +77,7 @@ class AddCardScreenState extends State<AddCardScreen> {
       builder: (BuildContext context) => CustomDialog(
         title: title,
         description: message,
-        buttonText:  Localization.of(context).getString('ok'),
+        buttonText: Localization.of(context).getString('ok'),
       ),
     );
   }
@@ -76,8 +93,9 @@ class AddCardScreenState extends State<AddCardScreen> {
             _user = User.fromJson(result.data['get_user']);
             _saving = false;
           });
-        } else{
-          _showDialog(Localization.of(context).getString('error'), result.errors[0].message);
+        } else {
+          _showDialog(Localization.of(context).getString('error'),
+              result.errors[0].message);
         }
       });
     });
@@ -165,12 +183,24 @@ class AddCardScreenState extends State<AddCardScreen> {
     _addCardBloc
         .createCard(_user.id, tag.id, _addDetailsTextEditingController.text)
         .then((result) {
-      setState(() {
-        _saving = false;
-      });
       if (result.errors == null) {
-        Navigator.pop(context, CardModel.fromJson(result.data['create_card']));
+        getCurrentUserId().then((userId) {
+          _addCardBloc.getCurrentUser(userId).then((currentUserResult) {
+            setState(() {
+              _saving = false;
+            });
+            if (result.errors == null) {
+              widget.updateUser(
+                  User.fromJson(currentUserResult.data['get_user']));
+            }
+            Navigator.pop(
+                context, CardModel.fromJson(result.data['create_card']));
+          });
+        });
       } else {
+        setState(() {
+          _saving = false;
+        });
         showDialog(
           context: context,
           builder: (BuildContext context) => CustomDialog(
@@ -284,8 +314,9 @@ class AddCardScreenState extends State<AddCardScreen> {
         children: <Widget>[
           CircleAvatar(
             child: _user.profilePicUrl == null
-                ? Text(_user.name.startsWith('+') ? '+' : getInitials(_user.name),
-                style: TextStyle(color: ColorUtils.darkerGray))
+                ? Text(
+                    _user.name.startsWith('+') ? '+' : getInitials(_user.name),
+                    style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
             backgroundImage: _user.profilePicUrl != null
                 ? NetworkImage(_user.profilePicUrl)

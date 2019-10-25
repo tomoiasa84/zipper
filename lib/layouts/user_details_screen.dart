@@ -19,9 +19,11 @@ import 'package:permission_handler/permission_handler.dart';
 import 'chat_screen.dart';
 
 class UserDetailsScreen extends StatefulWidget {
-  final String userId;
+  final User user;
+  final User currentUser;
 
-  UserDetailsScreen(this.userId);
+  const UserDetailsScreen({Key key, this.user, this.currentUser})
+      : super(key: key);
 
   @override
   UserDetailsScreenState createState() => UserDetailsScreenState();
@@ -38,7 +40,20 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
 
   @override
   void initState() {
-    _getUserAndCurrentUser();
+    if (widget.user != null && widget.currentUser != null) {
+      _user = widget.user;
+      _currentUser = widget.currentUser;
+      for (var connection in _currentUser.connections) {
+        if (connection.targetUser.id == widget.user.id) {
+          _connection = connection;
+          _connectedToUser = true;
+          break;
+        }
+      }
+      _getMainTag();
+    } else {
+      _getUserAndCurrentUser();
+    }
     super.initState();
   }
 
@@ -49,7 +64,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         _saving = true;
       });
     }
-    await _userDetailsBloc.getUser(widget.userId).then((result) {
+    await _userDetailsBloc.getUser(widget.user.id).then((result) {
       if (result.errors == null && mounted) {
         getCurrentUserId().then((currentUserId) {
           _userDetailsBloc.getUser(currentUserId).then((currentUserResult) {
@@ -59,7 +74,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                 _currentUser =
                     User.fromJson(currentUserResult.data['get_user']);
                 for (var connection in _currentUser.connections) {
-                  if (connection.targetUser.id == widget.userId) {
+                  if (connection.targetUser.id == widget.user.id) {
                     _connection = connection;
                     _connectedToUser = true;
                     break;

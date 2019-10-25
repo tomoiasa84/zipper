@@ -129,7 +129,7 @@ class SearchCard extends SearchDelegate<String> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    UserDetailsScreen(card.postedBy.id)));
+                                    UserDetailsScreen(user:card.postedBy)));
                       },
                       child: Text(card.postedBy.name,
                           style: TextStyle(fontWeight: FontWeight.bold)),

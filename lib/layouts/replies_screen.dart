@@ -52,7 +52,8 @@ class RepliesScreenState extends State<RepliesScreen> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => UserDetailsScreen(userSend.id)));
+                  builder: (context) => UserDetailsScreen(
+                      user: userSend, currentUser: widget.card.postedBy)));
         }),
       ));
     });
