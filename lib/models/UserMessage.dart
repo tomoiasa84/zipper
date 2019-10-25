@@ -99,7 +99,7 @@ class UserMessage {
         _sharedContact = json['sharedContact'] != null
             ? json['sharedContact'] is String
             ? User.fromJson(jsonDecode(json['sharedContact']))
-            : json['sharedContact']
+            : User.fromJson(json['sharedContact'])
             : null;
 }
 
