@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 
@@ -62,23 +64,24 @@ class UserMessage {
   String get channelId => _channelId;
 
   Map<String, dynamic> toJson() => {
-        'channelId': _channelId,
-        'message': _message,
-        'timestamp': _timestamp.toIso8601String(),
-        'messageAuthor': _messageAuthor,
-        'imageDownloadUrl': _imageDownloadUrl,
-        'sharedContact': _sharedContact,
-        'click_action': _clickAction,
-        'cardModel': _cardModel,
-      };
+    'channelId': _channelId,
+    'message': _message,
+    'timestamp': _timestamp.toIso8601String(),
+    'messageAuthor': _messageAuthor,
+    'imageDownloadUrl': _imageDownloadUrl,
+    'sharedContact': _sharedContact,
+    'click_action': _clickAction,
+    'cardModel': _cardModel,
+  };
 
   UserMessage.fromJson(Map<String, dynamic> json)
       : _message = json['message'],
         _channelId = json['channelId'],
         _timestamp = DateTime.parse(json['timestamp']),
         _stringTimestamp = json['timestamp'],
-        backendMessage =
-            json['backendMessage'] != null ? json['backendMessage'] : false,
+        backendMessage = json['backendMessage'] is bool
+            ? json['backendMessage']
+            : json['backendMessage'] == 'true',
         _messageAuthor = json['messageAuthor'],
         _imageDownloadUrl = json['imageDownloadUrl'],
         _clickAction = json['clickAction'],
@@ -88,10 +91,15 @@ class UserMessage {
         cardId = json['cardId'] is String
             ? int.parse(json['cardId'])
             : json['cardId'],
-        cardRecommendationsCount = json['cardRecommendationsCount'],
+        cardRecommendationsCount = json['cardRecommendationsCount'] is String
+            ? int.parse(json['cardRecommendationsCount'])
+            : json['cardRecommendationsCount'],
         conversationTitle = json['conversationTitle'],
         conversationPreview = json['conversationPreview'],
         _sharedContact = json['sharedContact'] != null
-            ? User.fromJson(json['sharedContact'])
+            ? json['sharedContact'] is String
+            ? User.fromJson(jsonDecode(json['sharedContact']))
+            : json['sharedContact']
             : null;
 }
+

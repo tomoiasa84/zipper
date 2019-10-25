@@ -150,14 +150,17 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     _pubNubConversation = widget.pubNubConversation;
-    _initScreen();
-    _controller.addListener(_scrollListener);
-    _loadMore().then((onValue) {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-        });
-      }
+    _initScreen().then((value) {
+      _controller.addListener(_scrollListener);
+      _loadMore().then((onValue) {
+        if (mounted) {
+          setState(() {
+            _loading = false;
+          });
+        } else {
+          print('NOT LOADED');
+        }
+      });
     });
   }
 
@@ -174,7 +177,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future _initScreen() async {
     return getCurrentUserId().then((currentUserId) async {
-      await _setMessagesListener(currentUserId);
       if (_pubNubConversation == null) {
         await _chatBloc
             .getConversation(widget.conversationId)
@@ -184,6 +186,8 @@ class _ChatScreenState extends State<ChatScreen> {
           });
         });
       }
+
+      await _setMessagesListener(currentUserId);
 
       setState(() {
         if (currentUserId == _pubNubConversation.user1.id) {

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
@@ -92,6 +93,7 @@ class _HomePageState extends State<HomePage> {
     SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
       var messageData = new Map<String, dynamic>.from(notification['data']);
       _message = UserMessage.fromJson(messageData);
+
 
       if (_message.messageAuthor != currentUserId) {
         var notificationMap =
