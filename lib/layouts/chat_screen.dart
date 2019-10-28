@@ -178,7 +178,6 @@ class _ChatScreenState extends State<ChatScreen> {
   Future _initScreen() async {
     return getCurrentUserId().then((currentUserId) async {
       if (_pubNubConversation == null) {
-        print('get conversation from local with id');
         await SharedPreferencesHelper.getConversation(widget.conversationId)
             .then((pubNubConversation) async {
           setState(() {
@@ -205,7 +204,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future _getConversationFromDb(String currentUserId) async {
-    print('get conversation from db');
     if (_pubNubConversation == null) {
       await _chatBloc
           .getConversation(widget.conversationId)
