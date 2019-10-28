@@ -59,8 +59,12 @@ class SharedPreferencesHelper {
       String conversationId) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     var conversationEncoded = prefs.getString(conversationId);
-    return PubNubConversation.fromJson(
-        convert.jsonDecode(conversationEncoded));
+    if (conversationEncoded != null && conversationEncoded.length > 0) {
+      return PubNubConversation.fromJson(
+          convert.jsonDecode(conversationEncoded));
+    } else {
+      return null;
+    }
   }
 
   static Future<bool> saveConversation(PubNubConversation conversation) async {

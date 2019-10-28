@@ -176,26 +176,21 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future _initScreen() async {
-    if (widget.pubNubConversation != null) {
-      SharedPreferencesHelper.getConversation(_pubNubConversation.id)
-          .then((pubNubConversation) {
-        setState(() {
-          _pubNubConversation = pubNubConversation;
-        });
-      });
-    } else {
-      SharedPreferencesHelper.getConversation(widget.conversationId)
-          .then((pubNubConversation) {
-        setState(() {
-          _pubNubConversation = pubNubConversation;
-        });
-      });
-    }
-
     return getCurrentUserId().then((currentUserId) async {
       if (_pubNubConversation == null) {
-        await _getConversationFromDb(currentUserId);
+        print('get conversation from local with id');
+        await SharedPreferencesHelper.getConversation(widget.conversationId)
+            .then((pubNubConversation) async {
+          setState(() {
+            _pubNubConversation = pubNubConversation;
+          });
+          if (_pubNubConversation == null) {
+            await _getConversationFromDb(currentUserId);
+          }
+        });
       }
+
+      await _setMessagesListener(_pubNubConversation.id, currentUserId);
 
       setState(() {
         if (currentUserId == _pubNubConversation.user1.id) {
@@ -210,6 +205,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future _getConversationFromDb(String currentUserId) async {
+    print('get conversation from db');
     if (_pubNubConversation == null) {
       await _chatBloc
           .getConversation(widget.conversationId)
@@ -221,8 +217,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     SharedPreferencesHelper.saveConversation(_pubNubConversation);
-
-    await _setMessagesListener(_pubNubConversation.id, currentUserId);
   }
 
   Future<bool> _loadMore() async {
