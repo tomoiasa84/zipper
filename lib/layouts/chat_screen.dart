@@ -176,18 +176,26 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future _initScreen() async {
+    if (widget.pubNubConversation != null) {
+      SharedPreferencesHelper.getConversation(_pubNubConversation.id)
+          .then((pubNubConversation) {
+        setState(() {
+          _pubNubConversation = pubNubConversation;
+        });
+      });
+    } else {
+      SharedPreferencesHelper.getConversation(widget.conversationId)
+          .then((pubNubConversation) {
+        setState(() {
+          _pubNubConversation = pubNubConversation;
+        });
+      });
+    }
+
     return getCurrentUserId().then((currentUserId) async {
       if (_pubNubConversation == null) {
-        await _chatBloc
-            .getConversation(widget.conversationId)
-            .then((pubNubConversation) {
-          setState(() {
-            _pubNubConversation = pubNubConversation;
-          });
-        });
+        await _getConversationFromDb(currentUserId);
       }
-
-      await _setMessagesListener(currentUserId);
 
       setState(() {
         if (currentUserId == _pubNubConversation.user1.id) {
@@ -198,27 +206,23 @@ class _ChatScreenState extends State<ChatScreen> {
           _interlocutorUser = _pubNubConversation.user1;
         }
       });
-
-      await getConversationsUsers();
     });
   }
 
-  getConversationsUsers() async {
-    await _chatBloc.getUserById(_currentUser.id).then((result) {
-      if (result.data != null && mounted) {
+  Future _getConversationFromDb(String currentUserId) async {
+    if (_pubNubConversation == null) {
+      await _chatBloc
+          .getConversation(widget.conversationId)
+          .then((pubNubConversation) {
         setState(() {
-          _currentUser = User.fromJson(result.data['get_user']);
+          _pubNubConversation = pubNubConversation;
         });
-      }
-    });
+      });
+    }
 
-    await _chatBloc.getUserById(_interlocutorUser.id).then((result) {
-      if (result.data != null && mounted) {
-        setState(() {
-          _interlocutorUser = User.fromJson(result.data['get_user']);
-        });
-      }
-    });
+    SharedPreferencesHelper.saveConversation(_pubNubConversation);
+
+    await _setMessagesListener(_pubNubConversation.id, currentUserId);
   }
 
   Future<bool> _loadMore() async {
@@ -241,8 +245,9 @@ class _ChatScreenState extends State<ChatScreen> {
     return true;
   }
 
-  Future _setMessagesListener(String currentUserId) async {
-    _chatBloc.subscribeToChannel(_pubNubConversation.id, currentUserId);
+  Future _setMessagesListener(
+      String conversationId, String currentUserId) async {
+    _chatBloc.subscribeToChannel(conversationId, currentUserId);
     _subscription = _chatBloc.ctrl.stream.listen((message) {
       if (mounted) {
         setState(() {
