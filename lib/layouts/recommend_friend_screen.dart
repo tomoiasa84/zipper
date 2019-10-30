@@ -44,10 +44,10 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
     setState(() {
       _saving = true;
     });
-    _recommendBloc.getCurrentUser().then((result) {
+    _recommendBloc.getCurrentUserWithConnections().then((result) {
       if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);
-        if (currentUser != null && currentUser.cardsConnections != null) {
+        if (currentUser != null) {
           setState(() {
             currentUser.connections.forEach((connection) {
               if (hasSearchedTag(connection.targetUser) &&
