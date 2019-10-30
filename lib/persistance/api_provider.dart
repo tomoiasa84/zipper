@@ -460,7 +460,7 @@ class ApiProvider {
     return result;
   }
 
-  Future<QueryResult> getListOfIdsFromBackend(String currentUserId) async {
+  Future<QueryResult> getListOfChannelIdsFromBackend(String currentUserId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_user(userId: "$currentUserId"){
