@@ -19,7 +19,7 @@ class SyncContactsBloc {
   }
 
   Future<SyncContactsModel> syncContacts(String userId) async {
-    QueryResult result = await _repository.getUserById(userId);
+    QueryResult result = await _repository.getUserByIdWithPhoneNumber(userId);
 
     if (result.errors == null) {
       countryCode =

@@ -22,6 +22,12 @@ class Repository {
     return ContactsService.getContacts();
   }
 
+  Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
+    var result = await appApiProvider.getUserByIdWithPhoneNumber(userId);
+    checkTokenError(result);
+    return result;
+  }
+
   Future<QueryResult> getUserByIdWithConnections(String userId) async {
     var result = await appApiProvider.getUserByIdWithConnections(userId);
     checkTokenError(result);
