@@ -33,6 +33,58 @@ class ApiProvider {
     link: link,
   );
 
+  Future<QueryResult> getUserByIdWithConnections(String userId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                     get_user(userId:"$userId"){
+                        connections{
+                            id
+                            originUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                             }
+                            }
+                            targetUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                             }
+                            }
+                        }
+                    }
+              }''',
+    ));
+
+    return result;
+  }
+
   Future<QueryResult> getUserById(String userId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
