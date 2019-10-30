@@ -33,6 +33,20 @@ class ApiProvider {
     link: link,
   );
 
+  Future<QueryResult> getUserNameIdPhoneNumberProfilePic(String userId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                     get_user(userId:"$userId"){
+                        name
+                        id
+                        phoneNumber
+                        profileURL
+                    }
+              }''',
+    ));
+    return result;
+  }
+
   Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{

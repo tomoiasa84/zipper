@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPreferencesHelper {
   static final String _accessToken = "accessToken";
   static final String _currentUserId = "currentUsertId";
-  static final String _profileImageUrl = "profileImageUrl";
   static final String _currentUserName = "currentUsertName";
   static final String _syncContactsFlag = "syncContactsFlag";
   static final String _allowPushNotifications = "allowPushNotifications";
