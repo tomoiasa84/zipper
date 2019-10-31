@@ -1,3 +1,4 @@
+import 'package:contractor_search/bloc/sync_results_bloc.dart';
 import 'package:contractor_search/layouts/share_selected_screen.dart';
 import 'package:contractor_search/layouts/unjoined_contacts_screen.dart';
 import 'package:contractor_search/model/sync_contacts_model.dart';
@@ -5,6 +6,7 @@ import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'home_page.dart';
 import 'joined_contacts_screen.dart';
@@ -20,49 +22,85 @@ class SyncResultsScreen extends StatefulWidget {
 
 class SyncResultsScreenState extends State<SyncResultsScreen> {
   List<UnjoinedContactsModel> unjoinedContacts;
+  SyncResultsBloc _syncResultsBloc;
+
+  bool _saving = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: _buildBody(),
+    return ModalProgressHUD(
+      inAsyncCall: _saving,
+      child: Scaffold(
+        appBar: _buildAppBar(),
+        body: _buildBody(),
+      ),
     );
   }
 
   @override
   void initState() {
     unjoinedContacts = widget.syncResult.unjoinedContacts;
+    _syncResultsBloc = SyncResultsBloc();
     super.initState();
   }
 
   AppBar _buildAppBar() {
     return AppBar(
       title: Text(Localization.of(context).getString("syncResults"),
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          )),
       centerTitle: true,
       actions: <Widget>[
-         GestureDetector(
-                onTap: () {
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => HomePage(
-                                syncContactsFlagRequired: true,
-                              )),
-                      ModalRoute.withName("/homepage"));
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                      child: Text(
-                    Localization.of(context).getString("skip"),
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
-                        color: ColorUtils.orangeAccent),
-                  )),
-                ),
-              )
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _saving = true;
+            });
+            List<String> existingUsers = [];
+            widget.syncResult.existingUsers.forEach((contact) {
+              if (contact.phones != null &&
+                  contact.phones.toList().isNotEmpty) {
+                if (contact.phones
+                    .toList()
+                    .elementAt(0)
+                    .value
+                    .toString()
+                    .startsWith("+")) {
+                  existingUsers.add(
+                      contact.phones.toList().elementAt(0).value.toString());
+                } else {
+                  existingUsers.add(widget.syncResult.countryCode +
+                      contact.phones.toList().elementAt(0).value.toString());
+                }
+              }
+            });
+            _syncResultsBloc.loadConnections(existingUsers).then((response) {
+              setState(() {
+                _saving = false;
+              });
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HomePage(
+                            syncContactsFlagRequired: true,
+                          )),
+                  ModalRoute.withName("/homepage"));
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+                child: Text(
+              Localization.of(context).getString("skip"),
+              style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                  color: ColorUtils.orangeAccent),
+            )),
+          ),
+        )
       ],
     );
   }
@@ -220,7 +258,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
               context,
               MaterialPageRoute(
                   builder: (context) => ShareSelectedContactsScreen(
-                    existingUsers: widget.syncResult.existingUsers,
+                        existingUsers: widget.syncResult.existingUsers,
                         unjoinedContacts: widget.syncResult.unjoinedContacts,
                         countryCode: widget.syncResult.countryCode,
                       )),

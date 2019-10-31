@@ -7,6 +7,7 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widgets/flutter_widgets.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'chat_screen.dart';
@@ -32,7 +33,6 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     getCurrentUserId().then((currentUserId) {
       _currentUserId = currentUserId;
     });
-    _getConversations();
   }
 
   void _getConversations() {
@@ -49,35 +49,43 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   Future _setConversationReadState(
       List<PubNubConversation> conversations) async {
     for (var conversation in _pubNubConversations) {
-      var lastMessageTimestamp =
-          await SharedPreferencesHelper.getLastMessageTimestamp(
-              conversation.id);
-      if (lastMessageTimestamp !=
-          conversation.lastMessage.message.timestamp.toIso8601String()) {
-        setState(() {
+      if (conversation.lastMessage.message.cardId == null) {
+        var lastMessageTimestamp =
+            await SharedPreferencesHelper.getLastMessageTimestamp(
+                conversation.id);
+        if (lastMessageTimestamp !=
+            conversation.lastMessage.message.timestamp.toIso8601String()) {
+          setState(() {
+            conversation.read = false;
+          });
+        }
+      } else {
+        var lastRecommendCount =
+            await SharedPreferencesHelper.getCardRecommendsCount(
+                conversation.lastMessage.message.cardId.toString());
+        if (lastRecommendCount == null) {
+          setState(() {
+            conversation.read = false;
+          });
+        }
+        if (lastRecommendCount ==
+            conversation.lastMessage.message.cardRecommendationsCount) {
+          setState(() {
+            conversation.read = true;
+          });
+        } else {
           conversation.read = false;
-        });
+        }
       }
-    }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      _getConversations();
     }
   }
 
   void _startNewConversation() {
     Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    SelectContactScreen(shareContactScreen: false)))
-        .then((onValue) {
-      _getConversations();
-    });
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                SelectContactScreen(shareContactScreen: false)));
   }
 
   void _goToChatScreen(PubNubConversation pubNubConversation) {
@@ -90,9 +98,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                 pubNubConversation: pubNubConversation,
                 maybePop: true,
               )),
-    ).then((onValue) {
-      _getConversations();
-    });
+    );
   }
 
   void _goToCardDetailsScreen(PubNubConversation pubNubConversation) {
@@ -101,46 +107,53 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       MaterialPageRoute(
           builder: (context) => CardDetailsScreen(
                 cardId: pubNubConversation.lastMessage.message.cardId,
+                maybePop: true,
               )),
-    ).then((onValue) {
-      _getConversations();
-    });
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return ModalProgressHUD(
-      inAsyncCall: _loading,
-      child: Scaffold(
-        body: new Column(children: <Widget>[
-          AppBar(
-            title: Text(
-              Localization.of(context).getString('messages'),
-              style: TextStyle(
-                  color: ColorUtils.textBlack,
-                  fontSize: 14,
-                  fontFamily: 'Arial',
-                  fontWeight: FontWeight.bold),
-            ),
-            centerTitle: true,
-            backgroundColor: Colors.white,
-          ),
-          _showConversationsUI(),
-        ]),
-        floatingActionButton: Container(
-          height: 42,
-          width: 42,
-          child: FittedBox(
-            child: FloatingActionButton(
-              onPressed: () {
-                _startNewConversation();
-              },
-              child: Icon(
-                Icons.message,
-                color: ColorUtils.white,
-                size: 28,
+    return VisibilityDetector(
+      key: Key("conversations_screen_key"),
+      onVisibilityChanged: (VisibilityInfo info) {
+        if (info.visibleFraction == 1.0) {
+          _getConversations();
+        }
+      },
+      child: ModalProgressHUD(
+        inAsyncCall: _loading,
+        child: Scaffold(
+          body: new Column(children: <Widget>[
+            AppBar(
+              title: Text(
+                Localization.of(context).getString('messages'),
+                style: TextStyle(
+                    color: ColorUtils.textBlack,
+                    fontSize: 14,
+                    fontFamily: 'Arial',
+                    fontWeight: FontWeight.bold),
               ),
-              backgroundColor: ColorUtils.orangeAccent,
+              centerTitle: true,
+              backgroundColor: Colors.white,
+            ),
+            _showConversationsUI(),
+          ]),
+          floatingActionButton: Container(
+            height: 42,
+            width: 42,
+            child: FittedBox(
+              child: FloatingActionButton(
+                onPressed: () {
+                  _startNewConversation();
+                },
+                child: Icon(
+                  Icons.message,
+                  color: ColorUtils.white,
+                  size: 28,
+                ),
+                backgroundColor: ColorUtils.orangeAccent,
+              ),
             ),
           ),
         ),
@@ -206,7 +219,8 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                     child: Row(
                       children: <Widget>[
                         Container(
-                          child: Text(Localization.of(context).getString('imLookingFor'),
+                          child: Text(
+                            Localization.of(context).getString('imLookingFor'),
                             style: TextStyle(
                                 fontSize: 14,
                                 color: ColorUtils.almostBlack,
@@ -215,7 +229,9 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                           ),
                         ),
                         Flexible(
-                            child: Text(getRecommendedTitle(conversation.lastMessage.message.conversationTitle),
+                            child: Text(
+                                getRecommendedTitle(conversation
+                                    .lastMessage.message.conversationTitle),
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                     fontSize: 12,
@@ -253,7 +269,10 @@ class _ConversationsScreenState extends State<ConversationsScreen>
               height: 40,
               child: CircleAvatar(
                 child: user.profilePicUrl == null
-                    ? Text(getInitials(user.name),
+                    ? Text(
+                        user.name.startsWith('+')
+                            ? '+'
+                            : getInitials(user.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
                 backgroundImage: user.profilePicUrl != null

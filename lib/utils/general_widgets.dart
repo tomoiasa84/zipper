@@ -114,11 +114,11 @@ GestureDetector buildBackButton(IconData iconData, Function onClickAction) {
   );
 }
 
-List<Widget> generateSkills(List<UserTag> userTag, Function onTapAction,
+List<Widget> generateTags(List<UserTag> userTag, Function onTapAction,
     Function onStarsTapAction, String noReviewsMessage) {
-  List<Widget> skills = [];
+  List<Widget> tags = [];
   userTag.forEach((item) {
-    skills.add(
+    tags.add(
       Container(
         padding: const EdgeInsets.symmetric(vertical: 10.0),
         child: Row(
@@ -173,10 +173,10 @@ List<Widget> generateSkills(List<UserTag> userTag, Function onTapAction,
       ),
     );
   });
-  if (skills.length > 5) {
-    return skills.sublist(0, 5);
+  if (tags.length > 5) {
+    return tags.sublist(0, 5);
   } else {
-    return skills;
+    return tags;
   }
 }
 
@@ -271,7 +271,10 @@ Widget generateContactUI(
               decoration: new BoxDecoration(shape: BoxShape.circle),
               child: CircleAvatar(
                 child: userRec.profilePicUrl == null
-                    ? Text(getInitials(userRec.name),
+                    ? Text(
+                        userRec.name.startsWith('+')
+                            ? '+'
+                            : getInitials(userRec.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
                 backgroundImage: userRec.profilePicUrl != null

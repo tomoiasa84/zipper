@@ -15,7 +15,7 @@ class ChatBloc {
   String _timestamp = "0";
   List<UserMessage> _messagesList;
   Repository _repository = Repository();
-  final int _numberOfMessagesToFetch = 200;
+  final int _numberOfMessagesToFetch = 100;
   final StreamController ctrl = StreamController();
 
   Future<QueryResult> getUserById(String userId) async {

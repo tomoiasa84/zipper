@@ -96,6 +96,7 @@ class ApiProvider {
                             postedBy{
                                 id
                                 name
+                                profileURL
                             }
                             text
                             recommandsCount
@@ -319,13 +320,103 @@ class ApiProvider {
                     get_conversation(conversationId: "$conversationId"){
                       id
                       user1{
-                        id
-                        name
-                      }
+                          id
+                          name
+                          profileURL
+                          tags{
+                          id
+                          user{
+                            id
+                            name
+                          }
+                          tag{
+                            id
+                            name
+                          }
+                          score
+                          reviews{
+                            author{
+                              profileURL
+                              name
+                            }
+                            stars
+                           userTag{
+                            id
+                            tag{
+                              name
+                            }
+                            user{
+                              name
+                            }
+                            reviews{
+                              id
+                              author{
+                                profileURL
+                                name
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
+                          }
+                            text
+                          }
+                          default
+                        }
+                        }
                       user2{
-                        id
-                        name
-                      }
+                          id
+                          name
+                          profileURL
+                          tags{
+                          id
+                          user{
+                            id
+                            name
+                          }
+                          tag{
+                            id
+                            name
+                          }
+                          score
+                          reviews{
+                            author{
+                              profileURL
+                              name
+                            }
+                            stars
+                           userTag{
+                            id
+                            tag{
+                              name
+                            }
+                            user{
+                              name
+                            }
+                            reviews{
+                              id
+                              author{
+                                profileURL
+                                name
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
+                          }
+                            text
+                          }
+                          default
+                        }
+                        }
                     }
                    }''',
     ));

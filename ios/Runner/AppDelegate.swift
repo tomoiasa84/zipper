@@ -19,6 +19,7 @@ import Firebase
         application.registerForRemoteNotifications()
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
+    
     override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.unknown)
     }
@@ -39,6 +40,12 @@ import Firebase
             print(channelInfo)
             openChatScreen(conversationId: channelInfo)
         }
+        
+        if let cardId = userInfo["cardId"] as? Int {
+            print(cardId)
+            openCardDetailsScreen(cardId: cardId)
+        }
+        
         completionHandler(UIBackgroundFetchResult.newData)
     }
     
@@ -48,16 +55,28 @@ import Firebase
         completionHandler: @escaping () -> Void) {
         
         print(response.notification.request.content.userInfo)
-        openChatScreen(conversationId: response.notification.request.content.userInfo["channelId"] as! String)
+        
+        if let cardId = response.notification.request.content.userInfo["cardId"] as? String {
+            print(cardId)
+            let intCardId = Int(cardId)!
+            openCardDetailsScreen(cardId: intCardId)
+        } else {
+            openChatScreen(conversationId: response.notification.request.content.userInfo["channelId"] as! String)
+        }
+        
+   
         return completionHandler()
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        let messageAuthor = notification.request.content.userInfo["messageAuthor"] as! String
-        if (currentUserId != messageAuthor){
-             completionHandler([.alert, .badge, .sound])
+        if let messageAuthor = notification.request.content.userInfo["messageAuthor"] as? String{
+            if (currentUserId != messageAuthor){
+                 completionHandler([.alert, .badge, .sound])
+            } else {
+                completionHandler([])
+            }
         } else {
-            completionHandler([])
+            completionHandler([.alert, .badge, .sound])
         }
     }
     
@@ -70,6 +89,17 @@ import Firebase
             codec: FlutterStringCodec.sharedInstance())
         
         channel.sendMessage(conversationId)
+    }
+    
+    func openCardDetailsScreen(cardId: Int){
+        let rootViewController : FlutterViewController = window?.rootViewController as! FlutterViewController
+        
+        let channel = FlutterBasicMessageChannel(
+            name: "iosRecommendationTapped",
+            binaryMessenger: rootViewController as! FlutterBinaryMessenger,
+            codec: FlutterStringCodec.sharedInstance())
+        
+        channel.sendMessage(String(cardId))
     }
     
     func getCurrentUserId(){

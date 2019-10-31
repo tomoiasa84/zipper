@@ -111,8 +111,8 @@ class SendInChatScreenState extends State<SendInChatScreen> {
           .then((messageSent) {
         if (messageSent) {
           Navigator.of(context).pushReplacement(new MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  ChatScreen(pubNubConversation: pubNubConversation, maybePop: true)));
+              builder: (BuildContext context) => ChatScreen(
+                  pubNubConversation: pubNubConversation, maybePop: true)));
         } else {
           print('Could not send message');
         }
@@ -136,8 +136,8 @@ class SendInChatScreenState extends State<SendInChatScreen> {
           .then((messageSent) {
         if (messageSent) {
           Navigator.of(context).pushReplacement(new MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  ChatScreen(pubNubConversation: pubNubConversation, maybePop: true)));
+              builder: (BuildContext context) => ChatScreen(
+                  pubNubConversation: pubNubConversation, maybePop: true)));
         } else {
           print('Could not send message');
         }
@@ -300,7 +300,10 @@ class SendInChatScreenState extends State<SendInChatScreen> {
               ),
               child: CircleAvatar(
                 child: usersList.elementAt(index).profilePicUrl == null
-                    ? Text(getInitials(usersList.elementAt(index).name),
+                    ? Text(
+                        usersList.elementAt(index).name.startsWith('+')
+                            ? '+'
+                            : getInitials(usersList.elementAt(index).name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
                 backgroundImage:

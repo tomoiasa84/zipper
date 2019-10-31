@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:collection/collection.dart';
 import 'package:contractor_search/bloc/home_content_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/send_in_chat_screen.dart';
@@ -14,6 +15,12 @@ import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class HomeContentScreen extends StatefulWidget {
+  final User user;
+  final Function onUserUpdated;
+
+  const HomeContentScreen({Key key, this.user, this.onUserUpdated})
+      : super(key: key);
+
   @override
   HomeContentScreenState createState() => HomeContentScreenState();
 }
@@ -23,9 +30,32 @@ class HomeContentScreenState extends State<HomeContentScreen> {
   HomeContentBloc _homeContentBloc;
   List<CardModel> _cardsList = [];
 
+  Function eq = const ListEquality().equals;
+
   @override
   void initState() {
-    getCards();
+    if (widget.user != null) {
+      _cardsList.clear();
+      _cardsList.addAll(widget.user.cardsConnections);
+      _cardsList = _cardsList.reversed.toList();
+      _homeContentBloc = HomeContentBloc();
+      _homeContentBloc.getCurrentUser().then((result) {
+        if (result.errors == null && mounted) {
+          User currentUser = User.fromJson(result.data['get_user']);
+          widget.onUserUpdated(currentUser);
+          if (currentUser != null && currentUser.cardsConnections != null) {
+            if (_cardsList != currentUser.cardsConnections) {
+              _cardsList = currentUser.cardsConnections;
+              setState(() {
+                _cardsList = _cardsList.reversed.toList();
+              });
+            }
+          }
+        }
+      });
+    } else {
+      getCards();
+    }
     super.initState();
   }
 
@@ -39,6 +69,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     _homeContentBloc.getCurrentUser().then((result) {
       if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);
+        widget.onUserUpdated(currentUser);
         if (currentUser != null && currentUser.cardsConnections != null) {
           _cardsList.addAll(currentUser.cardsConnections);
           setState(() {
@@ -168,7 +199,10 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       children: <Widget>[
         CircleAvatar(
           child: card.postedBy.profilePicUrl == null
-              ? Text(getInitials(card.postedBy.name),
+              ? Text(
+                  card.postedBy.name.startsWith('+')
+                      ? '+'
+                      : getInitials(card.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: card.postedBy.profilePicUrl != null
@@ -189,8 +223,10 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    UserDetailsScreen(card.postedBy.id)));
+                                builder: (context) => UserDetailsScreen(
+                                      user: card.postedBy,
+                                      currentUser: widget.user,
+                                    )));
                       },
                       child: Text(card.postedBy.name,
                           style: TextStyle(fontWeight: FontWeight.bold)),
@@ -278,6 +314,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
         MaterialPageRoute(
             builder: (context) => CardDetailsScreen(
                   cardId: card.id,
+                  maybePop: false,
                 )));
     _cardsList.clear();
     getCards();

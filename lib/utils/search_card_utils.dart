@@ -103,7 +103,10 @@ class SearchCard extends SearchDelegate<String> {
       children: <Widget>[
         CircleAvatar(
           child: card.postedBy.profilePicUrl == null
-              ? Text(getInitials(card.postedBy.name),
+              ? Text(
+                  card.postedBy.name.startsWith('+')
+                      ? '+'
+                      : getInitials(card.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: card.postedBy.profilePicUrl != null
@@ -126,7 +129,7 @@ class SearchCard extends SearchDelegate<String> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    UserDetailsScreen(card.postedBy.id)));
+                                    UserDetailsScreen(user:card.postedBy)));
                       },
                       child: Text(card.postedBy.name,
                           style: TextStyle(fontWeight: FontWeight.bold)),

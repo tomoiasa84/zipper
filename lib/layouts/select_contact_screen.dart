@@ -72,8 +72,8 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
   void _startConversation(User user) {
     _selectContactBloc.createConversation(user).then((pubNubConversation) {
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (BuildContext context) =>
-              ChatScreen(pubNubConversation: pubNubConversation, maybePop: true)));
+          builder: (BuildContext context) => ChatScreen(
+              pubNubConversation: pubNubConversation, maybePop: true)));
     });
   }
 
@@ -140,7 +140,8 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
             },
             leading: CircleAvatar(
               child: user.profilePicUrl == null
-                  ? Text(getInitials(user.name),
+                  ? Text(
+                      user.name.startsWith('+') ? '+' : getInitials(user.name),
                       style: TextStyle(color: ColorUtils.darkerGray))
                   : null,
               backgroundImage: user.profilePicUrl != null

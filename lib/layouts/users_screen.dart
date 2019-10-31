@@ -13,6 +13,12 @@ import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class UsersScreen extends StatefulWidget {
+  final User user;
+  final Function updateCurrentUser;
+
+  const UsersScreen({Key key, this.user, this.updateCurrentUser})
+      : super(key: key);
+
   @override
   UsersScreenState createState() {
     return UsersScreenState();
@@ -20,27 +26,42 @@ class UsersScreen extends StatefulWidget {
 }
 
 class UsersScreenState extends State<UsersScreen> {
-  UsersBloc _contactsBloc;
+  UsersBloc _usersBloc;
   List<User> _usersList = [];
 
   bool _saving = false;
 
+  User _user;
+
   @override
   void initState() {
-    getCurrentUserConnections();
+    if (widget.user != null) {
+      _user = widget.user;
+      _user.connections.forEach((connection) {
+        _usersList.add(connection.targetUser);
+      });
+      _usersList.sort((a, b) {
+        return b.isActive.toString().compareTo(a.isActive.toString());
+      });
+      _checkUsersUpdates();
+    } else {
+      getCurrentUserConnections();
+    }
     super.initState();
   }
 
   void getCurrentUserConnections() {
-    _contactsBloc = UsersBloc();
+    _usersBloc = UsersBloc();
     if (mounted) {
       setState(() {
         _saving = true;
       });
     }
-    _contactsBloc.getCurrentUser().then((result) {
+    _usersBloc.getCurrentUser().then((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
+        _user = currentUser;
+        widget.updateCurrentUser(currentUser);
         currentUser.connections.forEach((connection) {
           _usersList.add(connection.targetUser);
         });
@@ -59,17 +80,48 @@ class UsersScreenState extends State<UsersScreen> {
     });
   }
 
+  void _checkUsersUpdates() {
+    _usersBloc = UsersBloc();
+    _usersBloc.getCurrentUser().then((result) {
+      if (result.errors == null) {
+        User newUser = User.fromJson(result.data['get_user']);
+        _user = newUser;
+        widget.updateCurrentUser(newUser);
+        List<User> targetUsersList = [];
+        newUser.connections.forEach((item) {
+          targetUsersList.add(item.targetUser);
+        });
+        if (_usersList.length != targetUsersList.length) {
+          _usersList = targetUsersList;
+          if (mounted) {
+            setState(() {
+              _saving = false;
+              _usersList.sort((a, b) {
+                return b.isActive.toString().compareTo(a.isActive.toString());
+              });
+            });
+          }
+        }
+      } else {
+        setState(() {
+          _saving = false;
+        });
+      }
+    });
+  }
+
   void _showDialog(String title, String description) {
     setState(() {
       _saving = false;
     });
     showDialog(
       context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: description,
-        buttonText: Localization.of(context).getString("ok"),
-      ),
+      builder: (BuildContext context) =>
+          CustomDialog(
+            title: title,
+            description: description,
+            buttonText: Localization.of(context).getString("ok"),
+          ),
     );
   }
 
@@ -113,10 +165,19 @@ class UsersScreenState extends State<UsersScreen> {
   }
 
   navigateToUserDetailsScreen(user) async {
-    await Navigator.push(context,
-        MaterialPageRoute(builder: (context) => UserDetailsScreen(user.id)));
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                UserDetailsScreen(
+                  user: user,
+                  currentUser: _user,
+                )));
     _usersList.clear();
-    getCurrentUserConnections();
+    setState(() {
+      _saving = true;
+    });
+    _checkUsersUpdates();
   }
 
   ListView _buildUsersListView() {
@@ -148,8 +209,8 @@ class UsersScreenState extends State<UsersScreen> {
           },
           leading: CircleAvatar(
             child: user.profilePicUrl == null
-                ? Text(getInitials(user.name),
-                    style: TextStyle(color: ColorUtils.darkerGray))
+                ? Text(user.name.startsWith('+') ? '+' : getInitials(user.name),
+                style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
             backgroundImage: user.profilePicUrl != null
                 ? NetworkImage(user.profilePicUrl)
@@ -161,29 +222,29 @@ class UsersScreenState extends State<UsersScreen> {
               Flexible(
                 child: Container(
                     child: Text(
-                  user.isActive ? user.name : user.phoneNumber,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      fontFamily: 'Arial', fontWeight: FontWeight.bold),
-                )),
+                      user.isActive ? user.name : user.phoneNumber,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontFamily: 'Arial', fontWeight: FontWeight.bold),
+                    )),
               ),
               user.isActive
                   ? Container(
-                      padding: const EdgeInsets.only(left: 4.0),
-                      child: Image.asset(
-                        "assets/images/ic_contacts.png",
-                        height: 16.0,
-                        width: 16.0,
-                      ),
-                    )
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Image.asset(
+                  "assets/images/ic_contacts.png",
+                  height: 16.0,
+                  width: 16.0,
+                ),
+              )
                   : Container()
             ],
           ),
           subtitle: user.isActive && mainTag != null
               ? Text(
-                  '#' + mainTag.tag.name,
-                  style: TextStyle(color: ColorUtils.messageOrange),
-                )
+            '#' + mainTag.tag.name,
+            style: TextStyle(color: ColorUtils.messageOrange),
+          )
               : null,
         ),
       ),

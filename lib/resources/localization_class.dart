@@ -42,7 +42,7 @@ class Localization {
       'ok': 'Ok',
       'nameValidation': 'Please provide a valid name',
       'locationValidation': 'Please provide a valid location',
-      'phoneNumberValidation': '#### (###) ### - Enter a valid phone number',
+      'phoneNumberValidation': '+# ###-###-#### - Enter a valid phone number',
       'verificationCodeValidation': 'The verification code cannot be empty',
       'loginErrorMessage':
           'There is no user associated with this phone number.',
@@ -74,8 +74,8 @@ class Localization {
       'housekeeper': '#housekeeper',
       'tagValidation': 'This field cannot be empty',
       'bio': 'Bio',
-      'skills': 'Skills',
-      'addMoreSkills': 'Add more skills',
+      'tags': 'Tags',
+      'addMoreTags': 'Add more tags',
       'add': 'Add',
       'LoadMoreStatus.loading': 'Loading messages',
       'LoadMoreStatus.fail': 'Could not load messages',
@@ -111,7 +111,7 @@ class Localization {
       'addATag': 'Add a tag',
       'deletePost': 'Delete Post',
       'recommendedBy': 'Recommended by ',
-      'tapOnSkillToLeaveAReview': 'Tap on skill to leave a review',
+      'tapOnTagToLeaveAReview': 'Tap on tag to leave a review',
       'leaveReview': 'Leave review',
       'typeAMessage': 'Type a message...',
       'publishReview': 'Publish Review',
@@ -160,8 +160,9 @@ class Localization {
       'deselectAll': 'Deselect all',
       'yourSessionExpired': 'Your session expired!',
       'pleaseLoginAgain': 'Please login again.',
-      'resendSmsCodeMessage': 'Please check your phone for the verification code.',
-      'imLookingFor' : 'I\'m looking for '
+      'resendSmsCodeMessage':
+          'Please check your phone for the verification code.',
+      'imLookingFor': 'I\'m looking for '
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -194,7 +195,7 @@ class Localization {
       'nameValidation': 'Introduceti un nume valid',
       'locationValidation': 'Introduceti o locatie valida',
       'phoneNumberValidation':
-          '#### (###) ### - Introduceti un numar de telefon valid',
+          '+# ###-###-#### - Introduceti un numar de telefon valid',
       'verificationCodeValidation': 'Introduceti codul de verificare',
       'loginErrorMessage':
           'Nu exista nici un cont asociat cu acest numar de telefon.',
@@ -226,8 +227,8 @@ class Localization {
       'housekeeper': '#housekeeper',
       'tagValidation': 'Campul nu trebuie sa fie gol.',
       'bio': 'Bio',
-      'skills': 'Abilitati',
-      'addMoreSkills': 'Adauga abilitati',
+      'tags': 'Abilitati',
+      'addMoreTags': 'Adauga abilitati',
       'add': 'Adauga',
       'LoadMoreStatus.loading': 'Se incarca mesajele',
       'LoadMoreStatus.fail': 'Mesajele nu au putut fi incarcate',
@@ -263,8 +264,7 @@ class Localization {
       'addATag': 'Adauga un tag',
       'deletePost': 'Sterge Postarea',
       'recommendedBy': 'Recomandat de ',
-      'tapOnSkillToLeaveAReview':
-          'Apasa pe o abilitate pentru a lasa o recenzie',
+      'tapOnTagToLeaveAReview': 'Apasa pe o abilitate pentru a lasa o recenzie',
       'leaveReview': 'Lasa o recenzie',
       'typeAMessage': 'Scrie un mesaj...',
       'publishReview': 'Publica Recenzia',
@@ -314,7 +314,7 @@ class Localization {
       'yourSessionExpired': 'Sesiunea a expirat!',
       'pleaseLoginAgain': 'Va rugam sa va autentificati din nou..',
       'resendSmsCodeMessage': 'Verificati mesageria pentru a gasi codul.',
-      'imLookingFor' : 'Caut'
+      'imLookingFor': 'Caut'
     },
   };
 

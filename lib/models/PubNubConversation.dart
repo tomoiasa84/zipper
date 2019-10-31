@@ -22,7 +22,6 @@ class PubNubConversation {
     this._user2 = conversationModel.user2;
   }
 
-
   set user1(User value) {
     _user1 = value;
   }
@@ -41,9 +40,12 @@ class PubNubConversation {
 
   LastMessage get lastMessage => _lastMessage;
 
+  Map<String, dynamic> toJson() => {'id': id, 'user1': _user1, 'user2': _user2};
+
   PubNubConversation.fromJson(Map<String, dynamic> json)
-      : _timeToken = json['timetoken'],
-        _lastMessage = json['message'];
+      : _id = json['id'],
+        _user1 = json['user1'] != null ? User.fromJson(json['user1']) : null,
+        _user2 = json['user2'] != null ? User.fromJson(json['user2']) : null;
 
   User get user2 => _user2;
 

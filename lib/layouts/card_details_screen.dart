@@ -8,6 +8,7 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -16,8 +17,10 @@ import 'chat_screen.dart';
 
 class CardDetailsScreen extends StatefulWidget {
   final int cardId;
+  final bool maybePop;
 
-  const CardDetailsScreen({Key key, this.cardId}) : super(key: key);
+  const CardDetailsScreen({Key key, this.cardId, this.maybePop})
+      : super(key: key);
 
   @override
   CardDetailsScreenState createState() => CardDetailsScreenState();
@@ -56,13 +59,21 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     });
   }
 
+  Future<bool> _saveLastRecommendation() async {
+    return SharedPreferencesHelper.saveCardRecommendsCount(
+        _card.id.toString(), _card.recommendsCount);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ModalProgressHUD(
-      inAsyncCall: _saving,
-      child: Scaffold(
-        appBar: _buildAppBar(),
-        body: _buildContent(),
+    return WillPopScope(
+      onWillPop: _saveLastRecommendation,
+      child: ModalProgressHUD(
+        inAsyncCall: _saving,
+        child: Scaffold(
+          appBar: _buildAppBar(),
+          body: _buildContent(),
+        ),
       ),
     );
   }
@@ -78,7 +89,11 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       ),
       centerTitle: true,
       leading: buildBackButton(Icons.arrow_back, () {
-        Navigator.pop(context);
+        if (widget.maybePop) {
+          Navigator.maybePop(context);
+        } else {
+          Navigator.pop(context);
+        }
       }),
     );
   }
@@ -235,10 +250,16 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                                 .profilePicUrl ==
                             null
                         ? Text(
-                            getInitials(_card.recommendsList
-                                .elementAt(index)
-                                .userRecommend
-                                .name),
+                            _card.recommendsList
+                                    .elementAt(index)
+                                    .userRecommend
+                                    .name
+                                    .startsWith('+')
+                                ? '+'
+                                : getInitials(_card.recommendsList
+                                    .elementAt(index)
+                                    .userRecommend
+                                    .name),
                             style: TextStyle(color: ColorUtils.darkerGray))
                         : null,
                     backgroundImage: _card.recommendsList
@@ -282,11 +303,11 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => UserDetailsScreen(_card
+                                  builder: (context) => UserDetailsScreen(user:_card
                                       .recommendsList
                                       .elementAt(index)
                                       .userSend
-                                      .id)));
+                                      )));
                         }
                       });
                     },
@@ -344,7 +365,10 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       children: <Widget>[
         CircleAvatar(
           child: _card.postedBy.profilePicUrl == null
-              ? Text(getInitials(_card.postedBy.name),
+              ? Text(
+                  _card.postedBy.name.startsWith('+')
+                      ? '+'
+                      : getInitials(_card.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: _card.postedBy.profilePicUrl != null

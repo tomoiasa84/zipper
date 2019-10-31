@@ -1,3 +1,6 @@
+import 'dart:convert' as convert;
+
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesHelper {
@@ -52,16 +55,45 @@ class SharedPreferencesHelper {
     return prefs.setString(_currentUserName, value);
   }
 
-  static Future<String> getLastMessageTimestamp(String conversation) async {
+  static Future<PubNubConversation> getConversation(
+      String conversationId) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(conversation) ?? "";
+    var conversationEncoded = prefs.getString(conversationId);
+    if (conversationEncoded != null && conversationEncoded.length > 0) {
+      return PubNubConversation.fromJson(
+          convert.jsonDecode(conversationEncoded));
+    } else {
+      return null;
+    }
+  }
+
+  static Future<bool> saveConversation(PubNubConversation conversation) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setString(
+        conversation.id, convert.jsonEncode(conversation.toJson()));
+  }
+
+  static Future<String> getLastMessageTimestamp(String conversationId) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString("last_message:$conversationId") ?? "";
   }
 
   static Future<bool> saveLastMessage(
-      String conversation, DateTime lastMessageTimestamp) async {
+      String conversationId, DateTime lastMessageTimestamp) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setString(
-        conversation, lastMessageTimestamp.toIso8601String());
+        "last_message:$conversationId", lastMessageTimestamp.toIso8601String());
+  }
+
+  static Future<int> getCardRecommendsCount(String cardId) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(cardId) ?? null;
+  }
+
+  static Future<bool> saveCardRecommendsCount(
+      String cardId, int numberOfRecommends) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setInt(cardId, numberOfRecommends);
   }
 
   static Future<bool> getSyncContactsFlag() async {

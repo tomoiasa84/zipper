@@ -2,14 +2,15 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:contractor_search/bloc/home_bloc.dart';
+import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/layouts/home_content_screen.dart';
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PushNotification.dart';
 import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
-import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +39,11 @@ class _HomePageState extends State<HomePage> {
   UserMessage _message;
   var _notificationsChannel =
       BasicMessageChannel<String>('iosNotificationTapped', StringCodec());
-  var _currentUserChannel = BasicMessageChannel<String>('currentUserId', StringCodec());
+  var _currentUserChannel =
+      BasicMessageChannel<String>('currentUserId', StringCodec());
+  var _recommendationChannel =
+      BasicMessageChannel<String>('iosRecommendationTapped', StringCodec());
+  User _user;
 
   @override
   void initState() {
@@ -46,27 +51,35 @@ class _HomePageState extends State<HomePage> {
     if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
     }
+    _homeBloc.getCurrentUser().then((result) {
+      if (result.errors == null) {
+        _user = User.fromJson(result.data['get_user']);
+      }
+    });
     _initFirebaseClientMessaging();
     _initLocalNotifications();
     _homeBloc.updateDeviceToken();
-    SharedPreferencesHelper.getCurrentUserId().then((currentUserId){
+    SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
       _currentUserChannel.send(currentUserId);
     });
-
-
 
     _notificationsChannel.setMessageHandler((String message) async {
       print('Received: $message');
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-              builder: (context) => ChatScreen(conversationId: message,  maybePop: true,)),
+              builder: (context) => ChatScreen(
+                    conversationId: message,
+                    maybePop: true,
+                  )),
           ModalRoute.withName("/"));
       return '';
     });
-
-
-
+    _recommendationChannel.setMessageHandler((String message) async {
+      print('Received: $message');
+      _goToCardDetailsScreen(int.parse(message));
+      return '';
+    });
 
     super.initState();
   }
@@ -116,11 +129,32 @@ class _HomePageState extends State<HomePage> {
   Future onSelectNotification(String payload) async {
     print('Notification tapped');
 
+    if (_message.cardId != null) {
+      _goToCardDetailsScreen(_message.cardId);
+    } else {
+      _goToChatScreen();
+    }
+  }
+
+  void _goToCardDetailsScreen(int cardId) {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                ChatScreen(conversationId: _message.channelId, maybePop: true,)),
+            builder: (context) => CardDetailsScreen(
+                  cardId: cardId,
+                  maybePop: true,
+                )),
+        ModalRoute.withName("/"));
+  }
+
+  void _goToChatScreen() {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ChatScreen(
+                  conversationId: _message.channelId,
+                  maybePop: true,
+                )),
         ModalRoute.withName("/"));
   }
 
@@ -138,8 +172,8 @@ class _HomePageState extends State<HomePage> {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    ChatScreen(conversationId: _message.channelId, maybePop: true)),
+                builder: (context) => ChatScreen(
+                    conversationId: _message.channelId, maybePop: true)),
             ModalRoute.withName("/"));
       },
       onLaunch: (Map<String, dynamic> message) async {
@@ -148,8 +182,8 @@ class _HomePageState extends State<HomePage> {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    ChatScreen(conversationId: _message.channelId, maybePop: true)),
+                builder: (context) => ChatScreen(
+                    conversationId: _message.channelId, maybePop: true)),
             ModalRoute.withName("/"));
       },
     );
@@ -184,17 +218,31 @@ class _HomePageState extends State<HomePage> {
                 (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
               switch (snapshot.data) {
                 case NavBarItem.HOME:
-                  return HomeContentScreen();
+                  return HomeContentScreen(
+                    user: _user,
+                    onUserUpdated: (user) {
+                      _user = user;
+                    },
+                  );
                 case NavBarItem.CONTACTS:
-                  return UsersScreen();
+                  return UsersScreen(
+                    user: _user,
+                    updateCurrentUser: (newUser) {
+                      _user = newUser;
+                    },
+                  );
                 case NavBarItem.PLUS:
                   return Container();
                 case NavBarItem.INBOX:
                   return ConversationsScreen();
                 case NavBarItem.ACCOUNT:
                   return AccountScreen(
+                    user: _user,
                     onChanged: _onBlurredChanged,
                     isStartedFromHomeScreen: true,
+                    onUserChanged: (user) {
+                      _user = user;
+                    },
                   );
                 default:
                   return Container();
@@ -270,8 +318,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _goToAddCardScreen() async {
-    var result = await Navigator.of(context).push(
-        MaterialPageRoute(builder: (BuildContext context) => AddCardScreen()));
+    var result = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) => AddCardScreen(
+              user: _user,
+              updateUser: (newUser) {
+                _user = newUser;
+              },
+            )));
     _homeBloc.pickItem(0);
     if (result != null) {
       showDialog(

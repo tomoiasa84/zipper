@@ -138,9 +138,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<bool> _saveLastMessage() async {
-    if(_listOfMessages.isNotEmpty) {
+    if (_listOfMessages.isNotEmpty) {
       var item = _listOfMessages[0] as UserMessage;
-     return  SharedPreferencesHelper.saveLastMessage(
+      return SharedPreferencesHelper.saveLastMessage(
           _pubNubConversation.id, item.timestamp);
     }
     return true;
@@ -150,14 +150,17 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     _pubNubConversation = widget.pubNubConversation;
-    _initScreen();
-    _controller.addListener(_scrollListener);
-    _loadMore().then((onValue) {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-        });
-      }
+    _initScreen().then((value) {
+      _controller.addListener(_scrollListener);
+      _loadMore().then((onValue) {
+        if (mounted) {
+          setState(() {
+            _loading = false;
+          });
+        } else {
+          print('NOT LOADED');
+        }
+      });
     });
   }
 
@@ -174,16 +177,19 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future _initScreen() async {
     return getCurrentUserId().then((currentUserId) async {
-      await _setMessagesListener(currentUserId);
       if (_pubNubConversation == null) {
-        await _chatBloc
-            .getConversation(widget.conversationId)
-            .then((pubNubConversation) {
+        await SharedPreferencesHelper.getConversation(widget.conversationId)
+            .then((pubNubConversation) async {
           setState(() {
             _pubNubConversation = pubNubConversation;
           });
+          if (_pubNubConversation == null) {
+            await _getConversationFromDb(currentUserId);
+          }
         });
       }
+
+      await _setMessagesListener(_pubNubConversation.id, currentUserId);
 
       setState(() {
         if (currentUserId == _pubNubConversation.user1.id) {
@@ -194,27 +200,21 @@ class _ChatScreenState extends State<ChatScreen> {
           _interlocutorUser = _pubNubConversation.user1;
         }
       });
-
-      await getConversationsUsers();
     });
   }
 
-  getConversationsUsers() async {
-    await _chatBloc.getUserById(_currentUser.id).then((result) {
-      if (result.data != null && mounted) {
+  Future _getConversationFromDb(String currentUserId) async {
+    if (_pubNubConversation == null) {
+      await _chatBloc
+          .getConversation(widget.conversationId)
+          .then((pubNubConversation) {
         setState(() {
-          _currentUser = User.fromJson(result.data['get_user']);
+          _pubNubConversation = pubNubConversation;
         });
-      }
-    });
+      });
+    }
 
-    await _chatBloc.getUserById(_interlocutorUser.id).then((result) {
-      if (result.data != null && mounted) {
-        setState(() {
-          _interlocutorUser = User.fromJson(result.data['get_user']);
-        });
-      }
-    });
+    SharedPreferencesHelper.saveConversation(_pubNubConversation);
   }
 
   Future<bool> _loadMore() async {
@@ -237,8 +237,9 @@ class _ChatScreenState extends State<ChatScreen> {
     return true;
   }
 
-  Future _setMessagesListener(String currentUserId) async {
-    _chatBloc.subscribeToChannel(_pubNubConversation.id, currentUserId);
+  Future _setMessagesListener(
+      String conversationId, String currentUserId) async {
+    _chatBloc.subscribeToChannel(conversationId, currentUserId);
     _subscription = _chatBloc.ctrl.stream.listen((message) {
       if (mounted) {
         setState(() {
@@ -553,7 +554,10 @@ class _ChatScreenState extends State<ChatScreen> {
             height: 32,
             child: CircleAvatar(
               child: _currentUser.profilePicUrl == null
-                  ? Text(getInitials(_currentUser.name),
+                  ? Text(
+                      _currentUser.name.startsWith('+')
+                          ? '+'
+                          : getInitials(_currentUser.name),
                       style: TextStyle(color: ColorUtils.darkerGray))
                   : null,
               backgroundImage: _currentUser.profilePicUrl != null
@@ -609,7 +613,10 @@ class _ChatScreenState extends State<ChatScreen> {
             height: 32,
             child: CircleAvatar(
               child: _currentUser.profilePicUrl == null
-                  ? Text(getInitials(_currentUser.name),
+                  ? Text(
+                      _currentUser.name.startsWith('+')
+                          ? '+'
+                          : getInitials(_currentUser.name),
                       style: TextStyle(color: ColorUtils.darkerGray))
                   : null,
               backgroundImage: _currentUser.profilePicUrl != null
@@ -638,7 +645,10 @@ class _ChatScreenState extends State<ChatScreen> {
               height: 32,
               child: CircleAvatar(
                 child: _interlocutorUser.profilePicUrl == null
-                    ? Text(getInitials(_interlocutorUser.name),
+                    ? Text(
+                        _interlocutorUser.name.startsWith('+')
+                            ? '+'
+                            : getInitials(_interlocutorUser.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
                 backgroundImage: _interlocutorUser.profilePicUrl != null
@@ -689,7 +699,10 @@ class _ChatScreenState extends State<ChatScreen> {
               height: 32,
               child: CircleAvatar(
                 child: _interlocutorUser.profilePicUrl == null
-                    ? Text(getInitials(_interlocutorUser.name),
+                    ? Text(
+                        _interlocutorUser.name.startsWith('+')
+                            ? '+'
+                            : getInitials(_interlocutorUser.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
                 backgroundImage: _interlocutorUser.profilePicUrl != null
@@ -852,6 +865,7 @@ class _ChatScreenState extends State<ChatScreen> {
             MaterialPageRoute(
                 builder: (context) => CardDetailsScreen(
                       cardId: cardModel.id,
+                      maybePop: false,
                     )));
       },
       child: Padding(
@@ -885,7 +899,10 @@ class _ChatScreenState extends State<ChatScreen> {
       children: <Widget>[
         CircleAvatar(
           child: cardModel.postedBy.profilePicUrl == null
-              ? Text(getInitials(cardModel.postedBy.name),
+              ? Text(
+                  cardModel.postedBy.name.startsWith('+')
+                      ? '+'
+                      : getInitials(cardModel.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: cardModel.postedBy.profilePicUrl != null
