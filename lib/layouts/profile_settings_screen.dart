@@ -617,12 +617,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               this._addTagsTextEditingController.text = '#' + suggestion;
               _addTag();
             },
-            validator: (value) {
-              if (value.isEmpty) {
-                return Localization.of(context).getString('locationValidation');
-              }
-              return null;
-            },
           ),
         ],
       ),

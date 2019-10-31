@@ -227,8 +227,8 @@ class _HomePageState extends State<HomePage> {
                 case NavBarItem.CONTACTS:
                   return UsersScreen(
                     user: _user,
-                    updateCurrentUser: (newUser) {
-                      _user = newUser;
+                    updateCurrentUser: (connections) {
+                      _user.connections = connections;
                     },
                   );
                 case NavBarItem.PLUS:

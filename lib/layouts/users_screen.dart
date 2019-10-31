@@ -28,9 +28,7 @@ class UsersScreen extends StatefulWidget {
 class UsersScreenState extends State<UsersScreen> {
   UsersBloc _usersBloc;
   List<User> _usersList = [];
-
   bool _saving = false;
-
   User _user;
 
   @override
@@ -57,11 +55,11 @@ class UsersScreenState extends State<UsersScreen> {
         _saving = true;
       });
     }
-    _usersBloc.getCurrentUser().then((result) {
+    _usersBloc.getCurrentUserWithConnections().then((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
-        _user = currentUser;
-        widget.updateCurrentUser(currentUser);
+        _user.connections = currentUser.connections;
+        widget.updateCurrentUser(currentUser.connections);
         currentUser.connections.forEach((connection) {
           _usersList.add(connection.targetUser);
         });
@@ -82,11 +80,11 @@ class UsersScreenState extends State<UsersScreen> {
 
   void _checkUsersUpdates() {
     _usersBloc = UsersBloc();
-    _usersBloc.getCurrentUser().then((result) {
+    _usersBloc.getCurrentUserWithConnections().then((result) {
       if (result.errors == null) {
         User newUser = User.fromJson(result.data['get_user']);
-        _user = newUser;
-        widget.updateCurrentUser(newUser);
+        _user.connections = newUser.connections;
+        widget.updateCurrentUser(newUser.connections);
         List<User> targetUsersList = [];
         newUser.connections.forEach((item) {
           targetUsersList.add(item.targetUser);
@@ -116,12 +114,11 @@ class UsersScreenState extends State<UsersScreen> {
     });
     showDialog(
       context: context,
-      builder: (BuildContext context) =>
-          CustomDialog(
-            title: title,
-            description: description,
-            buttonText: Localization.of(context).getString("ok"),
-          ),
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: description,
+        buttonText: Localization.of(context).getString("ok"),
+      ),
     );
   }
 
@@ -168,8 +165,7 @@ class UsersScreenState extends State<UsersScreen> {
     await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                UserDetailsScreen(
+            builder: (context) => UserDetailsScreen(
                   user: user,
                   currentUser: _user,
                 )));
@@ -210,7 +206,7 @@ class UsersScreenState extends State<UsersScreen> {
           leading: CircleAvatar(
             child: user.profilePicUrl == null
                 ? Text(user.name.startsWith('+') ? '+' : getInitials(user.name),
-                style: TextStyle(color: ColorUtils.darkerGray))
+                    style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
             backgroundImage: user.profilePicUrl != null
                 ? NetworkImage(user.profilePicUrl)
@@ -222,29 +218,29 @@ class UsersScreenState extends State<UsersScreen> {
               Flexible(
                 child: Container(
                     child: Text(
-                      user.isActive ? user.name : user.phoneNumber,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontFamily: 'Arial', fontWeight: FontWeight.bold),
-                    )),
+                  user.isActive ? user.name : user.phoneNumber,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontFamily: 'Arial', fontWeight: FontWeight.bold),
+                )),
               ),
               user.isActive
                   ? Container(
-                padding: const EdgeInsets.only(left: 4.0),
-                child: Image.asset(
-                  "assets/images/ic_contacts.png",
-                  height: 16.0,
-                  width: 16.0,
-                ),
-              )
+                      padding: const EdgeInsets.only(left: 4.0),
+                      child: Image.asset(
+                        "assets/images/ic_contacts.png",
+                        height: 16.0,
+                        width: 16.0,
+                      ),
+                    )
                   : Container()
             ],
           ),
           subtitle: user.isActive && mainTag != null
               ? Text(
-            '#' + mainTag.tag.name,
-            style: TextStyle(color: ColorUtils.messageOrange),
-          )
+                  '#' + mainTag.tag.name,
+                  style: TextStyle(color: ColorUtils.messageOrange),
+                )
               : null,
         ),
       ),

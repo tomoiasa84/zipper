@@ -135,7 +135,6 @@ class ApiProvider {
                             id
                             city
                         }
-                        isActive
                         connections{
                             id
                             originUser{
