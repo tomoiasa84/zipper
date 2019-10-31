@@ -58,7 +58,9 @@ class UsersScreenState extends State<UsersScreen> {
     _usersBloc.getCurrentUserWithConnections().then((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
-        _user.connections = currentUser.connections;
+        if(_user!=null) {
+          _user.connections = currentUser.connections;
+        }
         widget.updateCurrentUser(currentUser.connections);
         currentUser.connections.forEach((connection) {
           _usersList.add(connection.targetUser);

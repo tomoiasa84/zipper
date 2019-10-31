@@ -199,7 +199,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
         if (user == null) {
           _signUp(authResult);
         } else if (!user.isActive) {
-          _updateUser(authResult);
+          _updateUser(authResult, user);
         } else {
           FirebaseAuth.instance.signOut().then((_) {
             SharedPreferencesHelper.clear().then((_) {
@@ -262,17 +262,17 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     });
   }
 
-  void _updateUser(AuthResult user) {
+  void _updateUser(AuthResult authResult, User user) {
     var loc = locationsList.firstWhere(
         (location) => location.city == _typeAheadController.text,
         orElse: () => null);
     if (loc != null) {
-      _updateUserData(user, loc.id);
+      _updateUserData(authResult, loc.id, user);
     } else {
       _authBloc.createLocation(_typeAheadController.text).then((result) {
         if (result.errors == null) {
           _updateUserData(
-              user, LocationModel.fromJson(result.data['create_location']).id);
+              authResult, LocationModel.fromJson(result.data['create_location']).id, user);
         } else {
           _showDialog(Localization.of(context).getString('error'),
               result.errors[0].message);
@@ -281,10 +281,10 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     }
   }
 
-  void _updateUserData(AuthResult user, int locationId) {
+  void _updateUserData(AuthResult authResult, int locationId, User user) {
     _authBloc
         .updateUser(_signUpNameTextFieldController.text, locationId,
-            user.user.uid, user.user.phoneNumber, true)
+            user.id, authResult.user.phoneNumber, true)
         .then((result) {
       if (result.errors == null) {
         User user = User.fromJson(result.data['update_user']);
