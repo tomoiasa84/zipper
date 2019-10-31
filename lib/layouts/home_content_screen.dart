@@ -27,10 +27,8 @@ class HomeContentScreen extends StatefulWidget {
 
 class HomeContentScreenState extends State<HomeContentScreen> {
   var _saving = false;
-  HomeContentBloc _homeContentBloc;
+  HomeContentBloc _homeContentBloc = HomeContentBloc();
   List<CardModel> _cardsList = [];
-
-  Function eq = const ListEquality().equals;
 
   @override
   void initState() {
@@ -38,7 +36,6 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       _cardsList.clear();
       _cardsList.addAll(widget.user.cardsConnections);
       _cardsList = _cardsList.reversed.toList();
-      _homeContentBloc = HomeContentBloc();
       _homeContentBloc.getCurrentUser().then((result) {
         if (result.errors == null && mounted) {
           User currentUser = User.fromJson(result.data['get_user']);

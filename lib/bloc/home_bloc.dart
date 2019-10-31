@@ -53,7 +53,6 @@ class HomeBloc {
 
   Future<QueryResult> getCurrentUser() async {
     String userId = await getCurrentUserId();
-
     return _repository.getUserById(userId);
   }
 }
