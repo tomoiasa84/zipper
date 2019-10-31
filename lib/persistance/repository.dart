@@ -28,6 +28,12 @@ class Repository {
     return result;
   }
 
+  Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
+    var result = await appApiProvider.getUserByIdWithPhoneNumber(userId);
+    checkTokenError(result);
+    return result;
+  }
+
   Future<QueryResult> getCardById(int cardId) async {
     var result = await appApiProvider.getCardById(cardId);
     checkTokenError(result);

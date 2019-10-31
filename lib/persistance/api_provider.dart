@@ -33,6 +33,17 @@ class ApiProvider {
     link: link,
   );
 
+  Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async{
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                     get_user(userId:"$userId"){
+                        phoneNumber
+                     }
+                   }  '''
+    ));
+    return result;
+  }
+
   Future<QueryResult> getUserById(String userId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
