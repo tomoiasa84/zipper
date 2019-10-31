@@ -10,7 +10,7 @@ class AuthenticationBloc {
     QueryResult data = await _repository.getLocations();
 
     final List<Map<String, dynamic>> locations =
-    data.data['get_locations'].cast<Map<String, dynamic>>();
+        data.data['get_locations'].cast<Map<String, dynamic>>();
     List<LocationModel> list = [];
     locations.forEach((location) => list.add(LocationModel.fromJson(location)));
     return list;
@@ -20,8 +20,8 @@ class AuthenticationBloc {
     await SharedPreferencesHelper.saveAccessToken(accessToken);
   }
 
-  Future<QueryResult> getUsers() async {
-    return _repository.getUsers();
+  Future<QueryResult> getUserFromContact(String phoneNumber) async {
+    return _repository.getUserFromContact(phoneNumber);
   }
 
   Future<QueryResult> createUser(

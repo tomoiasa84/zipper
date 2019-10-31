@@ -58,6 +58,19 @@ class ApiProvider {
     return result;
   }
 
+  Future<QueryResult> getUserFromContact(String phoneNumber) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                      get_userFromContact(contact:"$phoneNumber"){
+                        id
+                        isActive
+                        phoneNumber
+                      }
+                    }''',
+    ));
+    return result;
+  }
+
   Future<QueryResult> getUserByIdWithConnections(String userId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
@@ -748,20 +761,6 @@ class ApiProvider {
     );
 
     return queryResult;
-  }
-
-  Future<QueryResult> getUsers() async {
-    final QueryResult result = await _client.query(QueryOptions(
-      document: '''query {
-                     get_users{
-                        id
-                        name
-                        phoneNumber  
-                    }
-              }''',
-    ));
-
-    return result;
   }
 
   Future<QueryResult> loadContacts(List<String> phoneContacts) async {

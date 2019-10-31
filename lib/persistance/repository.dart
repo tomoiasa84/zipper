@@ -28,6 +28,12 @@ class Repository {
     return result;
   }
 
+  Future<QueryResult> getUserFromContact(String phoneNumber) async {
+    var result = await appApiProvider.getUserFromContact(phoneNumber);
+    checkTokenError(result);
+    return result;
+  }
+
   Future<QueryResult> getUserByIdWithConnections(String userId) async {
     var result = await appApiProvider.getUserByIdWithConnections(userId);
     checkTokenError(result);
@@ -160,12 +166,6 @@ class Repository {
 
   Future<QueryResult> deleteUserTag(int userTagId) async {
     var result = await appApiProvider.deleteUserTag(userTagId);
-    checkTokenError(result);
-    return result;
-  }
-
-  Future<QueryResult> getUsers() async {
-    var result = await appApiProvider.getUsers();
     checkTokenError(result);
     return result;
   }
