@@ -220,8 +220,10 @@ class _HomePageState extends State<HomePage> {
                 case NavBarItem.HOME:
                   return HomeContentScreen(
                     user: _user,
-                    onUserUpdated: (user) {
-                      _user = user;
+                    onUserUpdated: (cardsConnections) {
+                      if(_user!=null) {
+                        _user.cardsConnections = cardsConnections;
+                      }
                     },
                   );
                 case NavBarItem.CONTACTS:

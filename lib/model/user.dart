@@ -72,10 +72,10 @@ class User {
   final String phoneNumber;
   final bool isActive;
   final List<ConversationModel> conversations;
-   List<Connection> connections;
+  List<Connection> connections;
   List<CardModel> cards;
   final List<UserTag> tags;
-  final List<CardModel> cardsConnections;
+  List<CardModel> cardsConnections;
   final List<Review> reviews;
   final List<Setting> settings;
   final String profilePicUrl;

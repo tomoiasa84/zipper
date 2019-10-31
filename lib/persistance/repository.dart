@@ -40,6 +40,12 @@ class Repository {
     return result;
   }
 
+  Future<QueryResult> getUserByIdWithCardsConnections(String userId) async {
+    var result = await appApiProvider.getUserByIdWithCardsConnections(userId);
+    checkTokenError(result);
+    return result;
+  }
+
   Future<QueryResult> getUserNameIdPhoneNumberProfilePic(String userId) async {
     var result = await appApiProvider.getUserNameIdPhoneNumberProfilePic(userId);
     checkTokenError(result);
