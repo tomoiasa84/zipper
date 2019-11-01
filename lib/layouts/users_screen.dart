@@ -58,7 +58,7 @@ class UsersScreenState extends State<UsersScreen> {
     _usersBloc.getCurrentUserWithConnections().then((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
-        if(_user!=null) {
+        if (_user != null) {
           _user.connections = currentUser.connections;
         }
         widget.updateCurrentUser(currentUser.connections);
@@ -206,7 +206,8 @@ class UsersScreenState extends State<UsersScreen> {
             navigateToUserDetailsScreen(user);
           },
           leading: CircleAvatar(
-            child: user.profilePicUrl == null
+            child: user.profilePicUrl == null ||
+                    (user.profilePicUrl != null && user.profilePicUrl.isEmpty)
                 ? Text(user.name.startsWith('+') ? '+' : getInitials(user.name),
                     style: TextStyle(color: ColorUtils.darkerGray))
                 : null,

@@ -268,7 +268,9 @@ class _ConversationsScreenState extends State<ConversationsScreen>
               width: 40,
               height: 40,
               child: CircleAvatar(
-                child: user.profilePicUrl == null
+                child: user.profilePicUrl == null ||
+                        (user.profilePicUrl != null &&
+                            user.profilePicUrl.isEmpty)
                     ? Text(
                         user.name.startsWith('+')
                             ? '+'

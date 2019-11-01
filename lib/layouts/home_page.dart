@@ -242,8 +242,16 @@ class _HomePageState extends State<HomePage> {
                     user: _user,
                     onChanged: _onBlurredChanged,
                     isStartedFromHomeScreen: true,
-                    onUserChanged: (user) {
-                      _user = user;
+                    onUserChanged: (newUser) {
+                      if(_user!=null && newUser!=null)
+                      _user.name = newUser.name;
+                      _user.phoneNumber = newUser.phoneNumber;
+                      _user.description = newUser.description;
+                      _user.tags = newUser.tags;
+                      _user.cards = newUser.cards;
+                      _user.profilePicUrl = newUser.profilePicUrl;
+                      _user.reviews = newUser.reviews;
+
                     },
                   );
                 default:

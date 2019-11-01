@@ -245,10 +245,20 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                   height: 56,
                   child: CircleAvatar(
                     child: _card.recommendsList
-                                .elementAt(index)
-                                .userRecommend
-                                .profilePicUrl ==
-                            null
+                                    .elementAt(index)
+                                    .userRecommend
+                                    .profilePicUrl ==
+                                null ||
+                            (_card.recommendsList
+                                        .elementAt(index)
+                                        .userRecommend
+                                        .profilePicUrl !=
+                                    null &&
+                                _card.recommendsList
+                                    .elementAt(index)
+                                    .userRecommend
+                                    .profilePicUrl
+                                    .isEmpty)
                         ? Text(
                             _card.recommendsList
                                     .elementAt(index)
@@ -303,11 +313,10 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => UserDetailsScreen(user:_card
-                                      .recommendsList
-                                      .elementAt(index)
-                                      .userSend
-                                      )));
+                                  builder: (context) => UserDetailsScreen(
+                                      user: _card.recommendsList
+                                          .elementAt(index)
+                                          .userSend)));
                         }
                       });
                     },
@@ -364,7 +373,9 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: _card.postedBy.profilePicUrl == null
+          child: _card.postedBy.profilePicUrl == null ||
+                  (_card.postedBy.profilePicUrl != null &&
+                      _card.postedBy.profilePicUrl.isEmpty)
               ? Text(
                   _card.postedBy.name.startsWith('+')
                       ? '+'

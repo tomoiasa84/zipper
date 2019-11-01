@@ -338,7 +338,9 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: widget.user.profilePicUrl == null
+          child: widget.user.profilePicUrl == null ||
+                  (widget.user.profilePicUrl != null &&
+                      widget.user.profilePicUrl.isEmpty)
               ? Text(
                   widget.user.name.startsWith('+')
                       ? '+'

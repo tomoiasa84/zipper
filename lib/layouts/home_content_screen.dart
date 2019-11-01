@@ -195,7 +195,9 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: card.postedBy.profilePicUrl == null
+          child: card.postedBy.profilePicUrl == null ||
+              (card.postedBy.profilePicUrl != null &&
+                  card.postedBy.profilePicUrl.isEmpty)
               ? Text(
                   card.postedBy.name.startsWith('+')
                       ? '+'

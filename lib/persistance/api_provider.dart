@@ -478,6 +478,147 @@ class ApiProvider {
     return result;
   }
 
+  Future<QueryResult> getUserByIdWithMainInfo(String userId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                     get_user(userId:"$userId"){
+                        name
+                        phoneNumber
+                        id
+                        profileURL
+                        location{
+                            id
+                            city
+                        }
+                        cards{
+                            id
+                            createdAt
+                            searchFor{
+                              name
+                            }
+                            postedBy{
+                                id
+                                name
+                                profileURL
+                            }
+                            text
+                            recommandsCount
+                            recommandsList{
+                               id
+                              card{
+                                id
+                                searchFor{
+                                  id
+                                  name
+                                }
+                              }
+                              userAsk{
+                                id
+                                name
+                              }
+                              userSend{
+                                id
+                                name
+                              }
+                              userRecommand{
+                                name
+                                tags{
+                                  id
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                                }
+                              }
+                              acceptedFlag
+                            }
+                        }
+                        description
+                        tags{
+                          id
+                          default
+                          user{
+                            name
+                          }
+                          tag{
+                            id
+                            name
+                          }
+                          score
+                          reviews{
+                            author{
+                              name
+                              profileURL
+                            }
+                            stars
+                           userTag{
+                            id
+                            tag{
+                              name
+                            }
+                            user{
+                              name
+                            }
+                            reviews{
+                              id
+                              author{
+                                name
+                                profileURL
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
+                          }
+                            text
+                          }
+                        }
+                         reviews{
+                            author{
+                              name
+                              profileURL
+                            }
+                            stars
+                           userTag{
+                            id
+                            tag{
+                              name
+                            }
+                            user{
+                              name
+                            }
+                            reviews{
+                              id
+                              author{
+                                name
+                                profileURL
+                              }
+                              userTag{
+                                 id
+                                 score
+                              }
+                              stars
+                              text
+                            }
+                            score
+                          }
+                            text
+                          }
+                    }
+              }''',
+    ));
+
+    return result;
+  }
+
   Future<QueryResult> deleteCard(int cardId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
@@ -776,6 +917,7 @@ class ApiProvider {
                               name
                               phoneNumber
                               id
+                              profileURL
                               location{
                                   id
                                   city

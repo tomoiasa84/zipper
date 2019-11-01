@@ -270,7 +270,9 @@ Widget generateContactUI(
               height: 56,
               decoration: new BoxDecoration(shape: BoxShape.circle),
               child: CircleAvatar(
-                child: userRec.profilePicUrl == null
+                child: userRec.profilePicUrl == null ||
+                        (userRec.profilePicUrl != null &&
+                            userRec.profilePicUrl.isEmpty)
                     ? Text(
                         userRec.name.startsWith('+')
                             ? '+'

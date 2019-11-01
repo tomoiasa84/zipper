@@ -136,7 +136,9 @@ class ReviewsScreenState extends State<ReviewsScreen> {
             shape: BoxShape.circle,
           ),
           child: CircleAvatar(
-            child: review.author.profilePicUrl == null
+            child: review.author.profilePicUrl == null ||
+                    (review.author.profilePicUrl != null &&
+                        review.author.profilePicUrl.isEmpty)
                 ? Text(
                     review.author.name.startsWith('+')
                         ? '+'

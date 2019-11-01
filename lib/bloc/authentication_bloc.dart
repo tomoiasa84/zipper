@@ -32,7 +32,7 @@ class AuthenticationBloc {
   Future<QueryResult> updateUser(String name, int location, String id,
       String phoneNumber, bool isActive) async {
     return _repository.updateUser(
-        name, location, id, phoneNumber, isActive, "", null);
+        name, location, id, phoneNumber, isActive, "", "");
   }
 
   Future<QueryResult> createLocation(String city) async {

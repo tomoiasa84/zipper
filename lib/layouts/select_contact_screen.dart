@@ -139,7 +139,8 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
               _onItemTapped(user);
             },
             leading: CircleAvatar(
-              child: user.profilePicUrl == null
+              child: user.profilePicUrl == null ||
+                      (user.profilePicUrl != null && user.profilePicUrl.isEmpty)
                   ? Text(
                       user.name.startsWith('+') ? '+' : getInitials(user.name),
                       style: TextStyle(color: ColorUtils.darkerGray))

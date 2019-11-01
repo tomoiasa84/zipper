@@ -237,7 +237,9 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
               width: 24,
               height: 24,
               child: CircleAvatar(
-                child: users.elementAt(index).profilePicUrl == null
+                child: users.elementAt(index).profilePicUrl == null ||
+                        (users.elementAt(index).profilePicUrl != null &&
+                            users.elementAt(index).profilePicUrl.isEmpty)
                     ? Text(
                         users.elementAt(index).name.startsWith('+')
                             ? '+'
