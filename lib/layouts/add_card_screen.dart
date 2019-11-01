@@ -15,9 +15,9 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AddCardScreen extends StatefulWidget {
   final User user;
-  final Function updateUser;
+  final Function updateUsersCards;
 
-  const AddCardScreen({Key key, this.user, this.updateUser}) : super(key: key);
+  const AddCardScreen({Key key, this.user, this.updateUsersCards}) : super(key: key);
 
   @override
   AddCardScreenState createState() => AddCardScreenState();
@@ -188,13 +188,13 @@ class AddCardScreenState extends State<AddCardScreen> {
         .then((result) {
       if (result.errors == null) {
         getCurrentUserId().then((userId) {
-          _addCardBloc.getCurrentUser(userId).then((currentUserResult) {
+          _addCardBloc.getCurrentUserWithCards(userId).then((currentUserResult) {
             setState(() {
               _saving = false;
             });
             if (result.errors == null) {
-              widget.updateUser(
-                  User.fromJson(currentUserResult.data['get_user']));
+              widget.updateUsersCards(
+                  User.fromJson(currentUserResult.data['get_user']).cards);
             }
             Navigator.pop(
                 context, CardModel.fromJson(result.data['create_card']));

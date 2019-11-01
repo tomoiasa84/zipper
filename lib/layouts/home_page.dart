@@ -221,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                   return HomeContentScreen(
                     user: _user,
                     onUserUpdated: (cardsConnections) {
-                      if(_user!=null) {
+                      if (_user != null) {
                         _user.cardsConnections = cardsConnections;
                       }
                     },
@@ -323,8 +323,10 @@ class _HomePageState extends State<HomePage> {
     var result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) => AddCardScreen(
               user: _user,
-              updateUser: (newUser) {
-                _user = newUser;
+              updateUsersCards: (userCards) {
+                if (_user != null) {
+                  _user.cards = userCards;
+                }
               },
             )));
     _homeBloc.pickItem(0);

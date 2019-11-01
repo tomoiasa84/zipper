@@ -46,6 +46,12 @@ class Repository {
     return result;
   }
 
+  Future<QueryResult> getCurrentUserWithCards(String userId) async {
+    var result = await appApiProvider.getCurrentUserWithCards(userId);
+    checkTokenError(result);
+    return result;
+  }
+
   Future<QueryResult> getUserNameIdPhoneNumberProfilePic(String userId) async {
     var result = await appApiProvider.getUserNameIdPhoneNumberProfilePic(userId);
     checkTokenError(result);

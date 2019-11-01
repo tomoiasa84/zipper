@@ -186,6 +186,64 @@ class ApiProvider {
     return result;
   }
 
+  Future<QueryResult> getCurrentUserWithCards(String userId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                      get_user(userId:"$userId"){
+                        cards{
+                            id
+                            createdAt
+                            searchFor{
+                              name
+                            }
+                            postedBy{
+                                id
+                                name
+                                profileURL
+                            }
+                            text
+                            recommandsCount
+                            recommandsList{
+                               id
+                              card{
+                                id
+                                searchFor{
+                                  id
+                                  name
+                                }
+                              }
+                              userAsk{
+                                id
+                                name
+                              }
+                              userSend{
+                                id
+                                name
+                              }
+                              userRecommand{
+                                name
+                                tags{
+                                  id
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                                }
+                              }
+                              acceptedFlag
+                            }
+                        }
+                }
+              }''',
+    ));
+
+    return result;
+  }
+
   Future<QueryResult> getUserById(String userId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
@@ -535,7 +593,8 @@ class ApiProvider {
     return result;
   }
 
-  Future<QueryResult> getListOfChannelIdsFromBackend(String currentUserId) async {
+  Future<QueryResult> getListOfChannelIdsFromBackend(
+      String currentUserId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_user(userId: "$currentUserId"){
