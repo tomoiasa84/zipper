@@ -66,17 +66,17 @@ class User {
 
   final String id;
   final String firebaseId;
-  final String name;
+  String name;
   final LocationModel location;
-  final String description;
-  final String phoneNumber;
+  String description;
+  String phoneNumber;
   final bool isActive;
   final List<ConversationModel> conversations;
-  final List<Connection> connections;
+  List<Connection> connections;
   List<CardModel> cards;
-  final List<UserTag> tags;
-  final List<CardModel> cardsConnections;
-  final List<Review> reviews;
+  List<UserTag> tags;
+  List<CardModel> cardsConnections;
+  List<Review> reviews;
   final List<Setting> settings;
-  final String profilePicUrl;
+  String profilePicUrl;
 }

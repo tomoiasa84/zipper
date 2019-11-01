@@ -63,7 +63,9 @@ class UserSearch extends SearchDelegate<String> {
             shape: BoxShape.circle,
           ),
           child: CircleAvatar(
-            child: suggestionList.elementAt(index).profilePicUrl == null
+            child: suggestionList.elementAt(index).profilePicUrl == null ||
+                    (suggestionList.elementAt(index).profilePicUrl != null &&
+                        suggestionList.elementAt(index).profilePicUrl.isEmpty)
                 ? Text(
                     suggestionList.elementAt(index).name.startsWith('+')
                         ? '+'

@@ -118,6 +118,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
       this.verificationId = verId;
       setState(() {
         prevAuthScreenType = authScreenType;
+        _smsCodeVerificationController.clear();
         authScreenType = AuthScreenType.SMS_VERIFICATION;
       });
       _codeTimer = Timer(_timeOut, () {
@@ -169,11 +170,11 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
       if (user != null) {
         user.user.getIdToken().then((token) {
           _authBloc.saveAccessToken(token.token).then((token) {
-            _checkExistingUser(user);
+            _authenticate(user);
           });
         });
       } else {
-        await _auth.signOut().then((_){
+        await _auth.signOut().then((_) {
           _showDialog(Localization.of(context).getString("error"),
               Localization.of(context).getString('loginErrorMessage'));
         });
@@ -183,54 +184,41 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     }
   }
 
-  void _checkExistingUser(AuthResult authResult) {
-    List<User> usersList = [];
-    _authBloc.getUsers().then((result) {
-      if (result.errors == null) {
-        final List<Map<String, dynamic>> users =
-            result.data['get_users'].cast<Map<String, dynamic>>();
-        users.forEach((item) {
-          usersList.add(User.fromJson(item));
-        });
-        var phoneNumber = authType == AuthType.signUp
+  void _authenticate(AuthResult authResult) {
+    _authBloc
+        .getUserFromContact(authType == AuthType.signUp
             ? _singUpPhoneNumberController.text
-            : _loginPhoneNumberController.text;
-        User user = usersList.firstWhere(
-            (user) =>
-                user.phoneNumber.split(" ").join("") ==
-                phoneNumber.split(" ").join(""),
-            orElse: () => null);
+            : _loginPhoneNumberController.text)
+        .then((userFromContactResult) {
+      User user = userFromContactResult.data != null &&
+              userFromContactResult.data['get_userFromContact'] != null
+          ? User.fromJson(userFromContactResult.data['get_userFromContact'])
+          : null;
 
-        if (authType == AuthType.signUp) {
-          if (user == null) {
-            _signUp(authResult);
-          } else if (!user.isActive) {
-            _updateUser(authResult);
-          } else {
-             FirebaseAuth.instance.signOut().then((_){
-               SharedPreferencesHelper.clear().then((_) {
-                 _showDialog(Localization.of(context).getString('error'),
-                     Localization.of(context).getString('alreadySignedUp'));
-               });
+      if (authType == AuthType.signUp) {
+        if (user == null) {
+          _signUp(authResult);
+        } else if (!user.isActive) {
+          _updateUser(authResult, user);
+        } else {
+          FirebaseAuth.instance.signOut().then((_) {
+            SharedPreferencesHelper.clear().then((_) {
+              _showDialog(Localization.of(context).getString('error'),
+                  Localization.of(context).getString('alreadySignedUp'));
             });
-          }
-        } else if (authType == AuthType.login) {
-          if (user == null) {
-            FirebaseAuth.instance.signOut().then((_){
-              SharedPreferencesHelper.clear().then((_) {
-                _showDialog(Localization.of(context).getString('error'),
-                    Localization.of(context).getString('loginErrorMessage'));
-              });
-            });
-          } else {
-            _finishLogin(user.id, user.name);
-          }
+          });
         }
-      } else {
-        FirebaseAuth.instance.signOut().then((_){
-          _showDialog(Localization.of(context).getString("error"),
-              result.errors[0].message);
-        });
+      } else if (authType == AuthType.login) {
+        if (user == null) {
+          FirebaseAuth.instance.signOut().then((_) {
+            SharedPreferencesHelper.clear().then((_) {
+              _showDialog(Localization.of(context).getString('error'),
+                  Localization.of(context).getString('loginErrorMessage'));
+            });
+          });
+        } else {
+          _finishLogin(user.id, user.name);
+        }
       }
     });
   }
@@ -274,17 +262,17 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     });
   }
 
-  void _updateUser(AuthResult user) {
+  void _updateUser(AuthResult authResult, User user) {
     var loc = locationsList.firstWhere(
         (location) => location.city == _typeAheadController.text,
         orElse: () => null);
     if (loc != null) {
-      _updateUserData(user, loc.id);
+      _updateUserData(authResult, loc.id, user);
     } else {
       _authBloc.createLocation(_typeAheadController.text).then((result) {
         if (result.errors == null) {
-          _updateUserData(
-              user, LocationModel.fromJson(result.data['create_location']).id);
+          _updateUserData(authResult,
+              LocationModel.fromJson(result.data['create_location']).id, user);
         } else {
           _showDialog(Localization.of(context).getString('error'),
               result.errors[0].message);
@@ -293,10 +281,15 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     }
   }
 
-  void _updateUserData(AuthResult user, int locationId) {
+  void _updateUserData(AuthResult authResult, int locationId, User user) {
     _authBloc
-        .updateUser(_signUpNameTextFieldController.text, locationId,
-            user.user.uid, user.user.phoneNumber, true)
+        .updateUser(
+            user.id,
+            authResult.user.uid,
+            _signUpNameTextFieldController.text,
+            locationId,
+            true,
+            authResult.user.phoneNumber)
         .then((result) {
       if (result.errors == null) {
         User user = User.fromJson(result.data['update_user']);
@@ -545,7 +538,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
         suggestionsCallback: (pattern) {
           List<String> list = [];
           locations
-              .where((it) => it.startsWith(pattern))
+              .where((it) => it.toLowerCase().startsWith(pattern.toLowerCase()))
               .toList()
               .forEach((loc) => list.add(loc));
           return list;

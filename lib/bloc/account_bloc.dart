@@ -10,10 +10,10 @@ class AccountBloc {
     return await SharedPreferencesHelper.getCurrentUserId();
   }
 
-  Future<QueryResult> getCurrentUser() async {
+  Future<QueryResult> getUserByIdWithMainInfo() async {
     String userId = await getCurrentUserId();
 
-    return _repository.getUserById(userId);
+    return _repository.getUserByIdWithMainInfo(userId);
   }
 
   Future<QueryResult> deleteCard(int cardId) async {

@@ -299,7 +299,9 @@ class SendInChatScreenState extends State<SendInChatScreen> {
                 shape: BoxShape.circle,
               ),
               child: CircleAvatar(
-                child: usersList.elementAt(index).profilePicUrl == null
+                child: usersList.elementAt(index).profilePicUrl == null ||
+                        (usersList.elementAt(index).profilePicUrl != null &&
+                            usersList.elementAt(index).profilePicUrl.isEmpty)
                     ? Text(
                         usersList.elementAt(index).name.startsWith('+')
                             ? '+'

@@ -28,20 +28,45 @@ class Repository {
     return result;
   }
 
+  Future<QueryResult> getUserFromContact(String phoneNumber) async {
+    var result = await appApiProvider.getUserFromContact(phoneNumber);
+    checkTokenError(result);
+    return result;
+  }
+
   Future<QueryResult> getUserByIdWithConnections(String userId) async {
     var result = await appApiProvider.getUserByIdWithConnections(userId);
     checkTokenError(result);
     return result;
   }
 
+  Future<QueryResult> getUserByIdWithCardsConnections(String userId) async {
+    var result = await appApiProvider.getUserByIdWithCardsConnections(userId);
+    checkTokenError(result);
+    return result;
+  }
+
+  Future<QueryResult> getCurrentUserWithCards(String userId) async {
+    var result = await appApiProvider.getCurrentUserWithCards(userId);
+    checkTokenError(result);
+    return result;
+  }
+
   Future<QueryResult> getUserNameIdPhoneNumberProfilePic(String userId) async {
-    var result = await appApiProvider.getUserNameIdPhoneNumberProfilePic(userId);
+    var result =
+        await appApiProvider.getUserNameIdPhoneNumberProfilePic(userId);
     checkTokenError(result);
     return result;
   }
 
   Future<QueryResult> getUserById(String userId) async {
     var result = await appApiProvider.getUserById(userId);
+    checkTokenError(result);
+    return result;
+  }
+
+  Future<QueryResult> getUserByIdWithMainInfo(String userId) async {
+    var result = await appApiProvider.getUserByIdWithMainInfo(userId);
     checkTokenError(result);
     return result;
   }
@@ -102,7 +127,8 @@ class Repository {
 
   Future<List<ConversationModel>> getListOfConversationIdsFromBackend() async {
     String currentUserId = await getCurrentUserId();
-    var result = await appApiProvider.getListOfChannelIdsFromBackend(currentUserId);
+    var result =
+        await appApiProvider.getListOfChannelIdsFromBackend(currentUserId);
     checkTokenError(result);
     User currentUser = User.fromJson(result.data['get_user']);
     return currentUser.conversations;
@@ -127,15 +153,16 @@ class Repository {
   }
 
   Future<QueryResult> updateUser(
+      String id,
+      String firebaseId,
       String name,
       int location,
-      String id,
-      String phoneNumber,
       bool isActive,
-      String description,
-      String profilePicUrl) async {
-    var result = await appApiProvider.updateUser(
-        name, location, id, phoneNumber, isActive, description, profilePicUrl);
+      String phoneNumber,
+      String profilePicUrl,
+      String description) async {
+    var result = await appApiProvider.updateUser(id, firebaseId, name, location,
+        isActive, phoneNumber, profilePicUrl, description);
     checkTokenError(result);
     return result;
   }
@@ -160,12 +187,6 @@ class Repository {
 
   Future<QueryResult> deleteUserTag(int userTagId) async {
     var result = await appApiProvider.deleteUserTag(userTagId);
-    checkTokenError(result);
-    return result;
-  }
-
-  Future<QueryResult> getUsers() async {
-    var result = await appApiProvider.getUsers();
     checkTokenError(result);
     return result;
   }

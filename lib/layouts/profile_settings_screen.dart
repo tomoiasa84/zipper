@@ -108,13 +108,14 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
     _profileSettingsBloc
         .updateUser(
+            widget.user.id,
+            widget.user.firebaseId,
             _nameTextEditingController.text,
             widget.user.location.id,
-            widget.user.id,
-            widget.user.phoneNumber,
             true,
-            _bioTextEditingController.text,
-            profilePicUrl)
+            widget.user.phoneNumber,
+            profilePicUrl,
+            _bioTextEditingController.text)
         .then((result) {
       setState(() {
         _saving = false;
@@ -338,7 +339,9 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: widget.user.profilePicUrl == null
+          child: widget.user.profilePicUrl == null ||
+                  (widget.user.profilePicUrl != null &&
+                      widget.user.profilePicUrl.isEmpty)
               ? Text(
                   widget.user.name.startsWith('+')
                       ? '+'
@@ -616,12 +619,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             onSuggestionSelected: (suggestion) {
               this._addTagsTextEditingController.text = '#' + suggestion;
               _addTag();
-            },
-            validator: (value) {
-              if (value.isEmpty) {
-                return Localization.of(context).getString('locationValidation');
-              }
-              return null;
             },
           ),
         ],

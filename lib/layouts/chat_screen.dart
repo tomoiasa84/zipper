@@ -553,7 +553,9 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 32,
             height: 32,
             child: CircleAvatar(
-              child: _currentUser.profilePicUrl == null
+              child: _currentUser.profilePicUrl == null ||
+                      (_currentUser.profilePicUrl != null &&
+                          _currentUser.profilePicUrl.isEmpty)
                   ? Text(
                       _currentUser.name.startsWith('+')
                           ? '+'
@@ -612,7 +614,9 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 32,
             height: 32,
             child: CircleAvatar(
-              child: _currentUser.profilePicUrl == null
+              child: _currentUser.profilePicUrl == null ||
+                      (_currentUser.profilePicUrl != null &&
+                          _currentUser.profilePicUrl.isEmpty)
                   ? Text(
                       _currentUser.name.startsWith('+')
                           ? '+'
@@ -644,7 +648,9 @@ class _ChatScreenState extends State<ChatScreen> {
               width: 32,
               height: 32,
               child: CircleAvatar(
-                child: _interlocutorUser.profilePicUrl == null
+                child: _interlocutorUser.profilePicUrl == null ||
+                        (_interlocutorUser.profilePicUrl != null &&
+                            _interlocutorUser.profilePicUrl.isEmpty)
                     ? Text(
                         _interlocutorUser.name.startsWith('+')
                             ? '+'
@@ -698,7 +704,9 @@ class _ChatScreenState extends State<ChatScreen> {
               width: 32,
               height: 32,
               child: CircleAvatar(
-                child: _interlocutorUser.profilePicUrl == null
+                child: _interlocutorUser.profilePicUrl == null ||
+                        (_interlocutorUser.profilePicUrl != null &&
+                            _interlocutorUser.profilePicUrl.isEmpty)
                     ? Text(
                         _interlocutorUser.name.startsWith('+')
                             ? '+'
@@ -898,7 +906,9 @@ class _ChatScreenState extends State<ChatScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: cardModel.postedBy.profilePicUrl == null
+          child: cardModel.postedBy.profilePicUrl == null ||
+                  (cardModel.postedBy.profilePicUrl != null &&
+                      cardModel.postedBy.profilePicUrl.isEmpty)
               ? Text(
                   cardModel.postedBy.name.startsWith('+')
                       ? '+'

@@ -36,10 +36,10 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       _cardsList.clear();
       _cardsList.addAll(widget.user.cardsConnections);
       _cardsList = _cardsList.reversed.toList();
-      _homeContentBloc.getCurrentUser().then((result) {
+      _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
         if (result.errors == null && mounted) {
           User currentUser = User.fromJson(result.data['get_user']);
-          widget.onUserUpdated(currentUser);
+          widget.onUserUpdated(currentUser.cardsConnections);
           if (currentUser != null && currentUser.cardsConnections != null) {
             if (_cardsList != currentUser.cardsConnections) {
               _cardsList = currentUser.cardsConnections;
@@ -63,10 +63,10 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       });
     }
     _homeContentBloc = HomeContentBloc();
-    _homeContentBloc.getCurrentUser().then((result) {
+    _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
       if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);
-        widget.onUserUpdated(currentUser);
+        widget.onUserUpdated(currentUser.cardsConnections);
         if (currentUser != null && currentUser.cardsConnections != null) {
           _cardsList.addAll(currentUser.cardsConnections);
           setState(() {
@@ -195,7 +195,9 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: card.postedBy.profilePicUrl == null
+          child: card.postedBy.profilePicUrl == null ||
+              (card.postedBy.profilePicUrl != null &&
+                  card.postedBy.profilePicUrl.isEmpty)
               ? Text(
                   card.postedBy.name.startsWith('+')
                       ? '+'

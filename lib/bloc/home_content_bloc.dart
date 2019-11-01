@@ -8,9 +8,9 @@ class HomeContentBloc {
 
   Repository _repository = Repository();
 
-  Future<QueryResult> getCurrentUser() async {
+  Future<QueryResult> getUserByIdWithCardsConnections() async {
     String userId = await getCurrentUserId();
 
-    return _repository.getUserById(userId);
+    return _repository.getUserByIdWithCardsConnections(userId);
   }
 }

@@ -220,15 +220,17 @@ class _HomePageState extends State<HomePage> {
                 case NavBarItem.HOME:
                   return HomeContentScreen(
                     user: _user,
-                    onUserUpdated: (user) {
-                      _user = user;
+                    onUserUpdated: (cardsConnections) {
+                      if (_user != null) {
+                        _user.cardsConnections = cardsConnections;
+                      }
                     },
                   );
                 case NavBarItem.CONTACTS:
                   return UsersScreen(
                     user: _user,
-                    updateCurrentUser: (newUser) {
-                      _user = newUser;
+                    updateCurrentUser: (connections) {
+                      _user.connections = connections;
                     },
                   );
                 case NavBarItem.PLUS:
@@ -240,8 +242,16 @@ class _HomePageState extends State<HomePage> {
                     user: _user,
                     onChanged: _onBlurredChanged,
                     isStartedFromHomeScreen: true,
-                    onUserChanged: (user) {
-                      _user = user;
+                    onUserChanged: (newUser) {
+                      if(_user!=null && newUser!=null)
+                      _user.name = newUser.name;
+                      _user.phoneNumber = newUser.phoneNumber;
+                      _user.description = newUser.description;
+                      _user.tags = newUser.tags;
+                      _user.cards = newUser.cards;
+                      _user.profilePicUrl = newUser.profilePicUrl;
+                      _user.reviews = newUser.reviews;
+
                     },
                   );
                 default:
@@ -321,8 +331,10 @@ class _HomePageState extends State<HomePage> {
     var result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) => AddCardScreen(
               user: _user,
-              updateUser: (newUser) {
-                _user = newUser;
+              updateUsersCards: (userCards) {
+                if (_user != null) {
+                  _user.cards = userCards;
+                }
               },
             )));
     _homeBloc.pickItem(0);

@@ -8,8 +8,12 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 class UserDetailsBloc {
   Repository _repository = Repository();
 
-  Future<QueryResult> getUser(String userId) async {
-    return await _repository.getUserById(userId);
+  Future<QueryResult> getUserByIdWithMainInfo(String userId) async {
+    return await _repository.getUserByIdWithMainInfo(userId);
+  }
+
+  Future<QueryResult> getUserByIdWithConnections(String userId) async {
+    return await _repository.getUserByIdWithConnections(userId);
   }
 
   Future<PubNubConversation> createConversation(User user) async {

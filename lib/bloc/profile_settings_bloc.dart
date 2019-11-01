@@ -6,10 +6,10 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 class ProfileSettingsBloc {
   Repository _repository = Repository();
 
-  Future<QueryResult> updateUser(String name, int location, String id,
-      String phoneNumber, bool isActive, String description, String profilePicUrl) async {
+  Future<QueryResult> updateUser(String id, String firebaseId, String name, int location,
+      bool isActive, String phoneNumber, String profilePicUrl, String description) async {
     return _repository.updateUser(
-        name, location, id, phoneNumber, isActive, description, profilePicUrl);
+        id, firebaseId, name, location, isActive, phoneNumber, profilePicUrl, description);
   }
 
   Future<QueryResult> createUserTag(String userId, int tagId) async {

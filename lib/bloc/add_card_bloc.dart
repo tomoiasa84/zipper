@@ -9,8 +9,8 @@ class AddCardBloc {
     return _repository.getUserNameIdPhoneNumberProfilePic(userId);
   }
 
-  Future<QueryResult> getCurrentUser(String userId) async {
-    return _repository.getUserById(userId);
+  Future<QueryResult> getCurrentUserWithCards(String userId) async {
+    return _repository.getCurrentUserWithCards(userId);
   }
 
   Future<QueryResult> getTags() async {

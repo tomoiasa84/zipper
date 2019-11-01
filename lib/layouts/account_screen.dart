@@ -24,11 +24,12 @@ class AccountScreen extends StatefulWidget {
   final User user;
   final Function onUserChanged;
 
-  const AccountScreen({Key key,
-    this.onChanged,
-    this.isStartedFromHomeScreen,
-    this.user,
-    this.onUserChanged})
+  const AccountScreen(
+      {Key key,
+      this.onChanged,
+      this.isStartedFromHomeScreen,
+      this.user,
+      this.onUserChanged})
       : super(key: key);
 
   @override
@@ -98,7 +99,7 @@ class AccountScreenState extends State<AccountScreen> {
     setState(() {
       _saving = true;
     });
-    _accountBloc.getCurrentUser().then((result) {
+    _accountBloc.getUserByIdWithMainInfo().then((result) {
       if (result.errors == null && mounted) {
         setState(() {
           _user = User.fromJson(result.data['get_user']);
@@ -120,12 +121,11 @@ class AccountScreenState extends State<AccountScreen> {
     });
     showDialog(
       context: context,
-      builder: (BuildContext context) =>
-          CustomDialog(
-            title: title,
-            description: description,
-            buttonText: Localization.of(context).getString("ok"),
-          ),
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: description,
+        buttonText: Localization.of(context).getString("ok"),
+      ),
     );
   }
 
@@ -153,12 +153,11 @@ class AccountScreenState extends State<AccountScreen> {
       } else {
         showDialog(
           context: context,
-          builder: (BuildContext context) =>
-              CustomDialog(
-                title: Localization.of(context).getString("error"),
-                description: result.errors[0].message,
-                buttonText: Localization.of(context).getString('ok'),
-              ),
+          builder: (BuildContext context) => CustomDialog(
+            title: Localization.of(context).getString("error"),
+            description: result.errors[0].message,
+            buttonText: Localization.of(context).getString('ok'),
+          ),
         );
       }
     });
@@ -170,16 +169,16 @@ class AccountScreenState extends State<AccountScreen> {
       _accountBloc = AccountBloc();
       if (widget.user.cards.length > 2) {
         DateTime dateCard1 =
-        parseDateFromString(widget.user.cards[0].createdAt);
+            parseDateFromString(widget.user.cards[0].createdAt);
         DateTime dateCard2 =
-        parseDateFromString(widget.user.cards[1].createdAt);
+            parseDateFromString(widget.user.cards[1].createdAt);
         if (dateCard1.isBefore(dateCard2)) {
           widget.user.cards = widget.user.cards.reversed.toList();
         }
       }
       _user = widget.user;
       _getMainTag();
-      _accountBloc.getCurrentUser().then((result) {
+      _accountBloc.getUserByIdWithMainInfo().then((result) {
         User newUser = User.fromJson(result.data['get_user']);
         if (_user != newUser && mounted) {
           setState(() {
@@ -201,30 +200,30 @@ class AccountScreenState extends State<AccountScreen> {
         inAsyncCall: _saving,
         child: Scaffold(
             appBar:
-            _buildAppBar(Localization.of(context).getString('settings')),
+                _buildAppBar(Localization.of(context).getString('settings')),
             body: SafeArea(
               top: false,
               child: _user != null
                   ? Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: SingleChildScrollView(
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 16.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        _buildMainInfoCard(),
-                        _user.tags != null && _user.tags.isNotEmpty
-                            ? _buildTagsCard()
-                            : Container(),
-                        _user.cards != null
-                            ? _buildCardsList()
-                            : Container()
-                      ],
-                    ),
-                  ),
-                ),
-              )
+                      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: SingleChildScrollView(
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 16.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              _buildMainInfoCard(),
+                              _user.tags != null && _user.tags.isNotEmpty
+                                  ? _buildTagsCard()
+                                  : Container(),
+                              _user.cards != null
+                                  ? _buildCardsList()
+                                  : Container()
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
                   : Container(),
             )));
   }
@@ -242,38 +241,38 @@ class AccountScreenState extends State<AccountScreen> {
         actions: <Widget>[
           widget.isStartedFromHomeScreen
               ? Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(10.0))),
-            child: PopupMenuButton<Object>(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
-              elevation: 13.2,
-              offset: Offset(100, 110),
-              initialValue: CustomPopupMenu(title: popupInitialValue),
-              onCanceled: () {
-                widget.onChanged(false);
-              },
-              onSelected: (_) {
-                _select(_);
-              },
-              itemBuilder: (BuildContext context) {
-                widget.onChanged(true);
-                return getMoreOptions(context);
-              },
-            ),
-          )
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                  child: PopupMenuButton<Object>(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0)),
+                    elevation: 13.2,
+                    offset: Offset(100, 110),
+                    initialValue: CustomPopupMenu(title: popupInitialValue),
+                    onCanceled: () {
+                      widget.onChanged(false);
+                    },
+                    onSelected: (_) {
+                      _select(_);
+                    },
+                    itemBuilder: (BuildContext context) {
+                      widget.onChanged(true);
+                      return getMoreOptions(context);
+                    },
+                  ),
+                )
               : Container(),
         ],
         automaticallyImplyLeading: false,
         leading: widget.isStartedFromHomeScreen
             ? Container()
             : IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: ColorUtils.darkerGray,
-          ),
-          onPressed: () => Navigator.pop(context, false),
-        ));
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: ColorUtils.darkerGray,
+                ),
+                onPressed: () => Navigator.pop(context, false),
+              ));
   }
 
   Card _buildMainInfoCard() {
@@ -298,13 +297,13 @@ class AccountScreenState extends State<AccountScreen> {
   Container _buildDescription() {
     return _user.description != null && _user.description.isNotEmpty
         ? Container(
-      padding: const EdgeInsets.only(top: 16.0),
-      child: Text(
-        _user.description,
-        textAlign: TextAlign.left,
-        style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
-      ),
-    )
+            padding: const EdgeInsets.only(top: 16.0),
+            child: Text(
+              _user.description,
+              textAlign: TextAlign.left,
+              style: TextStyle(fontSize: 14.0, color: ColorUtils.darkerGray),
+            ),
+          )
         : Container();
   }
 
@@ -312,9 +311,10 @@ class AccountScreenState extends State<AccountScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: _user.profilePicUrl == null
+          child: _user.profilePicUrl == null ||
+                  (_user.profilePicUrl != null && _user.profilePicUrl.isEmpty)
               ? Text(_user.name.startsWith('+') ? '+' : getInitials(_user.name),
-              style: TextStyle(color: ColorUtils.darkerGray))
+                  style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: _user.profilePicUrl != null
               ? NetworkImage(_user.profilePicUrl)
@@ -333,34 +333,34 @@ class AccountScreenState extends State<AccountScreen> {
                 ),
                 _mainUserTag != null
                     ? Row(
-                  children: <Widget>[
-                    Flexible(
-                      child: Text(
-                        '#' + _mainUserTag.tag.name,
-                        overflow: TextOverflow.clip,
-                        style: TextStyle(color: ColorUtils.orangeAccent),
-                      ),
-                    ),
-                    _mainUserTag.reviews.isNotEmpty
-                        ? Padding(
-                      padding: const EdgeInsets.only(
-                          left: 8.0, top: 4.0),
-                      child: Icon(
-                        Icons.star,
-                        color: ColorUtils.orangeAccent,
-                      ),
-                    )
-                        : Container(),
-                    _mainUserTag.reviews.isNotEmpty
-                        ? Text(
-                      _mainUserTag.score.toString(),
-                      style: TextStyle(
-                          fontSize: 14.0,
-                          color: ColorUtils.darkGray),
-                    )
-                        : Container()
-                  ],
-                )
+                        children: <Widget>[
+                          Flexible(
+                            child: Text(
+                              '#' + _mainUserTag.tag.name,
+                              overflow: TextOverflow.clip,
+                              style: TextStyle(color: ColorUtils.orangeAccent),
+                            ),
+                          ),
+                          _mainUserTag.reviews.isNotEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 8.0, top: 4.0),
+                                  child: Icon(
+                                    Icons.star,
+                                    color: ColorUtils.orangeAccent,
+                                  ),
+                                )
+                              : Container(),
+                          _mainUserTag.reviews.isNotEmpty
+                              ? Text(
+                                  _mainUserTag.score.toString(),
+                                  style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: ColorUtils.darkGray),
+                                )
+                              : Container()
+                        ],
+                      )
                     : Container()
               ],
             ),
@@ -370,11 +370,11 @@ class AccountScreenState extends State<AccountScreen> {
           padding: const EdgeInsets.only(left: 16.0),
           child: widget.isStartedFromHomeScreen
               ? GestureDetector(
-            child: Image.asset('assets/images/ic_edit_accent_bg.png'),
-            onTap: () {
-              _goToSettingsScreen();
-            },
-          )
+                  child: Image.asset('assets/images/ic_edit_accent_bg.png'),
+                  onTap: () {
+                    _goToSettingsScreen();
+                  },
+                )
               : Container(),
         )
       ],
@@ -424,17 +424,17 @@ class AccountScreenState extends State<AccountScreen> {
   Widget _buildCardsList() {
     return widget.isStartedFromHomeScreen
         ? ListView.builder(
-        shrinkWrap: true,
-        primary: false,
-        itemCount: _user.cards.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Container(
-              margin: EdgeInsets.only(
-                top: (index == 0) ? 8.0 : 0.0,
-                bottom: (index == _user.cards.length - 1) ? 24.0 : 0.0,
-              ),
-              child: _buildCardItem(_user.cards.elementAt(index)));
-        })
+            shrinkWrap: true,
+            primary: false,
+            itemCount: _user.cards.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Container(
+                  margin: EdgeInsets.only(
+                    top: (index == 0) ? 8.0 : 0.0,
+                    bottom: (index == _user.cards.length - 1) ? 24.0 : 0.0,
+                  ),
+                  child: _buildCardItem(_user.cards.elementAt(index)));
+            })
         : Container();
   }
 
@@ -444,8 +444,7 @@ class AccountScreenState extends State<AccountScreen> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    RepliesScreen(
+                builder: (context) => RepliesScreen(
                       card: card,
                     )));
       },
@@ -457,7 +456,7 @@ class AccountScreenState extends State<AccountScreen> {
           children: <Widget>[
             Padding(
               padding:
-              const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -503,9 +502,10 @@ class AccountScreenState extends State<AccountScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: _user.profilePicUrl == null
+          child: _user.profilePicUrl == null ||
+                  (_user.profilePicUrl != null && _user.profilePicUrl.isEmpty)
               ? Text(_user.name.startsWith('+') ? '+' : getInitials(_user.name),
-              style: TextStyle(color: ColorUtils.darkerGray))
+                  style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: _user.profilePicUrl != null
               ? NetworkImage(_user.profilePicUrl)
@@ -596,8 +596,7 @@ class AccountScreenState extends State<AccountScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                ReviewsScreen(
+            builder: (context) => ReviewsScreen(
                   reviews: reviews,
                 )));
   }
