@@ -271,8 +271,8 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     } else {
       _authBloc.createLocation(_typeAheadController.text).then((result) {
         if (result.errors == null) {
-          _updateUserData(
-              authResult, LocationModel.fromJson(result.data['create_location']).id, user);
+          _updateUserData(authResult,
+              LocationModel.fromJson(result.data['create_location']).id, user);
         } else {
           _showDialog(Localization.of(context).getString('error'),
               result.errors[0].message);
@@ -283,8 +283,13 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
 
   void _updateUserData(AuthResult authResult, int locationId, User user) {
     _authBloc
-        .updateUser(_signUpNameTextFieldController.text, locationId,
-            user.id, authResult.user.phoneNumber, true)
+        .updateUser(
+            user.id,
+            authResult.user.uid,
+            _signUpNameTextFieldController.text,
+            locationId,
+            true,
+            authResult.user.phoneNumber)
         .then((result) {
       if (result.errors == null) {
         User user = User.fromJson(result.data['update_user']);

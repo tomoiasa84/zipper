@@ -39,6 +39,7 @@ class ApiProvider {
                      get_user(userId:"$userId"){
                         name
                         id
+                        firebaseId
                         phoneNumber
                         profileURL
                     }
@@ -65,6 +66,7 @@ class ApiProvider {
                         id
                         isActive
                         phoneNumber
+                        firebaseId
                       }
                     }''',
     ));
@@ -75,6 +77,8 @@ class ApiProvider {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
+                        id
+                        firebaseId
                         connections{
                             id
                             originUser{
@@ -127,6 +131,7 @@ class ApiProvider {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
+                     firebaseId
                         cardsConnections{
                            id
                       postedBy{
@@ -190,6 +195,7 @@ class ApiProvider {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                       get_user(userId:"$userId"){
+                        firebaseId
                         cards{
                             id
                             createdAt
@@ -251,6 +257,7 @@ class ApiProvider {
                         name
                         phoneNumber
                         id
+                        firebaseId
                         profileURL
                         location{
                             id
@@ -485,6 +492,7 @@ class ApiProvider {
                         name
                         phoneNumber
                         id
+                        firebaseId
                         profileURL
                         location{
                             id
@@ -896,18 +904,20 @@ class ApiProvider {
   }
 
   Future<QueryResult> updateUser(
+      String id,
+      String firebaseId,
       String name,
       int location,
-      String id,
-      String phoneNumber,
       bool isActive,
-      String description,
-      String profilePicUrl) async {
+      String phoneNumber,
+      String profilePicUrl,
+      String description) async {
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''
                     mutation{
                            update_user(userId: "$id",
+                            firebaseId: "$firebaseId",
                             name: "$name", 
                             location: $location,
                             isActive: $isActive,
@@ -917,6 +927,7 @@ class ApiProvider {
                               name
                               phoneNumber
                               id
+                              firebaseId
                               profileURL
                               location{
                                   id
@@ -1059,7 +1070,7 @@ class ApiProvider {
                             id
                           }
                         }
-                      }''',
+                       }''',
       ),
     );
 

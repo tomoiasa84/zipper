@@ -68,11 +68,22 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
                     .value
                     .toString()
                     .startsWith("+")) {
-                  existingUsers.add(
-                      contact.phones.toList().elementAt(0).value.toString());
+                  existingUsers.add(contact.phones
+                      .toList()
+                      .elementAt(0)
+                      .value
+                      .toString()
+                      .split(" ")
+                      .join(""));
                 } else {
                   existingUsers.add(widget.syncResult.countryCode +
-                      contact.phones.toList().elementAt(0).value.toString());
+                      contact.phones
+                          .toList()
+                          .elementAt(0)
+                          .value
+                          .toString()
+                          .split(" ")
+                          .join(""));
                 }
               }
             });

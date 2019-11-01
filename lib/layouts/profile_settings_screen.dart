@@ -108,13 +108,14 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
     _profileSettingsBloc
         .updateUser(
+            widget.user.id,
+            widget.user.firebaseId,
             _nameTextEditingController.text,
             widget.user.location.id,
-            widget.user.id,
-            widget.user.phoneNumber,
             true,
-            _bioTextEditingController.text,
-            profilePicUrl)
+            widget.user.phoneNumber,
+            profilePicUrl,
+            _bioTextEditingController.text)
         .then((result) {
       setState(() {
         _saving = false;

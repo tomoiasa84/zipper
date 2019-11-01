@@ -64,10 +64,14 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         _saving = true;
       });
     }
-    await _userDetailsBloc.getUser(widget.user.id).then((result) {
+    await _userDetailsBloc
+        .getUserByIdWithMainInfo(widget.user.id)
+        .then((result) {
       if (result.errors == null && mounted) {
         getCurrentUserId().then((currentUserId) {
-          _userDetailsBloc.getUser(currentUserId).then((currentUserResult) {
+          _userDetailsBloc
+              .getUserByIdWithConnections(currentUserId)
+              .then((currentUserResult) {
             if (currentUserResult.errors == null && mounted) {
               setState(() {
                 _user = User.fromJson(result.data['get_user']);

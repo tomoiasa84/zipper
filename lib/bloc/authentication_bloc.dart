@@ -29,10 +29,10 @@ class AuthenticationBloc {
     return _repository.createUser(name, location, firebaseId, phoneNumber);
   }
 
-  Future<QueryResult> updateUser(String name, int location, String id,
-      String phoneNumber, bool isActive) async {
+  Future<QueryResult> updateUser(String id, String firebaseId, String name, int location,
+      bool isActive, String phoneNumber) async {
     return _repository.updateUser(
-        name, location, id, phoneNumber, isActive, "", "");
+        id, firebaseId, name, location, isActive, phoneNumber, "", "");
   }
 
   Future<QueryResult> createLocation(String city) async {
