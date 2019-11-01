@@ -33,6 +33,83 @@ class ApiProvider {
     link: link,
   );
 
+  Future<QueryResult> getUserNameIdPhoneNumberProfilePic(String userId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                     get_user(userId:"$userId"){
+                        name
+                        id
+                        phoneNumber
+                        profileURL
+                    }
+              }''',
+    ));
+    return result;
+  }
+
+  Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                     get_user(userId:"$userId"){
+                        phoneNumber
+                    }
+              }''',
+    ));
+    return result;
+  }
+
+  Future<QueryResult> getUserByIdWithConnections(String userId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                     get_user(userId:"$userId"){
+                        connections{
+                            id
+                            originUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                             }
+                            }
+                            targetUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                             }
+                            }
+                        }
+                    }
+              }''',
+    ));
+
+    return result;
+  }
+
   Future<QueryResult> getUserById(String userId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
@@ -319,100 +396,24 @@ class ApiProvider {
       document: '''query{
                     get_conversation(conversationId: "$conversationId"){
                       id
-                      user1{
+                        user1{
                           id
                           name
                           profileURL
                           tags{
-                          id
-                          user{
-                            id
-                            name
-                          }
                           tag{
-                            id
                             name
-                          }
-                          score
-                          reviews{
-                            author{
-                              profileURL
-                              name
-                            }
-                            stars
-                           userTag{
-                            id
-                            tag{
-                              name
-                            }
-                            user{
-                              name
-                            }
-                            reviews{
-                              id
-                              author{
-                                profileURL
-                                name
-                              }
-                              userTag{
-                                 id
-                                 score
-                              }
-                              stars
-                              text
-                            }
-                            score
-                          }
-                            text
                           }
                           default
                         }
                         }
-                      user2{
+                        user2{
                           id
                           name
                           profileURL
                           tags{
-                          id
-                          user{
-                            id
-                            name
-                          }
                           tag{
-                            id
                             name
-                          }
-                          score
-                          reviews{
-                            author{
-                              profileURL
-                              name
-                            }
-                            stars
-                           userTag{
-                            id
-                            tag{
-                              name
-                            }
-                            user{
-                              name
-                            }
-                            reviews{
-                              id
-                              author{
-                                profileURL
-                                name
-                              }
-                              userTag{
-                                 id
-                                 score
-                              }
-                              stars
-                              text
-                            }
-                            score
-                          }
-                            text
                           }
                           default
                         }
@@ -459,7 +460,7 @@ class ApiProvider {
     return result;
   }
 
-  Future<QueryResult> getListOfIdsFromBackend(String currentUserId) async {
+  Future<QueryResult> getListOfChannelIdsFromBackend(String currentUserId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_user(userId: "$currentUserId"){
@@ -470,46 +471,8 @@ class ApiProvider {
                           name
                           profileURL
                           tags{
-                          id
-                          user{
-                            id
-                            name
-                          }
                           tag{
-                            id
                             name
-                          }
-                          score
-                          reviews{
-                            author{
-                              profileURL
-                              name
-                            }
-                            stars
-                           userTag{
-                            id
-                            tag{
-                              name
-                            }
-                            user{
-                              name
-                            }
-                            reviews{
-                              id
-                              author{
-                                profileURL
-                                name
-                              }
-                              userTag{
-                                 id
-                                 score
-                              }
-                              stars
-                              text
-                            }
-                            score
-                          }
-                            text
                           }
                           default
                         }
@@ -519,46 +482,8 @@ class ApiProvider {
                           name
                           profileURL
                           tags{
-                          id
-                          user{
-                            id
-                            name
-                          }
                           tag{
-                            id
                             name
-                          }
-                          score
-                          reviews{
-                            author{
-                              profileURL
-                              name
-                            }
-                            stars
-                           userTag{
-                            id
-                            tag{
-                              name
-                            }
-                            user{
-                              name
-                            }
-                            reviews{
-                              id
-                              author{
-                                profileURL
-                                name
-                              }
-                              userTag{
-                                 id
-                                 score
-                              }
-                              stars
-                              text
-                            }
-                            score
-                          }
-                            text
                           }
                           default
                         }
@@ -829,95 +754,9 @@ class ApiProvider {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query {
                      get_users{
-                        name
-                        firebaseId
-                        profileURL
                         id
-                        phoneNumber
-                        isActive
-                        location{
-                            id
-                            city
-                        }
-                        tags{
-                          id
-                          user{
-                            id
-                            name
-                          }
-                          tag{
-                            id
-                            name
-                          }
-                          score
-                          reviews{
-                            author{
-                              profileURL
-                              name
-                            }
-                            stars
-                           userTag{
-                            id
-                            tag{
-                              name
-                            }
-                            user{
-                              name
-                            }
-                            reviews{
-                              id
-                              author{
-                                profileURL
-                                name
-                              }
-                              userTag{
-                                 id
-                                 score
-                              }
-                              stars
-                              text
-                            }
-                            score
-                          }
-                            text
-                          }
-                          default
-                        }
-                        description
-                        cards{
-                            text
-                        }
-                         reviews{
-                            author{
-                              name
-                              profileURL
-                            }
-                            stars
-                           userTag{
-                            id
-                            tag{
-                              name
-                            }
-                            user{
-                              name
-                            }
-                            reviews{
-                              id
-                              author{
-                                name
-                                profileURL
-                              }
-                              userTag{
-                                 id
-                                 score
-                              }
-                              stars
-                              text
-                            }
-                            score
-                          }
-                            text
-                          }
+                        name
+                        phoneNumber  
                     }
               }''',
     ));

@@ -87,7 +87,7 @@ class AddCardScreenState extends State<AddCardScreen> {
       _saving = true;
     });
     getCurrentUserId().then((userId) {
-      _addCardBloc.getCurrentUser(userId).then((result) {
+      _addCardBloc.getUserNameIdPhoneNumberProfilePic(userId).then((result) {
         if (result.errors == null) {
           setState(() {
             _user = User.fromJson(result.data['get_user']);
@@ -179,6 +179,9 @@ class AddCardScreenState extends State<AddCardScreen> {
   void createCard() {
     setState(() {
       _saving = true;
+    });
+    getCurrentUserId().then((currentUserID){
+
     });
     _addCardBloc
         .createCard(_user.id, tag.id, _addDetailsTextEditingController.text)

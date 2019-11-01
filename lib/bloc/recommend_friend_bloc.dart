@@ -21,9 +21,9 @@ class RecommendFriendBloc {
     return await _repository.sendMessage(channelId, pnGCM);
   }
 
-  Future<QueryResult> getCurrentUser() async {
+  Future<QueryResult> getCurrentUserWithConnections() async {
     String userId = await getCurrentUserId();
 
-    return _repository.getUserById(userId);
+    return _repository.getUserByIdWithConnections(userId);
   }
 }

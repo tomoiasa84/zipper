@@ -22,6 +22,24 @@ class Repository {
     return ContactsService.getContacts();
   }
 
+  Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
+    var result = await appApiProvider.getUserByIdWithPhoneNumber(userId);
+    checkTokenError(result);
+    return result;
+  }
+
+  Future<QueryResult> getUserByIdWithConnections(String userId) async {
+    var result = await appApiProvider.getUserByIdWithConnections(userId);
+    checkTokenError(result);
+    return result;
+  }
+
+  Future<QueryResult> getUserNameIdPhoneNumberProfilePic(String userId) async {
+    var result = await appApiProvider.getUserNameIdPhoneNumberProfilePic(userId);
+    checkTokenError(result);
+    return result;
+  }
+
   Future<QueryResult> getUserById(String userId) async {
     var result = await appApiProvider.getUserById(userId);
     checkTokenError(result);
@@ -82,16 +100,16 @@ class Repository {
     return pubNubConversation;
   }
 
-  Future<List<ConversationModel>> getListOfIdsFromBackend() async {
+  Future<List<ConversationModel>> getListOfConversationIdsFromBackend() async {
     String currentUserId = await getCurrentUserId();
-    var result = await appApiProvider.getListOfIdsFromBackend(currentUserId);
+    var result = await appApiProvider.getListOfChannelIdsFromBackend(currentUserId);
     checkTokenError(result);
     User currentUser = User.fromJson(result.data['get_user']);
     return currentUser.conversations;
   }
 
   Future<String> getStringOfChannelIds() async {
-    var listOfConversations = await getListOfIdsFromBackend();
+    var listOfConversations = await getListOfConversationIdsFromBackend();
 
     String channelIds = "";
 
@@ -228,8 +246,14 @@ class Repository {
   }
 
   Future<List<PubNubConversation>> getPubNubConversations() async {
-    var conversationsList = await getListOfIdsFromBackend();
-    var channels = await getStringOfChannelIds();
+    var conversationsList = await getListOfConversationIdsFromBackend();
+
+    String channels = "";
+
+    for (var item in conversationsList) {
+      channels = channels + item.id.toString() + ",";
+    }
+
     var response = await appApiProvider.getPubNubConversations(channels);
 
     if (response.statusCode == 200) {

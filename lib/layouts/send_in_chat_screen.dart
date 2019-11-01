@@ -49,7 +49,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
   }
 
   void _getAllFriends() async {
-    _sendInChatBloc.getCurrentUser().then((result) {
+    _sendInChatBloc.getCurrentUserWithConnections().then((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
         currentUser.connections.forEach((connection) {

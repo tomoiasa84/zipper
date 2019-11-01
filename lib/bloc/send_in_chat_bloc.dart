@@ -12,10 +12,9 @@ class SendInChatBloc {
   Repository _repository = Repository();
   String _currentUserId;
 
-  Future<QueryResult> getCurrentUser() async {
+  Future<QueryResult> getCurrentUserWithConnections() async {
     String userId = await getCurrentUserId();
-
-    return _repository.getUserById(userId);
+    return _repository.getUserByIdWithConnections(userId);
   }
 
   Future<List<PubNubConversation>> getPubNubConversations() async {
@@ -36,7 +35,9 @@ class SendInChatBloc {
 
     await _repository.getPubNubConversations().then((conversations) {
       for (var conversation in conversations) {
-        recentUsers.add(_getInterlocutorUser(conversation));
+        if (conversation.user1 != null && conversation.user2 != null){
+          recentUsers.add(_getInterlocutorUser(conversation));
+        }
       }
     });
     return recentUsers;
