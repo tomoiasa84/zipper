@@ -59,10 +59,6 @@ class _HomePageState extends State<HomePage> {
     _initFirebaseClientMessaging();
     _initLocalNotifications();
     _homeBloc.updateDeviceToken();
-    SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
-      _currentUserChannel.send(currentUserId);
-    });
-
     _notificationsChannel.setMessageHandler((String message) async {
       print('Received: $message');
       Navigator.pushAndRemoveUntil(
@@ -79,6 +75,10 @@ class _HomePageState extends State<HomePage> {
       print('Received: $message');
       _goToCardDetailsScreen(int.parse(message));
       return '';
+    });
+    SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
+      _currentUserChannel.send(currentUserId);
+      print('USER SENT');
     });
 
     super.initState();
