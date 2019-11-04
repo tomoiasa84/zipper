@@ -22,12 +22,11 @@ String validatePhoneNumber(String value, String validationMessage) {
 
 String getRecommendedTitle(String myString) {
   var specialString = addSpecialCharacters(myString);
-  if (specialString.contains("#")){
+  if (specialString.contains("#")) {
     return specialString.substring(specialString.lastIndexOf('#'));
   } else {
     return "";
   }
-
 }
 
 getInitials(String name) {
@@ -121,7 +120,7 @@ String getTimeDifference(String time) {
 
   Duration duration = date.timeZoneOffset;
   DateTime currentTime = DateTime.now();
-  String difference;
+  String difference = "";
   DateTime exactDate = date.add(duration);
 
   if (currentTime.difference(exactDate).inSeconds < 60) {
