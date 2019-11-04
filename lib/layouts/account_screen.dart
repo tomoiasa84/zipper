@@ -103,7 +103,9 @@ class AccountScreenState extends State<AccountScreen> {
       if (result.errors == null && mounted) {
         setState(() {
           _user = User.fromJson(result.data['get_user']);
-          widget.onUserChanged(_user);
+          if (widget.onUserChanged != null) {
+            widget.onUserChanged(_user);
+          }
           _user.cards = _user.cards.reversed.toList();
           _saving = false;
           _getMainTag();

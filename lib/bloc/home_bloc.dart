@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/persistance/repository.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
@@ -42,13 +43,22 @@ class HomeBloc {
   void updateDeviceToken() {
     SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
       _firebaseMessaging.getToken().then((deviceToken) {
-        _repository.updateDeviceToken(currentUserId, deviceToken);
+        getCurrentUserWithFirebaseId(currentUserId).then((result) {
+          if (result.errors == null) {
+            _repository.updateDeviceToken(currentUserId, deviceToken,
+                User.fromJson(result.data['get_user']).firebaseId);
+          }
+        });
       });
     });
   }
 
   void dispose() {
     _navBarController?.close();
+  }
+
+  Future<QueryResult> getCurrentUserWithFirebaseId(String currentUserId) {
+    return _repository.getCurrentUserWithFirebaseId(currentUserId);
   }
 
   Future<QueryResult> getCurrentUser() async {

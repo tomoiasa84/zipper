@@ -4,7 +4,7 @@ import Firebase
 
 @available(iOS 10.0, *)
 @UIApplicationMain
-@objc class AppDelegate: FlutterAppDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: FlutterAppDelegate, UNUserNotificationCenterDelegate {
     
     var currentUserId: String = ""
     
@@ -12,10 +12,9 @@ import Firebase
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
         ) -> Bool {
-        GeneratedPluginRegistrant.register(with: self)
-        
-        UNUserNotificationCenter.current().delegate = self
         getCurrentUserId()
+        GeneratedPluginRegistrant.register(with: self)
+        UNUserNotificationCenter.current().delegate = self
         application.registerForRemoteNotifications()
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
@@ -25,7 +24,19 @@ import Firebase
     }
     
     override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
-        print(userInfo)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { // Change `2.0` to the desired number of seconds.
+           // Code you want to be delayed
+            if let channelInfo = userInfo["channelId"] as? String {
+                print(channelInfo)
+                self.openChatScreen(conversationId: channelInfo)
+            }
+            
+            if let cardId = userInfo["cardId"] as? Int {
+                print(cardId)
+                self.openCardDetailsScreen(cardId: cardId)
+            }
+        }
     }
     
     override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any],
@@ -36,16 +47,18 @@ import Firebase
             return
         }
         
-        if let channelInfo = userInfo["channelId"] as? String {
-            print(channelInfo)
-            openChatScreen(conversationId: channelInfo)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { // Change `2.0` to the desired number of seconds.
+           // Code you want to be delayed
+            if let channelInfo = userInfo["channelId"] as? String {
+                print(channelInfo)
+                self.openChatScreen(conversationId: channelInfo)
+            }
+            
+            if let cardId = userInfo["cardId"] as? Int {
+                print(cardId)
+                self.openCardDetailsScreen(cardId: cardId)
+            }
         }
-        
-        if let cardId = userInfo["cardId"] as? Int {
-            print(cardId)
-            openCardDetailsScreen(cardId: cardId)
-        }
-        
         completionHandler(UIBackgroundFetchResult.newData)
     }
     
@@ -56,12 +69,14 @@ import Firebase
         
         print(response.notification.request.content.userInfo)
         
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { // Chan
         if let cardId = response.notification.request.content.userInfo["cardId"] as? String {
             print(cardId)
             let intCardId = Int(cardId)!
-            openCardDetailsScreen(cardId: intCardId)
+            self.openCardDetailsScreen(cardId: intCardId)
         } else {
-            openChatScreen(conversationId: response.notification.request.content.userInfo["channelId"] as! String)
+            self.openChatScreen(conversationId: response.notification.request.content.userInfo["channelId"] as! String)
+        }
         }
         
    
@@ -89,9 +104,11 @@ import Firebase
             codec: FlutterStringCodec.sharedInstance())
         
         channel.sendMessage(conversationId)
+        NSLog("OPEN CHAT")
     }
     
     func openCardDetailsScreen(cardId: Int){
+        NSLog("OPEN CARD DETAILS")
         let rootViewController : FlutterViewController = window?.rootViewController as! FlutterViewController
         
         let channel = FlutterBasicMessageChannel(
@@ -112,6 +129,7 @@ import Firebase
         
         channel.setMessageHandler { (message, flutter) in
             self.currentUserId = message as! String
+            NSLog("CURRENT USER LISTENER SET")
         }
     }
 }

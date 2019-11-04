@@ -1,5 +1,4 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:collection/collection.dart';
 import 'package:contractor_search/bloc/home_content_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/send_in_chat_screen.dart';
@@ -35,7 +34,11 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     if (widget.user != null) {
       _cardsList.clear();
       _cardsList.addAll(widget.user.cardsConnections);
-      _cardsList = _cardsList.reversed.toList();
+      _cardsList.sort((a, b) {
+        DateTime dateA = parseDateFromString(a.createdAt);
+        DateTime dateB = parseDateFromString(b.createdAt);
+        return dateB.compareTo(dateA);
+      });
       _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
         if (result.errors == null && mounted) {
           User currentUser = User.fromJson(result.data['get_user']);
@@ -44,7 +47,11 @@ class HomeContentScreenState extends State<HomeContentScreen> {
             if (_cardsList != currentUser.cardsConnections) {
               _cardsList = currentUser.cardsConnections;
               setState(() {
-                _cardsList = _cardsList.reversed.toList();
+                _cardsList.sort((a, b) {
+                  DateTime dateA = parseDateFromString(a.createdAt);
+                  DateTime dateB = parseDateFromString(b.createdAt);
+                  return dateB.compareTo(dateA);
+                });
               });
             }
           }
@@ -66,11 +73,15 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
       if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);
+        currentUser.cardsConnections.sort((a, b) {
+          DateTime dateA = parseDateFromString(a.createdAt);
+          DateTime dateB = parseDateFromString(b.createdAt);
+          return dateB.compareTo(dateA);
+        });
         widget.onUserUpdated(currentUser.cardsConnections);
         if (currentUser != null && currentUser.cardsConnections != null) {
-          _cardsList.addAll(currentUser.cardsConnections);
           setState(() {
-            _cardsList = _cardsList.reversed.toList();
+            _cardsList.addAll(currentUser.cardsConnections);
             _saving = false;
           });
         } else {
@@ -196,8 +207,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       children: <Widget>[
         CircleAvatar(
           child: card.postedBy.profilePicUrl == null ||
-              (card.postedBy.profilePicUrl != null &&
-                  card.postedBy.profilePicUrl.isEmpty)
+                  (card.postedBy.profilePicUrl != null &&
+                      card.postedBy.profilePicUrl.isEmpty)
               ? Text(
                   card.postedBy.name.startsWith('+')
                       ? '+'

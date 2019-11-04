@@ -103,7 +103,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         profilePicUrl = imageUrl;
       });
     } else {
-      profilePicUrl = widget.user.profilePicUrl;
+      profilePicUrl = widget.user.profilePicUrl!=null ? widget.user.profilePicUrl: "" ;
     }
 
     _profileSettingsBloc

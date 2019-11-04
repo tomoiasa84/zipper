@@ -250,6 +250,19 @@ class ApiProvider {
     return result;
   }
 
+  Future<QueryResult> getCurrentUserWithFirebaseId(String userId) async {
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                     get_user(userId:"$userId"){
+                        id
+                        firebaseId
+                     }
+                  }
+      '''
+    ));
+    return result;
+  }
+
   Future<QueryResult> getUserById(String userId) async {
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
@@ -966,12 +979,12 @@ class ApiProvider {
     return queryResult;
   }
 
-  Future<QueryResult> updateDeviceToken(String id, String deviceToken) async {
+  Future<QueryResult> updateDeviceToken(String id, String deviceToken, String firebaseId) async {
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''
                     mutation{
-                      update_user(userId: "$id", deviceToken:"$deviceToken"){
+                      update_user(userId: "$id", deviceToken:"$deviceToken", firebaseId: "$firebaseId"){
                         deviceToken
                        }
                     }''',
