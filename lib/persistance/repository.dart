@@ -65,6 +65,12 @@ class Repository {
     return result;
   }
 
+  Future<QueryResult> getCurrentUserWithFirebaseId(String userId) async {
+    var result = await appApiProvider.getCurrentUserWithFirebaseId(userId);
+    checkTokenError(result);
+    return result;
+  }
+
   Future<QueryResult> getUserByIdWithMainInfo(String userId) async {
     var result = await appApiProvider.getUserByIdWithMainInfo(userId);
     checkTokenError(result);
@@ -167,8 +173,8 @@ class Repository {
     return result;
   }
 
-  Future<QueryResult> updateDeviceToken(String id, String deviceToken) async {
-    var result = await appApiProvider.updateDeviceToken(id, deviceToken);
+  Future<QueryResult> updateDeviceToken(String id, String deviceToken, String firebaseId) async {
+    var result = await appApiProvider.updateDeviceToken(id, deviceToken, firebaseId);
     checkTokenError(result);
     return result;
   }
