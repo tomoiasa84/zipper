@@ -33,6 +33,9 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
         currentUser.connections.forEach((connection) {
           _usersList.add(connection.targetUser);
         });
+        _usersList.sort((a, b) {
+          return b.isActive.toString().compareTo(a.isActive.toString());
+        });
         if (mounted) {
           setState(() {
             _loading = false;
