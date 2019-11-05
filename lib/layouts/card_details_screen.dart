@@ -162,15 +162,27 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text(
-                                _card.recommendsList
-                                    .elementAt(index)
-                                    .userRecommend
-                                    .name,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    color: ColorUtils.textBlack,
-                                    fontWeight: FontWeight.bold),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              UserDetailsScreen(
+                                                  user: _card.recommendsList
+                                                      .elementAt(index)
+                                                      .userRecommend)));
+                                },
+                                child: Text(
+                                  _card.recommendsList
+                                      .elementAt(index)
+                                      .userRecommend
+                                      .name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: ColorUtils.textBlack,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                               Row(
                                 children: <Widget>[

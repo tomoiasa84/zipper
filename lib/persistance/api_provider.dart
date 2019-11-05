@@ -181,6 +181,7 @@ class ApiProvider {
                            name
                          }
                          userRecommand{
+                           id
                            name
                             tags{
                                 id
@@ -201,7 +202,7 @@ class ApiProvider {
                          acceptedFlag
                       }
                         }
-                                            cards{
+                     cards{
                          id
                       postedBy{
                         profileURL
@@ -233,6 +234,7 @@ class ApiProvider {
                            name
                          }
                          userRecommand{
+                           id
                            name
                             tags{
                                 id
@@ -298,6 +300,7 @@ class ApiProvider {
                               }
                               userRecommand{
                                 name
+                                id
                                 tags{
                                   id
                                   tag{
@@ -436,6 +439,7 @@ class ApiProvider {
                               }
                               userRecommand{
                                 name
+                                id
                                 tags{
                                   id
                                   tag{

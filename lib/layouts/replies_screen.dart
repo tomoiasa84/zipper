@@ -1,3 +1,4 @@
+import 'package:contractor_search/layouts/account_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -49,11 +50,21 @@ class RepliesScreenState extends State<RepliesScreen> {
                 recommend.userRecommend.tags, recommend.card.searchFor),
             () {},
             Localization.of(context).getString('recommendedBy'), (userSend) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => UserDetailsScreen(
-                      user: userSend, currentUser: widget.card.postedBy)));
+          getCurrentUserId().then((currentUserId) {
+            if (currentUserId == userSend.id) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          AccountScreen(isStartedFromHomeScreen: false)));
+            } else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UserDetailsScreen(
+                          user: userSend, currentUser: widget.card.postedBy)));
+            }
+          });
         }),
       ));
     });

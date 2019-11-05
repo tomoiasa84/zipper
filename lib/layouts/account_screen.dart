@@ -184,6 +184,7 @@ class AccountScreenState extends State<AccountScreen> {
         User newUser = User.fromJson(result.data['get_user']);
         if (_user != newUser && mounted) {
           setState(() {
+            newUser.cards = _user.cards;
             _user = newUser;
             _user.cards.sort((a, b) {
               DateTime dateA = parseDateFromString(a.createdAt);

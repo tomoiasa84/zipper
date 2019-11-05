@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:contractor_search/bloc/chat_bloc.dart';
+import 'package:contractor_search/layouts/account_screen.dart';
 import 'package:contractor_search/layouts/image_preview_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
+import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
@@ -372,10 +374,8 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             backgroundColor: Colors.white,
           ),
-          body: new Column(children: <Widget>[
-            _showMessagesUI(),
-            _showUserInputUI()
-          ]),
+          body: new Column(
+              children: <Widget>[_showMessagesUI(), _showUserInputUI()]),
         ),
       ),
     );
@@ -435,8 +435,21 @@ class _ChatScreenState extends State<ChatScreen> {
             mainTag != null ? mainTag.tag.name : '',
             mainTag != null ? mainTag.score : -1,
             () => _startConversation(item.sharedContact),
-            null,
-            () {});
+            null, (userSend) {
+          if (_currentUser.id == userSend.id) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        AccountScreen(isStartedFromHomeScreen: false)));
+          } else {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => UserDetailsScreen(
+                        user: userSend, currentUser: _currentUser)));
+          }
+        });
       }
 
       if (item.cardModel != null) {

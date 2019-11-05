@@ -40,7 +40,9 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
 
   @override
   void initState() {
-    if (widget.user != null && widget.currentUser != null) {
+    if (widget.user != null &&
+        widget.currentUser != null &&
+        widget.currentUser.connections != null) {
       _user = widget.user;
       _currentUser = widget.currentUser;
       for (var connection in _currentUser.connections) {
