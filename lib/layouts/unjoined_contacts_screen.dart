@@ -159,7 +159,8 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
                 child: Text(
                   unjoinedContact.contact.displayName,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold),
                 ),
               ),
             ),
