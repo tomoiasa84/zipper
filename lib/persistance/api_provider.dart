@@ -97,6 +97,10 @@ class ApiProvider {
                                   score
                                   reviews{
                                      id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
                                   }
                              }
                             }
@@ -115,10 +119,23 @@ class ApiProvider {
                                   }
                                   score
                                   reviews{
-                                     id
+                                    id
+                                    author{
+                                      name
+                                      profileURL
+                                    }
+                                    userTag{
+                                       id
+                                       score
+                                       tag{
+                                         name
+                                       }
+                                    }
+                                    stars
+                                    text
+                                        }
+                                   }
                                   }
-                             }
-                            }
                         }
                     }
               }''',
@@ -347,6 +364,10 @@ class ApiProvider {
                                   score
                                   reviews{
                                      id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
                                   }
                              }
                             }
@@ -366,6 +387,19 @@ class ApiProvider {
                                   score
                                   reviews{
                                      id
+                                    author{
+                                      name
+                                      profileURL
+                                    }
+                                    userTag{
+                                       id
+                                       score
+                                       tag{
+                                         name
+                                       }
+                                    }
+                                    stars
+                                    text
                                   }
                              }
                             }
