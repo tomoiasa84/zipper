@@ -106,7 +106,11 @@ class AccountScreenState extends State<AccountScreen> {
           if (widget.onUserChanged != null) {
             widget.onUserChanged(_user);
           }
-          _user.cards = _user.cards.reversed.toList();
+          _user.cards.sort((a, b) {
+            DateTime dateA = parseDateFromString(a.createdAt);
+            DateTime dateB = parseDateFromString(b.createdAt);
+            return dateB.compareTo(dateA);
+          });
           _saving = false;
           _getMainTag();
         });
@@ -169,15 +173,11 @@ class AccountScreenState extends State<AccountScreen> {
   void initState() {
     if (widget.user != null) {
       _accountBloc = AccountBloc();
-      if (widget.user.cards.length > 2) {
-        DateTime dateCard1 =
-            parseDateFromString(widget.user.cards[0].createdAt);
-        DateTime dateCard2 =
-            parseDateFromString(widget.user.cards[1].createdAt);
-        if (dateCard1.isBefore(dateCard2)) {
-          widget.user.cards = widget.user.cards.reversed.toList();
-        }
-      }
+      widget.user.cards.sort((a, b) {
+        DateTime dateA = parseDateFromString(a.createdAt);
+        DateTime dateB = parseDateFromString(b.createdAt);
+        return dateB.compareTo(dateA);
+      });
       _user = widget.user;
       _getMainTag();
       _accountBloc.getUserByIdWithMainInfo().then((result) {
@@ -185,7 +185,11 @@ class AccountScreenState extends State<AccountScreen> {
         if (_user != newUser && mounted) {
           setState(() {
             _user = newUser;
-            _user.cards = _user.cards.reversed.toList();
+            _user.cards.sort((a, b) {
+              DateTime dateA = parseDateFromString(a.createdAt);
+              DateTime dateB = parseDateFromString(b.createdAt);
+              return dateB.compareTo(dateA);
+            });
             _getMainTag();
           });
         }

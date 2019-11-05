@@ -347,32 +347,32 @@ class _ChatScreenState extends State<ChatScreen> {
       child: ModalProgressHUD(
         inAsyncCall: _loading,
         child: Scaffold(
-          body: new Column(children: <Widget>[
-            AppBar(
-              title: Text(
-                'Message to $name',
-                style: TextStyle(
-                    color: ColorUtils.textBlack,
-                    fontSize: 14,
-                    fontFamily: 'Arial',
-                    fontWeight: FontWeight.bold),
-              ),
-              centerTitle: true,
-              leading: IconButton(
-                icon: Icon(
-                  Icons.arrow_back,
-                  color: ColorUtils.almostBlack,
-                ),
-                onPressed: () {
-                  if (widget.maybePop) {
-                    Navigator.maybePop(context);
-                  } else {
-                    Navigator.pop(context);
-                  }
-                },
-              ),
-              backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: Text(
+              'Message to $name',
+              style: TextStyle(
+                  color: ColorUtils.textBlack,
+                  fontSize: 14,
+                  fontFamily: 'Arial',
+                  fontWeight: FontWeight.bold),
             ),
+            centerTitle: true,
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: ColorUtils.almostBlack,
+              ),
+              onPressed: () {
+                if (widget.maybePop) {
+                  Navigator.maybePop(context);
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            backgroundColor: Colors.white,
+          ),
+          body: new Column(children: <Widget>[
             _showMessagesUI(),
             _showUserInputUI()
           ]),
@@ -970,26 +970,29 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           Image.asset('assets/images/ic_replies_gray.png'),
-          Padding(
-            padding: const EdgeInsets.only(left: 4.0, right: 16.0),
-            child: Text(
-                Intl.plural(
-                  cardModel.recommendsCount,
-                  zero: Localization.of(context).getString('noReplies'),
-                  one: cardModel.recommendsCount.toString() +
-                      Localization.of(context).getString('reply'),
-                  two: cardModel.recommendsCount.toString() +
-                      Localization.of(context).getString('replies'),
-                  few: cardModel.recommendsCount.toString() +
-                      Localization.of(context).getString('replies'),
-                  many: cardModel.recommendsCount.toString() +
-                      Localization.of(context).getString('replies'),
-                  other: cardModel.recommendsCount.toString() +
-                      Localization.of(context).getString('replies'),
-                ),
-                style: TextStyle(
-                  color: ColorUtils.darkerGray,
-                )),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 4.0, right: 16.0),
+              child: Text(
+                  Intl.plural(
+                    cardModel.recommendsCount,
+                    zero: Localization.of(context).getString('noReplies'),
+                    one: cardModel.recommendsCount.toString() +
+                        Localization.of(context).getString('reply'),
+                    two: cardModel.recommendsCount.toString() +
+                        Localization.of(context).getString('replies'),
+                    few: cardModel.recommendsCount.toString() +
+                        Localization.of(context).getString('replies'),
+                    many: cardModel.recommendsCount.toString() +
+                        Localization.of(context).getString('replies'),
+                    other: cardModel.recommendsCount.toString() +
+                        Localization.of(context).getString('replies'),
+                  ),
+                  overflow: TextOverflow.clip,
+                  style: TextStyle(
+                    color: ColorUtils.darkerGray,
+                  )),
+            ),
           ),
         ],
       ),
