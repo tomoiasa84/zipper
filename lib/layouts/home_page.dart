@@ -38,11 +38,11 @@ class _HomePageState extends State<HomePage> {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   UserMessage _message;
   var _notificationsChannel =
-  BasicMessageChannel<String>('iosNotificationTapped', StringCodec());
+      BasicMessageChannel<String>('iosNotificationTapped', StringCodec());
   var _currentUserChannel =
-  BasicMessageChannel<String>('currentUserId', StringCodec());
+      BasicMessageChannel<String>('currentUserId', StringCodec());
   var _recommendationChannel =
-  BasicMessageChannel<String>('iosRecommendationTapped', StringCodec());
+      BasicMessageChannel<String>('iosRecommendationTapped', StringCodec());
   User _user;
 
   @override
@@ -64,10 +64,7 @@ class _HomePageState extends State<HomePage> {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-              builder: (context) => ChatScreen(
-                conversationId: message,
-                maybePop: true,
-              )),
+              builder: (context) => ChatScreen(conversationId: message)),
           ModalRoute.withName("/"));
       return '';
     });
@@ -86,7 +83,7 @@ class _HomePageState extends State<HomePage> {
 
   void _initLocalNotifications() {
     var initializationSettingsAndroid =
-    new AndroidInitializationSettings('@mipmap/ic_launcher');
+        new AndroidInitializationSettings('@mipmap/ic_launcher');
     var initializationSettingsIOS = new IOSInitializationSettings();
     var initializationSettings = new InitializationSettings(
         initializationSettingsAndroid, initializationSettingsIOS);
@@ -102,9 +99,9 @@ class _HomePageState extends State<HomePage> {
 
       if (_message.messageAuthor != currentUserId) {
         var notificationMap =
-        Map<String, dynamic>.from(notification['notification']);
+            Map<String, dynamic>.from(notification['notification']);
         PushNotification pushNotification =
-        PushNotification.fromJson(notificationMap);
+            PushNotification.fromJson(notificationMap);
         _showNotification(pushNotification);
       }
     });
@@ -140,10 +137,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-            builder: (context) => CardDetailsScreen(
-              cardId: cardId,
-              maybePop: true,
-            )),
+            builder: (context) => CardDetailsScreen(cardId: cardId)),
         ModalRoute.withName("/"));
   }
 
@@ -151,10 +145,8 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-            builder: (context) => ChatScreen(
-              conversationId: _message.channelId,
-              maybePop: true,
-            )),
+            builder: (context) =>
+                ChatScreen(conversationId: _message.channelId)),
         ModalRoute.withName("/"));
   }
 
@@ -172,8 +164,8 @@ class _HomePageState extends State<HomePage> {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                    conversationId: _message.channelId, maybePop: true)),
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
             ModalRoute.withName("/"));
       },
       onLaunch: (Map<String, dynamic> message) async {
@@ -182,8 +174,8 @@ class _HomePageState extends State<HomePage> {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                    conversationId: _message.channelId, maybePop: true)),
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
             ModalRoute.withName("/"));
       },
     );
@@ -243,7 +235,7 @@ class _HomePageState extends State<HomePage> {
                     onChanged: _onBlurredChanged,
                     isStartedFromHomeScreen: true,
                     onUserChanged: (newUser) {
-                      if(_user!=null && newUser!=null)
+                      if (_user != null && newUser != null)
                         _user.name = newUser.name;
                       _user.phoneNumber = newUser.phoneNumber;
                       _user.description = newUser.description;
@@ -251,7 +243,6 @@ class _HomePageState extends State<HomePage> {
                       _user.cards = newUser.cards;
                       _user.profilePicUrl = newUser.profilePicUrl;
                       _user.reviews = newUser.reviews;
-
                     },
                   );
                 default:
@@ -262,9 +253,9 @@ class _HomePageState extends State<HomePage> {
         ),
         (blurred)
             ? new Container(
-          decoration:
-          new BoxDecoration(color: Colors.black.withOpacity(0.6)),
-        )
+                decoration:
+                    new BoxDecoration(color: Colors.black.withOpacity(0.6)),
+              )
             : Container(),
       ],
     );
@@ -330,13 +321,13 @@ class _HomePageState extends State<HomePage> {
   Future<void> _goToAddCardScreen() async {
     var result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) => AddCardScreen(
-          user: _user,
-          updateUsersCards: (userCards) {
-            if (_user != null) {
-              _user.cards = userCards;
-            }
-          },
-        )));
+              user: _user,
+              updateUsersCards: (userCards) {
+                if (_user != null) {
+                  _user.cards = userCards;
+                }
+              },
+            )));
     _homeBloc.pickItem(0);
     if (result != null) {
       showDialog(

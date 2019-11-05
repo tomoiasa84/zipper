@@ -94,10 +94,8 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => ChatScreen(
-                pubNubConversation: pubNubConversation,
-                maybePop: true,
-              )),
+          builder: (context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)),
     );
   }
 
