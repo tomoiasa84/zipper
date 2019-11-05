@@ -34,6 +34,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     if (widget.user != null) {
       _cardsList.clear();
       _cardsList.addAll(widget.user.cardsConnections);
+      _cardsList.addAll(widget.user.cards);
       _cardsList.sort((a, b) {
         DateTime dateA = parseDateFromString(a.createdAt);
         DateTime dateB = parseDateFromString(b.createdAt);
@@ -42,10 +43,12 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
         if (result.errors == null && mounted) {
           User currentUser = User.fromJson(result.data['get_user']);
-          widget.onUserUpdated(currentUser.cardsConnections);
+          widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
           if (currentUser != null && currentUser.cardsConnections != null) {
             if (_cardsList != currentUser.cardsConnections) {
-              _cardsList = currentUser.cardsConnections;
+              _cardsList.clear();
+              _cardsList.addAll(currentUser.cardsConnections);
+              _cardsList.addAll(currentUser.cards);
               setState(() {
                 _cardsList.sort((a, b) {
                   DateTime dateA = parseDateFromString(a.createdAt);
@@ -73,15 +76,18 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
       if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);
-        currentUser.cardsConnections.sort((a, b) {
+        List<CardModel> newCardsList = [];
+        newCardsList.addAll(currentUser.cardsConnections);
+        newCardsList.addAll(currentUser.cards);
+        newCardsList.sort((a, b) {
           DateTime dateA = parseDateFromString(a.createdAt);
           DateTime dateB = parseDateFromString(b.createdAt);
           return dateB.compareTo(dateA);
         });
-        widget.onUserUpdated(currentUser.cardsConnections);
+        widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
         if (currentUser != null && currentUser.cardsConnections != null) {
           setState(() {
-            _cardsList.addAll(currentUser.cardsConnections);
+            _cardsList = newCardsList;
             _saving = false;
           });
         } else {

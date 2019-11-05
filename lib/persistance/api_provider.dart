@@ -184,6 +184,59 @@ class ApiProvider {
                          acceptedFlag
                       }
                         }
+                                            cards{
+                         id
+                      postedBy{
+                        profileURL
+                        name
+                        id
+                      }
+                      searchFor{
+                        name
+                        id
+                      }
+                      createdAt
+                      text
+                      recommandsCount
+                      recommandsList{
+                         id
+                         card{
+                           id
+                           searchFor{
+                              id
+                              name
+                           }
+                         }
+                         userAsk{
+                           id
+                           name
+                         }
+                         userSend{
+                           id
+                           name
+                         }
+                         userRecommand{
+                           name
+                            tags{
+                                id
+                                default
+                                user{
+                                  name
+                                }
+                                score
+                                reviews{
+                                  id
+                                }
+                                tag{
+                                  id
+                                  name
+                                }
+                              }
+                         }
+                         acceptedFlag
+                      }
+                      }
+
     							}
               }''',
     ));
