@@ -865,10 +865,7 @@ class _ChatScreenState extends State<ChatScreen> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => CardDetailsScreen(
-                      cardId: cardModel.id,
-                      maybePop: false,
-                    )));
+                builder: (context) => CardDetailsScreen(cardId: cardModel.id)));
       },
       child: Padding(
         padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),

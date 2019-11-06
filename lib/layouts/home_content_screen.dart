@@ -322,10 +322,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => CardDetailsScreen(
-                  cardId: card.id,
-                  maybePop: false,
-                )));
+            builder: (context) => CardDetailsScreen(cardId: card.id)));
     _cardsList.clear();
     getCards();
   }
