@@ -111,8 +111,8 @@ class SendInChatScreenState extends State<SendInChatScreen> {
           .then((messageSent) {
         if (messageSent) {
           Navigator.of(context).pushReplacement(new MaterialPageRoute(
-              builder: (BuildContext context) => ChatScreen(
-                  pubNubConversation: pubNubConversation, maybePop: true)));
+              builder: (BuildContext context) =>
+                  ChatScreen(pubNubConversation: pubNubConversation)));
         } else {
           print('Could not send message');
         }
@@ -136,8 +136,8 @@ class SendInChatScreenState extends State<SendInChatScreen> {
           .then((messageSent) {
         if (messageSent) {
           Navigator.of(context).pushReplacement(new MaterialPageRoute(
-              builder: (BuildContext context) => ChatScreen(
-                  pubNubConversation: pubNubConversation, maybePop: true)));
+              builder: (BuildContext context) =>
+                  ChatScreen(pubNubConversation: pubNubConversation)));
         } else {
           print('Could not send message');
         }

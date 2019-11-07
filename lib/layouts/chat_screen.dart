@@ -30,10 +30,8 @@ import 'card_details_screen.dart';
 class ChatScreen extends StatefulWidget {
   final PubNubConversation pubNubConversation;
   final String conversationId;
-  final bool maybePop;
 
-  ChatScreen(
-      {Key key, this.pubNubConversation, this.conversationId, this.maybePop})
+  ChatScreen({Key key, this.pubNubConversation, this.conversationId})
       : super(key: key);
 
   @override
@@ -127,8 +125,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void _startConversation(User user) {
     _chatBloc.createConversation(user).then((pubNubConversation) {
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (BuildContext context) => ChatScreen(
-              pubNubConversation: pubNubConversation, maybePop: false)));
+          builder: (BuildContext context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)));
     });
   }
 
@@ -365,11 +363,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: ColorUtils.almostBlack,
               ),
               onPressed: () {
-                if (widget.maybePop) {
-                  Navigator.maybePop(context);
-                } else {
-                  Navigator.pop(context);
-                }
+                _saveLastMessage().then((messageSaved) {
+                  Navigator.of(context).pop();
+                });
               },
             ),
             backgroundColor: Colors.white,
@@ -884,10 +880,7 @@ class _ChatScreenState extends State<ChatScreen> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => CardDetailsScreen(
-                      cardId: cardModel.id,
-                      maybePop: false,
-                    )));
+                builder: (context) => CardDetailsScreen(cardId: cardModel.id)));
       },
       child: Padding(
         padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),

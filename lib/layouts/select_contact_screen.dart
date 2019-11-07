@@ -76,7 +76,7 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
     _selectContactBloc.createConversation(user).then((pubNubConversation) {
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
           builder: (BuildContext context) => ChatScreen(
-              pubNubConversation: pubNubConversation, maybePop: true)));
+              pubNubConversation: pubNubConversation)));
     });
   }
 

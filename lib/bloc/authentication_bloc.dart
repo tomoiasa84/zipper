@@ -8,10 +8,14 @@ class AuthenticationBloc {
 
   Future<List<LocationModel>> getLocations() async {
     QueryResult data = await _repository.getLocations();
+    List<LocationModel> list = [];
+    if(data.data == null){
+      return list;
+    }
 
     final List<Map<String, dynamic>> locations =
         data.data['get_locations'].cast<Map<String, dynamic>>();
-    List<LocationModel> list = [];
+
     locations.forEach((location) => list.add(LocationModel.fromJson(location)));
     return list;
   }

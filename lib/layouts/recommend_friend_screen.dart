@@ -217,7 +217,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
           });
           Navigator.of(context).pushReplacement(new MaterialPageRoute(
               builder: (BuildContext context) => ChatScreen(
-                  pubNubConversation: pubNubConversation, maybePop: true)));
+                  pubNubConversation: pubNubConversation)));
         } else {
           print('Could not send message');
         }
