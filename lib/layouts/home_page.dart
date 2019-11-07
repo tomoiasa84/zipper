@@ -64,10 +64,7 @@ class _HomePageState extends State<HomePage> {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-              builder: (context) => ChatScreen(
-                    conversationId: message,
-                    maybePop: true,
-                  )),
+              builder: (context) => ChatScreen(conversationId: message)),
           ModalRoute.withName("/"));
       return '';
     });
@@ -140,10 +137,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-            builder: (context) => CardDetailsScreen(
-                  cardId: cardId,
-                  maybePop: true,
-                )),
+            builder: (context) => CardDetailsScreen(cardId: cardId)),
         ModalRoute.withName("/"));
   }
 
@@ -151,10 +145,8 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-            builder: (context) => ChatScreen(
-                  conversationId: _message.channelId,
-                  maybePop: true,
-                )),
+            builder: (context) =>
+                ChatScreen(conversationId: _message.channelId)),
         ModalRoute.withName("/"));
   }
 
@@ -172,8 +164,8 @@ class _HomePageState extends State<HomePage> {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                    conversationId: _message.channelId, maybePop: true)),
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
             ModalRoute.withName("/"));
       },
       onLaunch: (Map<String, dynamic> message) async {
@@ -182,8 +174,8 @@ class _HomePageState extends State<HomePage> {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                    conversationId: _message.channelId, maybePop: true)),
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
             ModalRoute.withName("/"));
       },
     );
@@ -220,9 +212,10 @@ class _HomePageState extends State<HomePage> {
                 case NavBarItem.HOME:
                   return HomeContentScreen(
                     user: _user,
-                    onUserUpdated: (cardsConnections) {
+                    onUserUpdated: (cardsConnections, cards) {
                       if (_user != null) {
                         _user.cardsConnections = cardsConnections;
+                        _user.cards = cards;
                       }
                     },
                   );
@@ -243,15 +236,14 @@ class _HomePageState extends State<HomePage> {
                     onChanged: _onBlurredChanged,
                     isStartedFromHomeScreen: true,
                     onUserChanged: (newUser) {
-                      if(_user!=null && newUser!=null)
-                      _user.name = newUser.name;
+                      if (_user != null && newUser != null)
+                        _user.name = newUser.name;
                       _user.phoneNumber = newUser.phoneNumber;
                       _user.description = newUser.description;
                       _user.tags = newUser.tags;
                       _user.cards = newUser.cards;
                       _user.profilePicUrl = newUser.profilePicUrl;
                       _user.reviews = newUser.reviews;
-
                     },
                   );
                 default:

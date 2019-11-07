@@ -1,14 +1,20 @@
 import 'package:contacts_service/contacts_service.dart';
-import 'package:contractor_search/model/sync_contacts_model.dart';
 import 'package:contractor_search/model/contact_model.dart';
+import 'package:contractor_search/model/formatted_contact_model.dart';
+import 'package:contractor_search/model/formatted_contacts.dart';
+import 'package:contractor_search/model/sync_contacts_model.dart';
 import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/persistance/repository.dart';
+import 'package:country_pickers/countries.dart';
+import 'package:country_pickers/country.dart';
+import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:phone_number/phone_number.dart';
 
 class SyncContactsBloc {
   Repository _repository = Repository();
-  String countryCode;
+  Country countryCode;
 
   Future<Iterable<Contact>> getContacts() async {
     return await _repository.getContacts();
@@ -22,74 +28,125 @@ class SyncContactsBloc {
     QueryResult result = await _repository.getUserByIdWithPhoneNumber(userId);
 
     if (result.errors == null) {
-      countryCode =
-          User.fromJson(result.data['get_user']).phoneNumber.substring(0, 2);
+      final parsedPhoneNumber = await PhoneNumber.parse(
+          User.fromJson(result.data['get_user']).phoneNumber);
+
+      countryCode = countryList.firstWhere(
+          (item) => item.phoneCode == parsedPhoneNumber['country_code'],
+          orElse: () => null);
 
       var contactsResult = await getContacts();
       if (contactsResult != null && contactsResult.isNotEmpty) {
-        List<String> phoneContacts = _formatContactsNumber(contactsResult);
-
-        if (phoneContacts.isNotEmpty) {
-          var checkResult = await checkContacts(phoneContacts.toSet().toList());
+        FormattedContacts formattedContacts =
+            await _formatContactsNumber(contactsResult);
+        if (formattedContacts.formattedPhoneNumbers.isNotEmpty) {
+          var checkResult = await checkContacts(
+              formattedContacts.formattedPhoneNumbers.toSet().toList());
           if (checkResult.errors == null) {
-            return _groupExistingUsers(checkResult, contactsResult);
+            return _groupExistingUsers(checkResult, formattedContacts);
           } else
-            return SyncContactsModel(
-                [], [], countryCode, result.errors[0].message);
+            return SyncContactsModel([], [], result.errors[0].message);
         }
-        return SyncContactsModel([], [], countryCode, "");
+        return SyncContactsModel([], [], "");
       } else {
-        return SyncContactsModel([], [], countryCode, "");
+        return SyncContactsModel([], [], "");
       }
     } else {
-      return SyncContactsModel([], [], countryCode, result.errors[0].message);
+      return SyncContactsModel([], [], result.errors[0].message);
     }
   }
 
-  List<String> _formatContactsNumber(Iterable<Contact> contactsResult) {
-    List<String> phoneContacts = [];
-    contactsResult.forEach((item) {
+  Future<FormattedContacts> _formatContactsNumber(
+      Iterable<Contact> contactsResult) async {
+    List<String> phoneContacts = new List();
+    List<FormattedContactModel> formattedContacts = new List();
+
+    for (Contact item in contactsResult) {
       if (item.phones != null && item.phones.toList().isNotEmpty) {
-        if (item.phones
-            .toList()
-            .elementAt(0)
-            .value
-            .toString()
-            .startsWith("+")) {
-          phoneContacts.add(item.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), ""));
-        } else {
-          phoneContacts
-              .add(countryCode + item.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), ""));
+        try {
+          if (item.phones.elementAt(0).value.toString().startsWith("+")) {
+            phoneContacts.add(item.phones
+                .elementAt(0)
+                .value
+                .toString()
+                .replaceAll(RegExp(r"[^\s\w\+]"), '')
+                .split(" ")
+                .join(""));
+            formattedContacts.add(FormattedContactModel(
+                item,
+                item.phones
+                    .elementAt(0)
+                    .value
+                    .toString()
+                    .replaceAll(RegExp(r"[^\s\w\+]"), '')
+                    .split(" ")
+                    .join("")));
+          } else {
+            var parsed = await PhoneNumber.parse(
+                item.phones
+                    .elementAt(0)
+                    .value
+                    .toString()
+                    .replaceAll(RegExp(r"[^\s\w\+]"), '')
+                    .split(" ")
+                    .join(""),
+                region: countryCode.isoCode);
+            phoneContacts.add(parsed['e164']
+                .replaceAll(RegExp(r"[^\s\w\+]"), '')
+                .split(" ")
+                .join(""));
+            formattedContacts.add(FormattedContactModel(
+                item,
+                parsed['e164']
+                    .replaceAll(RegExp(r"[^\s\w\+]"), '')
+                    .split(" ")
+                    .join("")));
+          }
+        } on PlatformException {
+          phoneContacts.add("+" +
+              item.phones
+                  .elementAt(0)
+                  .value
+                  .toString()
+                  .replaceAll(RegExp(r"[^\s\w\+]"), '')
+                  .split(" ")
+                  .join(""));
+          formattedContacts.add(FormattedContactModel(
+              item,
+              ("+" +
+                  item.phones
+                      .elementAt(0)
+                      .value
+                      .toString()
+                      .replaceAll(RegExp(r"[^\s\w\+]"), '')
+                      .split(" ")
+                      .join(""))));
         }
       }
-    });
-    return phoneContacts;
+    }
+    return FormattedContacts(phoneContacts, formattedContacts);
   }
 
   SyncContactsModel _groupExistingUsers(
-      QueryResult result, Iterable<Contact> contactsResult) {
+      QueryResult result, FormattedContacts formattedContacts) {
     List<UnjoinedContactsModel> unjoinedContacts = [];
-    List<Contact> joinedContacts = [];
+    List<FormattedContactModel> joinedContacts = [];
     final List<Map<String, dynamic>> checkContactsResult =
         result.data['check_contacts'].cast<Map<String, dynamic>>();
     checkContactsResult.forEach((item) {
       ContactModel contactModel = ContactModel.fromJson(item);
 
-      Contact contact = contactsResult.firstWhere(
-          (contact) => (contact.phones != null &&
-                  contact.phones.toList().isNotEmpty)
-              ? (contact.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), "") ==
-                      contactModel.number.replaceAll(new RegExp(r"\s+\b|\b\s"), "") ||
-                  countryCode + contact.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), "") ==
-                      contactModel.number)
-              : false,
-          orElse: () => null);
+      FormattedContactModel contact =
+          formattedContacts.formattedContactModelList.firstWhere(
+              (formattedContact) =>
+                  formattedContact.formattedPhoneNumber == contactModel.number,
+              orElse: () => null);
       if (contact != null) if (contactModel.exists) {
         joinedContacts.add(contact);
       } else {
         unjoinedContacts.add(UnjoinedContactsModel(contact, true));
       }
     });
-    return SyncContactsModel(unjoinedContacts, joinedContacts, countryCode, "");
+    return SyncContactsModel(unjoinedContacts, joinedContacts, "");
   }
 }

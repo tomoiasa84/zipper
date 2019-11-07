@@ -97,6 +97,10 @@ class ApiProvider {
                                   score
                                   reviews{
                                      id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
                                   }
                              }
                             }
@@ -115,10 +119,23 @@ class ApiProvider {
                                   }
                                   score
                                   reviews{
-                                     id
+                                    id
+                                    author{
+                                      name
+                                      profileURL
+                                    }
+                                    userTag{
+                                       id
+                                       score
+                                       tag{
+                                         name
+                                       }
+                                    }
+                                    stars
+                                    text
+                                        }
+                                   }
                                   }
-                             }
-                            }
                         }
                     }
               }''',
@@ -164,6 +181,7 @@ class ApiProvider {
                            name
                          }
                          userRecommand{
+                           id
                            name
                             tags{
                                 id
@@ -184,6 +202,60 @@ class ApiProvider {
                          acceptedFlag
                       }
                         }
+                     cards{
+                         id
+                      postedBy{
+                        profileURL
+                        name
+                        id
+                      }
+                      searchFor{
+                        name
+                        id
+                      }
+                      createdAt
+                      text
+                      recommandsCount
+                      recommandsList{
+                         id
+                         card{
+                           id
+                           searchFor{
+                              id
+                              name
+                           }
+                         }
+                         userAsk{
+                           id
+                           name
+                         }
+                         userSend{
+                           id
+                           name
+                         }
+                         userRecommand{
+                           id
+                           name
+                            tags{
+                                id
+                                default
+                                user{
+                                  name
+                                }
+                                score
+                                reviews{
+                                  id
+                                }
+                                tag{
+                                  id
+                                  name
+                                }
+                              }
+                         }
+                         acceptedFlag
+                      }
+                      }
+
     							}
               }''',
     ));
@@ -228,6 +300,7 @@ class ApiProvider {
                               }
                               userRecommand{
                                 name
+                                id
                                 tags{
                                   id
                                   tag{
@@ -294,6 +367,10 @@ class ApiProvider {
                                   score
                                   reviews{
                                      id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
                                   }
                              }
                             }
@@ -313,6 +390,19 @@ class ApiProvider {
                                   score
                                   reviews{
                                      id
+                                    author{
+                                      name
+                                      profileURL
+                                    }
+                                    userTag{
+                                       id
+                                       score
+                                       tag{
+                                         name
+                                       }
+                                    }
+                                    stars
+                                    text
                                   }
                              }
                             }
@@ -349,6 +439,7 @@ class ApiProvider {
                               }
                               userRecommand{
                                 name
+                                id
                                 tags{
                                   id
                                   tag{

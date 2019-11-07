@@ -33,6 +33,9 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
         currentUser.connections.forEach((connection) {
           _usersList.add(connection.targetUser);
         });
+        _usersList.sort((a, b) {
+          return b.isActive.toString().compareTo(a.isActive.toString());
+        });
         if (mounted) {
           setState(() {
             _loading = false;
@@ -73,7 +76,7 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
     _selectContactBloc.createConversation(user).then((pubNubConversation) {
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
           builder: (BuildContext context) => ChatScreen(
-              pubNubConversation: pubNubConversation, maybePop: true)));
+              pubNubConversation: pubNubConversation)));
     });
   }
 

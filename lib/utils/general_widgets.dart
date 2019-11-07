@@ -208,12 +208,17 @@ Widget generateContactUI(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(
-                            userRec.name,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                color: ColorUtils.white,
-                                fontWeight: FontWeight.bold),
+                          GestureDetector(
+                            onTap: () {
+                              goToUserDetailsScreen(userRec);
+                            },
+                            child: Text(
+                              userRec.name,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: ColorUtils.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                           Row(
                             children: <Widget>[

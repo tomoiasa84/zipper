@@ -1,4 +1,5 @@
 import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/model/formatted_contact_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
@@ -6,7 +7,7 @@ import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 
 class JoinedContactsScreen extends StatefulWidget {
-  final List<Contact> joinedContacts;
+  final List<FormattedContactModel> joinedContacts;
 
   const JoinedContactsScreen({Key key, this.joinedContacts}) : super(key: key);
 
@@ -59,7 +60,8 @@ class JoinedContactsScreenState extends State<JoinedContactsScreen> {
                       (index == widget.joinedContacts.length - 1) ? 24.0 : 0.0,
                   left: 16.0,
                   right: 16.0),
-              child: _buildListItem(widget.joinedContacts.elementAt(index)));
+              child: _buildListItem(
+                  widget.joinedContacts.elementAt(index).contact));
         });
   }
 

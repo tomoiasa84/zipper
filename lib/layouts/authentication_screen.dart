@@ -62,7 +62,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
   Duration _timeOut = const Duration(seconds: 30);
   List<LocationModel> locationsList = [];
   int authType = AuthType.signUp;
-  AuthenticationBloc _authBloc;
+  AuthenticationBloc _authBloc = AuthenticationBloc();
   List<String> locations = [];
   bool _smsCodeSent = false;
   bool _codeTimedOut = false;
@@ -72,10 +72,8 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
   Timer _codeTimer;
   String smsCode;
 
-  @override
-  void initState() {
-    _authBloc = AuthenticationBloc();
-    _authBloc.getLocations().then((snapshot) {
+  Future _getLocations() async {
+    await _authBloc.getLocations().then((snapshot) {
       if (this.mounted) {
         setState(() {
           snapshot.forEach((location) {
@@ -85,6 +83,11 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
         });
       }
     });
+  }
+
+  @override
+  void initState() {
+    _getLocations();
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (widget.showExpiredSessionMessage) {
         _showDialog(Localization.of(context).getString('yourSessionExpired'),
@@ -535,7 +538,18 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
             decoration: customInputDecoration(
                 Localization.of(context).getString('location'),
                 Icons.location_on)),
-        suggestionsCallback: (pattern) {
+        suggestionsCallback: (pattern) async {
+          if (locations.length == 0) {
+            await _getLocations().then((value) {
+              List<String> list = [];
+              locations
+                  .where((it) =>
+                      it.toLowerCase().startsWith(pattern.toLowerCase()))
+                  .toList()
+                  .forEach((loc) => list.add(loc));
+              return list;
+            });
+          }
           List<String> list = [];
           locations
               .where((it) => it.toLowerCase().startsWith(pattern.toLowerCase()))

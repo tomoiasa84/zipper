@@ -40,7 +40,9 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
 
   @override
   void initState() {
-    if (widget.user != null && widget.currentUser != null) {
+    if (widget.user != null &&
+        widget.currentUser != null &&
+        widget.currentUser.connections != null) {
       _user = widget.user;
       _currentUser = widget.currentUser;
       for (var connection in _currentUser.connections) {
@@ -194,8 +196,8 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     });
     _userDetailsBloc.createConversation(_user).then((pubNubConversation) {
       Navigator.of(context).push(new MaterialPageRoute(
-          builder: (BuildContext context) => ChatScreen(
-              pubNubConversation: pubNubConversation, maybePop: true)));
+          builder: (BuildContext context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)));
     }).then((value) {
       setState(() {
         _saving = false;

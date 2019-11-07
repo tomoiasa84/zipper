@@ -48,10 +48,7 @@ class MyAppState extends State<MyApp> {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-              builder: (context) => ChatScreen(
-                    conversationId: message,
-                    maybePop: true,
-                  )),
+              builder: (context) => ChatScreen(conversationId: message)),
           ModalRoute.withName("/"));
       return '';
     });
@@ -128,10 +125,7 @@ class MyAppState extends State<MyApp> {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-            builder: (context) => CardDetailsScreen(
-                  cardId: cardId,
-                  maybePop: true,
-                )),
+            builder: (context) => CardDetailsScreen(cardId: cardId)),
         ModalRoute.withName("/"));
   }
 
@@ -139,10 +133,8 @@ class MyAppState extends State<MyApp> {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-            builder: (context) => ChatScreen(
-                  conversationId: _message.channelId,
-                  maybePop: true,
-                )),
+            builder: (context) =>
+                ChatScreen(conversationId: _message.channelId)),
         ModalRoute.withName("/"));
   }
 
@@ -158,8 +150,8 @@ class MyAppState extends State<MyApp> {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                    conversationId: _message.channelId, maybePop: true)),
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
             ModalRoute.withName("/"));
       },
       onLaunch: (Map<String, dynamic> message) async {
@@ -168,8 +160,8 @@ class MyAppState extends State<MyApp> {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                    conversationId: _message.channelId, maybePop: true)),
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
             ModalRoute.withName("/"));
       },
     );
