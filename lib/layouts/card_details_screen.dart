@@ -17,9 +17,8 @@ import 'chat_screen.dart';
 
 class CardDetailsScreen extends StatefulWidget {
   final int cardId;
-  final bool maybePop;
 
-  const CardDetailsScreen({Key key, this.cardId, this.maybePop})
+  const CardDetailsScreen({Key key, this.cardId})
       : super(key: key);
 
   @override
@@ -89,11 +88,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       ),
       centerTitle: true,
       leading: buildBackButton(Icons.arrow_back, () {
-        if (widget.maybePop) {
-          Navigator.maybePop(context);
-        } else {
-          Navigator.pop(context);
-        }
+        Navigator.pop(context);
       }),
     );
   }
@@ -128,10 +123,8 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   void _startConversation(User user) {
     _cardDetailsBloc.createConversation(user).then((pubNubConversation) {
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (BuildContext context) => ChatScreen(
-                pubNubConversation: pubNubConversation,
-                maybePop: false,
-              )));
+          builder: (BuildContext context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)));
     });
   }
 

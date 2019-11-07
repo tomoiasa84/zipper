@@ -94,10 +94,8 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => ChatScreen(
-                pubNubConversation: pubNubConversation,
-                maybePop: true,
-              )),
+          builder: (context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)),
     );
   }
 
@@ -106,9 +104,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       context,
       MaterialPageRoute(
           builder: (context) => CardDetailsScreen(
-                cardId: pubNubConversation.lastMessage.message.cardId,
-                maybePop: true,
-              )),
+              cardId: pubNubConversation.lastMessage.message.cardId)),
     );
   }
 
