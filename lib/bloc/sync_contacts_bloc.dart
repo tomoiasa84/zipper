@@ -49,6 +49,7 @@ class SyncContactsBloc {
   List<String> _formatContactsNumber(Iterable<Contact> contactsResult) {
     List<String> phoneContacts = [];
     contactsResult.forEach((item) {
+      print(item.displayName);
       if (item.phones != null && item.phones.toList().isNotEmpty) {
         if (item.phones
             .toList()

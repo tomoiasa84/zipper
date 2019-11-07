@@ -4,7 +4,9 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import 'package:contractor_search/utils/custom_dialog.dart';
+import 'package:contractor_search/utils/shared_preferences_helper.dart';
+import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
 class TutorialScreen extends StatefulWidget {
   @override
   State createState() => new TutorialScreenState();
@@ -14,6 +16,8 @@ class TutorialScreenState extends State<TutorialScreen> {
   final _totalDots = 3;
   int _currentPosition = 0;
   PermissionStatus _permissionStatus = PermissionStatus.unknown;
+  SyncContactsBloc _syncContactsBloc = SyncContactsBloc();;
+
 
   void _updatePosition(int position) {
     setState(() => _currentPosition = _validPosition(position));
@@ -72,7 +76,43 @@ class TutorialScreenState extends State<TutorialScreen> {
         Localization.of(context).getString('tutorialContent'),
         'assets/images/ic_contacts_gray_bg.png');
   }
+  Future<String> getCurrentUserId() async {
+    return await SharedPreferencesHelper.getCurrentUserId();
+  }
 
+  void _syncContacts() {
+    final Future<PermissionStatus> statusFuture =
+    PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
+
+    statusFuture.then((PermissionStatus status) {
+      if (status == PermissionStatus.granted) {
+        getCurrentUserId().then((userId) {
+          _syncContactsBloc.syncContacts(userId).then((syncResult) {
+            if(syncResult.error.isNotEmpty){
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => CustomDialog(
+                  title: Localization.of(context).getString("error"),
+                  description: syncResult.error,
+                  buttonText: Localization.of(context).getString("ok"),
+                ),
+              );
+            }
+            else {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          SyncResultsScreen(
+                            syncResult: syncResult,
+                          )),
+                  ModalRoute.withName("/homepage"));
+            }
+          });
+        });
+      }
+    });
+  }
   Future<void> requestPermission(PermissionGroup permission) async {
     final List<PermissionGroup> permissions = <PermissionGroup>[permission];
     final Map<PermissionGroup, PermissionStatus> permissionRequestResult =
