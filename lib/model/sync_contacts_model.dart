@@ -1,11 +1,10 @@
-import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/model/formatted_contact_model.dart';
 import 'package:contractor_search/model/unjoined_contacts_model.dart';
 
-class SyncContactsModel{
+class SyncContactsModel {
   List<UnjoinedContactsModel> unjoinedContacts;
-  List<Contact> existingUsers;
-  String countryCode;
+  List<FormattedContactModel> existingUsers;
   String error;
 
-  SyncContactsModel(this.unjoinedContacts, this.existingUsers, this.countryCode, this.error);
+  SyncContactsModel(this.unjoinedContacts, this.existingUsers, this.error);
 }

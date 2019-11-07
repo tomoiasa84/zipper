@@ -60,31 +60,10 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
             });
             List<String> existingUsers = [];
             widget.syncResult.existingUsers.forEach((contact) {
-              if (contact.phones != null &&
-                  contact.phones.toList().isNotEmpty) {
-                if (contact.phones
-                    .toList()
-                    .elementAt(0)
-                    .value
-                    .toString()
-                    .startsWith("+")) {
-                  existingUsers.add(contact.phones
-                      .toList()
-                      .elementAt(0)
-                      .value
-                      .toString()
-                      .split(" ")
-                      .join(""));
-                } else {
-                  existingUsers.add(widget.syncResult.countryCode +
-                      contact.phones
-                          .toList()
-                          .elementAt(0)
-                          .value
-                          .toString()
-                          .split(" ")
-                          .join(""));
-                }
+              if (contact != null &&
+                  contact.formattedPhoneNumber != null &&
+                  contact.formattedPhoneNumber.isNotEmpty) {
+                existingUsers.add(contact.formattedPhoneNumber);
               }
             });
             _syncResultsBloc.loadConnections(existingUsers).then((response) {
@@ -271,7 +250,6 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
                   builder: (context) => ShareSelectedContactsScreen(
                         existingUsers: widget.syncResult.existingUsers,
                         unjoinedContacts: widget.syncResult.unjoinedContacts,
-                        countryCode: widget.syncResult.countryCode,
                       )),
               ModalRoute.withName("/homepage"));
         },
