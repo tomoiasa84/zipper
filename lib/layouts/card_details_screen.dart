@@ -6,10 +6,12 @@ import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql/src/core/query_result.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -26,7 +28,7 @@ class CardDetailsScreen extends StatefulWidget {
 
 class CardDetailsScreenState extends State<CardDetailsScreen> {
   CardModel _card;
-  CardDetailsBloc _cardDetailsBloc;
+  CardDetailsBloc _cardDetailsBloc = CardDetailsBloc();
   bool _saving = false;
 
   String _currentUserId;
@@ -42,19 +44,45 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     super.initState();
   }
 
+  void _showUnexistentCardDialog() {
+    setState(() {
+      _saving = false;
+    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: Localization.of(context).getString('error'),
+        description: Localization.of(context).getString('cardWasDeleted'),
+        buttonText: Localization.of(context).getString("ok"),
+        function: _returnToPreviousScreen,
+      ),
+    );
+  }
+
   void getCurrentCard() {
-    _cardDetailsBloc = CardDetailsBloc();
     setState(() {
       _saving = true;
     });
     _cardDetailsBloc.getCardById(widget.cardId).then((result) {
-      if (result.errors == null && mounted) {
-        setState(() {
-          _saving = false;
-          _card = CardModel.fromJson(result.data['get_card']);
-        });
+      if (result.data['get_card'] == null) {
+        _showUnexistentCardDialog();
+      } else {
+        _processCardResponse(result);
       }
     });
+  }
+
+  void _returnToPreviousScreen() {
+    Navigator.pop(context);
+  }
+
+  void _processCardResponse(QueryResult result) {
+    if (result.errors == null && mounted) {
+      setState(() {
+        _saving = false;
+        _card = CardModel.fromJson(result.data['get_card']);
+      });
+    }
   }
 
   Future<bool> _saveLastRecommendation() async {
