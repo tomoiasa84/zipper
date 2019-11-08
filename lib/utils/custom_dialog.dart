@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 class CustomDialog extends StatelessWidget {
   final String title, description, buttonText;
   final Image image;
+  final Function function;
 
-  CustomDialog({
-    @required this.title,
-    @required this.description,
-    @required this.buttonText,
-    this.image,
-  });
+  CustomDialog(
+      {@required this.title,
+      @required this.description,
+      @required this.buttonText,
+      this.image,
+      this.function});
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +65,9 @@ class CustomDialog extends StatelessWidget {
                 alignment: Alignment.bottomRight,
                 child: FlatButton(
                   onPressed: () {
+                    if (function != null) {
+                      function();
+                    }
                     Navigator.of(context).pop();
                   },
                   child: Text(
