@@ -18,8 +18,7 @@ import 'chat_screen.dart';
 class CardDetailsScreen extends StatefulWidget {
   final int cardId;
 
-  const CardDetailsScreen({Key key, this.cardId})
-      : super(key: key);
+  const CardDetailsScreen({Key key, this.cardId}) : super(key: key);
 
   @override
   CardDetailsScreenState createState() => CardDetailsScreenState();
@@ -319,9 +318,10 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => UserDetailsScreen(
-                                      user: _card.recommendsList
-                                          .elementAt(index)
-                                          .userSend)));
+                                        user: _card.recommendsList
+                                            .elementAt(index)
+                                            .userSend,
+                                      )));
                         }
                       });
                     },
