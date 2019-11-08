@@ -21,8 +21,10 @@ import 'chat_screen.dart';
 class UserDetailsScreen extends StatefulWidget {
   final User user;
   final User currentUser;
+  final List<User> connections;
 
-  const UserDetailsScreen({Key key, this.user, this.currentUser})
+  const UserDetailsScreen(
+      {Key key, this.user, this.currentUser, this.connections})
       : super(key: key);
 
   @override
@@ -146,7 +148,18 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
       if (permission == PermissionStatus.granted) {
         _userDetailsBloc
             .createConnection(_currentUser.id, _user.id)
-            .then((onValue) {
+            .then((result) {
+          if (widget.connections != null) {
+            widget.connections.add(
+                Connection.fromJson(result.data['create_connection'])
+                    .targetUser);
+            widget.connections.sort((a, b) {
+              return a.name.compareTo(b.name);
+            });
+            widget.connections.sort((a, b) {
+              return b.isActive.toString().compareTo(a.isActive.toString());
+            });
+          }
           _addContactToPhoneAgenda();
         });
       } else {
@@ -179,6 +192,13 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         _saving = false;
         _connectedToUser = false;
       });
+      if (widget.connections != null) {
+        User user = widget.connections
+            .firstWhere((item) => item.id == _user.id, orElse: () => null);
+        if (user != null) {
+          widget.connections.remove(user);
+        }
+      }
       _showDialog('', Localization.of(context).getString('deletedConnection'));
     });
   }
@@ -342,7 +362,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   Container _buildDescription() {
-    return _user.description != null
+    return _user.description != null && _user.description.isNotEmpty
         ? Container(
             padding: const EdgeInsets.only(top: 16.0),
             child: Text(

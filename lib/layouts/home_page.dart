@@ -223,7 +223,9 @@ class _HomePageState extends State<HomePage> {
                   return UsersScreen(
                     user: _user,
                     updateCurrentUser: (connections) {
-                      _user.connections = connections;
+                      if (_user != null && _user.connections != null) {
+                        _user.connections = connections;
+                      }
                     },
                   );
                 case NavBarItem.PLUS:

@@ -13,6 +13,8 @@ import 'package:contractor_search/utils/search_card_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
+import 'account_screen.dart';
+
 class HomeContentScreen extends StatefulWidget {
   final User user;
   final Function onUserUpdated;
@@ -61,17 +63,17 @@ class HomeContentScreenState extends State<HomeContentScreen> {
         }
       });
     } else {
+      if (mounted) {
+        setState(() {
+          _saving = true;
+        });
+      }
       getCards();
     }
     super.initState();
   }
 
   void getCards() {
-    if (mounted) {
-      setState(() {
-        _saving = true;
-      });
-    }
     _homeContentBloc = HomeContentBloc();
     _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
       if (result.errors == null && mounted) {
@@ -236,13 +238,24 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => UserDetailsScreen(
-                                      user: card.postedBy,
-                                      currentUser: widget.user,
-                                    )));
+                        getCurrentUserId().then((currentUserId) async {
+                          if (currentUserId == card.postedBy.id) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AccountScreen(
+                                        isStartedFromHomeScreen: false)));
+                          } else {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => UserDetailsScreen(
+                                        user: card.postedBy,
+                                        currentUser: widget.user))).then((_) {
+                              getCards();
+                            });
+                          }
+                        });
                       },
                       child: Text(card.postedBy.name,
                           style: TextStyle(fontWeight: FontWeight.bold)),
@@ -329,7 +342,6 @@ class HomeContentScreenState extends State<HomeContentScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => CardDetailsScreen(cardId: card.id)));
-    _cardsList.clear();
     getCards();
   }
 
