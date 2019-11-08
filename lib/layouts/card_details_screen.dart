@@ -352,7 +352,8 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 54.0),
+                padding: EdgeInsets.fromLTRB(16.0, 24.0, 16.0,
+                    _currentUserId != _card.postedBy.id ? 54.0 : 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -364,11 +365,13 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
               ),
             ),
           ),
-          Positioned(
-              bottom: 0.0,
-              right: 0.0,
-              left: 0.0,
-              child: _buildRecommendButton())
+          _currentUserId != _card.postedBy.id
+              ? Positioned(
+                  bottom: 0.0,
+                  right: 0.0,
+                  left: 0.0,
+                  child: _buildRecommendButton())
+              : Container()
         ],
       ),
     );
