@@ -18,8 +18,7 @@ import 'chat_screen.dart';
 class CardDetailsScreen extends StatefulWidget {
   final int cardId;
 
-  const CardDetailsScreen({Key key, this.cardId})
-      : super(key: key);
+  const CardDetailsScreen({Key key, this.cardId}) : super(key: key);
 
   @override
   CardDetailsScreenState createState() => CardDetailsScreenState();
@@ -59,6 +58,8 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   }
 
   Future<bool> _saveLastRecommendation() async {
+    print('saved');
+
     return SharedPreferencesHelper.saveCardRecommendsCount(
         _card.id.toString(), _card.recommendsCount);
   }
@@ -88,7 +89,9 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       ),
       centerTitle: true,
       leading: buildBackButton(Icons.arrow_back, () {
-        Navigator.pop(context);
+        _saveLastRecommendation().then((value) {
+          Navigator.pop(context);
+        });
       }),
     );
   }
