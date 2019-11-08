@@ -101,6 +101,10 @@ class UsersScreenState extends State<UsersScreen> {
               });
             });
           }
+        } else {
+          setState(() {
+            _saving = false;
+          });
         }
       } else {
         setState(() {
@@ -171,10 +175,6 @@ class UsersScreenState extends State<UsersScreen> {
                   user: user,
                   currentUser: _user,
                 )));
-    _usersList.clear();
-    setState(() {
-      _saving = true;
-    });
     _checkUsersUpdates();
   }
 
