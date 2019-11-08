@@ -17,6 +17,9 @@ class SyncContactsBloc {
   Future<QueryResult> checkContacts(List<String> phoneContacts) async {
     return await _repository.checkContacts(phoneContacts);
   }
+  Future<QueryResult> loadContacts(List<String> phoneContacts) async {
+    return await _repository.loadContacts(phoneContacts);
+  }
 
   Future<SyncContactsModel> syncContacts(String userId) async {
     QueryResult result = await _repository.getUserByIdWithPhoneNumber(userId);
@@ -49,7 +52,7 @@ class SyncContactsBloc {
   List<String> _formatContactsNumber(Iterable<Contact> contactsResult) {
     List<String> phoneContacts = [];
     contactsResult.forEach((item) {
-      print(item.displayName);
+      //print(item.displayName);
       if (item.phones != null && item.phones.toList().isNotEmpty) {
         if (item.phones
             .toList()

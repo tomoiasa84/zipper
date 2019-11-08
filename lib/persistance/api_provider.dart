@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:convert' as convert;
 import 'dart:io';
 
+import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/model/contact_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
@@ -12,7 +14,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class ApiProvider {
-  static HttpLink link = HttpLink(uri: 'https://xfriends.azurewebsites.net');
+  static HttpLink link = HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
@@ -1051,8 +1053,9 @@ class ApiProvider {
   }
 
   Future<QueryResult> loadContacts(List<String> phoneContacts) async {
-    var phoneContactsJson = jsonEncode(phoneContacts);
 
+
+    var phoneContactsJson = jsonEncode(phoneContacts);
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
