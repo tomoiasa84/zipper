@@ -109,6 +109,7 @@ class ApiProvider {
                              name
                              profileURL
                              isActive
+                             description
                              phoneNumber
                              tags{
                                   id
@@ -133,9 +134,9 @@ class ApiProvider {
                                     }
                                     stars
                                     text
-                                        }
-                                   }
-                                  }
+                                 }
+                               }
+                            }
                         }
                     }
               }''',
@@ -151,11 +152,77 @@ class ApiProvider {
                      firebaseId
                         cardsConnections{
                            id
-                      postedBy{
-                        profileURL
-                        name
-                        id
-                      }
+                           postedBy{
+                                id
+                                name
+                                profileURL
+                                phoneNumber
+                                description
+                                isActive
+                                 tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
+                                  }
+                             }
+                             cards{
+                            id
+                            createdAt
+                            searchFor{
+                              name
+                            }
+                            postedBy{
+                                id
+                                name
+                                profileURL
+                            }
+                            text
+                            recommandsCount
+                            recommandsList{
+                               id
+                              card{
+                                id
+                                searchFor{
+                                  id
+                                  name
+                                }
+                              }
+                              userAsk{
+                                id
+                                name
+                              }
+                              userSend{
+                                id
+                                name
+                              }
+                              userRecommand{
+                                name
+                                tags{
+                                  id
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                                }
+                              }
+                              acceptedFlag
+                            }
+                        }
+                            }
                       searchFor{
                         name
                         id
@@ -416,6 +483,25 @@ class ApiProvider {
                                 id
                                 name
                                 profileURL
+                                phoneNumber
+                                description
+                                isActive
+                                 tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
+                                  }
+                             }
                             }
                             text
                             recommandsCount
@@ -816,6 +902,38 @@ class ApiProvider {
       document: '''mutation{
                     create_connection(origin:"$currentUserId", target:"$targetUserId"){
                       id
+                      targetUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                    id
+                                    author{
+                                      name
+                                      profileURL
+                                    }
+                                    userTag{
+                                       id
+                                       score
+                                       tag{
+                                         name
+                                       }
+                                    }
+                                    stars
+                                    text
+                                 }
+                               }
+                            }
                     }
                 }''',
     ));
@@ -952,6 +1070,53 @@ class ApiProvider {
                         name
                         id
                         profileURL
+                        cards{
+                            id
+                            createdAt
+                            searchFor{
+                              name
+                            }
+                            postedBy{
+                                id
+                                name
+                                profileURL
+                            }
+                            text
+                            recommandsCount
+                            recommandsList{
+                               id
+                              card{
+                                id
+                                searchFor{
+                                  id
+                                  name
+                                }
+                              }
+                              userAsk{
+                                id
+                                name
+                              }
+                              userSend{
+                                id
+                                name
+                              }
+                              userRecommand{
+                                name
+                                tags{
+                                  id
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                                }
+                              }
+                              acceptedFlag
+                            }
+                        }
                       }
                       searchFor{
                         name

@@ -39,6 +39,9 @@ class UsersScreenState extends State<UsersScreen> {
         _usersList.add(connection.targetUser);
       });
       _usersList.sort((a, b) {
+        return a.name.compareTo(b.name);
+      });
+      _usersList.sort((a, b) {
         return b.isActive.toString().compareTo(a.isActive.toString());
       });
       _checkUsersUpdates();
@@ -64,6 +67,9 @@ class UsersScreenState extends State<UsersScreen> {
         widget.updateCurrentUser(currentUser.connections);
         currentUser.connections.forEach((connection) {
           _usersList.add(connection.targetUser);
+        });
+        _usersList.sort((a, b) {
+          return a.name.compareTo(b.name);
         });
         _usersList.sort((a, b) {
           return b.isActive.toString().compareTo(a.isActive.toString());
@@ -97,10 +103,17 @@ class UsersScreenState extends State<UsersScreen> {
             setState(() {
               _saving = false;
               _usersList.sort((a, b) {
+                return a.name.compareTo(b.name);
+              });
+              _usersList.sort((a, b) {
                 return b.isActive.toString().compareTo(a.isActive.toString());
               });
             });
           }
+        } else {
+          setState(() {
+            _saving = false;
+          });
         }
       } else {
         setState(() {
@@ -168,13 +181,7 @@ class UsersScreenState extends State<UsersScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => UserDetailsScreen(
-                  user: user,
-                  currentUser: _user,
-                )));
-    _usersList.clear();
-    setState(() {
-      _saving = true;
-    });
+                user: user, currentUser: _user, connections: _usersList)));
     _checkUsersUpdates();
   }
 
