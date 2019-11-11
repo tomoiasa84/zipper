@@ -38,17 +38,18 @@ class ChatBloc {
   }
 
   void subscribeToChannel(String channelName, String currentUserId) async {
-    var response = await _repository.subscribeToChannel(
-        channelName, currentUserId, _timestamp);
-
-    if (response.statusCode == 200) {
-      var myString = response.body.substring(response.body.length - 19);
-      _timestamp = myString.substring(0, myString.length - 2);
-      _addMessageToList(response);
-      subscribeToChannel(channelName, currentUserId);
-    } else {
-      print("Subscribe request failed with status: ${response.body}.");
-    }
+    return _repository
+        .subscribeToChannel(channelName, currentUserId, _timestamp)
+        .then((response) {
+      if (response.statusCode == 200) {
+        var myString = response.body.substring(response.body.length - 19);
+        _timestamp = myString.substring(0, myString.length - 2);
+        _addMessageToList(response);
+        subscribeToChannel(channelName, currentUserId);
+      } else {
+        print("Subscribe request failed with status: ${response.body}.");
+      }
+    }).catchError((error) {});
   }
 
   Future<PubNubConversation> getConversation(String conversationId) async {

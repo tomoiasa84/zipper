@@ -276,15 +276,15 @@ Widget generateContactUI(
               decoration: new BoxDecoration(shape: BoxShape.circle),
               child: CircleAvatar(
                 child: userRec.profilePicUrl == null ||
-                        (userRec.profilePicUrl != null &&
-                            userRec.profilePicUrl.isEmpty)
+                        userRec.profilePicUrl.isEmpty
                     ? Text(
                         userRec.name.startsWith('+')
                             ? '+'
                             : getInitials(userRec.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
-                backgroundImage: userRec.profilePicUrl != null
+                backgroundImage: userRec.profilePicUrl != null &&
+                        userRec.profilePicUrl.isNotEmpty
                     ? NetworkImage(userRec.profilePicUrl)
                     : null,
                 backgroundColor: ColorUtils.lightLightGray,

@@ -300,8 +300,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
               ),
               child: CircleAvatar(
                 child: usersList.elementAt(index).profilePicUrl == null ||
-                        (usersList.elementAt(index).profilePicUrl != null &&
-                            usersList.elementAt(index).profilePicUrl.isEmpty)
+                        usersList.elementAt(index).profilePicUrl.isEmpty
                     ? Text(
                         usersList.elementAt(index).name.startsWith('+')
                             ? '+'
@@ -309,7 +308,8 @@ class SendInChatScreenState extends State<SendInChatScreen> {
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
                 backgroundImage:
-                    usersList.elementAt(index).profilePicUrl != null
+                    usersList.elementAt(index).profilePicUrl != null &&
+                            usersList.elementAt(index).profilePicUrl.isNotEmpty
                         ? NetworkImage(usersList.elementAt(index).profilePicUrl)
                         : null,
                 backgroundColor: ColorUtils.lightLightGray,

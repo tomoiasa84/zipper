@@ -38,18 +38,22 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       getCurrentUserId().then((currentUserId) {
         _currentUserId = currentUserId;
       });
+  _getConversations();
     }
   }
 
   void _getConversations() {
-    print('GET CONVERSATIONS');
-    _conversationsBloc.getPubNubConversations().then((conversations) {
-      setState(() {
-        _pubNubConversations = conversations;
-        _loading = false;
-        _setConversationReadState(conversations);
+    if (mounted) {
+      _conversationsBloc.getPubNubConversations().then((conversations) {
+        if (mounted) {
+          setState(() {
+            _pubNubConversations = conversations;
+            _loading = false;
+            _setConversationReadState(conversations);
+          });
+        }
       });
-    });
+    }
   }
 
   Future _setConversationReadState(
@@ -95,8 +99,6 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   void _goToChatScreen(PubNubConversation pubNubConversation) {
-    var convId = pubNubConversation.id;
-    print('CONVERSATION ID IS: $convId');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -112,6 +114,12 @@ class _ConversationsScreenState extends State<ConversationsScreen>
           builder: (context) => CardDetailsScreen(
               cardId: pubNubConversation.lastMessage.message.cardId)),
     );
+  }
+
+  @override
+  void dispose() {
+    _conversationsBloc.dispose();
+    super.dispose();
   }
 
   @override
@@ -271,18 +279,17 @@ class _ConversationsScreenState extends State<ConversationsScreen>
               width: 40,
               height: 40,
               child: CircleAvatar(
-                child: user.profilePicUrl == null ||
-                        (user.profilePicUrl != null &&
-                            user.profilePicUrl.isEmpty)
+                child: user.profilePicUrl == null || user.profilePicUrl.isEmpty
                     ? Text(
                         user.name.startsWith('+')
                             ? '+'
                             : getInitials(user.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
-                backgroundImage: user.profilePicUrl != null
-                    ? NetworkImage(user.profilePicUrl)
-                    : null,
+                backgroundImage:
+                    user.profilePicUrl != null && user.profilePicUrl.isNotEmpty
+                        ? NetworkImage(user.profilePicUrl)
+                        : null,
                 backgroundColor: ColorUtils.lightLightGray,
               ),
             ),
