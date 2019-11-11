@@ -324,15 +324,14 @@ class ApiProvider {
   }
 
   Future<QueryResult> getCurrentUserWithFirebaseId(String userId) async {
-    final QueryResult result = await _client.query(QueryOptions(
-      document: '''query{
+    final QueryResult result =
+        await _client.query(QueryOptions(document: '''query{
                      get_user(userId:"$userId"){
                         id
                         firebaseId
                      }
                   }
-      '''
-    ));
+      '''));
     return result;
   }
 
@@ -1070,7 +1069,8 @@ class ApiProvider {
     return queryResult;
   }
 
-  Future<QueryResult> updateDeviceToken(String id, String deviceToken, String firebaseId) async {
+  Future<QueryResult> updateDeviceToken(
+      String id, String deviceToken, String firebaseId) async {
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''
@@ -1356,7 +1356,10 @@ class ApiProvider {
   Future<http.Response> getPubNubConversations(String channels) async {
     var url =
         "$_baseUrl/v3/history/sub-key/$_subscribeKey/channel/$channels?max=1";
-    return await _pubNubClient.get(url);
+    return _pubNubClient.get(url).then((pubnubConversations) {
+      return pubnubConversations;
+    }).catchError((error) {
+    });
   }
 
   void dispose() {

@@ -33,17 +33,21 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     getCurrentUserId().then((currentUserId) {
       _currentUserId = currentUserId;
     });
+    _getConversations();
   }
 
   void _getConversations() {
-    print('GET CONVERSATIONS');
-    _conversationsBloc.getPubNubConversations().then((conversations) {
-      setState(() {
-        _pubNubConversations = conversations;
-        _loading = false;
-        _setConversationReadState(conversations);
+    if (mounted) {
+      _conversationsBloc.getPubNubConversations().then((conversations) {
+        if (mounted) {
+          setState(() {
+            _pubNubConversations = conversations;
+            _loading = false;
+            _setConversationReadState(conversations);
+          });
+        }
       });
-    });
+    }
   }
 
   Future _setConversationReadState(
@@ -89,8 +93,6 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   void _goToChatScreen(PubNubConversation pubNubConversation) {
-    var convId = pubNubConversation.id;
-    print('CONVERSATION ID IS: $convId');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -106,6 +108,12 @@ class _ConversationsScreenState extends State<ConversationsScreen>
           builder: (context) => CardDetailsScreen(
               cardId: pubNubConversation.lastMessage.message.cardId)),
     );
+  }
+
+  @override
+  void dispose() {
+    _conversationsBloc.dispose();
+    super.dispose();
   }
 
   @override
