@@ -41,9 +41,6 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
             _loading = false;
           });
         }
-      } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message);
       }
     });
     super.initState();

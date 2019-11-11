@@ -7,7 +7,6 @@ import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/search_card_utils.dart';
@@ -103,25 +102,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
             _saving = false;
           });
         }
-      } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message);
       }
     });
-  }
-
-  void _showDialog(String title, String description) {
-    setState(() {
-      _saving = false;
-    });
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: description,
-        buttonText: Localization.of(context).getString("ok"),
-      ),
-    );
   }
 
   @override
@@ -139,7 +121,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                         child: Text(Localization.of(context)
                             .getString('emptyPostsList')),
                       ))
-            : buildNoInternetMessage(Localization.of(context).getString("noInternetConnection")),
+            : buildNoInternetMessage(
+                Localization.of(context).getString("noInternetConnection")),
       ),
     );
   }
@@ -260,7 +243,9 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                                     builder: (context) => UserDetailsScreen(
                                         user: card.postedBy,
                                         currentUser: widget.user))).then((_) {
-                              getCards();
+                              if (widget.connected) {
+                                getCards();
+                              }
                             });
                           }
                         });
@@ -350,7 +335,9 @@ class HomeContentScreenState extends State<HomeContentScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => CardDetailsScreen(cardId: card.id)));
-    getCards();
+    if (widget.connected) {
+      getCards();
+    }
   }
 
   void _goToSendInChatScreen(card) {

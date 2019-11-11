@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:contractor_search/bloc/card_details_bloc.dart';
 import 'package:contractor_search/layouts/account_screen.dart';
 import 'package:contractor_search/layouts/recommend_friend_screen.dart';
@@ -254,9 +255,18 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                                 decoration: getRoundWhiteCircle(),
                                 child: GestureDetector(
                                   onTap: () {
-                                    _startConversation(_card.recommendsList
-                                        .elementAt(index)
-                                        .userRecommend);
+                                    checkConnectivity().then((connected) {
+                                      if (connected) {
+                                        _startConversation(_card.recommendsList
+                                            .elementAt(index)
+                                            .userRecommend);
+                                      } else {
+                                        _showDialog(
+                                            "",
+                                            Localization.of(context).getString(
+                                                "noInternetConnection"));
+                                      }
+                                    });
                                   },
                                   child: Image.asset(
                                     "assets/images/ic_inbox_circle_accent.png",
@@ -337,23 +347,35 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      getCurrentUserId().then((currentUserId) {
-                        if (currentUserId ==
-                            _card.recommendsList.elementAt(index).userSend.id) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AccountScreen(
-                                      isStartedFromHomeScreen: false)));
+                      checkConnectivity().then((connected) {
+                        if (connected) {
+                          getCurrentUserId().then((currentUserId) {
+                            if (currentUserId ==
+                                _card.recommendsList
+                                    .elementAt(index)
+                                    .userSend
+                                    .id) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AccountScreen(
+                                          isStartedFromHomeScreen: false)));
+                            } else {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => UserDetailsScreen(
+                                            user: _card.recommendsList
+                                                .elementAt(index)
+                                                .userSend,
+                                          )));
+                            }
+                          });
                         } else {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => UserDetailsScreen(
-                                        user: _card.recommendsList
-                                            .elementAt(index)
-                                            .userSend,
-                                      )));
+                          _showDialog(
+                              "",
+                              Localization.of(context)
+                                  .getString("noInternetConnection"));
                         }
                       });
                     },
@@ -515,10 +537,33 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     );
   }
 
+  Future<bool> checkConnectivity() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    return connectivityResult != ConnectivityResult.none;
+  }
+
+  Future _showDialog(String title, String message) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText: Localization.of(context).getString('ok'),
+      ),
+    );
+  }
+
   GestureDetector _buildRecommendButton() {
     return GestureDetector(
       onTap: () {
-        goToRecommendScreen();
+        checkConnectivity().then((connected) {
+          if (connected) {
+            goToRecommendScreen();
+          } else {
+            _showDialog(
+                "", Localization.of(context).getString("noInternetConnection"));
+          }
+        });
       },
       child: Container(
           decoration: BoxDecoration(

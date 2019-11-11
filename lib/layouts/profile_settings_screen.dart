@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:contractor_search/bloc/profile_settings_bloc.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
@@ -65,9 +66,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             tagsList.add(tagItem);
           }
         });
-      } else {
-        _showDialog(Localization.of(context).getString("error"),
-            result.errors[0].message, Localization.of(context).getString('ok'));
       }
     });
   }
@@ -103,7 +101,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         profilePicUrl = imageUrl;
       });
     } else {
-      profilePicUrl = widget.user.profilePicUrl!=null ? widget.user.profilePicUrl: "" ;
+      profilePicUrl =
+          widget.user.profilePicUrl != null ? widget.user.profilePicUrl : "";
     }
 
     _profileSettingsBloc
@@ -122,9 +121,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       });
       if (result.errors == null) {
         Navigator.pop(context);
-      } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message, Localization.of(context).getString('ok'));
       }
     });
   }
@@ -158,11 +154,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         });
         if (result.errors == null) {
           _updateTagAdded(tag, result);
-        } else {
-          _showDialog(
-              Localization.of(context).getString("error"),
-              result.errors[0].message,
-              Localization.of(context).getString("ok"));
         }
       });
     }
@@ -291,7 +282,17 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           onPressed: () {
             FocusScope.of(context).requestFocus(FocusNode());
             if (_formKey.currentState.validate()) {
-              _updateProfile();
+              checkConnectivity().then((connectivity) {
+                if (connectivity) {
+                  _updateProfile();
+                } else {
+                  _showDialog(
+                      "",
+                      Localization.of(context)
+                          .getString("noInternetConnection"),
+                      Localization.of(context).getString("ok"));
+                }
+              });
             } else {
               setState(() {
                 _autoValidate = true;
@@ -301,6 +302,11 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         )
       ],
     );
+  }
+
+  Future<bool> checkConnectivity() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    return connectivityResult != ConnectivityResult.none;
   }
 
   Card _buildFirstDataSet() {

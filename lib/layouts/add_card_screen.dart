@@ -67,9 +67,6 @@ class AddCardScreenState extends State<AddCardScreen> {
         tags.forEach((item) {
           tagsList.add(Tag.fromJson(item));
         });
-      } else {
-        _showDialog(Localization.of(context).getString("error"),
-            result.errors[0].message);
       }
     });
   }
@@ -99,9 +96,6 @@ class AddCardScreenState extends State<AddCardScreen> {
             _user = User.fromJson(result.data['get_user']);
             _saving = false;
           });
-        } else {
-          _showDialog(Localization.of(context).getString('error'),
-              result.errors[0].message);
         }
       });
     });
@@ -223,14 +217,6 @@ class AddCardScreenState extends State<AddCardScreen> {
         setState(() {
           _saving = false;
         });
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CustomDialog(
-            title: Localization.of(context).getString("error"),
-            description: result.errors[0].message,
-            buttonText: Localization.of(context).getString("ok"),
-          ),
-        );
       }
     });
   }

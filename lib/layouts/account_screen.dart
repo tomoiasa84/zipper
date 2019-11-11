@@ -117,24 +117,11 @@ class AccountScreenState extends State<AccountScreen> {
           _getMainTag();
         });
       } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message);
+        setState(() {
+          _saving = false;
+        });
       }
     });
-  }
-
-  void _showDialog(String title, String description) {
-    setState(() {
-      _saving = false;
-    });
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: description,
-        buttonText: Localization.of(context).getString("ok"),
-      ),
-    );
   }
 
   void _getMainTag() {
@@ -158,15 +145,6 @@ class AccountScreenState extends State<AccountScreen> {
             widget.onUserChanged(_user);
           }
         });
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CustomDialog(
-            title: Localization.of(context).getString("error"),
-            description: result.errors[0].message,
-            buttonText: Localization.of(context).getString('ok'),
-          ),
-        );
       }
     });
   }

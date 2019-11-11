@@ -62,15 +62,6 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
             _saving = false;
           });
         }
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CustomDialog(
-            title: Localization.of(context).getString("error"),
-            description: result.errors[0].message,
-            buttonText: Localization.of(context).getString("ok"),
-          ),
-        );
       }
     });
   }
@@ -175,14 +166,6 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
                   setState(() {
                     _saving = false;
                   });
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => CustomDialog(
-                      title: Localization.of(context).getString('error'),
-                      description: result.errors[0].message,
-                      buttonText: Localization.of(context).getString('ok'),
-                    ),
-                  );
                 }
               });
             },

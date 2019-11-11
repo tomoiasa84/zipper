@@ -84,9 +84,6 @@ class UsersScreenState extends State<UsersScreen> {
             _saving = false;
           });
         }
-      } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message);
       }
     });
   }

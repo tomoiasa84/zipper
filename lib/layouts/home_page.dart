@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
 
   StreamSubscription<ConnectivityResult> subscription;
 
-  bool connected = false;
+  bool connected = true;
 
   @override
   void initState() {
@@ -290,11 +290,6 @@ class _HomePageState extends State<HomePage> {
                   }
                 },
               );
-//              else {
-//                return Center(
-//                  child: Text(Localization.of(context).getString("error")),
-//                );
-//              }
             },
           ),
         ),

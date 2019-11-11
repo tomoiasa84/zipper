@@ -57,9 +57,10 @@ class SendInChatScreenState extends State<SendInChatScreen> {
         });
         _allUsersLoaded = true;
         _hideLoading();
-      } else {
-        _showDialog(Localization.of(context).getString("error"),
-            result.errors[0].message);
+      }else{
+        setState(() {
+          _saving = true;
+        });
       }
     });
   }
@@ -114,6 +115,9 @@ class SendInChatScreenState extends State<SendInChatScreen> {
               builder: (BuildContext context) =>
                   ChatScreen(pubNubConversation: pubNubConversation)));
         } else {
+          setState(() {
+            _saving = false;
+          });
           print('Could not send message');
         }
       });
@@ -139,6 +143,9 @@ class SendInChatScreenState extends State<SendInChatScreen> {
               builder: (BuildContext context) =>
                   ChatScreen(pubNubConversation: pubNubConversation)));
         } else {
+          setState(() {
+            _saving = true;
+          });
           print('Could not send message');
         }
       });

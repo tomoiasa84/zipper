@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:contractor_search/bloc/user_details_bloc.dart';
 import 'package:contractor_search/layouts/leave_review_dialog.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
@@ -95,14 +96,13 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
               setState(() {
                 _saving = false;
               });
-              _showDialog(Localization.of(context).getString("error"),
-                  result.errors[0].message);
             }
           });
         });
       } else {
-        _showDialog(Localization.of(context).getString("error"),
-            result.errors[0].message);
+        setState(() {
+          _saving = false;
+        });
       }
     });
   }
@@ -114,15 +114,22 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   _onContactTapped() {
-    setState(() {
-      _saving = true;
+    checkConnectivity().then((connected) {
+      if (connected) {
+        setState(() {
+          _saving = true;
+        });
+        if (_connectedToUser) {
+          _deleteConnection();
+        } else {
+          _createConnection();
+        }
+        _getUserAndCurrentUser();
+      } else {
+        _showDialog(
+            "", Localization.of(context).getString("noInternetConnection"));
+      }
     });
-    if (_connectedToUser) {
-      _deleteConnection();
-    } else {
-      _createConnection();
-    }
-    _getUserAndCurrentUser();
   }
 
   Future<PermissionStatus> _getContactPermission() async {
@@ -204,24 +211,38 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   void _sendContactToSomeone() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => SendInChatScreen(userToBeShared: _user)));
+    checkConnectivity().then((connected) {
+      if (connected) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => SendInChatScreen(userToBeShared: _user)));
+      } else {
+        _showDialog(
+            "", Localization.of(context).getString("noInternetConnection"));
+      }
+    });
   }
 
   void _createConversation() {
-    setState(() {
-      _saving = true;
-    });
-    _userDetailsBloc.createConversation(_user).then((pubNubConversation) {
-      Navigator.of(context).push(new MaterialPageRoute(
-          builder: (BuildContext context) =>
-              ChatScreen(pubNubConversation: pubNubConversation)));
-    }).then((value) {
-      setState(() {
-        _saving = false;
-      });
+    checkConnectivity().then((connected) {
+      if (connected) {
+        setState(() {
+          _saving = true;
+        });
+        _userDetailsBloc.createConversation(_user).then((pubNubConversation) {
+          Navigator.of(context).push(new MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  ChatScreen(pubNubConversation: pubNubConversation)));
+        }).then((value) {
+          setState(() {
+            _saving = false;
+          });
+        });
+      } else {
+        _showDialog(
+            "", Localization.of(context).getString("noInternetConnection"));
+      }
     });
   }
 
@@ -382,6 +403,11 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     }
   }
 
+  Future<bool> checkConnectivity() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    return connectivityResult != ConnectivityResult.none;
+  }
+
   Container _buildActionsButtons() {
     return Container(
       alignment: Alignment.bottomRight,
@@ -514,8 +540,6 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
           setState(() {
             _saving = false;
           });
-          _showDialog(Localization.of(context).getString('error'),
-              result.errors[0].message);
         }
       });
     }
