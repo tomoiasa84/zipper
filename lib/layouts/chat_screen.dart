@@ -563,15 +563,15 @@ class _ChatScreenState extends State<ChatScreen> {
             height: 32,
             child: CircleAvatar(
               child: _currentUser.profilePicUrl == null ||
-                      (_currentUser.profilePicUrl != null &&
-                          _currentUser.profilePicUrl.isEmpty)
+                      _currentUser.profilePicUrl.isEmpty
                   ? Text(
                       _currentUser.name.startsWith('+')
                           ? '+'
                           : getInitials(_currentUser.name),
                       style: TextStyle(color: ColorUtils.darkerGray))
                   : null,
-              backgroundImage: _currentUser.profilePicUrl != null
+              backgroundImage: _currentUser.profilePicUrl != null &&
+                      _currentUser.profilePicUrl.isNotEmpty
                   ? NetworkImage(_currentUser.profilePicUrl)
                   : null,
               backgroundColor: ColorUtils.lightLightGray,
@@ -714,8 +714,7 @@ class _ChatScreenState extends State<ChatScreen> {
               height: 32,
               child: CircleAvatar(
                 child: _interlocutorUser.profilePicUrl == null ||
-                        (_interlocutorUser.profilePicUrl != null &&
-                            _interlocutorUser.profilePicUrl.isEmpty)
+                        _interlocutorUser.profilePicUrl.isEmpty
                     ? Text(
                         _interlocutorUser.name.startsWith('+')
                             ? '+'
@@ -913,15 +912,15 @@ class _ChatScreenState extends State<ChatScreen> {
       children: <Widget>[
         CircleAvatar(
           child: cardModel.postedBy.profilePicUrl == null ||
-                  (cardModel.postedBy.profilePicUrl != null &&
-                      cardModel.postedBy.profilePicUrl.isEmpty)
+                  cardModel.postedBy.profilePicUrl.isEmpty
               ? Text(
                   cardModel.postedBy.name.startsWith('+')
                       ? '+'
                       : getInitials(cardModel.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: cardModel.postedBy.profilePicUrl != null
+          backgroundImage: cardModel.postedBy.profilePicUrl != null &&
+                  cardModel.postedBy.profilePicUrl.isNotEmpty
               ? NetworkImage(cardModel.postedBy.profilePicUrl)
               : null,
           backgroundColor: ColorUtils.lightLightGray,

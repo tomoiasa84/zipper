@@ -1350,7 +1350,9 @@ class ApiProvider {
       String channelName, String currentUserId, String timestamp) async {
     var url =
         "$_baseUrl/subscribe/$_subscribeKey/$channelName/0/$timestamp?uuid=$currentUserId";
-    return await _pubNubClient.get(url);
+    return _pubNubClient.get(url).then((subscribeResult) {
+      return subscribeResult;
+    }).catchError((error) {});
   }
 
   Future<http.Response> getPubNubConversations(String channels) async {
@@ -1358,8 +1360,7 @@ class ApiProvider {
         "$_baseUrl/v3/history/sub-key/$_subscribeKey/channel/$channels?max=1";
     return _pubNubClient.get(url).then((pubnubConversations) {
       return pubnubConversations;
-    }).catchError((error) {
-    });
+    }).catchError((error) {});
   }
 
   void dispose() {

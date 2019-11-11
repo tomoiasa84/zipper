@@ -206,14 +206,14 @@ class UsersScreenState extends State<UsersScreen> {
             navigateToUserDetailsScreen(user);
           },
           leading: CircleAvatar(
-            child: user.profilePicUrl == null ||
-                    (user.profilePicUrl != null && user.profilePicUrl.isEmpty)
+            child: user.profilePicUrl == null || user.profilePicUrl.isEmpty
                 ? Text(user.name.startsWith('+') ? '+' : getInitials(user.name),
                     style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
-            backgroundImage: user.profilePicUrl != null
-                ? NetworkImage(user.profilePicUrl)
-                : null,
+            backgroundImage:
+                user.profilePicUrl != null && user.profilePicUrl.isNotEmpty
+                    ? NetworkImage(user.profilePicUrl)
+                    : null,
             backgroundColor: ColorUtils.lightLightGray,
           ),
           title: Row(

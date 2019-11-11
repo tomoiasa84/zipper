@@ -283,14 +283,14 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: _user.profilePicUrl == null ||
-                  (_user.profilePicUrl != null && _user.profilePicUrl.isEmpty)
+          child: _user.profilePicUrl == null || _user.profilePicUrl.isEmpty
               ? Text(_user.name.startsWith('+') ? '+' : getInitials(_user.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: _user.profilePicUrl != null
-              ? NetworkImage(_user.profilePicUrl)
-              : null,
+          backgroundImage:
+              _user.profilePicUrl != null && _user.profilePicUrl.isNotEmpty
+                  ? NetworkImage(_user.profilePicUrl)
+                  : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Flexible(
