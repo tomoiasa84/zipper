@@ -19,7 +19,10 @@ class Repository {
   ApiProvider appApiProvider = ApiProvider();
 
   getContacts() async {
-    return ContactsService.getContacts();
+    return ContactsService.getContacts(
+        photoHighResolution: false,
+        orderByGivenName: false,
+        withThumbnails: false);
   }
 
   Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
@@ -173,8 +176,10 @@ class Repository {
     return result;
   }
 
-  Future<QueryResult> updateDeviceToken(String id, String deviceToken, String firebaseId) async {
-    var result = await appApiProvider.updateDeviceToken(id, deviceToken, firebaseId);
+  Future<QueryResult> updateDeviceToken(
+      String id, String deviceToken, String firebaseId) async {
+    var result =
+        await appApiProvider.updateDeviceToken(id, deviceToken, firebaseId);
     checkTokenError(result);
     return result;
   }
