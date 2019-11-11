@@ -19,7 +19,7 @@ class Repository {
   ApiProvider appApiProvider = ApiProvider();
 
   getContacts() async {
-    return ContactsService.getContacts();
+    return ContactsService.getContacts(withThumbnails:false);
   }
 
   Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {

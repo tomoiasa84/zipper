@@ -14,7 +14,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class ApiProvider {
-  static HttpLink link = HttpLink(uri: 'https://xfriendstest.azurewebsites.net');
+  static HttpLink link = HttpLink(uri: 'https://xfriends.azurewebsites.net/');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
@@ -52,7 +52,7 @@ class ApiProvider {
 
   Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
     final QueryResult result = await _client.query(QueryOptions(
-      document: '''query{
+      document: '''query $get_user{
                      get_user(userId:"$userId"){
                         phoneNumber
                     }

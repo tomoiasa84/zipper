@@ -7,6 +7,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
+
+import 'home_page.dart';
 class TutorialScreen extends StatefulWidget {
   @override
   State createState() => new TutorialScreenState();
@@ -16,7 +18,7 @@ class TutorialScreenState extends State<TutorialScreen> {
   final _totalDots = 3;
   int _currentPosition = 0;
   PermissionStatus _permissionStatus = PermissionStatus.unknown;
-  SyncContactsBloc _syncContactsBloc = SyncContactsBloc();;
+  SyncContactsBloc _syncContactsBloc = SyncContactsBloc();
 
 
   void _updatePosition(int position) {
@@ -41,7 +43,7 @@ class TutorialScreenState extends State<TutorialScreen> {
               padding: const EdgeInsets.only(top: 10.0),
               child: DotsIndicator(
                 dotsCount: _totalDots,
-                position: _currentPosition,
+                position: _currentPosition.toDouble(),
                 decorator: DotsDecorator(
                     activeColor: ColorUtils.orangeAccent,
                     size: Size.square(8.0)),
@@ -88,26 +90,26 @@ class TutorialScreenState extends State<TutorialScreen> {
       if (status == PermissionStatus.granted) {
         getCurrentUserId().then((userId) {
           _syncContactsBloc.syncContacts(userId).then((syncResult) {
-            if(syncResult.error.isNotEmpty){
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => CustomDialog(
-                  title: Localization.of(context).getString("error"),
-                  description: syncResult.error,
-                  buttonText: Localization.of(context).getString("ok"),
-                ),
-              );
-            }
-            else {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          SyncResultsScreen(
-                            syncResult: syncResult,
-                          )),
-                  ModalRoute.withName("/homepage"));
-            }
+//            if(syncResult.error.isNotEmpty){
+//              showDialog(
+//                context: context,
+//                builder: (BuildContext context) => CustomDialog(
+//                  title: Localization.of(context).getString("error"),
+//                  description: syncResult.error,
+//                  buttonText: Localization.of(context).getString("ok"),
+//                ),
+//              );
+//            }
+//            else {
+//              Navigator.pushAndRemoveUntil(
+//                  context,
+//                  MaterialPageRoute(
+//                      builder: (context) =>
+//                          SyncResultsScreen(
+//                            syncResult: syncResult,
+//                          )),
+//                  ModalRoute.withName("/homepage"));
+//            }
           });
         });
       }
@@ -190,10 +192,17 @@ class TutorialScreenState extends State<TutorialScreen> {
                 requestPermission(PermissionGroup.contacts);
                 break;
               case 2:
+//                Navigator.pushAndRemoveUntil(
+//                    context,
+//                    MaterialPageRoute(
+//                        builder: (context) => SyncContactsScreen()),
+//                    ModalRoute.withName("/homepage"));
                 Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => SyncContactsScreen()),
+                        builder: (context) => HomePage(
+                          syncContactsFlagRequired: true,
+                        )),
                     ModalRoute.withName("/homepage"));
                 break;
               default:
