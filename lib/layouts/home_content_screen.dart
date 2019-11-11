@@ -148,9 +148,13 @@ class HomeContentScreenState extends State<HomeContentScreen> {
               showSearch(
                   context: context,
                   delegate: SearchCard(_cardsList, (card) {
-                    _goToCardDetailsScreen(card);
+                    if (widget.connected) {
+                      _goToCardDetailsScreen(card);
+                    }
                   }, (card) {
-                    _goToSendInChatScreen(card);
+                    if (widget.connected) {
+                      _goToSendInChatScreen(card);
+                    }
                   }, Localization.of(context).getString('isLookingFor'),
                       Localization.of(context).getString('sendInChat')));
             },
