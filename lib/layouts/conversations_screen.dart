@@ -5,6 +5,7 @@ import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widgets/flutter_widgets.dart';
@@ -13,7 +14,9 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'chat_screen.dart';
 
 class ConversationsScreen extends StatefulWidget {
-  ConversationsScreen({Key key}) : super(key: key);
+  final bool connected;
+
+  ConversationsScreen({Key key, this.connected}) : super(key: key);
 
   @override
   _ConversationsScreenState createState() => _ConversationsScreenState();
@@ -21,7 +24,7 @@ class ConversationsScreen extends StatefulWidget {
 
 class _ConversationsScreenState extends State<ConversationsScreen>
     with WidgetsBindingObserver {
-  bool _loading = true;
+  bool _loading = false;
   String _currentUserId;
   List<PubNubConversation> _pubNubConversations = List();
   final ConversationsBloc _conversationsBloc = ConversationsBloc();
@@ -30,9 +33,12 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    getCurrentUserId().then((currentUserId) {
-      _currentUserId = currentUserId;
-    });
+    if (widget.connected) {
+      _loading = true;
+      getCurrentUserId().then((currentUserId) {
+        _currentUserId = currentUserId;
+      });
+    }
   }
 
   void _getConversations() {
@@ -120,51 +126,52 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       child: ModalProgressHUD(
         inAsyncCall: _loading,
         child: Scaffold(
-          body: new Column(children: <Widget>[
-            AppBar(
-              title: Text(
-                Localization.of(context).getString('messages'),
-                style: TextStyle(
-                    color: ColorUtils.textBlack,
-                    fontSize: 14,
-                    fontFamily: 'Arial',
-                    fontWeight: FontWeight.bold),
-              ),
-              centerTitle: true,
-              backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: Text(
+              Localization.of(context).getString('messages'),
+              style: TextStyle(
+                  color: ColorUtils.textBlack,
+                  fontSize: 14,
+                  fontFamily: 'Arial',
+                  fontWeight: FontWeight.bold),
             ),
-            _showConversationsUI(),
-          ]),
-          floatingActionButton: Container(
-            height: 42,
-            width: 42,
-            child: FittedBox(
-              child: FloatingActionButton(
-                onPressed: () {
-                  _startNewConversation();
-                },
-                child: Icon(
-                  Icons.message,
-                  color: ColorUtils.white,
-                  size: 28,
-                ),
-                backgroundColor: ColorUtils.orangeAccent,
-              ),
-            ),
+            centerTitle: true,
+            backgroundColor: Colors.white,
           ),
+          body: widget.connected
+              ? _showConversationsUI()
+              : buildNoInternetMessage(
+                  Localization.of(context).getString("noInternetConnection")),
+          floatingActionButton: widget.connected
+              ? Container(
+                  height: 42,
+                  width: 42,
+                  child: FittedBox(
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        _startNewConversation();
+                      },
+                      child: Icon(
+                        Icons.message,
+                        color: ColorUtils.white,
+                        size: 28,
+                      ),
+                      backgroundColor: ColorUtils.orangeAccent,
+                    ),
+                  ),
+                )
+              : Container(),
         ),
       ),
     );
   }
 
   Widget _showConversationsUI() {
-    return Expanded(
-      child: Container(
-        color: ColorUtils.messageGray,
-        child: new Container(
-          margin: EdgeInsets.fromLTRB(16, 16, 16, 16),
-          child: _getListView(_pubNubConversations),
-        ),
+    return Container(
+      color: ColorUtils.messageGray,
+      child: new Container(
+        margin: EdgeInsets.fromLTRB(16, 16, 16, 16),
+        child: _getListView(_pubNubConversations),
       ),
     );
   }

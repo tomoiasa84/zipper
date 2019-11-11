@@ -342,3 +342,9 @@ BoxDecoration getRoundedOrangeDecoration() {
       color: ColorUtils.messageOrange,
       borderRadius: BorderRadius.all(Radius.circular(8)));
 }
+
+Center buildNoInternetMessage(String message){
+  return Center(
+    child: Text(message),
+  );
+}

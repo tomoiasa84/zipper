@@ -163,7 +163,8 @@ class Localization {
       'resendSmsCodeMessage':
           'Please check your phone for the verification code.',
       'imLookingFor': 'I\'m looking for ',
-      'cardWasDeleted': 'This post doesn\'t exist anymore'
+      'cardWasDeleted': 'This post doesn\'t exist anymore',
+      'noInternetConnection': 'No internet connection',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -316,7 +317,8 @@ class Localization {
       'pleaseLoginAgain': 'Va rugam sa va autentificati din nou..',
       'resendSmsCodeMessage': 'Verificati mesageria pentru a gasi codul.',
       'imLookingFor': 'Caut',
-      'cardWasDeleted': 'Aceasta postare nu mai exista'
+      'cardWasDeleted': 'Aceasta postare nu mai exista',
+      'noInternetConnection': 'Nu exista conexiune la internet',
     },
   };
 

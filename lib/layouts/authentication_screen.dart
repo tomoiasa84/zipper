@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:contractor_search/bloc/authentication_bloc.dart';
 import 'package:contractor_search/layouts/terms_and_conditions_screen.dart';
 import 'package:contractor_search/layouts/tutorial_screen.dart';
@@ -72,6 +73,8 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
   Timer _codeTimer;
   String smsCode;
 
+  bool connected = false;
+
   Future _getLocations() async {
     await _authBloc.getLocations().then((snapshot) {
       if (this.mounted) {
@@ -140,7 +143,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
       });
       print('verified');
       _codeTimedOut = true;
-      if (!_smsCodeSent && authCredential != null) {
+      if (!_smsCodeSent && authCredential != null && connected) {
         authenticate(authCredential);
       }
     };
@@ -336,20 +339,28 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: SafeArea(
-        top: false,
-        bottom: false,
-        child: ModalProgressHUD(
-          inAsyncCall: _saving,
-          child: Scaffold(
-            backgroundColor: ColorUtils.white,
-            body: _buildContent(),
-          ),
-        ),
-      ),
-    );
+    return StreamBuilder(
+        stream: Connectivity().onConnectivityChanged,
+        builder:
+            (BuildContext context, AsyncSnapshot<ConnectivityResult> snapShot) {
+          if (snapShot.hasData && snapShot.data != ConnectivityResult.none) {
+            connected = snapShot.data != ConnectivityResult.none;
+          }
+          return WillPopScope(
+            onWillPop: _onWillPop,
+            child: SafeArea(
+              top: false,
+              bottom: false,
+              child: ModalProgressHUD(
+                inAsyncCall: _saving,
+                child: Scaffold(
+                  backgroundColor: ColorUtils.white,
+                  body: _buildContent(),
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   Future<bool> _onWillPop() async {
@@ -408,11 +419,18 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
                     Localization.of(context).getString('continue'), () {
                   FocusScope.of(context).requestFocus(FocusNode());
                   if (_signUpFormKey.currentState.validate()) {
-                    setState(() {
-                      _saving = true;
-                    });
-                    authType = AuthType.signUp;
-                    verifyPhone();
+                    if (connected) {
+                      setState(() {
+                        _saving = true;
+                      });
+                      authType = AuthType.signUp;
+                      verifyPhone();
+                    } else {
+                      _showDialog(
+                          "",
+                          Localization.of(context)
+                              .getString("noInternetConnection"));
+                    }
                   } else {
                     setState(() {
                       _signUpAutoValidate = true;
@@ -665,11 +683,16 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
           () {
         FocusScope.of(context).requestFocus(FocusNode());
         if (_loginFormKey.currentState.validate()) {
-          setState(() {
-            _saving = true;
-          });
-          authType = AuthType.login;
-          verifyPhone();
+          if (connected) {
+            setState(() {
+              _saving = true;
+            });
+            authType = AuthType.login;
+            verifyPhone();
+          } else {
+            _showDialog(
+                "", Localization.of(context).getString("noInternetConnection"));
+          }
         } else {
           setState(() {
             _loginAutoValidate = true;
@@ -716,16 +739,21 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
           customAccentButton(Localization.of(context).getString('login'), () {
         FocusScope.of(context).requestFocus(FocusNode());
         if (_smsVerificationFormKey.currentState.validate()) {
-          FirebaseAuth.instance.currentUser().then((user) {
-            setState(() {
-              _saving = true;
+          if (connected) {
+            FirebaseAuth.instance.currentUser().then((user) {
+              setState(() {
+                _saving = true;
+              });
+              final AuthCredential credential = PhoneAuthProvider.getCredential(
+                verificationId: verificationId,
+                smsCode: smsCode,
+              );
+              authenticate(credential);
             });
-            final AuthCredential credential = PhoneAuthProvider.getCredential(
-              verificationId: verificationId,
-              smsCode: smsCode,
-            );
-            authenticate(credential);
-          });
+          } else {
+            _showDialog(
+                "", Localization.of(context).getString("noInternetConnection"));
+          }
         } else {
           setState(() {
             _smsCodeAutoValidate = true;

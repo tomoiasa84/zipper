@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:contractor_search/bloc/add_card_bloc.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/tag.dart';
@@ -14,10 +15,12 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AddCardScreen extends StatefulWidget {
+  final bool connected;
   final User user;
   final Function updateUsersCards;
 
-  const AddCardScreen({Key key, this.user, this.updateUsersCards})
+  const AddCardScreen(
+      {Key key, this.user, this.updateUsersCards, this.connected})
       : super(key: key);
 
   @override
@@ -36,13 +39,15 @@ class AddCardScreenState extends State<AddCardScreen> {
 
   @override
   void initState() {
-    _addCardBloc = AddCardBloc();
-    if (widget.user != null) {
-      _user = widget.user;
-    } else {
-      _getCurrentUserInfo();
+    if (widget.connected) {
+      _addCardBloc = AddCardBloc();
+      if (widget.user != null) {
+        _user = widget.user;
+      } else {
+        _getCurrentUserInfo();
+      }
+      getTags();
     }
-    getTags();
     super.initState();
   }
 
@@ -126,15 +131,14 @@ class AddCardScreenState extends State<AddCardScreen> {
     return ModalProgressHUD(
       inAsyncCall: _saving,
       child: Scaffold(
-        appBar: _buildAppBar(),
-        body: (_user != null)
-            ? SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[_buildPreviewCard(), _buildTagsCard()],
-                ),
-              )
-            : Container(),
-      ),
+          appBar: _buildAppBar(),
+          body: (_user != null)
+              ? SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[_buildPreviewCard(), _buildTagsCard()],
+                  ),
+                )
+              : Container()),
     );
   }
 
@@ -158,19 +162,33 @@ class AddCardScreenState extends State<AddCardScreen> {
             color: ColorUtils.darkGray,
           ),
           onPressed: () {
-            if (tag != null) {
-              createCard();
-            } else {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => CustomDialog(
-                  title: Localization.of(context).getString("error"),
-                  description:
-                      Localization.of(context).getString("createPostError"),
-                  buttonText: Localization.of(context).getString("ok"),
-                ),
-              );
-            }
+            checkConnectivity().then((connectivity) {
+              if (connectivity) {
+                if (tag != null) {
+                  createCard();
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => CustomDialog(
+                      title: Localization.of(context).getString("error"),
+                      description:
+                          Localization.of(context).getString("createPostError"),
+                      buttonText: Localization.of(context).getString("ok"),
+                    ),
+                  );
+                }
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => CustomDialog(
+                    title: "",
+                    description: Localization.of(context)
+                        .getString("noInternetConnection"),
+                    buttonText: Localization.of(context).getString("ok"),
+                  ),
+                );
+              }
+            });
           },
         )
       ],
@@ -215,6 +233,11 @@ class AddCardScreenState extends State<AddCardScreen> {
         );
       }
     });
+  }
+
+  Future<bool> checkConnectivity() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    return connectivityResult != ConnectivityResult.none;
   }
 
   Container _buildPreviewCard() {
