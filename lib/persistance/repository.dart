@@ -19,7 +19,10 @@ class Repository {
   ApiProvider appApiProvider = ApiProvider();
 
   getContacts() async {
-    return ContactsService.getContacts();
+    return ContactsService.getContacts(
+        photoHighResolution: false,
+        orderByGivenName: false,
+        withThumbnails: false);
   }
 
   Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
@@ -173,8 +176,10 @@ class Repository {
     return result;
   }
 
-  Future<QueryResult> updateDeviceToken(String id, String deviceToken, String firebaseId) async {
-    var result = await appApiProvider.updateDeviceToken(id, deviceToken, firebaseId);
+  Future<QueryResult> updateDeviceToken(
+      String id, String deviceToken, String firebaseId) async {
+    var result =
+        await appApiProvider.updateDeviceToken(id, deviceToken, firebaseId);
     checkTokenError(result);
     return result;
   }
@@ -281,25 +286,25 @@ class Repository {
       channels = channels + item.id.toString() + ",";
     }
 
-    var response = await appApiProvider.getPubNubConversations(channels);
+    return appApiProvider.getPubNubConversations(channels).then((response) {
+      if (response.statusCode == 200) {
+        BatchHistoryResponse batchHistoryResponse =
+            BatchHistoryResponse.fromJson(convert.jsonDecode(response.body));
 
-    if (response.statusCode == 200) {
-      BatchHistoryResponse batchHistoryResponse =
-          BatchHistoryResponse.fromJson(convert.jsonDecode(response.body));
+        var pubNubConversationsList = batchHistoryResponse.conversations;
 
-      var pubNubConversationsList = batchHistoryResponse.conversations;
-
-      for (var pubNubConversation in pubNubConversationsList) {
-        var conversation = conversationsList
-            .firstWhere((con) => con.id == pubNubConversation.id);
-        pubNubConversation.user1 = conversation.user1;
-        pubNubConversation.user2 = conversation.user2;
+        for (var pubNubConversation in pubNubConversationsList) {
+          var conversation = conversationsList
+              .firstWhere((con) => con.id == pubNubConversation.id);
+          pubNubConversation.user1 = conversation.user1;
+          pubNubConversation.user2 = conversation.user2;
+        }
+        return pubNubConversationsList;
+      } else {
+        print("Request failed with status: ${response.statusCode}.");
+        return List<PubNubConversation>();
       }
-      return pubNubConversationsList;
-    } else {
-      print("Request failed with status: ${response.statusCode}.");
-      return List<PubNubConversation>();
-    }
+    }).catchError((error) {});
   }
 
   void dispose() {

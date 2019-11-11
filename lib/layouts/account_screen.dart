@@ -19,6 +19,7 @@ import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AccountScreen extends StatefulWidget {
+  final bool connected;
   final ValueChanged<bool> onChanged;
   final bool isStartedFromHomeScreen;
   final User user;
@@ -29,7 +30,8 @@ class AccountScreen extends StatefulWidget {
       this.onChanged,
       this.isStartedFromHomeScreen,
       this.user,
-      this.onUserChanged})
+      this.onUserChanged,
+      this.connected})
       : super(key: key);
 
   @override
@@ -171,32 +173,34 @@ class AccountScreenState extends State<AccountScreen> {
 
   @override
   void initState() {
-    if (widget.user != null) {
-      _accountBloc = AccountBloc();
-      widget.user.cards.sort((a, b) {
-        DateTime dateA = parseDateFromString(a.createdAt);
-        DateTime dateB = parseDateFromString(b.createdAt);
-        return dateB.compareTo(dateA);
-      });
-      _user = widget.user;
-      _getMainTag();
-      _accountBloc.getUserByIdWithMainInfo().then((result) {
-        User newUser = User.fromJson(result.data['get_user']);
-        if (_user != newUser && mounted) {
-          setState(() {
-            newUser.cards = _user.cards;
-            _user = newUser;
-            _user.cards.sort((a, b) {
-              DateTime dateA = parseDateFromString(a.createdAt);
-              DateTime dateB = parseDateFromString(b.createdAt);
-              return dateB.compareTo(dateA);
+    if (widget.connected) {
+      if (widget.user != null) {
+        _accountBloc = AccountBloc();
+        widget.user.cards.sort((a, b) {
+          DateTime dateA = parseDateFromString(a.createdAt);
+          DateTime dateB = parseDateFromString(b.createdAt);
+          return dateB.compareTo(dateA);
+        });
+        _user = widget.user;
+        _getMainTag();
+        _accountBloc.getUserByIdWithMainInfo().then((result) {
+          User newUser = User.fromJson(result.data['get_user']);
+          if (_user != newUser && mounted) {
+            setState(() {
+              newUser.cards = _user.cards;
+              _user = newUser;
+              _user.cards.sort((a, b) {
+                DateTime dateA = parseDateFromString(a.createdAt);
+                DateTime dateB = parseDateFromString(b.createdAt);
+                return dateB.compareTo(dateA);
+              });
+              _getMainTag();
             });
-            _getMainTag();
-          });
-        }
-      });
-    } else {
-      _getCurrentUserInfo();
+          }
+        });
+      } else {
+        _getCurrentUserInfo();
+      }
     }
     super.initState();
   }
@@ -208,31 +212,35 @@ class AccountScreenState extends State<AccountScreen> {
         child: Scaffold(
             appBar:
                 _buildAppBar(Localization.of(context).getString('settings')),
-            body: SafeArea(
-              top: false,
-              child: _user != null
-                  ? Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SingleChildScrollView(
-                        child: Container(
-                          margin: const EdgeInsets.only(top: 16.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              _buildMainInfoCard(),
-                              _user.tags != null && _user.tags.isNotEmpty
-                                  ? _buildTagsCard()
-                                  : Container(),
-                              _user.cards != null
-                                  ? _buildCardsList()
-                                  : Container()
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  : Container(),
-            )));
+            body: widget.connected
+                ? SafeArea(
+                    top: false,
+                    child: _user != null
+                        ? Container(
+                            margin:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: SingleChildScrollView(
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 16.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    _buildMainInfoCard(),
+                                    _user.tags != null && _user.tags.isNotEmpty
+                                        ? _buildTagsCard()
+                                        : Container(),
+                                    _user.cards != null
+                                        ? _buildCardsList()
+                                        : Container()
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+                  )
+                : buildNoInternetMessage(Localization.of(context)
+                    .getString("noInternetConnection"))));
   }
 
   AppBar _buildAppBar(String popupInitialValue) {
@@ -318,14 +326,14 @@ class AccountScreenState extends State<AccountScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: _user.profilePicUrl == null ||
-                  (_user.profilePicUrl != null && _user.profilePicUrl.isEmpty)
+          child: _user.profilePicUrl == null || _user.profilePicUrl.isEmpty
               ? Text(_user.name.startsWith('+') ? '+' : getInitials(_user.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: _user.profilePicUrl != null
-              ? NetworkImage(_user.profilePicUrl)
-              : null,
+          backgroundImage:
+              _user.profilePicUrl != null && _user.profilePicUrl.isNotEmpty
+                  ? NetworkImage(_user.profilePicUrl)
+                  : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Flexible(
@@ -509,14 +517,14 @@ class AccountScreenState extends State<AccountScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: _user.profilePicUrl == null ||
-                  (_user.profilePicUrl != null && _user.profilePicUrl.isEmpty)
+          child: _user.profilePicUrl == null || _user.profilePicUrl.isEmpty
               ? Text(_user.name.startsWith('+') ? '+' : getInitials(_user.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: _user.profilePicUrl != null
-              ? NetworkImage(_user.profilePicUrl)
-              : null,
+          backgroundImage:
+              _user.profilePicUrl != null && _user.profilePicUrl.isNotEmpty
+                  ? NetworkImage(_user.profilePicUrl)
+                  : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Flexible(

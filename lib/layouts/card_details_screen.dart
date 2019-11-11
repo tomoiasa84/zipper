@@ -285,16 +285,11 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                                     .userRecommend
                                     .profilePicUrl ==
                                 null ||
-                            (_card.recommendsList
-                                        .elementAt(index)
-                                        .userRecommend
-                                        .profilePicUrl !=
-                                    null &&
-                                _card.recommendsList
-                                    .elementAt(index)
-                                    .userRecommend
-                                    .profilePicUrl
-                                    .isEmpty)
+                            _card.recommendsList
+                                .elementAt(index)
+                                .userRecommend
+                                .profilePicUrl
+                                .isEmpty
                         ? Text(
                             _card.recommendsList
                                     .elementAt(index)
@@ -309,10 +304,15 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                             style: TextStyle(color: ColorUtils.darkerGray))
                         : null,
                     backgroundImage: _card.recommendsList
+                                    .elementAt(index)
+                                    .userRecommend
+                                    .profilePicUrl !=
+                                null &&
+                            _card.recommendsList
                                 .elementAt(index)
                                 .userRecommend
-                                .profilePicUrl !=
-                            null
+                                .profilePicUrl
+                                .isNotEmpty
                         ? NetworkImage(_card.recommendsList
                             .elementAt(index)
                             .userRecommend
@@ -414,15 +414,15 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       children: <Widget>[
         CircleAvatar(
           child: _card.postedBy.profilePicUrl == null ||
-                  (_card.postedBy.profilePicUrl != null &&
-                      _card.postedBy.profilePicUrl.isEmpty)
+                  _card.postedBy.profilePicUrl.isEmpty
               ? Text(
                   _card.postedBy.name.startsWith('+')
                       ? '+'
                       : getInitials(_card.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: _card.postedBy.profilePicUrl != null
+          backgroundImage: _card.postedBy.profilePicUrl != null &&
+                  _card.postedBy.profilePicUrl.isNotEmpty
               ? NetworkImage(_card.postedBy.profilePicUrl)
               : null,
           backgroundColor: ColorUtils.lightLightGray,

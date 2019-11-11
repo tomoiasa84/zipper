@@ -12,7 +12,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class ApiProvider {
-  static HttpLink link = HttpLink(uri: 'https://xfriends.azurewebsites.net');
+  static HttpLink link = HttpLink(uri: 'https://xfriends.azurewebsites.net/graphql');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
@@ -1515,13 +1515,17 @@ class ApiProvider {
       String channelName, String currentUserId, String timestamp) async {
     var url =
         "$_baseUrl/subscribe/$_subscribeKey/$channelName/0/$timestamp?uuid=$currentUserId";
-    return await _pubNubClient.get(url);
+    return _pubNubClient.get(url).then((subscribeResult) {
+      return subscribeResult;
+    }).catchError((error) {});
   }
 
   Future<http.Response> getPubNubConversations(String channels) async {
     var url =
         "$_baseUrl/v3/history/sub-key/$_subscribeKey/channel/$channels?max=1";
-    return await _pubNubClient.get(url);
+    return _pubNubClient.get(url).then((pubnubConversations) {
+      return pubnubConversations;
+    }).catchError((error) {});
   }
 
   void dispose() {

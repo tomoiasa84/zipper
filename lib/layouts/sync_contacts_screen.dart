@@ -1,8 +1,10 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
 import 'package:contractor_search/layouts/sync_results_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -17,17 +19,30 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
   AnimationController _animationController;
   SyncContactsBloc _syncContactsBloc;
 
+  bool connected = true;
+
   @override
   void initState() {
     _animationController = new AnimationController(
       vsync: this,
       duration: new Duration(seconds: 7),
     );
-
     _animationController.repeat();
-    _syncContactsBloc = SyncContactsBloc();
-    _syncContacts();
+    checkConnectivity().then((connectivity) {
+      setState(() {
+        connected = connectivity;
+      });
+      if (connected) {
+        _syncContactsBloc = SyncContactsBloc();
+        _syncContacts();
+      }
+    });
     super.initState();
+  }
+
+  Future<bool> checkConnectivity() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    return connectivityResult != ConnectivityResult.none;
   }
 
   @override
@@ -48,7 +63,7 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
       if (status == PermissionStatus.granted) {
         getCurrentUserId().then((userId) {
           _syncContactsBloc.syncContacts(userId).then((syncResult) {
-            if(syncResult.error.isNotEmpty){
+            if (syncResult.error.isNotEmpty) {
               showDialog(
                 context: context,
                 builder: (BuildContext context) => CustomDialog(
@@ -57,13 +72,11 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
                   buttonText: Localization.of(context).getString("ok"),
                 ),
               );
-            }
-            else {
+            } else {
               Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          SyncResultsScreen(
+                      builder: (context) => SyncResultsScreen(
                             syncResult: syncResult,
                           )),
                   ModalRoute.withName("/homepage"));
@@ -83,20 +96,23 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
         body: Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Card(
-              child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                _builtAnimatedSyncIcon(),
-                _buildDescription(context),
-                _buildLinearIndicator(),
-              ],
-            ),
-          )),
+          child: connected
+              ? Card(
+                  child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      _builtAnimatedSyncIcon(),
+                      _buildDescription(context),
+                      _buildLinearIndicator(),
+                    ],
+                  ),
+                ))
+              : buildNoInternetMessage(
+                  Localization.of(context).getString("noInternetConnection")),
         ),
       ),
     );
