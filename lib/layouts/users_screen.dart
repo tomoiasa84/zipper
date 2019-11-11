@@ -111,14 +111,18 @@ class UsersScreenState extends State<UsersScreen> {
             });
           }
         } else {
+          if (mounted) {
+            setState(() {
+              _saving = false;
+            });
+          }
+        }
+      } else {
+        if (mounted) {
           setState(() {
             _saving = false;
           });
         }
-      } else {
-        setState(() {
-          _saving = false;
-        });
       }
     });
   }
