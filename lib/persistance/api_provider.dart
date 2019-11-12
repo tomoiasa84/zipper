@@ -34,6 +34,8 @@ class ApiProvider {
   );
 
   Future<QueryResult> getUserNameIdPhoneNumberProfilePic(String userId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getUserNameIdPhoneNumberProfilePic");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -45,10 +47,13 @@ class ApiProvider {
                     }
               }''',
     ));
+    print('FINISH getUserNameIdPhoneNumberProfilePic ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getUserByIdWithPhoneNumber");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -56,10 +61,13 @@ class ApiProvider {
                     }
               }''',
     ));
+    print('FINISH getUserByIdWithPhoneNumber ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getUserFromContact(String phoneNumber) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getUserFromContact");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                       get_userFromContact(contact:"$phoneNumber"){
@@ -70,10 +78,13 @@ class ApiProvider {
                       }
                     }''',
     ));
+    print('FINISH getUserFromContact ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getUserByIdWithConnections(String userId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getUserByIdWithConnections");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -141,11 +152,13 @@ class ApiProvider {
                     }
               }''',
     ));
-
+    print('FINISH getUserByIdWithConnections ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getUserByIdWithCardsConnections(String userId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getUserByIdWithCardsConnections");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -326,11 +339,13 @@ class ApiProvider {
     							}
               }''',
     ));
-
+    print('FINISH getUserByIdWithCardsConnections ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getCurrentUserWithCards(String userId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getCurrentUserWithCards");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                       get_user(userId:"$userId"){
@@ -386,11 +401,13 @@ class ApiProvider {
                 }
               }''',
     ));
-
+    print('FINISH getCurrentUserWithCards ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getCurrentUserWithFirebaseId(String userId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getCurrentUserWithFirebaseId");
     final QueryResult result =
         await _client.query(QueryOptions(document: '''query{
                      get_user(userId:"$userId"){
@@ -399,10 +416,13 @@ class ApiProvider {
                      }
                   }
       '''));
+    print('FINISH getCurrentUserWithFirebaseId ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getUserById(String userId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getUserById");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -670,11 +690,13 @@ class ApiProvider {
                     }
               }''',
     ));
-
+    print('FINISH getUserById ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getUserByIdWithMainInfo(String userId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getUserByIdWithMainInfo");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -812,7 +834,7 @@ class ApiProvider {
                     }
               }''',
     ));
-
+    print('FINISH getUserByIdWithMainInfo ${stopwatch.elapsed}');
     return result;
   }
 
@@ -841,6 +863,8 @@ class ApiProvider {
 
   Future<QueryResult> createCard(
       String postedBy, int searchFor, String details) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START createCard");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
                       create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$details"){
@@ -858,11 +882,13 @@ class ApiProvider {
                       }
                     }''',
     ));
-
+    print('FINISH createCard ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getConversation(String conversationId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getConversation");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_conversation(conversationId: "$conversationId"){
@@ -892,12 +918,14 @@ class ApiProvider {
                     }
                    }''',
     ));
-
+    print('FINISH getConversation ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> createConnection(
       String currentUserId, String targetUserId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START createConnection");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
                     create_connection(origin:"$currentUserId", target:"$targetUserId"){
@@ -937,13 +965,16 @@ class ApiProvider {
                     }
                 }''',
     ));
+    print('FINISH createConnection ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> createConversation(
       User user, String currentUserId) async {
-    String userId = user.id;
 
+    String userId = user.id;
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START createConversation");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
                       create_conversation(user1:"$currentUserId", user2:"$userId"){
@@ -959,12 +990,14 @@ class ApiProvider {
                       }
                      }''',
     ));
-
+    print('FINISH createConversation ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getListOfChannelIdsFromBackend(
       String currentUserId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getListOfChannelIdsFromBackend");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_user(userId: "$currentUserId"){
@@ -996,11 +1029,13 @@ class ApiProvider {
                     }
                 }''',
     ));
-
+    print('FINISH getListOfChannelIdsFromBackend ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getCards() async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getCards");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_cards{
@@ -1057,11 +1092,13 @@ class ApiProvider {
                     }
                   }''',
     ));
-
+    print('FINISH getCards ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getCardById(int cardId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getCardById");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_card(cardId:$cardId){
@@ -1167,7 +1204,7 @@ class ApiProvider {
                     }
                   }''',
     ));
-
+    print('FINISH getCardById ${stopwatch.elapsed}');
     return result;
   }
 
@@ -1180,6 +1217,8 @@ class ApiProvider {
       String phoneNumber,
       String profilePicUrl,
       String description) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START updateUser");
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''
@@ -1230,7 +1269,7 @@ class ApiProvider {
                   }''',
       ),
     );
-
+    print('FINISH updateUser ${stopwatch.elapsed}');
     return queryResult;
   }
 
@@ -1308,7 +1347,8 @@ class ApiProvider {
 
   Future<QueryResult> loadContacts(List<String> phoneContacts) async {
     var phoneContactsJson = jsonEncode(phoneContacts);
-
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START loadContacts");
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1318,7 +1358,7 @@ class ApiProvider {
                   }''',
       ),
     );
-
+    print('FINISH loadContacts ${stopwatch.elapsed}');
     return queryResult;
   }
 
@@ -1362,6 +1402,8 @@ class ApiProvider {
 
   Future<QueryResult> createUser(
       String name, int location, String firebaseId, String phoneNumber) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START createUser");
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1381,7 +1423,7 @@ class ApiProvider {
                   }''',
       ),
     );
-
+    print('FINISH createUser ${stopwatch.elapsed}');
     return queryResult;
   }
 
@@ -1419,6 +1461,8 @@ class ApiProvider {
 
   Future<QueryResult> createReview(
       String userId, int userTagId, int stars, String text) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START createReview");
     final QueryResult result = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1460,7 +1504,7 @@ class ApiProvider {
                       }''',
       ),
     );
-
+    print('FINISH createReview ${stopwatch.elapsed}');
     return result;
   }
 
@@ -1534,6 +1578,8 @@ class ApiProvider {
 
   Future<QueryResult> createRecommend(
       int cardId, String userAskId, String userSendId, String userRecId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START createRecommend");
     final QueryResult result = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1577,7 +1623,7 @@ class ApiProvider {
                           }''',
       ),
     );
-
+    print('FINISH createRecommend ${stopwatch.elapsed}');
     return result;
   }
 

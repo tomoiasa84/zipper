@@ -38,7 +38,7 @@ class TutorialScreenState extends State<TutorialScreen> {
               padding: const EdgeInsets.only(top: 10.0),
               child: DotsIndicator(
                 dotsCount: _totalDots,
-                position: _currentPosition,
+                position: _currentPosition.toDouble(),
                 decorator: DotsDecorator(
                     activeColor: ColorUtils.orangeAccent,
                     size: Size.square(8.0)),
