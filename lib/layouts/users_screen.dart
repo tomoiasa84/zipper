@@ -15,8 +15,9 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 class UsersScreen extends StatefulWidget {
   final User user;
   final Function updateCurrentUser;
+  final Function updateConnectedUser;
 
-  const UsersScreen({Key key, this.user, this.updateCurrentUser})
+  const UsersScreen({Key key, this.user, this.updateCurrentUser, this.updateConnectedUser})
       : super(key: key);
 
   @override
@@ -207,7 +208,9 @@ class UsersScreenState extends State<UsersScreen> {
                       _usersList[index].cards = user.cards;
                       _usersList[index].profilePicUrl = user.profilePicUrl;
                       _usersList[index].reviews = user.reviews;
-                      widget.updateCurrentUser(_usersList);
+                      if(widget.updateConnectedUser!=null) {
+                        widget.updateConnectedUser(_usersList[index]);
+                      }
                     }
                   },
                 )));

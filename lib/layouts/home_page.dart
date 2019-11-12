@@ -6,6 +6,7 @@ import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/layouts/home_content_screen.dart';
+import 'package:contractor_search/model/connection_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PushNotification.dart';
 import 'package:contractor_search/models/UserMessage.dart';
@@ -239,6 +240,15 @@ class _HomePageState extends State<HomePage> {
                         });
                         _user = User();
                         _user.connections = connections;
+                      }
+                    },
+                    updateConnectedUser: (connectedUser) {
+                      Connection connection = _user.connections.firstWhere(
+                          (item) => item.targetUser.id == connectedUser.id,
+                          orElse: () => null);
+                      if (connection != null) {
+                        int index = _user.connections.indexOf(connection);
+                        _user.connections[index].targetUser = connectedUser;
                       }
                     },
                   );

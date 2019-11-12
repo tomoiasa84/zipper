@@ -65,7 +65,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
               if (currentUserResult.errors == null && mounted) {
                 setState(() {
                   _user = User.fromJson(result.data['get_user']);
-                  if(widget.updateUser!=null) {
+                  if (widget.updateUser != null) {
                     widget.updateUser(_user);
                   }
                   _currentUser =
@@ -112,6 +112,9 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
             if (currentUserResult.errors == null && mounted) {
               setState(() {
                 _user = User.fromJson(result.data['get_user']);
+                if (widget.updateUser != null) {
+                  widget.updateUser(_user);
+                }
                 _currentUser =
                     User.fromJson(currentUserResult.data['get_user']);
                 for (var connection in _currentUser.connections) {
