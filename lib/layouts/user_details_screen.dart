@@ -1,4 +1,3 @@
-import 'package:connectivity/connectivity.dart';
 import 'package:contractor_search/bloc/user_details_bloc.dart';
 import 'package:contractor_search/layouts/leave_review_dialog.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
@@ -23,9 +22,10 @@ class UserDetailsScreen extends StatefulWidget {
   final User user;
   final User currentUser;
   final List<User> connections;
+  final Function updateUser;
 
   const UserDetailsScreen(
-      {Key key, this.user, this.currentUser, this.connections})
+      {Key key, this.user, this.currentUser, this.connections, this.updateUser})
       : super(key: key);
 
   @override
@@ -56,6 +56,38 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         }
       }
       _getMainTag();
+      _userDetailsBloc.getUserByIdWithMainInfo(widget.user.id).then((result) {
+        if (result.errors == null && mounted) {
+          getCurrentUserId().then((currentUserId) {
+            _userDetailsBloc
+                .getUserByIdWithConnections(currentUserId)
+                .then((currentUserResult) {
+              if (currentUserResult.errors == null && mounted) {
+                setState(() {
+                  _user = User.fromJson(result.data['get_user']);
+                  if(widget.updateUser!=null) {
+                    widget.updateUser(_user);
+                  }
+                  _currentUser =
+                      User.fromJson(currentUserResult.data['get_user']);
+                  for (var connection in _currentUser.connections) {
+                    if (connection.targetUser.id == widget.user.id) {
+                      _connection = connection;
+                      _connectedToUser = true;
+                      break;
+                    }
+                  }
+                  _getMainTag();
+                });
+              }
+            });
+          });
+        } else {
+          setState(() {
+            _saving = false;
+          });
+        }
+      });
     } else {
       _getUserAndCurrentUser();
     }
@@ -114,22 +146,15 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   _onContactTapped() {
-    checkConnectivity().then((connected) {
-      if (connected) {
-        setState(() {
-          _saving = true;
-        });
-        if (_connectedToUser) {
-          _deleteConnection();
-        } else {
-          _createConnection();
-        }
-        _getUserAndCurrentUser();
-      } else {
-        _showDialog(
-            "", Localization.of(context).getString("noInternetConnection"));
-      }
+    setState(() {
+      _saving = true;
     });
+    if (_connectedToUser) {
+      _deleteConnection();
+    } else {
+      _createConnection();
+    }
+    _getUserAndCurrentUser();
   }
 
   Future<PermissionStatus> _getContactPermission() async {
@@ -156,24 +181,34 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         _userDetailsBloc
             .createConnection(_currentUser.id, _user.id)
             .then((result) {
-          if (widget.connections != null) {
-            widget.connections.add(
-                Connection.fromJson(result.data['create_connection'])
-                    .targetUser);
-            widget.connections.sort((a, b) {
-              return a.name.compareTo(b.name);
-            });
-            widget.connections.sort((a, b) {
-              return b.isActive.toString().compareTo(a.isActive.toString());
-            });
+          if (result.errors == null) {
+            if (widget.connections != null) {
+              widget.connections.add(
+                  Connection.fromJson(result.data['create_connection'])
+                      .targetUser);
+              widget.connections.sort((a, b) {
+                return a.name.compareTo(b.name);
+              });
+              widget.connections.sort((a, b) {
+                return b.isActive.toString().compareTo(a.isActive.toString());
+              });
+            }
+            _addContactToPhoneAgenda();
+          } else {
+            _showDialog(Localization.of(context).getString('error'),
+                Localization.of(context).getString('anErrorHasOccured'));
           }
-          _addContactToPhoneAgenda();
         });
       } else {
         _userDetailsBloc
             .createConnection(_currentUser.id, _user.id)
             .then((result) {
-          _reflectConnectionUI();
+          if (result.errors == null) {
+            _reflectConnectionUI();
+          } else {
+            _showDialog(Localization.of(context).getString('error'),
+                Localization.of(context).getString('anErrorHasOccured'));
+          }
         });
       }
     });
@@ -195,54 +230,54 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
 
   void _deleteConnection() {
     _userDetailsBloc.deleteConnection(_connection.id).then((onValue) {
-      setState(() {
-        _saving = false;
-        _connectedToUser = false;
-      });
-      if (widget.connections != null) {
-        User user = widget.connections
-            .firstWhere((item) => item.id == _user.id, orElse: () => null);
-        if (user != null) {
-          widget.connections.remove(user);
+      if (onValue.errors == null) {
+        setState(() {
+          _saving = false;
+          _connectedToUser = false;
+        });
+        if (widget.connections != null) {
+          User user = widget.connections
+              .firstWhere((item) => item.id == _user.id, orElse: () => null);
+          if (user != null) {
+            widget.connections.remove(user);
+          }
         }
+        _showDialog(
+            '', Localization.of(context).getString('deletedConnection'));
+      } else {
+        _showDialog(Localization.of(context).getString('error'),
+            Localization.of(context).getString('anErrorHasOccured'));
       }
-      _showDialog('', Localization.of(context).getString('deletedConnection'));
     });
   }
 
   void _sendContactToSomeone() {
-    checkConnectivity().then((connected) {
-      if (connected) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => SendInChatScreen(userToBeShared: _user)));
-      } else {
-        _showDialog(
-            "", Localization.of(context).getString("noInternetConnection"));
-      }
-    });
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SendInChatScreen(userToBeShared: _user)));
   }
 
   void _createConversation() {
-    checkConnectivity().then((connected) {
-      if (connected) {
-        setState(() {
-          _saving = true;
-        });
-        _userDetailsBloc.createConversation(_user).then((pubNubConversation) {
-          Navigator.of(context).push(new MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  ChatScreen(pubNubConversation: pubNubConversation)));
-        }).then((value) {
-          setState(() {
-            _saving = false;
-          });
-        });
+    setState(() {
+      _saving = true;
+    });
+    _userDetailsBloc.createConversation(_user).then((pubNubConversation) {
+      setState(() {
+        _saving = false;
+      });
+      if (pubNubConversation != null) {
+        Navigator.of(context).push(new MaterialPageRoute(
+            builder: (BuildContext context) =>
+                ChatScreen(pubNubConversation: pubNubConversation)));
       } else {
-        _showDialog(
-            "", Localization.of(context).getString("noInternetConnection"));
+        _showDialog(Localization.of(context).getString('error'),
+            Localization.of(context).getString('anErrorHasOccured'));
       }
+    }).then((value) {
+      setState(() {
+        _saving = false;
+      });
     });
   }
 
@@ -403,11 +438,6 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     }
   }
 
-  Future<bool> checkConnectivity() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    return connectivityResult != ConnectivityResult.none;
-  }
-
   Container _buildActionsButtons() {
     return Container(
       alignment: Alignment.bottomRight,
@@ -475,11 +505,14 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                     ),
                     Container(
                       child: Column(
-                        children: generateTags(_user.tags, (userTagId) {
-                          openLeaveReviewDialog(userTagId);
-                        }, (reviews) {
-                          goToReviewsScreen(reviews);
-                        }, Localization.of(context).getString('noReviews')),
+                        children: _user.tags != null
+                            ? generateTags(_user.tags, (userTagId) {
+                                openLeaveReviewDialog(userTagId);
+                              }, (reviews) {
+                                goToReviewsScreen(reviews);
+                              },
+                                Localization.of(context).getString('noReviews'))
+                            : [],
                       ),
                     )
                   ],

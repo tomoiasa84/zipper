@@ -165,6 +165,7 @@ class Localization {
       'imLookingFor': 'I\'m looking for ',
       'cardWasDeleted': 'This post doesn\'t exist anymore',
       'noInternetConnection': 'No internet connection',
+      'anErrorHasOccured': 'An error has occured!',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -319,6 +320,7 @@ class Localization {
       'imLookingFor': 'Caut',
       'cardWasDeleted': 'Aceasta postare nu mai exista',
       'noInternetConnection': 'Nu exista conexiune la internet',
+      'anErrorHasOccured': 'O eroare a avut loc!',
     },
   };
 

@@ -19,7 +19,6 @@ import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AccountScreen extends StatefulWidget {
-  final bool connected;
   final ValueChanged<bool> onChanged;
   final bool isStartedFromHomeScreen;
   final User user;
@@ -30,8 +29,7 @@ class AccountScreen extends StatefulWidget {
       this.onChanged,
       this.isStartedFromHomeScreen,
       this.user,
-      this.onUserChanged,
-      this.connected})
+      this.onUserChanged})
       : super(key: key);
 
   @override
@@ -117,9 +115,22 @@ class AccountScreenState extends State<AccountScreen> {
           _getMainTag();
         });
       } else {
-        setState(() {
-          _saving = false;
-        });
+        if(mounted) {
+          setState(() {
+            _saving = false;
+          });
+        }
+        else{
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => CustomDialog(
+              title: Localization.of(context).getString("error"),
+              description: Localization.of(context)
+                  .getString("anErrorHasOccured"),
+              buttonText: Localization.of(context).getString("ok"),
+            ),
+          );
+        }
       }
     });
   }
@@ -145,40 +156,50 @@ class AccountScreenState extends State<AccountScreen> {
             widget.onUserChanged(_user);
           }
         });
+      }else{
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: Localization.of(context).getString("error"),
+            description: Localization.of(context)
+                .getString("anErrorHasOccured"),
+            buttonText: Localization.of(context).getString("ok"),
+          ),
+        );
       }
     });
   }
 
   @override
   void initState() {
-    if (widget.connected) {
-      if (widget.user != null) {
-        _accountBloc = AccountBloc();
-        widget.user.cards.sort((a, b) {
-          DateTime dateA = parseDateFromString(a.createdAt);
-          DateTime dateB = parseDateFromString(b.createdAt);
-          return dateB.compareTo(dateA);
-        });
-        _user = widget.user;
-        _getMainTag();
-        _accountBloc.getUserByIdWithMainInfo().then((result) {
-          User newUser = User.fromJson(result.data['get_user']);
-          if (_user != newUser && mounted) {
-            setState(() {
-              newUser.cards = _user.cards;
-              _user = newUser;
-              _user.cards.sort((a, b) {
-                DateTime dateA = parseDateFromString(a.createdAt);
-                DateTime dateB = parseDateFromString(b.createdAt);
-                return dateB.compareTo(dateA);
-              });
-              _getMainTag();
+    if (widget.user != null) {
+      _accountBloc = AccountBloc();
+      widget.user.cards.sort((a, b) {
+        DateTime dateA = parseDateFromString(a.createdAt);
+        DateTime dateB = parseDateFromString(b.createdAt);
+        return dateB.compareTo(dateA);
+      });
+      _user = widget.user;
+      _getMainTag();
+      _accountBloc.getUserByIdWithMainInfo().then((result) {
+        if(result.errors == null){
+        User newUser = User.fromJson(result.data['get_user']);
+        if (_user != newUser && mounted) {
+          setState(() {
+            newUser.cards = _user.cards;
+            _user = newUser;
+            _user.cards.sort((a, b) {
+              DateTime dateA = parseDateFromString(a.createdAt);
+              DateTime dateB = parseDateFromString(b.createdAt);
+              return dateB.compareTo(dateA);
             });
-          }
-        });
-      } else {
-        _getCurrentUserInfo();
+            _getMainTag();
+          });
+        }
       }
+      });
+    } else {
+      _getCurrentUserInfo();
     }
     super.initState();
   }
@@ -190,35 +211,31 @@ class AccountScreenState extends State<AccountScreen> {
         child: Scaffold(
             appBar:
                 _buildAppBar(Localization.of(context).getString('settings')),
-            body: widget.connected
-                ? SafeArea(
-                    top: false,
-                    child: _user != null
-                        ? Container(
-                            margin:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: SingleChildScrollView(
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 16.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    _buildMainInfoCard(),
-                                    _user.tags != null && _user.tags.isNotEmpty
-                                        ? _buildTagsCard()
-                                        : Container(),
-                                    _user.cards != null
-                                        ? _buildCardsList()
-                                        : Container()
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        : Container(),
-                  )
-                : buildNoInternetMessage(Localization.of(context)
-                    .getString("noInternetConnection"))));
+            body: SafeArea(
+              top: false,
+              child: _user != null
+                  ? Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: SingleChildScrollView(
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 16.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              _buildMainInfoCard(),
+                              _user.tags != null && _user.tags.isNotEmpty
+                                  ? _buildTagsCard()
+                                  : Container(),
+                              _user.cards != null
+                                  ? _buildCardsList()
+                                  : Container()
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(),
+            )));
   }
 
   AppBar _buildAppBar(String popupInitialValue) {

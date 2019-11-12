@@ -46,8 +46,6 @@ dependencies:
   flutter_widgets: ^0.1.6
   phone_number: ^0.3.1
   country_pickers: ^1.1.0
-  connectivity: ^0.4.5+3
-
 
 dev_dependencies:
   flutter_test:

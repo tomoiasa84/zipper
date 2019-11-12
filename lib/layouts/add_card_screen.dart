@@ -1,4 +1,3 @@
-import 'package:connectivity/connectivity.dart';
 import 'package:contractor_search/bloc/add_card_bloc.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/tag.dart';
@@ -15,12 +14,10 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AddCardScreen extends StatefulWidget {
-  final bool connected;
   final User user;
   final Function updateUsersCards;
 
-  const AddCardScreen(
-      {Key key, this.user, this.updateUsersCards, this.connected})
+  const AddCardScreen({Key key, this.user, this.updateUsersCards})
       : super(key: key);
 
   @override
@@ -39,15 +36,13 @@ class AddCardScreenState extends State<AddCardScreen> {
 
   @override
   void initState() {
-    if (widget.connected) {
-      _addCardBloc = AddCardBloc();
-      if (widget.user != null) {
-        _user = widget.user;
-      } else {
-        _getCurrentUserInfo();
-      }
-      getTags();
+    _addCardBloc = AddCardBloc();
+    if (widget.user != null) {
+      _user = widget.user;
+    } else {
+      _getCurrentUserInfo();
     }
+    getTags();
     super.initState();
   }
 
@@ -96,6 +91,12 @@ class AddCardScreenState extends State<AddCardScreen> {
             _user = User.fromJson(result.data['get_user']);
             _saving = false;
           });
+        } else {
+          setState(() {
+            _saving = false;
+          });
+          _showDialog(Localization.of(context).getString("error"),
+              Localization.of(context).getString("anErrorHasOccured"));
         }
       });
     });
@@ -156,33 +157,19 @@ class AddCardScreenState extends State<AddCardScreen> {
             color: ColorUtils.darkGray,
           ),
           onPressed: () {
-            checkConnectivity().then((connectivity) {
-              if (connectivity) {
-                if (tag != null) {
-                  createCard();
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => CustomDialog(
-                      title: Localization.of(context).getString("error"),
-                      description:
-                          Localization.of(context).getString("createPostError"),
-                      buttonText: Localization.of(context).getString("ok"),
-                    ),
-                  );
-                }
-              } else {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => CustomDialog(
-                    title: "",
-                    description: Localization.of(context)
-                        .getString("noInternetConnection"),
-                    buttonText: Localization.of(context).getString("ok"),
-                  ),
-                );
-              }
-            });
+            if (tag != null) {
+              createCard();
+            } else {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => CustomDialog(
+                  title: Localization.of(context).getString("error"),
+                  description:
+                      Localization.of(context).getString("createPostError"),
+                  buttonText: Localization.of(context).getString("ok"),
+                ),
+              );
+            }
           },
         )
       ],
@@ -217,13 +204,10 @@ class AddCardScreenState extends State<AddCardScreen> {
         setState(() {
           _saving = false;
         });
+        _showDialog(Localization.of(context).getString("error"),
+            Localization.of(context).getString("anErrorHasOccured"));
       }
     });
-  }
-
-  Future<bool> checkConnectivity() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    return connectivityResult != ConnectivityResult.none;
   }
 
   Container _buildPreviewCard() {
