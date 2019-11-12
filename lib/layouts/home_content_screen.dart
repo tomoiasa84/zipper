@@ -50,13 +50,15 @@ class HomeContentScreenState extends State<HomeContentScreen> {
               _cardsList.clear();
               _cardsList.addAll(currentUser.cardsConnections);
               _cardsList.addAll(currentUser.cards);
-              setState(() {
-                _cardsList.sort((a, b) {
-                  DateTime dateA = parseDateFromString(a.createdAt);
-                  DateTime dateB = parseDateFromString(b.createdAt);
-                  return dateB.compareTo(dateA);
+              if (mounted) {
+                setState(() {
+                  _cardsList.sort((a, b) {
+                    DateTime dateA = parseDateFromString(a.createdAt);
+                    DateTime dateB = parseDateFromString(b.createdAt);
+                    return dateB.compareTo(dateA);
+                  });
                 });
-              });
+              }
             }
           }
         } else {
@@ -79,9 +81,11 @@ class HomeContentScreenState extends State<HomeContentScreen> {
   }
 
   void getCards() {
+    print("getCards() called");
     _homeContentBloc = HomeContentBloc();
     _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
       if (result.errors == null && mounted) {
+        print("getCards() result");
         User currentUser = User.fromJson(result.data['get_user']);
         List<CardModel> newCardsList = [];
         newCardsList.addAll(currentUser.cardsConnections);
@@ -91,27 +95,34 @@ class HomeContentScreenState extends State<HomeContentScreen> {
           DateTime dateB = parseDateFromString(b.createdAt);
           return dateB.compareTo(dateA);
         });
-        widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
         if (currentUser != null && currentUser.cardsConnections != null) {
-          setState(() {
-            _cardsList = newCardsList;
-            _saving = false;
-          });
+          if (mounted) {
+            setState(() {
+              _cardsList = newCardsList;
+              _saving = false;
+            });
+          }
+          widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
         } else {
+          if (mounted) {
+            setState(() {
+              _saving = false;
+            });
+          }
+        }
+      } else {
+        if (mounted) {
           setState(() {
             _saving = false;
           });
         }
-      } else {
-        setState(() {
-          _saving = false;
-        });
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    print("build() called");
     return ModalProgressHUD(
       inAsyncCall: _saving,
       child: Scaffold(
@@ -129,6 +140,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
   }
 
   AppBar _buildAppBar() {
+    print("buildAppBar() called");
     return AppBar(
         title: Text(
           Localization.of(context).getString('home'),

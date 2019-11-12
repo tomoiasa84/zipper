@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:graphql/src/link/fetch_result.dart';
@@ -43,6 +44,7 @@ Future<FetchResult> getRequestStream(StreamController<FetchResult> controller,
             "auth/id-token-expired") {
       var token = await refreshToken(accessToken);
 
+      print("Token refreshed!!!");
       if (token.isNotEmpty) {
         await saveAccessToken(token);
         operation.setContext(<String, Map<String, String>>{
@@ -50,10 +52,13 @@ Future<FetchResult> getRequestStream(StreamController<FetchResult> controller,
             'Authorization': 'Bearer $token',
           }
         });
+        return whenFirst(forward(operation));
+      } else {
+        return whenFirst(forward(operation));
       }
-      return whenFirst(forward(operation));
+    } else {
+      return firstEvent;
     }
-    return firstEvent;
   } catch (e) {
     return Future.error(e);
   }
@@ -73,14 +78,13 @@ Future<T> whenFirst<T>(Stream<T> source) async {
 }
 
 Future<String> refreshToken(String accessToken) async {
-
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   try {
     final FirebaseUser currentUser = await _auth.currentUser();
 
     if (currentUser != null && accessToken.isNotEmpty) {
-      var token = await currentUser.getIdToken();
+      var token = await currentUser.getIdToken(refresh: true);
       if (token.token != accessToken) {
         return token.token;
       }
