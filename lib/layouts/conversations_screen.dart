@@ -129,7 +129,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       key: Key("conversations_screen_key"),
       onVisibilityChanged: (VisibilityInfo info) {
         if (info.visibleFraction == 1.0) {
-         //_getConversations();
+         _getConversations();
         }
       },
       child: ModalProgressHUD(
