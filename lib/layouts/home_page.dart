@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:connectivity/connectivity.dart';
 import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/layouts/home_content_screen.dart';
+import 'package:contractor_search/model/connection_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PushNotification.dart';
 import 'package:contractor_search/models/UserMessage.dart';
@@ -47,62 +47,39 @@ class _HomePageState extends State<HomePage> {
       BasicMessageChannel<String>('iosRecommendationTapped', StringCodec());
   User _user;
 
-  StreamSubscription<ConnectivityResult> subscription;
-
-  bool connected = false;
-
   @override
   void initState() {
-    subscription = Connectivity()
-        .onConnectivityChanged
-        .listen((ConnectivityResult result) {
-      if (result != ConnectivityResult.none) {
-        setState(() {
-          connected = true;
-        });
-        _homeBloc = HomeBloc();
-        if (widget.syncContactsFlagRequired) {
-          _saveSyncContactsFlag(true);
-        }
-        _homeBloc.getCurrentUser().then((result) {
-          if (result.errors == null) {
-            _user = User.fromJson(result.data['get_user']);
-          }
-        });
-        _initFirebaseClientMessaging();
-        _initLocalNotifications();
-        _homeBloc.updateDeviceToken();
-        _notificationsChannel.setMessageHandler((String message) async {
-          print('Received: $message');
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ChatScreen(conversationId: message)),
-              ModalRoute.withName("/"));
-          return '';
-        });
-        _recommendationChannel.setMessageHandler((String message) async {
-          print('Received: $message');
-          _goToCardDetailsScreen(int.parse(message));
-          return '';
-        });
-        SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
-          _currentUserChannel.send(currentUserId);
-          print('USER SENT');
-        });
-      } else {
-        setState(() {
-          connected = false;
-        });
+    _homeBloc = HomeBloc();
+    if (widget.syncContactsFlagRequired) {
+      _saveSyncContactsFlag(true);
+    }
+    _homeBloc.getCurrentUser().then((result) {
+      if (result.errors == null) {
+        _user = User.fromJson(result.data['get_user']);
       }
     });
+    _initFirebaseClientMessaging();
+    _initLocalNotifications();
+    _homeBloc.updateDeviceToken();
+    _notificationsChannel.setMessageHandler((String message) async {
+      print('Received: $message');
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ChatScreen(conversationId: message)),
+          ModalRoute.withName("/"));
+      return '';
+    });
+    _recommendationChannel.setMessageHandler((String message) async {
+      print('Received: $message');
+      _goToCardDetailsScreen(int.parse(message));
+      return '';
+    });
+    SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
+      _currentUserChannel.send(currentUserId);
+      print('USER SENT');
+    });
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    subscription.cancel();
-    super.dispose();
   }
 
   void _initLocalNotifications() {
@@ -227,74 +204,92 @@ class _HomePageState extends State<HomePage> {
               return _buildBottomNavigationBar(snapshot);
             },
           ),
-          body: StreamBuilder(
-            stream: Connectivity().onConnectivityChanged,
-            builder: (BuildContext context,
-                AsyncSnapshot<ConnectivityResult> snapShot) {
-              if (snapShot.hasData &&
-                  snapShot.data != ConnectivityResult.none) {
-                connected = snapShot.data != ConnectivityResult.none;
+          body: StreamBuilder<NavBarItem>(
+            stream: _homeBloc.itemStream,
+            initialData: _homeBloc.defaultItem,
+            builder:
+                (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
+              switch (snapshot.data) {
+                case NavBarItem.HOME:
+                  return HomeContentScreen(
+                    user: _user,
+                    onUserUpdated: (cardsConnections, cards) {
+                      if (_user != null) {
+                        _user.cardsConnections = cardsConnections;
+                        _user.cards = cards;
+                      } else {
+                        _homeBloc.getCurrentUser().then((result) {
+                          if (result.errors == null) {
+                            _user = User.fromJson(result.data['get_user']);
+                          }
+                        });
+                      }
+                    },
+                  );
+                case NavBarItem.CONTACTS:
+                  return UsersScreen(
+                    user: _user,
+                    updateCurrentUser: (connections) {
+                      if (_user != null) {
+                        _user.connections = connections;
+                      } else {
+                        _homeBloc.getCurrentUser().then((result) {
+                          if (result.errors == null) {
+                            _user = User.fromJson(result.data['get_user']);
+                          }
+                        });
+                        _user = User();
+                        _user.connections = connections;
+                      }
+                    },
+                    updateConnectedUser: (connectedUser) {
+                      Connection connection = _user.connections.firstWhere(
+                          (item) => item.targetUser.id == connectedUser.id,
+                          orElse: () => null);
+                      if (connection != null) {
+                        int index = _user.connections.indexOf(connection);
+                        _user.connections[index].targetUser = connectedUser;
+                      }
+                    },
+                  );
+                case NavBarItem.PLUS:
+                  return Container();
+                case NavBarItem.INBOX:
+                  return ConversationsScreen();
+                case NavBarItem.ACCOUNT:
+                  return AccountScreen(
+                    user: _user,
+                    onChanged: _onBlurredChanged,
+                    isStartedFromHomeScreen: true,
+                    onUserChanged: (newUser) {
+                      if (_user != null && newUser != null) {
+                        _user.name = newUser.name;
+                        _user.phoneNumber = newUser.phoneNumber;
+                        _user.description = newUser.description;
+                        _user.tags = newUser.tags;
+                        _user.cards = newUser.cards;
+                        _user.profilePicUrl = newUser.profilePicUrl;
+                        _user.reviews = newUser.reviews;
+                      } else {
+                        _homeBloc.getCurrentUser().then((result) {
+                          if (result.errors == null) {
+                            _user = User.fromJson(result.data['get_user']);
+                          }
+                        });
+                        _user = new User();
+                        _user.name = newUser.name;
+                        _user.phoneNumber = newUser.phoneNumber;
+                        _user.description = newUser.description;
+                        _user.tags = newUser.tags;
+                        _user.cards = newUser.cards;
+                        _user.profilePicUrl = newUser.profilePicUrl;
+                        _user.reviews = newUser.reviews;
+                      }
+                    },
+                  );
+                default:
+                  return Container();
               }
-              return StreamBuilder<NavBarItem>(
-                stream: _homeBloc.itemStream,
-                initialData: _homeBloc.defaultItem,
-                builder:
-                    (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
-                  switch (snapshot.data) {
-                    case NavBarItem.HOME:
-                      return HomeContentScreen(
-                        connected: connected,
-                        user: _user,
-                        onUserUpdated: (cardsConnections, cards) {
-                          if (_user != null) {
-                            _user.cardsConnections = cardsConnections;
-                            _user.cards = cards;
-                          }
-                        },
-                      );
-                    case NavBarItem.CONTACTS:
-                      return UsersScreen(
-                        connected: connected,
-                        user: _user,
-                        updateCurrentUser: (connections) {
-                          if (_user != null && _user.connections != null) {
-                            _user.connections = connections;
-                          }
-                        },
-                      );
-                    case NavBarItem.PLUS:
-                      return Container();
-                    case NavBarItem.INBOX:
-                      return ConversationsScreen(
-                        connected: connected,
-                      );
-                    case NavBarItem.ACCOUNT:
-                      return AccountScreen(
-                        connected: connected,
-                        user: _user,
-                        onChanged: _onBlurredChanged,
-                        isStartedFromHomeScreen: true,
-                        onUserChanged: (newUser) {
-                          if (_user != null && newUser != null)
-                            _user.name = newUser.name;
-                          _user.phoneNumber = newUser.phoneNumber;
-                          _user.description = newUser.description;
-                          _user.tags = newUser.tags;
-                          _user.cards = newUser.cards;
-                          _user.profilePicUrl = newUser.profilePicUrl;
-                          _user.reviews = newUser.reviews;
-                        },
-                      );
-                    default:
-                      return Container();
-                  }
-                },
-              );
-//              else {
-//                return Center(
-//                  child: Text(Localization.of(context).getString("error")),
-//                );
-//              }
             },
           ),
         ),
@@ -315,20 +310,8 @@ class _HomePageState extends State<HomePage> {
       type: BottomNavigationBarType.fixed,
       onTap: (index) {
         if (index == 2) {
-          if (connected) {
-            _goToAddCardScreen();
-            _homeBloc.pickItem(index);
-          } else {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) => CustomDialog(
-                title: "",
-                description:
-                    Localization.of(context).getString("noInternetConnection"),
-                buttonText: Localization.of(context).getString("ok"),
-              ),
-            );
-          }
+          _goToAddCardScreen();
+          _homeBloc.pickItem(index);
         } else {
           _homeBloc.pickItem(index);
         }
@@ -380,7 +363,6 @@ class _HomePageState extends State<HomePage> {
   Future<void> _goToAddCardScreen() async {
     var result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) => AddCardScreen(
-          connected: connected,
               user: _user,
               updateUsersCards: (userCards) {
                 if (_user != null) {

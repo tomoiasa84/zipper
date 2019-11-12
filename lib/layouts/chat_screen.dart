@@ -124,9 +124,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _startConversation(User user) {
     _chatBloc.createConversation(user).then((pubNubConversation) {
-      Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (BuildContext context) =>
-              ChatScreen(pubNubConversation: pubNubConversation)));
+      if(pubNubConversation!=null) {
+        Navigator.of(context).pushReplacement(new MaterialPageRoute(
+            builder: (BuildContext context) =>
+                ChatScreen(pubNubConversation: pubNubConversation)));
+      }
     });
   }
 

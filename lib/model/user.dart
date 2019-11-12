@@ -64,19 +64,22 @@ class User {
             : null,
         description = json['description'];
 
-  final String id;
-  final String firebaseId;
+   String id;
+   String firebaseId;
   String name;
-  final LocationModel location;
+  LocationModel location;
   String description;
   String phoneNumber;
-  final bool isActive;
-  final List<ConversationModel> conversations;
+  bool isActive;
+   List<ConversationModel> conversations;
   List<Connection> connections;
   List<CardModel> cards;
   List<UserTag> tags;
   List<CardModel> cardsConnections;
   List<Review> reviews;
-  final List<Setting> settings;
+  List<Setting> settings;
   String profilePicUrl;
+
+  User();
+
 }

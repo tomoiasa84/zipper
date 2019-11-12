@@ -7,9 +7,7 @@ import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
-import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/search_card_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -17,12 +15,10 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'account_screen.dart';
 
 class HomeContentScreen extends StatefulWidget {
-  final bool connected;
   final User user;
   final Function onUserUpdated;
 
-  const HomeContentScreen(
-      {Key key, this.user, this.onUserUpdated, this.connected})
+  const HomeContentScreen({Key key, this.user, this.onUserUpdated})
       : super(key: key);
 
   @override
@@ -36,45 +32,48 @@ class HomeContentScreenState extends State<HomeContentScreen> {
 
   @override
   void initState() {
-    if (widget.connected) {
-      if (widget.user != null) {
-        _cardsList.clear();
-        _cardsList.addAll(widget.user.cardsConnections);
-        _cardsList.addAll(widget.user.cards);
-        _cardsList.sort((a, b) {
-          DateTime dateA = parseDateFromString(a.createdAt);
-          DateTime dateB = parseDateFromString(b.createdAt);
-          return dateB.compareTo(dateA);
-        });
-        _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
-          if (result.errors == null && mounted) {
-            User currentUser = User.fromJson(result.data['get_user']);
-            widget.onUserUpdated(
-                currentUser.cardsConnections, currentUser.cards);
-            if (currentUser != null && currentUser.cardsConnections != null) {
-              if (_cardsList != currentUser.cardsConnections) {
-                _cardsList.clear();
-                _cardsList.addAll(currentUser.cardsConnections);
-                _cardsList.addAll(currentUser.cards);
-                setState(() {
-                  _cardsList.sort((a, b) {
-                    DateTime dateA = parseDateFromString(a.createdAt);
-                    DateTime dateB = parseDateFromString(b.createdAt);
-                    return dateB.compareTo(dateA);
-                  });
+    if (widget.user != null && widget.user.cardsConnections != null) {
+      _cardsList.clear();
+      _cardsList.addAll(widget.user.cardsConnections);
+      _cardsList.addAll(widget.user.cards);
+      _cardsList.sort((a, b) {
+        DateTime dateA = parseDateFromString(a.createdAt);
+        DateTime dateB = parseDateFromString(b.createdAt);
+        return dateB.compareTo(dateA);
+      });
+      _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
+        if (result.errors == null && mounted) {
+          User currentUser = User.fromJson(result.data['get_user']);
+          widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
+          if (currentUser != null && currentUser.cardsConnections != null) {
+            if (_cardsList != currentUser.cardsConnections) {
+              _cardsList.clear();
+              _cardsList.addAll(currentUser.cardsConnections);
+              _cardsList.addAll(currentUser.cards);
+              setState(() {
+                _cardsList.sort((a, b) {
+                  DateTime dateA = parseDateFromString(a.createdAt);
+                  DateTime dateB = parseDateFromString(b.createdAt);
+                  return dateB.compareTo(dateA);
                 });
-              }
+              });
             }
           }
-        });
-      } else {
-        if (mounted) {
-          setState(() {
-            _saving = true;
-          });
+        } else {
+          if (mounted) {
+            setState(() {
+              _saving = false;
+            });
+          }
         }
-        getCards();
+      });
+    } else {
+      if (mounted) {
+        setState(() {
+          _saving = true;
+        });
       }
+      getCards();
     }
     super.initState();
   }
@@ -104,24 +103,11 @@ class HomeContentScreenState extends State<HomeContentScreen> {
           });
         }
       } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message);
+        setState(() {
+          _saving = false;
+        });
       }
     });
-  }
-
-  void _showDialog(String title, String description) {
-    setState(() {
-      _saving = false;
-    });
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: description,
-        buttonText: Localization.of(context).getString("ok"),
-      ),
-    );
   }
 
   @override
@@ -130,16 +116,14 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       inAsyncCall: _saving,
       child: Scaffold(
         appBar: _buildAppBar(),
-        body: widget.connected
-            ? _cardsList.isNotEmpty
-                ? _buildContent()
-                : (_saving
-                    ? Container()
-                    : Center(
-                        child: Text(Localization.of(context)
-                            .getString('emptyPostsList')),
-                      ))
-            : buildNoInternetMessage(Localization.of(context).getString("noInternetConnection")),
+        body: _cardsList.isNotEmpty
+            ? _buildContent()
+            : (_saving
+                ? Container()
+                : Center(
+                    child: Text(
+                        Localization.of(context).getString('emptyPostsList')),
+                  )),
       ),
     );
   }

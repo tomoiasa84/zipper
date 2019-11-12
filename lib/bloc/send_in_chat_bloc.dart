@@ -34,9 +34,11 @@ class SendInChatBloc {
     _currentUserId = await SharedPreferencesHelper.getCurrentUserId();
 
     await _repository.getPubNubConversations().then((conversations) {
-      for (var conversation in conversations) {
-        if (conversation.user1 != null && conversation.user2 != null){
-          recentUsers.add(_getInterlocutorUser(conversation));
+      if (conversations != null) {
+        for (var conversation in conversations) {
+          if (conversation.user1 != null && conversation.user2 != null) {
+            recentUsers.add(_getInterlocutorUser(conversation));
+          }
         }
       }
     });

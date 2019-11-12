@@ -9,6 +9,7 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -58,8 +59,11 @@ class SendInChatScreenState extends State<SendInChatScreen> {
         _allUsersLoaded = true;
         _hideLoading();
       } else {
-        _showDialog(Localization.of(context).getString("error"),
-            result.errors[0].message);
+        setState(() {
+          _saving = false;
+        });
+        buildNoInternetMessage(
+            Localization.of(context).getString('noInternetConnection'));
       }
     });
   }
@@ -100,23 +104,28 @@ class SendInChatScreenState extends State<SendInChatScreen> {
       _saving = true;
     });
     _sendInChatBloc.createConversation(user).then((pubNubConversation) {
-      var pnGCM = PnGCM(WrappedMessage(
-          PushNotification(
-              "Test", Localization.of(context).getString('sharedContact')),
-          UserMessage.withSharedContact(DateTime.now(), _currentUserId,
-              widget.userToBeShared, pubNubConversation.id)));
+      if(pubNubConversation!=null) {
+        var pnGCM = PnGCM(WrappedMessage(
+            PushNotification(
+                "Test", Localization.of(context).getString('sharedContact')),
+            UserMessage.withSharedContact(DateTime.now(), _currentUserId,
+                widget.userToBeShared, pubNubConversation.id)));
 
-      _sendInChatBloc
-          .sendMessage(pubNubConversation.id, pnGCM)
-          .then((messageSent) {
-        if (messageSent) {
-          Navigator.of(context).pushReplacement(new MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  ChatScreen(pubNubConversation: pubNubConversation)));
-        } else {
-          print('Could not send message');
-        }
-      });
+        _sendInChatBloc
+            .sendMessage(pubNubConversation.id, pnGCM)
+            .then((messageSent) {
+          if (messageSent) {
+            Navigator.of(context).pushReplacement(new MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    ChatScreen(pubNubConversation: pubNubConversation)));
+          } else {
+            setState(() {
+              _saving = false;
+            });
+            print('Could not send message');
+          }
+        });
+      }
     });
   }
 
@@ -125,23 +134,29 @@ class SendInChatScreenState extends State<SendInChatScreen> {
       _saving = true;
     });
     _sendInChatBloc.createConversation(user).then((pubNubConversation) {
-      var pnGCM = PnGCM(WrappedMessage(
-          PushNotification(
-              "Test", _createSharedCardPushNotificationText(widget.cardModel)),
-          UserMessage.withSharedCard(DateTime.now(), _currentUserId,
-              widget.cardModel, pubNubConversation.id)));
+      if(pubNubConversation!=null) {
+        var pnGCM = PnGCM(WrappedMessage(
+            PushNotification(
+                "Test",
+                _createSharedCardPushNotificationText(widget.cardModel)),
+            UserMessage.withSharedCard(DateTime.now(), _currentUserId,
+                widget.cardModel, pubNubConversation.id)));
 
-      _sendInChatBloc
-          .sendMessage(pubNubConversation.id, pnGCM)
-          .then((messageSent) {
-        if (messageSent) {
-          Navigator.of(context).pushReplacement(new MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  ChatScreen(pubNubConversation: pubNubConversation)));
-        } else {
-          print('Could not send message');
-        }
-      });
+        _sendInChatBloc
+            .sendMessage(pubNubConversation.id, pnGCM)
+            .then((messageSent) {
+          if (messageSent) {
+            Navigator.of(context).pushReplacement(new MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    ChatScreen(pubNubConversation: pubNubConversation)));
+          } else {
+            setState(() {
+              _saving = true;
+            });
+            print('Could not send message');
+          }
+        });
+      }
     });
   }
 

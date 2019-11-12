@@ -12,7 +12,8 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class ApiProvider {
-  static HttpLink link = HttpLink(uri: 'https://xfriends.azurewebsites.net/graphql');
+  static HttpLink link =
+      HttpLink(uri: 'https://xfriends.azurewebsites.net/graphql');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
@@ -465,6 +466,7 @@ class ApiProvider {
                              name
                              profileURL
                              isActive
+                             description
                              phoneNumber
                              tags{
                                   id
