@@ -115,18 +115,17 @@ class AccountScreenState extends State<AccountScreen> {
           _getMainTag();
         });
       } else {
-        if(mounted) {
+        if (mounted) {
           setState(() {
             _saving = false;
           });
-        }
-        else{
+        } else {
           showDialog(
             context: context,
             builder: (BuildContext context) => CustomDialog(
               title: Localization.of(context).getString("error"),
-              description: Localization.of(context)
-                  .getString("anErrorHasOccured"),
+              description:
+                  Localization.of(context).getString("anErrorHasOccured"),
               buttonText: Localization.of(context).getString("ok"),
             ),
           );
@@ -156,13 +155,16 @@ class AccountScreenState extends State<AccountScreen> {
             widget.onUserChanged(_user);
           }
         });
-      }else{
+      } else {
+        setState(() {
+          _saving = false;
+        });
         showDialog(
           context: context,
           builder: (BuildContext context) => CustomDialog(
             title: Localization.of(context).getString("error"),
-            description: Localization.of(context)
-                .getString("anErrorHasOccured"),
+            description:
+                Localization.of(context).getString("anErrorHasOccured"),
             buttonText: Localization.of(context).getString("ok"),
           ),
         );
@@ -182,21 +184,21 @@ class AccountScreenState extends State<AccountScreen> {
       _user = widget.user;
       _getMainTag();
       _accountBloc.getUserByIdWithMainInfo().then((result) {
-        if(result.errors == null){
-        User newUser = User.fromJson(result.data['get_user']);
-        if (_user != newUser && mounted) {
-          setState(() {
-            newUser.cards = _user.cards;
-            _user = newUser;
-            _user.cards.sort((a, b) {
-              DateTime dateA = parseDateFromString(a.createdAt);
-              DateTime dateB = parseDateFromString(b.createdAt);
-              return dateB.compareTo(dateA);
+        if (result.errors == null) {
+          User newUser = User.fromJson(result.data['get_user']);
+          if (_user != newUser && mounted) {
+            setState(() {
+              newUser.cards = _user.cards;
+              _user = newUser;
+              _user.cards.sort((a, b) {
+                DateTime dateA = parseDateFromString(a.createdAt);
+                DateTime dateB = parseDateFromString(b.createdAt);
+                return dateB.compareTo(dateA);
+              });
+              _getMainTag();
             });
-            _getMainTag();
-          });
+          }
         }
-      }
       });
     } else {
       _getCurrentUserInfo();
