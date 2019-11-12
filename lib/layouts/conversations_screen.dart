@@ -48,9 +48,11 @@ class _ConversationsScreenState extends State<ConversationsScreen>
             });
           }
         } else {
-          setState(() {
-            _loading = false;
-          });
+          if (mounted) {
+            setState(() {
+              _loading = false;
+            });
+          }
         }
       });
     }
@@ -65,24 +67,30 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                 conversation.id);
         if (lastMessageTimestamp !=
             conversation.lastMessage.message.timestamp.toIso8601String()) {
-          setState(() {
-            conversation.read = false;
-          });
+          if (mounted) {
+            setState(() {
+              conversation.read = false;
+            });
+          }
         }
       } else {
         var lastRecommendCount =
             await SharedPreferencesHelper.getCardRecommendsCount(
                 conversation.lastMessage.message.cardId.toString());
         if (lastRecommendCount == null) {
-          setState(() {
-            conversation.read = false;
-          });
+          if (mounted) {
+            setState(() {
+              conversation.read = false;
+            });
+          }
         }
         if (lastRecommendCount ==
             conversation.lastMessage.message.cardRecommendationsCount) {
-          setState(() {
-            conversation.read = true;
-          });
+          if (mounted) {
+            setState(() {
+              conversation.read = true;
+            });
+          }
         } else {
           conversation.read = false;
         }
@@ -129,7 +137,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       key: Key("conversations_screen_key"),
       onVisibilityChanged: (VisibilityInfo info) {
         if (info.visibleFraction == 1.0) {
-         _getConversations();
+          _getConversations();
         }
       },
       child: ModalProgressHUD(
