@@ -33,6 +33,8 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
 
   String _currentUserId;
 
+  bool connected = true;
+
   @override
   void initState() {
     getCurrentCard();
@@ -64,10 +66,19 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       _saving = true;
     });
     _cardDetailsBloc.getCardById(widget.cardId).then((result) {
-      if (result.data['get_card'] == null) {
-        _showUnexistentCardDialog();
+      if (result.errors == null) {
+        if (result.data['get_card'] == null) {
+          _showUnexistentCardDialog();
+        } else {
+          _processCardResponse(result);
+        }
       } else {
-        _processCardResponse(result);
+        if (mounted) {
+          setState(() {
+            _saving = false;
+            connected = false;
+          });
+        }
       }
     });
   }
@@ -87,9 +98,12 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
 
   Future<bool> _saveLastRecommendation() async {
     print('saved');
-
-    return SharedPreferencesHelper.saveCardRecommendsCount(
-        _card.id.toString(), _card.recommendsCount);
+    if (_card != null) {
+      return SharedPreferencesHelper.saveCardRecommendsCount(
+          _card.id.toString(), _card.recommendsCount);
+    } else {
+      return true;
+    }
   }
 
   @override
@@ -100,7 +114,10 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
         inAsyncCall: _saving,
         child: Scaffold(
           appBar: _buildAppBar(),
-          body: _buildContent(),
+          body: connected
+              ? _buildContent()
+              : buildNoInternetMessage(
+                  Localization.of(context).getString('noInternetConnection')),
         ),
       ),
     );
@@ -153,9 +170,11 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
 
   void _startConversation(User user) {
     _cardDetailsBloc.createConversation(user).then((pubNubConversation) {
-      Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (BuildContext context) =>
-              ChatScreen(pubNubConversation: pubNubConversation)));
+      if(pubNubConversation!=null) {
+        Navigator.of(context).pushReplacement(new MaterialPageRoute(
+            builder: (BuildContext context) =>
+                ChatScreen(pubNubConversation: pubNubConversation)));
+      }
     });
   }
 
@@ -515,6 +534,17 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     );
   }
 
+  Future _showDialog(String title, String message) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText: Localization.of(context).getString('ok'),
+      ),
+    );
+  }
+
   GestureDetector _buildRecommendButton() {
     return GestureDetector(
       onTap: () {
@@ -544,7 +574,6 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => RecommendFriendScreen(card: _card)));
-
     getCurrentCard();
   }
 }

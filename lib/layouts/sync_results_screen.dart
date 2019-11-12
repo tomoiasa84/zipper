@@ -1,4 +1,3 @@
-import 'package:connectivity/connectivity.dart';
 import 'package:contractor_search/bloc/sync_results_bloc.dart';
 import 'package:contractor_search/layouts/share_selected_screen.dart';
 import 'package:contractor_search/layouts/unjoined_contacts_screen.dart';
@@ -6,7 +5,6 @@ import 'package:contractor_search/model/sync_contacts_model.dart';
 import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -57,42 +55,28 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
       actions: <Widget>[
         GestureDetector(
           onTap: () {
-            checkConnectivity().then((connectivity) {
-              if (connectivity) {
-                setState(() {
-                  _saving = true;
-                });
-                List<String> existingUsers = [];
-                widget.syncResult.existingUsers.forEach((contact) {
-                  if (contact != null &&
-                      contact.formattedPhoneNumber != null &&
-                      contact.formattedPhoneNumber.isNotEmpty) {
-                    existingUsers.add(contact.formattedPhoneNumber);
-                  }
-                });
-                _syncResultsBloc
-                    .loadConnections(existingUsers)
-                    .then((response) {
-                  setState(() {
-                    _saving = false;
-                  });
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => HomePage(
-                                syncContactsFlagRequired: true,
-                              )),
-                      ModalRoute.withName("/homepage"));
-                });
-              } else {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => HomePage(
-                              syncContactsFlagRequired: true,
-                            )),
-                    ModalRoute.withName("/homepage"));
+            setState(() {
+              _saving = true;
+            });
+            List<String> existingUsers = [];
+            widget.syncResult.existingUsers.forEach((contact) {
+              if (contact != null &&
+                  contact.formattedPhoneNumber != null &&
+                  contact.formattedPhoneNumber.isNotEmpty) {
+                existingUsers.add(contact.formattedPhoneNumber);
               }
+            });
+            _syncResultsBloc.loadConnections(existingUsers).then((response) {
+              setState(() {
+                _saving = false;
+              });
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HomePage(
+                            syncContactsFlagRequired: true,
+                          )),
+                  ModalRoute.withName("/homepage"));
             });
           },
           child: Padding(
@@ -109,11 +93,6 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
         )
       ],
     );
-  }
-
-  Future<bool> checkConnectivity() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    return connectivityResult != ConnectivityResult.none;
   }
 
   Container _buildBody() {
@@ -265,29 +244,14 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
       margin: const EdgeInsets.only(top: 89.0),
       child: RaisedButton(
         onPressed: () {
-          checkConnectivity().then((connectivity) {
-            if (connectivity) {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ShareSelectedContactsScreen(
-                            existingUsers: widget.syncResult.existingUsers,
-                            unjoinedContacts:
-                                widget.syncResult.unjoinedContacts,
-                          )),
-                  ModalRoute.withName("/homepage"));
-            } else {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => CustomDialog(
-                  title: "",
-                  description: Localization.of(context)
-                      .getString('noInternetConnection'),
-                  buttonText: Localization.of(context).getString("ok"),
-                ),
-              );
-            }
-          });
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ShareSelectedContactsScreen(
+                        existingUsers: widget.syncResult.existingUsers,
+                        unjoinedContacts: widget.syncResult.unjoinedContacts,
+                      )),
+              ModalRoute.withName("/homepage"));
         },
         color: ColorUtils.orangeAccent,
         shape: new RoundedRectangleBorder(

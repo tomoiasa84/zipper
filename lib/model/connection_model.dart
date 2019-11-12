@@ -12,5 +12,5 @@ class Connection {
 
   final int id;
   final User originUser;
-  final User targetUser;
+   User targetUser;
 }

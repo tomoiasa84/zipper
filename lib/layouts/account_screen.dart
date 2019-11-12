@@ -19,7 +19,6 @@ import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class AccountScreen extends StatefulWidget {
-  final bool connected;
   final ValueChanged<bool> onChanged;
   final bool isStartedFromHomeScreen;
   final User user;
@@ -30,8 +29,7 @@ class AccountScreen extends StatefulWidget {
       this.onChanged,
       this.isStartedFromHomeScreen,
       this.user,
-      this.onUserChanged,
-      this.connected})
+      this.onUserChanged})
       : super(key: key);
 
   @override
@@ -119,24 +117,23 @@ class AccountScreenState extends State<AccountScreen> {
           print('Finished _getCurrentUserInfo in: ${stopwatch.elapsed}');
         });
       } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message);
+        if (mounted) {
+          setState(() {
+            _saving = false;
+          });
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => CustomDialog(
+              title: Localization.of(context).getString("error"),
+              description:
+                  Localization.of(context).getString("anErrorHasOccured"),
+              buttonText: Localization.of(context).getString("ok"),
+            ),
+          );
+        }
       }
     });
-  }
-
-  void _showDialog(String title, String description) {
-    setState(() {
-      _saving = false;
-    });
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: description,
-        buttonText: Localization.of(context).getString("ok"),
-      ),
-    );
   }
 
   void _getMainTag() {
@@ -161,12 +158,16 @@ class AccountScreenState extends State<AccountScreen> {
           }
         });
       } else {
+        setState(() {
+          _saving = false;
+        });
         showDialog(
           context: context,
           builder: (BuildContext context) => CustomDialog(
             title: Localization.of(context).getString("error"),
-            description: result.errors[0].message,
-            buttonText: Localization.of(context).getString('ok'),
+            description:
+                Localization.of(context).getString("anErrorHasOccured"),
+            buttonText: Localization.of(context).getString("ok"),
           ),
         );
       }
@@ -176,17 +177,17 @@ class AccountScreenState extends State<AccountScreen> {
   @override
   void initState() {
     Stopwatch stopwatch = Stopwatch()..start();
-    if (widget.connected) {
-      if (widget.user != null) {
-        _accountBloc = AccountBloc();
-        widget.user.cards.sort((a, b) {
-          DateTime dateA = parseDateFromString(a.createdAt);
-          DateTime dateB = parseDateFromString(b.createdAt);
-          return dateB.compareTo(dateA);
-        });
-        _user = widget.user;
-        _getMainTag();
-        _accountBloc.getUserByIdWithMainInfo().then((result) {
+    if (widget.user != null) {
+      _accountBloc = AccountBloc();
+      widget.user.cards.sort((a, b) {
+        DateTime dateA = parseDateFromString(a.createdAt);
+        DateTime dateB = parseDateFromString(b.createdAt);
+        return dateB.compareTo(dateA);
+      });
+      _user = widget.user;
+      _getMainTag();
+      _accountBloc.getUserByIdWithMainInfo().then((result) {
+        if (result.errors == null) {
           User newUser = User.fromJson(result.data['get_user']);
           if (_user != newUser && mounted) {
             setState(() {
@@ -200,11 +201,11 @@ class AccountScreenState extends State<AccountScreen> {
               _getMainTag();
             });
           }
-          print('Finished getCachedUser in: ${stopwatch.elapsed}');
-        });
-      } else {
-        _getCurrentUserInfo();
-      }
+        }
+      });
+      print('Finished getCachedUser in: ${stopwatch.elapsed}');
+    } else {
+      _getCurrentUserInfo();
     }
     super.initState();
   }
@@ -216,35 +217,31 @@ class AccountScreenState extends State<AccountScreen> {
         child: Scaffold(
             appBar:
                 _buildAppBar(Localization.of(context).getString('settings')),
-            body: widget.connected
-                ? SafeArea(
-                    top: false,
-                    child: _user != null
-                        ? Container(
-                            margin:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: SingleChildScrollView(
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 16.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    _buildMainInfoCard(),
-                                    _user.tags != null && _user.tags.isNotEmpty
-                                        ? _buildTagsCard()
-                                        : Container(),
-                                    _user.cards != null
-                                        ? _buildCardsList()
-                                        : Container()
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        : Container(),
-                  )
-                : buildNoInternetMessage(Localization.of(context)
-                    .getString("noInternetConnection"))));
+            body: SafeArea(
+              top: false,
+              child: _user != null
+                  ? Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: SingleChildScrollView(
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 16.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              _buildMainInfoCard(),
+                              _user.tags != null && _user.tags.isNotEmpty
+                                  ? _buildTagsCard()
+                                  : Container(),
+                              _user.cards != null
+                                  ? _buildCardsList()
+                                  : Container()
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(),
+            )));
   }
 
   AppBar _buildAppBar(String popupInitialValue) {

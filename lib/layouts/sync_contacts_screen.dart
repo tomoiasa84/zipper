@@ -1,10 +1,8 @@
-import 'package:connectivity/connectivity.dart';
 import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
 import 'package:contractor_search/layouts/sync_results_screen.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
-import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -19,8 +17,6 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
   AnimationController _animationController;
   SyncContactsBloc _syncContactsBloc;
 
-  bool connected = true;
-
   @override
   void initState() {
     _animationController = new AnimationController(
@@ -28,21 +24,9 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
       duration: new Duration(seconds: 7),
     );
     _animationController.repeat();
-    checkConnectivity().then((connectivity) {
-      setState(() {
-        connected = connectivity;
-      });
-      if (connected) {
-        _syncContactsBloc = SyncContactsBloc();
-        _syncContacts();
-      }
-    });
+    _syncContactsBloc = SyncContactsBloc();
+    _syncContacts();
     super.initState();
-  }
-
-  Future<bool> checkConnectivity() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    return connectivityResult != ConnectivityResult.none;
   }
 
   @override
@@ -68,7 +52,7 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
                 context: context,
                 builder: (BuildContext context) => CustomDialog(
                   title: Localization.of(context).getString("error"),
-                  description: syncResult.error,
+                  description: Localization.of(context).getString("noInternetConnection"),
                   buttonText: Localization.of(context).getString("ok"),
                 ),
               );
@@ -94,26 +78,22 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
       top: false,
       child: Scaffold(
         body: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: connected
-              ? Card(
-                  child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 24.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      _builtAnimatedSyncIcon(),
-                      _buildDescription(context),
-                      _buildLinearIndicator(),
-                    ],
-                  ),
-                ))
-              : buildNoInternetMessage(
-                  Localization.of(context).getString("noInternetConnection")),
-        ),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Card(
+                child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  _builtAnimatedSyncIcon(),
+                  _buildDescription(context),
+                  _buildLinearIndicator(),
+                ],
+              ),
+            ))),
       ),
     );
   }

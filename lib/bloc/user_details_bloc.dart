@@ -20,11 +20,11 @@ class UserDetailsBloc {
     return await _repository.createConversation(user);
   }
 
-  Future createConnection(String currentUserId, String targetUserId) async {
+  Future<QueryResult> createConnection(String currentUserId, String targetUserId) async {
     return await _repository.createConnection(currentUserId, targetUserId);
   }
 
-  Future deleteConnection(int connectionId) async {
+  Future<QueryResult> deleteConnection(int connectionId) async {
     return await _repository.deleteConnection(connectionId);
   }
 

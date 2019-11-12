@@ -8,7 +8,6 @@ import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/cupertino.dart';
@@ -63,14 +62,11 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
           });
         }
       } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CustomDialog(
-            title: Localization.of(context).getString("error"),
-            description: result.errors[0].message,
-            buttonText: Localization.of(context).getString("ok"),
-          ),
-        );
+        if (mounted) {
+          setState(() {
+            _saving = false;
+          });
+        }
       }
     });
   }
@@ -175,14 +171,6 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
                   setState(() {
                     _saving = false;
                   });
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => CustomDialog(
-                      title: Localization.of(context).getString('error'),
-                      description: result.errors[0].message,
-                      buttonText: Localization.of(context).getString('ok'),
-                    ),
-                  );
                 }
               });
             },
@@ -203,25 +191,27 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
     _recommendBloc
         .createConversation(recommend.userAsk)
         .then((pubNubConversation) {
-      var pnGCM = PnGCM(WrappedMessage(
-          PushNotification(recommend.userSend.name,
-              Localization.of(context).getString('sharedContact')),
-          UserMessage.withSharedContact(DateTime.now(), recommend.userSend.id,
-              recommend.userRecommend, pubNubConversation.id)));
-      _recommendBloc
-          .sendMessage(pubNubConversation.id, pnGCM)
-          .then((messageSent) {
-        if (messageSent) {
-          setState(() {
-            _saving = false;
-          });
-          Navigator.of(context).pushReplacement(new MaterialPageRoute(
-              builder: (BuildContext context) => ChatScreen(
-                  pubNubConversation: pubNubConversation)));
-        } else {
-          print('Could not send message');
-        }
-      });
+      if (pubNubConversation != null) {
+        var pnGCM = PnGCM(WrappedMessage(
+            PushNotification(recommend.userSend.name,
+                Localization.of(context).getString('sharedContact')),
+            UserMessage.withSharedContact(DateTime.now(), recommend.userSend.id,
+                recommend.userRecommend, pubNubConversation.id)));
+        _recommendBloc
+            .sendMessage(pubNubConversation.id, pnGCM)
+            .then((messageSent) {
+          if (messageSent) {
+            setState(() {
+              _saving = false;
+            });
+            Navigator.of(context).pushReplacement(new MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    ChatScreen(pubNubConversation: pubNubConversation)));
+          } else {
+            print('Could not send message');
+          }
+        });
+      }
     });
   }
 
