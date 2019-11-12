@@ -128,13 +128,14 @@ class Repository {
     QueryResult result =
         await appApiProvider.createConversation(user, currentUserId);
 
-    if(result.data!=null) {
+    if (result.data != null) {
       ConversationModel conversationModel =
-      ConversationModel.fromJson(result.data['create_conversation']);
+          ConversationModel.fromJson(result.data['create_conversation']);
       PubNubConversation pubNubConversation =
-      PubNubConversation.fromConversation(conversationModel);
+          PubNubConversation.fromConversation(conversationModel);
       return pubNubConversation;
-    }else return null;
+    } else
+      return null;
   }
 
   Future<List<ConversationModel>> getListOfConversationIdsFromBackend() async {
@@ -152,7 +153,7 @@ class Repository {
   Future<String> getStringOfChannelIds() async {
     var listOfConversations = await getListOfConversationIdsFromBackend();
 
-    if(listOfConversations!=null) {
+    if (listOfConversations != null) {
       String channelIds = "";
 
       for (var item in listOfConversations) {
@@ -160,7 +161,8 @@ class Repository {
       }
 
       return channelIds;
-    }else return null;
+    } else
+      return null;
   }
 
   Future<QueryResult> getCards() async {
@@ -262,9 +264,7 @@ class Repository {
 
   Future unsubscribeFromPushNotifications() async {
     var channels = await getStringOfChannelIds();
-    if(channels!=null) {
-      return await appApiProvider.unsubscribeFromPushNotifications(channels);
-    }
+    return await appApiProvider.unsubscribeFromPushNotifications(channels);
   }
 
   Future<String> uploadPic(File image) async {
@@ -288,7 +288,9 @@ class Repository {
   }
 
   Future<List<PubNubConversation>> getPubNubConversations() async {
+    Stopwatch stopwatch = Stopwatch()..start();
     var conversationsList = await getListOfConversationIdsFromBackend();
+    print('Finished getListOfConversationIdsFromBackend in: ${stopwatch.elapsed}');
 
     String channels = "";
 
@@ -297,8 +299,10 @@ class Repository {
         channels = channels + item.id.toString() + ",";
       }
 
+      Stopwatch stopwatch2 = Stopwatch()..start();
       return appApiProvider.getPubNubConversations(channels).then((response) {
         if (response.statusCode == 200) {
+          print('Finished getPubNubConversations in: ${stopwatch2.elapsed}');
           BatchHistoryResponse batchHistoryResponse =
               BatchHistoryResponse.fromJson(convert.jsonDecode(response.body));
 
@@ -335,14 +339,14 @@ class Repository {
 
   void checkTokenError(QueryResult result) {
     if ((result.errors != null &&
-            result.errors.isNotEmpty &&
-            result.errors[0].extensions != null &&
-            result.errors[0].extensions["exception"] != null &&
-            result.errors[0].extensions["exception"]["errorInfo"] != null &&
-            result.errors[0].extensions["exception"]["errorInfo"]['code'] !=
-                null &&
-            result.errors[0].extensions["exception"]["errorInfo"]["code"] ==
-                "auth/id-token-expired") ||
+        result.errors.isNotEmpty &&
+        result.errors[0].extensions != null &&
+        result.errors[0].extensions["exception"] != null &&
+        result.errors[0].extensions["exception"]["errorInfo"] != null &&
+        result.errors[0].extensions["exception"]["errorInfo"]['code'] !=
+            null &&
+        result.errors[0].extensions["exception"]["errorInfo"]["code"] ==
+            "auth/id-token-expired") ||
         (result.errors != null &&
             result.errors.isNotEmpty &&
             result.errors[0].extensions != null &&

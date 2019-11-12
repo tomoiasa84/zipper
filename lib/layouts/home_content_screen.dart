@@ -11,27 +11,24 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/search_card_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-
 import 'account_screen.dart';
-
 class HomeContentScreen extends StatefulWidget {
   final User user;
   final Function onUserUpdated;
-
   const HomeContentScreen({Key key, this.user, this.onUserUpdated})
       : super(key: key);
-
   @override
   HomeContentScreenState createState() => HomeContentScreenState();
 }
-
 class HomeContentScreenState extends State<HomeContentScreen> {
   var _saving = false;
   HomeContentBloc _homeContentBloc = HomeContentBloc();
   List<CardModel> _cardsList = [];
+  Stopwatch stopwatch = Stopwatch();
 
   @override
   void initState() {
+    stopwatch.start();
     if (widget.user != null && widget.user.cardsConnections != null) {
       _cardsList.clear();
       _cardsList.addAll(widget.user.cardsConnections);
@@ -79,7 +76,6 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     }
     super.initState();
   }
-
   void getCards() {
     print("getCards() called");
     _homeContentBloc = HomeContentBloc();
@@ -95,23 +91,24 @@ class HomeContentScreenState extends State<HomeContentScreen> {
           DateTime dateB = parseDateFromString(b.createdAt);
           return dateB.compareTo(dateA);
         });
+        widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
         if (currentUser != null && currentUser.cardsConnections != null) {
-          if (mounted) {
+          if(mounted) {
             setState(() {
               _cardsList = newCardsList;
               _saving = false;
+              print('Finished getCards overall in: ${stopwatch.elapsed}');
             });
           }
-          widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
         } else {
-          if (mounted) {
+          if(mounted) {
             setState(() {
               _saving = false;
             });
           }
         }
       } else {
-        if (mounted) {
+        if(mounted) {
           setState(() {
             _saving = false;
           });
@@ -119,7 +116,6 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       }
     });
   }
-
   @override
   Widget build(BuildContext context) {
     print("build() called");
@@ -130,15 +126,14 @@ class HomeContentScreenState extends State<HomeContentScreen> {
         body: _cardsList.isNotEmpty
             ? _buildContent()
             : (_saving
-                ? Container()
-                : Center(
-                    child: Text(
-                        Localization.of(context).getString('emptyPostsList')),
-                  )),
+            ? Container()
+            : Center(
+          child: Text(
+              Localization.of(context).getString('emptyPostsList')),
+        )),
       ),
     );
   }
-
   AppBar _buildAppBar() {
     print("buildAppBar() called");
     return AppBar(
@@ -170,7 +165,6 @@ class HomeContentScreenState extends State<HomeContentScreen> {
           )
         ]);
   }
-
   ListView _buildContent() {
     return ListView.builder(
         itemCount: _cardsList?.length ?? 0,
@@ -185,7 +179,6 @@ class HomeContentScreenState extends State<HomeContentScreen> {
               child: _buildCardItem(card));
         });
   }
-
   Widget _buildCardItem(CardModel card) {
     return GestureDetector(
       onTap: () {
@@ -199,7 +192,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
           children: <Widget>[
             Padding(
               padding:
-                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+              const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -213,21 +206,20 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       ),
     );
   }
-
   Row _buildCardText(CardModel card) {
     return Row(
       children: <Widget>[
         CircleAvatar(
           child: card.postedBy.profilePicUrl == null ||
-                  card.postedBy.profilePicUrl.isEmpty
+              card.postedBy.profilePicUrl.isEmpty
               ? Text(
-                  card.postedBy.name.startsWith('+')
-                      ? '+'
-                      : getInitials(card.postedBy.name),
-                  style: TextStyle(color: ColorUtils.darkerGray))
+              card.postedBy.name.startsWith('+')
+                  ? '+'
+                  : getInitials(card.postedBy.name),
+              style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: card.postedBy.profilePicUrl != null &&
-                  card.postedBy.profilePicUrl.isNotEmpty
+              card.postedBy.profilePicUrl.isNotEmpty
               ? NetworkImage(card.postedBy.profilePicUrl)
               : null,
           backgroundColor: ColorUtils.lightLightGray,
@@ -282,7 +274,6 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       ],
     );
   }
-
   Padding _buildCreatedAtInfo(CardModel card) {
     String difference = getTimeDifference(card.createdAt);
     return Padding(
@@ -340,7 +331,6 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       ),
     );
   }
-
   Future<void> _goToCardDetailsScreen(CardModel card) async {
     await Navigator.push(
         context,
@@ -348,7 +338,6 @@ class HomeContentScreenState extends State<HomeContentScreen> {
             builder: (context) => CardDetailsScreen(cardId: card.id)));
     getCards();
   }
-
   void _goToSendInChatScreen(card) {
     Navigator.push(
         context,

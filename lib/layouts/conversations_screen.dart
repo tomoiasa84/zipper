@@ -23,6 +23,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   String _currentUserId;
   List<PubNubConversation> _pubNubConversations = List();
   final ConversationsBloc _conversationsBloc = ConversationsBloc();
+  Stopwatch stopwatch = Stopwatch();
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   void _getConversations() {
+    stopwatch.start();
     if (mounted) {
       _conversationsBloc.getPubNubConversations().then((conversations) {
         if (conversations != null) {
@@ -46,7 +48,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
             });
           }
         } else {
-          if(mounted) {
+          if (mounted) {
             setState(() {
               _loading = false;
             });
@@ -65,7 +67,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                 conversation.id);
         if (lastMessageTimestamp !=
             conversation.lastMessage.message.timestamp.toIso8601String()) {
-          if(mounted) {
+          if (mounted) {
             setState(() {
               conversation.read = false;
             });
@@ -75,15 +77,16 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         var lastRecommendCount =
             await SharedPreferencesHelper.getCardRecommendsCount(
                 conversation.lastMessage.message.cardId.toString());
-        if (lastRecommendCount == null && mounted) {
-          if(mounted){
-          setState(() {
-            conversation.read = false;
-          });}
+        if (lastRecommendCount == null) {
+          if (mounted) {
+            setState(() {
+              conversation.read = false;
+            });
+          }
         }
         if (lastRecommendCount ==
             conversation.lastMessage.message.cardRecommendationsCount) {
-          if(mounted) {
+          if (mounted) {
             setState(() {
               conversation.read = true;
             });
@@ -93,6 +96,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         }
       }
     }
+    print('Finished _getConversations in: ${stopwatch.elapsed}');
   }
 
   void _startNewConversation() {
