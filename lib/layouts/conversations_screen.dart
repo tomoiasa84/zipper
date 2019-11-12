@@ -28,6 +28,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   String _currentUserId;
   List<PubNubConversation> _pubNubConversations = List();
   final ConversationsBloc _conversationsBloc = ConversationsBloc();
+  Stopwatch stopwatch = Stopwatch();
 
   @override
   void initState() {
@@ -38,11 +39,12 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       getCurrentUserId().then((currentUserId) {
         _currentUserId = currentUserId;
       });
-  _getConversations();
+      _getConversations();
     }
   }
 
   void _getConversations() {
+    stopwatch.start();
     if (mounted) {
       _conversationsBloc.getPubNubConversations().then((conversations) {
         if (mounted) {
@@ -88,6 +90,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         }
       }
     }
+    print('Finished _getConversations in: ${stopwatch.elapsed}');
   }
 
   void _startNewConversation() {
@@ -128,7 +131,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       key: Key("conversations_screen_key"),
       onVisibilityChanged: (VisibilityInfo info) {
         if (info.visibleFraction == 1.0) {
-          _getConversations();
+         //_getConversations();
         }
       },
       child: ModalProgressHUD(

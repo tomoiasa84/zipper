@@ -97,6 +97,7 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   void _getCurrentUserInfo() {
+    Stopwatch stopwatch = Stopwatch()..start();
     _accountBloc = AccountBloc();
     setState(() {
       _saving = true;
@@ -115,6 +116,7 @@ class AccountScreenState extends State<AccountScreen> {
           });
           _saving = false;
           _getMainTag();
+          print('Finished _getCurrentUserInfo in: ${stopwatch.elapsed}');
         });
       } else {
         _showDialog(Localization.of(context).getString('error'),
@@ -173,6 +175,7 @@ class AccountScreenState extends State<AccountScreen> {
 
   @override
   void initState() {
+    Stopwatch stopwatch = Stopwatch()..start();
     if (widget.connected) {
       if (widget.user != null) {
         _accountBloc = AccountBloc();
@@ -197,6 +200,7 @@ class AccountScreenState extends State<AccountScreen> {
               _getMainTag();
             });
           }
+          print('Finished getCachedUser in: ${stopwatch.elapsed}');
         });
       } else {
         _getCurrentUserInfo();

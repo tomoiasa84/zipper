@@ -57,6 +57,7 @@ class UsersScreenState extends State<UsersScreen> {
   }
 
   void getCurrentUserConnections() {
+    Stopwatch stopwatch = Stopwatch()..start();
     _usersBloc = UsersBloc();
     if (mounted) {
       setState(() {
@@ -82,6 +83,7 @@ class UsersScreenState extends State<UsersScreen> {
         if (mounted) {
           setState(() {
             _saving = false;
+            print('Finished getCurrentUserWithConnections in: ${stopwatch.elapsed}');
           });
         }
       } else {

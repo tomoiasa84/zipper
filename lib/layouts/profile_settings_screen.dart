@@ -103,7 +103,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         profilePicUrl = imageUrl;
       });
     } else {
-      profilePicUrl = widget.user.profilePicUrl!=null ? widget.user.profilePicUrl: "" ;
+      profilePicUrl =
+          widget.user.profilePicUrl != null ? widget.user.profilePicUrl : "";
     }
 
     _profileSettingsBloc
@@ -327,7 +328,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     if (_profilePic != null) {
       return FileImage(_profilePic);
     } else {
-      if (widget.user.profilePicUrl == null) {
+      if (widget.user.profilePicUrl == null &&
+          widget.user.profilePicUrl.isNotEmpty) {
         return null;
       } else {
         return NetworkImage(widget.user.profilePicUrl);
@@ -340,8 +342,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       children: <Widget>[
         CircleAvatar(
           child: widget.user.profilePicUrl == null ||
-                  (widget.user.profilePicUrl != null &&
-                      widget.user.profilePicUrl.isEmpty)
+                  widget.user.profilePicUrl.isEmpty
               ? Text(
                   widget.user.name.startsWith('+')
                       ? '+'

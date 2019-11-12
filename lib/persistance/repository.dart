@@ -278,7 +278,9 @@ class Repository {
   }
 
   Future<List<PubNubConversation>> getPubNubConversations() async {
+    Stopwatch stopwatch = Stopwatch()..start();
     var conversationsList = await getListOfConversationIdsFromBackend();
+    print('Finished getListOfConversationIdsFromBackend in: ${stopwatch.elapsed}');
 
     String channels = "";
 
@@ -286,6 +288,7 @@ class Repository {
       channels = channels + item.id.toString() + ",";
     }
 
+    Stopwatch stopwatch2 = Stopwatch()..start();
     return appApiProvider.getPubNubConversations(channels).then((response) {
       if (response.statusCode == 200) {
         BatchHistoryResponse batchHistoryResponse =
@@ -299,6 +302,7 @@ class Repository {
           pubNubConversation.user1 = conversation.user1;
           pubNubConversation.user2 = conversation.user2;
         }
+        print('Finished getPubNubConversations in: ${stopwatch2.elapsed}');
         return pubNubConversationsList;
       } else {
         print("Request failed with status: ${response.statusCode}.");

@@ -33,9 +33,11 @@ class HomeContentScreenState extends State<HomeContentScreen> {
   var _saving = false;
   HomeContentBloc _homeContentBloc = HomeContentBloc();
   List<CardModel> _cardsList = [];
+  Stopwatch stopwatch = Stopwatch();
 
   @override
   void initState() {
+    stopwatch.start();
     if (widget.connected) {
       if (widget.user != null) {
         _cardsList.clear();
@@ -80,6 +82,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
   }
 
   void getCards() {
+    //Stopwatch stopwatch2 = Stopwatch()..start();
     _homeContentBloc = HomeContentBloc();
     _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
       if (result.errors == null && mounted) {
@@ -97,6 +100,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
           setState(() {
             _cardsList = newCardsList;
             _saving = false;
+            //print('Finished getCards in: ${stopwatch2.elapsed}');
+            print('Finished getCards overall in: ${stopwatch.elapsed}');
           });
         } else {
           setState(() {
