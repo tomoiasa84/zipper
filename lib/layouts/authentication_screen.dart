@@ -212,7 +212,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
           });
         }
       } else if (authType == AuthType.login) {
-        if (user == null) {
+        if (user == null || (user!=null && !user.isActive)) {
           FirebaseAuth.instance.signOut().then((_) {
             SharedPreferencesHelper.clear().then((_) {
               _showDialog(Localization.of(context).getString('error'),

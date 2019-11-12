@@ -49,6 +49,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    Stopwatch stopwatch = Stopwatch()..start();
     _homeBloc = HomeBloc();
     if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
@@ -79,6 +80,7 @@ class _HomePageState extends State<HomePage> {
       _currentUserChannel.send(currentUserId);
       print('USER SENT');
     });
+    print('Finished initState in home_page in: ${stopwatch.elapsed}');
     super.initState();
   }
 

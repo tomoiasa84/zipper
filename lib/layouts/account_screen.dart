@@ -95,6 +95,7 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   void _getCurrentUserInfo() {
+    Stopwatch stopwatch = Stopwatch()..start();
     _accountBloc = AccountBloc();
     setState(() {
       _saving = true;
@@ -113,6 +114,7 @@ class AccountScreenState extends State<AccountScreen> {
           });
           _saving = false;
           _getMainTag();
+          print('Finished _getCurrentUserInfo in: ${stopwatch.elapsed}');
         });
       } else {
         if (mounted) {
@@ -174,6 +176,7 @@ class AccountScreenState extends State<AccountScreen> {
 
   @override
   void initState() {
+    Stopwatch stopwatch = Stopwatch()..start();
     if (widget.user != null) {
       _accountBloc = AccountBloc();
       widget.user.cards.sort((a, b) {
@@ -200,6 +203,7 @@ class AccountScreenState extends State<AccountScreen> {
           }
         }
       });
+      print('Finished getCachedUser in: ${stopwatch.elapsed}');
     } else {
       _getCurrentUserInfo();
     }
