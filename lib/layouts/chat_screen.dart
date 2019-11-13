@@ -258,6 +258,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   bool lastMessageHasDifferentDate() {
+    if (_listOfMessages.length < 2){
+      return true;
+    }
     var firstBeforeLastMessage = _listOfMessages[1] as UserMessage;
     var lastMessage = _listOfMessages[0] as UserMessage;
     if (firstBeforeLastMessage.timestamp.day == lastMessage.timestamp.day &&
