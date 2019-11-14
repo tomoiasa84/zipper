@@ -6,6 +6,7 @@ import 'package:contractor_search/model/sync_contacts_model.dart';
 import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/persistance/repository.dart';
+import 'package:contractor_search/utils/global_variables.dart';
 import 'package:country_pickers/countries.dart';
 import 'package:country_pickers/country.dart';
 import 'package:flutter/services.dart';
@@ -13,19 +14,18 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:phone_number/phone_number.dart';
 
 class SyncContactsBloc {
-  Repository _repository = Repository();
   Country countryCode;
 
   Future<Iterable<Contact>> getContacts() async {
-    return await _repository.getContacts();
+    return await Repository().getContacts();
   }
 
   Future<QueryResult> checkContacts(List<String> phoneContacts) async {
-    return await _repository.checkContacts(phoneContacts);
+    return await Repository().checkContacts(phoneContacts);
   }
 
   Future<SyncContactsModel> syncContacts(String userId) async {
-    QueryResult result = await _repository.getUserByIdWithPhoneNumber(userId);
+    QueryResult result = await Repository().getUserByIdWithPhoneNumber(userId);
 
     if (result.errors == null) {
       final parsedPhoneNumber = await PhoneNumber.parse(

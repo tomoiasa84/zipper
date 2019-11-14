@@ -16,6 +16,14 @@ import 'package:http/http.dart' as http;
 import 'api_provider.dart';
 
 class Repository {
+  static final Repository _instance = Repository._internal();
+
+  Repository._internal();
+
+  factory Repository() {
+    return _instance;
+  }
+
   ApiProvider appApiProvider = ApiProvider();
 
   getContacts() async {
@@ -290,7 +298,8 @@ class Repository {
   Future<List<PubNubConversation>> getPubNubConversations() async {
     Stopwatch stopwatch = Stopwatch()..start();
     var conversationsList = await getListOfConversationIdsFromBackend();
-    print('Finished getListOfConversationIdsFromBackend in: ${stopwatch.elapsed}');
+    print(
+        'Finished getListOfConversationIdsFromBackend in: ${stopwatch.elapsed}');
 
     String channels = "";
 
@@ -339,14 +348,14 @@ class Repository {
 
   void checkTokenError(QueryResult result) {
     if ((result.errors != null &&
-        result.errors.isNotEmpty &&
-        result.errors[0].extensions != null &&
-        result.errors[0].extensions["exception"] != null &&
-        result.errors[0].extensions["exception"]["errorInfo"] != null &&
-        result.errors[0].extensions["exception"]["errorInfo"]['code'] !=
-            null &&
-        result.errors[0].extensions["exception"]["errorInfo"]["code"] ==
-            "auth/id-token-expired") ||
+            result.errors.isNotEmpty &&
+            result.errors[0].extensions != null &&
+            result.errors[0].extensions["exception"] != null &&
+            result.errors[0].extensions["exception"]["errorInfo"] != null &&
+            result.errors[0].extensions["exception"]["errorInfo"]['code'] !=
+                null &&
+            result.errors[0].extensions["exception"]["errorInfo"]["code"] ==
+                "auth/id-token-expired") ||
         (result.errors != null &&
             result.errors.isNotEmpty &&
             result.errors[0].extensions != null &&

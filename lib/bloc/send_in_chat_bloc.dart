@@ -5,35 +5,35 @@ import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/persistance/repository.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/global_variables.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class SendInChatBloc {
-  Repository _repository = Repository();
   String _currentUserId;
 
   Future<QueryResult> getCurrentUserWithConnections() async {
     String userId = await getCurrentUserId();
-    return _repository.getUserByIdWithConnections(userId);
+    return Repository().getUserByIdWithConnections(userId);
   }
 
   Future<List<PubNubConversation>> getPubNubConversations() async {
-    return _repository.getPubNubConversations();
+    return Repository().getPubNubConversations();
   }
 
   Future<PubNubConversation> createConversation(User user) async {
-    return await _repository.createConversation(user);
+    return await Repository().createConversation(user);
   }
 
   Future<bool> sendMessage(String channelId, PnGCM pnGCM) async {
-    return _repository.sendMessage(channelId, pnGCM);
+    return Repository().sendMessage(channelId, pnGCM);
   }
 
   Future<List<User>> getRecentUsers() async {
     var recentUsers = List<User>();
     _currentUserId = await SharedPreferencesHelper.getCurrentUserId();
 
-    await _repository.getPubNubConversations().then((conversations) {
+    await Repository().getPubNubConversations().then((conversations) {
       if (conversations != null) {
         for (var conversation in conversations) {
           if (conversation.user1 != null && conversation.user2 != null) {

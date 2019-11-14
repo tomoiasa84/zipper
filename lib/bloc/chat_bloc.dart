@@ -7,22 +7,22 @@ import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/persistance/repository.dart';
+import 'package:contractor_search/utils/global_variables.dart';
 import 'package:http/http.dart' as http;
 
 class ChatBloc {
   int historyStart;
   String _timestamp = "0";
   List<UserMessage> _messagesList;
-  Repository _repository = Repository();
   final int _numberOfMessagesToFetch = 100;
   final StreamController ctrl = StreamController();
 
   Future<String> uploadPic(File image) async {
-    return await _repository.uploadPic(image);
+    return await Repository().uploadPic(image);
   }
 
   Future<List<UserMessage>> getHistoryMessages(String channelName) async {
-    var response = await _repository.getHistoryMessages(
+    var response = await Repository().getHistoryMessages(
         channelName, historyStart, _numberOfMessagesToFetch);
 
     if (response.statusCode == 200) {
@@ -34,11 +34,11 @@ class ChatBloc {
   }
 
   Future<bool> sendMessage(String channelId, PnGCM pnGCM) async {
-    return await _repository.sendMessage(channelId, pnGCM);
+    return await Repository().sendMessage(channelId, pnGCM);
   }
 
   void subscribeToChannel(String channelName, String currentUserId) async {
-    return _repository
+    return Repository()
         .subscribeToChannel(channelName, currentUserId, _timestamp)
         .then((response) {
       if (response.statusCode == 200) {
@@ -53,11 +53,11 @@ class ChatBloc {
   }
 
   Future<PubNubConversation> getConversation(String conversationId) async {
-    return _repository.getConversation(conversationId);
+    return Repository().getConversation(conversationId);
   }
 
   Future<PubNubConversation> createConversation(User user) async {
-    return await _repository.createConversation(user);
+    return await Repository().createConversation(user);
   }
 
   void _addMessageToList(http.Response response) {
@@ -93,7 +93,6 @@ class ChatBloc {
   }
 
   void dispose() {
-    _repository.dispose();
     ctrl.close();
   }
 }
