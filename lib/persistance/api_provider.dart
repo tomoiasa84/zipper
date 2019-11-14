@@ -52,7 +52,7 @@ class ApiProvider {
 
   Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
     final QueryResult result = await _client.query(QueryOptions(
-      document: '''query $get_user{
+      document: '''query{
                      get_user(userId:"$userId"){
                         phoneNumber
                     }

@@ -7,7 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
-
+import 'package:contractor_search/bloc/share_selected_bloc.dart';
 import 'home_page.dart';
 class TutorialScreen extends StatefulWidget {
   @override
@@ -19,7 +19,7 @@ class TutorialScreenState extends State<TutorialScreen> {
   int _currentPosition = 0;
   PermissionStatus _permissionStatus = PermissionStatus.unknown;
   SyncContactsBloc _syncContactsBloc = SyncContactsBloc();
-
+  ShareSelectedBloc _bloc;
 
   void _updatePosition(int position) {
     setState(() => _currentPosition = _validPosition(position));
@@ -82,7 +82,7 @@ class TutorialScreenState extends State<TutorialScreen> {
     return await SharedPreferencesHelper.getCurrentUserId();
   }
 
-  void _syncContacts() {
+  Future<void> _syncContacts() {
     final Future<PermissionStatus> statusFuture =
     PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
 
@@ -90,26 +90,32 @@ class TutorialScreenState extends State<TutorialScreen> {
       if (status == PermissionStatus.granted) {
         getCurrentUserId().then((userId) {
           _syncContactsBloc.syncContacts(userId).then((syncResult) {
-//            if(syncResult.error.isNotEmpty){
-//              showDialog(
-//                context: context,
-//                builder: (BuildContext context) => CustomDialog(
-//                  title: Localization.of(context).getString("error"),
-//                  description: syncResult.error,
-//                  buttonText: Localization.of(context).getString("ok"),
-//                ),
-//              );
-//            }
-//            else {
-//              Navigator.pushAndRemoveUntil(
-//                  context,
-//                  MaterialPageRoute(
-//                      builder: (context) =>
-//                          SyncResultsScreen(
-//                            syncResult: syncResult,
-//                          )),
-//                  ModalRoute.withName("/homepage"));
-//            }
+
+            List<String> phoneContactsToBeLoaded = [];
+            print(phoneContactsToBeLoaded);
+            syncResult.unjoinedContacts.forEach((contact) {
+              if (contact.selected) {
+                if (contact.contact.phones != null &&
+                    contact.contact.phones.toList().isNotEmpty) {
+                  if (contact.contact.phones
+                      .toList()
+                      .elementAt(0)
+                      .value
+                      .toString()
+                      .startsWith("+")) {
+                    phoneContactsToBeLoaded.add(
+                        contact.contact.phones.toList().elementAt(0).value.toString());
+                  } else {
+                    phoneContactsToBeLoaded.add(syncResult.countryCode +
+                        contact.contact.phones.toList().elementAt(0).value.toString());
+                  }
+                }
+              }
+            });
+            print(phoneContactsToBeLoaded);
+            _bloc.loadContacts(phoneContactsToBeLoaded).then((result) {
+              print("PRINT LOAD CONTACTS WORKED.");
+            });
           });
         });
       }
@@ -119,8 +125,9 @@ class TutorialScreenState extends State<TutorialScreen> {
     final List<PermissionGroup> permissions = <PermissionGroup>[permission];
     final Map<PermissionGroup, PermissionStatus> permissionRequestResult =
         await PermissionHandler().requestPermissions(permissions);
-
+    await _syncContacts();
     setState(() {
+      print("SET STATE");
       _permissionStatus = permissionRequestResult[permission];
       if (_permissionStatus == PermissionStatus.granted) {
         _updatePosition(++_currentPosition);
