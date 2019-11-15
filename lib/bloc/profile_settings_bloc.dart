@@ -10,7 +10,6 @@ class ProfileSettingsBloc {
   final _updateMainUserTagFetcher = PublishSubject<QueryResult>();
   final _deleteUserTagFetcher = PublishSubject<QueryResult>();
   final _getTagsFetcher = PublishSubject<QueryResult>();
-  final _uploadPicFetcher = PublishSubject<String>();
 
   Observable<QueryResult> get updateUserObservable => _updateUserFetcher.stream;
 
@@ -24,8 +23,6 @@ class ProfileSettingsBloc {
       _deleteUserTagFetcher.stream;
 
   Observable<QueryResult> get getTagsObservable => _getTagsFetcher.stream;
-
-  Observable<String> get uploadPicObservable => _uploadPicFetcher.stream;
 
   updateUser(
       String id,
@@ -71,11 +68,8 @@ class ProfileSettingsBloc {
     }
   }
 
-  uploadPic(File image) async {
-    String result = await Repository().uploadPic(image);
-    if (!_uploadPicFetcher.isClosed) {
-      _uploadPicFetcher.sink.add(result);
-    }
+  Future<String> uploadPic(File image) async {
+    return Repository().uploadPic(image);
   }
 
   dispose() {
@@ -84,6 +78,5 @@ class ProfileSettingsBloc {
     _updateMainUserTagFetcher.close();
     _deleteUserTagFetcher.close();
     _getTagsFetcher.close();
-    _uploadPicFetcher.close();
   }
 }

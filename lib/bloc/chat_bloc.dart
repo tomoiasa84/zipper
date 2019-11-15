@@ -17,13 +17,11 @@ class ChatBloc {
   final int _numberOfMessagesToFetch = 100;
   final StreamController ctrl = StreamController();
 
-  final _uploadPicFetcher = PublishSubject<String>();
   final _getHistoryMessagesFetcher = PublishSubject<List<UserMessage>>();
   final _sendMessageFetcher = PublishSubject<bool>();
   final _getConversationFetcher = PublishSubject<PubNubConversation>();
   final _createConversationFetcher = PublishSubject<PubNubConversation>();
 
-  Observable<String> get uploadPicObservable => _uploadPicFetcher.stream;
 
   Observable<List<UserMessage>> get getHistoryMessagesObservable =>
       _getHistoryMessagesFetcher.stream;
@@ -36,14 +34,11 @@ class ChatBloc {
   Observable<PubNubConversation> get createConversationObservable =>
       _createConversationFetcher.stream;
 
-  uploadPic(File image) async {
-    String result = await Repository().uploadPic(image);
-    if (!_uploadPicFetcher.isClosed) {
-      _uploadPicFetcher.sink.add(result);
-    }
+  Future<String> uploadPic(File image) async {
+    return await Repository().uploadPic(image);
   }
 
-  getHistoryMessages(String channelName) async {
+    getHistoryMessages(String channelName) async {
     var response = await Repository().getHistoryMessages(
         channelName, historyStart, _numberOfMessagesToFetch);
 
@@ -128,7 +123,6 @@ class ChatBloc {
 
   void dispose() {
     ctrl.close();
-    _uploadPicFetcher.close();
     _getHistoryMessagesFetcher.close();
     _createConversationFetcher.close();
     _sendMessageFetcher.close();

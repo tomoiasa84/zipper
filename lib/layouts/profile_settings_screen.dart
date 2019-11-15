@@ -105,12 +105,15 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     }
   }
 
+  Future<String> _uploadUserProfilePicture() async {
+    return await _profileSettingsBloc.uploadPic(_profilePic);
+  }
+
   Future updateUser() async {
     var profilePicUrl;
 
     if (_profilePic != null) {
-      _profileSettingsBloc.uploadPic(_profilePic);
-      _profileSettingsBloc.uploadPicObservable.listen((imageUrl) {
+      await _uploadUserProfilePicture().then((imageUrl) async {
         profilePicUrl = imageUrl;
       });
     } else {

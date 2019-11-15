@@ -71,8 +71,7 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {
           _loading = true;
         });
-        _chatBloc.uploadPic(image);
-        _chatBloc.uploadPicObservable.listen((imageDownloadUrl) {
+        _chatBloc.uploadPic(image).then((imageDownloadUrl) {
           UserMessage message = UserMessage.withImage(
               DateTime.now(),
               escapeJsonCharacters(imageDownloadUrl),
