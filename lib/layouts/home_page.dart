@@ -262,7 +262,7 @@ class _HomePageState extends State<HomePage> {
                 case NavBarItem.PLUS:
                   return Container();
                 case NavBarItem.INBOX:
-                  return ConversationsScreen(currentUserId: _user.id, pubNubConversations: _pubNubConversations,updateConversationsList: (pubNubConversations){
+                  return ConversationsScreen(currentUserId: _user!=null? _user.id:null, pubNubConversations: _pubNubConversations,updateConversationsList: (pubNubConversations){
                     _pubNubConversations = pubNubConversations;
                   },);
                 case NavBarItem.ACCOUNT:

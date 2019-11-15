@@ -45,13 +45,18 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       _pubNubConversations = widget.pubNubConversations;
       _getConversations();
     } else {
+      _loading = true;
       getCurrentUserId().then((currentUserId) {
         _currentUserId = currentUserId;
-        if (widget.pubNubConversations != null) {
+        if (widget.pubNubConversations != null && widget.pubNubConversations.isNotEmpty) {
+          if (mounted) {
+            setState(() {
+              _loading = false;
+            } );
+          }
           _pubNubConversations = widget.pubNubConversations;
           _getConversations();
         } else {
-          _loading = true;
           _getConversations();
         }
       });
