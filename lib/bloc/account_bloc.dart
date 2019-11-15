@@ -1,26 +1,41 @@
 import 'package:contractor_search/persistance/repository.dart';
-import 'package:contractor_search/utils/global_variables.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 class AccountBloc {
+  final _getUserByIdWithMainInfoFetcher = PublishSubject<QueryResult>();
+  final _deleteCardFetcher = PublishSubject<QueryResult>();
+
+  Observable<QueryResult> get getUserByIdWithMainInfoObservable => _getUserByIdWithMainInfoFetcher.stream;
+  Observable<QueryResult> get deleteCardObservable => _deleteCardFetcher.stream;
 
   Future<String> getCurrentUserId() async {
     return await SharedPreferencesHelper.getCurrentUserId();
   }
 
-  Future<QueryResult> getUserByIdWithMainInfo() async {
+  getUserByIdWithMainInfo() async {
     String userId = await getCurrentUserId();
 
-    return Repository().getUserByIdWithMainInfo(userId);
+    QueryResult result = await Repository().getUserByIdWithMainInfo(userId);
+    if (!_getUserByIdWithMainInfoFetcher.isClosed) {
+      _getUserByIdWithMainInfoFetcher.sink.add(result);
+    }
   }
 
-  Future<QueryResult> deleteCard(int cardId) async {
-    return Repository().deleteCard(cardId);
+  deleteCard(int cardId) async {
+    var result = await Repository().deleteCard(cardId);
+    if (!_deleteCardFetcher.isClosed) {
+      _deleteCardFetcher.sink.add(result);
+    }
   }
 
   Future clearUserSession() async {
-   return await Repository().clearUserSession(false);
+    return await Repository().clearUserSession(false);
+  }
+
+  dispose() {
+    _getUserByIdWithMainInfoFetcher.close();
+    _deleteCardFetcher.close();
   }
 }
