@@ -3,6 +3,7 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:contractor_search/model/sync_contacts_model.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
@@ -18,9 +19,14 @@ class TutorialScreenState extends State<TutorialScreen> {
   final _totalDots = 3;
   int _currentPosition = 0;
   PermissionStatus _permissionStatus = PermissionStatus.unknown;
-  SyncContactsBloc _syncContactsBloc = SyncContactsBloc();
+  SyncContactsBloc _syncContactsBloc;
   ShareSelectedBloc _bloc;
-
+  SyncContactsModel _syncResults;
+  void initState() {
+    _syncContactsBloc = SyncContactsBloc();
+    _bloc = ShareSelectedBloc();
+    super.initState();
+  }
   void _updatePosition(int position) {
     setState(() => _currentPosition = _validPosition(position));
   }
@@ -30,7 +36,49 @@ class TutorialScreenState extends State<TutorialScreen> {
     if (position < 0) return _totalDots - 1;
     return position;
   }
-
+  List<String> _generateContactsToBeLoaded(SyncContactsModel numbers) {
+    List<String> phoneContactsToBeLoaded = [];
+    numbers.unjoinedContacts.forEach((contact) {
+      if (contact.selected) {
+        if (contact.contact.phones != null &&
+            contact.contact.phones.toList().isNotEmpty) {
+          if (contact.contact.phones
+              .toList()
+              .elementAt(0)
+              .value
+              .toString()
+              .startsWith("+")) {
+            phoneContactsToBeLoaded.add(
+                contact.contact.phones.toList().elementAt(0).value.toString());
+          } else {
+            phoneContactsToBeLoaded.add(numbers.countryCode +
+                contact.contact.phones.toList().elementAt(0).value.toString());
+          }
+        }
+      }
+    });
+    return phoneContactsToBeLoaded;
+  }
+  List<String> _generateExistingUsers(SyncContactsModel numbers) {
+    List<String> existingUsers = [];
+    numbers.existingUsers.forEach((contact) {
+      if (contact.phones != null && contact.phones.toList().isNotEmpty) {
+        if (contact.phones
+            .toList()
+            .elementAt(0)
+            .value
+            .toString()
+            .startsWith("+")) {
+          existingUsers
+              .add(contact.phones.toList().elementAt(0).value.toString());
+        } else {
+          existingUsers.add(numbers.countryCode +
+              contact.phones.toList().elementAt(0).value.toString());
+        }
+      }
+    });
+    return existingUsers;
+  }
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -63,6 +111,13 @@ class TutorialScreenState extends State<TutorialScreen> {
             Localization.of(context).getString('tutorialContent'),
             'assets/images/ic_contacts_gray_bg.png');
       case 1:
+        List<String> phoneContactsToBeLoaded = _generateContactsToBeLoaded(_syncResults);
+        _bloc.loadContacts(phoneContactsToBeLoaded).then((result) {
+          print('Load contacts works');
+        });
+        _bloc.loadConnections(_generateExistingUsers(_syncResults)).then((result) {
+          print('Load connections works');
+        });
         return _builtContent(
             'Lorem ipsum dolor sit',
             Localization.of(context).getString('tutorialContent'),
@@ -82,7 +137,7 @@ class TutorialScreenState extends State<TutorialScreen> {
     return await SharedPreferencesHelper.getCurrentUserId();
   }
 
-  Future<void> _syncContacts() {
+  void _syncContacts() {
     final Future<PermissionStatus> statusFuture =
     PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
 
@@ -90,32 +145,9 @@ class TutorialScreenState extends State<TutorialScreen> {
       if (status == PermissionStatus.granted) {
         getCurrentUserId().then((userId) {
           _syncContactsBloc.syncContacts(userId).then((syncResult) {
-
-            List<String> phoneContactsToBeLoaded = [];
-            print(phoneContactsToBeLoaded);
-            syncResult.unjoinedContacts.forEach((contact) {
-              if (contact.selected) {
-                if (contact.contact.phones != null &&
-                    contact.contact.phones.toList().isNotEmpty) {
-                  if (contact.contact.phones
-                      .toList()
-                      .elementAt(0)
-                      .value
-                      .toString()
-                      .startsWith("+")) {
-                    phoneContactsToBeLoaded.add(
-                        contact.contact.phones.toList().elementAt(0).value.toString());
-                  } else {
-                    phoneContactsToBeLoaded.add(syncResult.countryCode +
-                        contact.contact.phones.toList().elementAt(0).value.toString());
-                  }
-                }
-              }
-            });
-            print(phoneContactsToBeLoaded);
-            _bloc.loadContacts(phoneContactsToBeLoaded).then((result) {
-              print("PRINT LOAD CONTACTS WORKED.");
-            });
+            _syncResults = syncResult;
+            print('Getting sync results');
+            _updatePosition(++_currentPosition);
           });
         });
       }
@@ -125,12 +157,10 @@ class TutorialScreenState extends State<TutorialScreen> {
     final List<PermissionGroup> permissions = <PermissionGroup>[permission];
     final Map<PermissionGroup, PermissionStatus> permissionRequestResult =
         await PermissionHandler().requestPermissions(permissions);
-    await _syncContacts();
     setState(() {
-      print("SET STATE");
       _permissionStatus = permissionRequestResult[permission];
       if (_permissionStatus == PermissionStatus.granted) {
-        _updatePosition(++_currentPosition);
+        _syncContacts();
       }
     });
   }
