@@ -21,7 +21,6 @@ class SyncContactsBloc {
   Observable<SyncContactsModel> get syncContactsObservable =>
       _syncContactsFetcher.stream;
 
-
   Future<Iterable<Contact>> getContacts() async {
     return await Repository().getContacts();
   }
@@ -49,25 +48,30 @@ class SyncContactsBloc {
           var checkResult = await checkContacts(
               formattedContacts.formattedPhoneNumbers.toSet().toList());
           if (checkResult.errors == null) {
-            if(!_syncContactsFetcher.isClosed){
-              _syncContactsFetcher.sink.add(_groupExistingUsers(checkResult, formattedContacts));
+            if (!_syncContactsFetcher.isClosed) {
+              _syncContactsFetcher.sink
+                  .add(_groupExistingUsers(checkResult, formattedContacts));
             }
-          } else
-          if(!_syncContactsFetcher.isClosed){
-            _syncContactsFetcher.sink.add(SyncContactsModel([], [], result.errors[0].message));
+          } else {
+            if (!_syncContactsFetcher.isClosed) {
+              _syncContactsFetcher.sink
+                  .add(SyncContactsModel([], [], result.errors[0].message));
+            }
+          }
+        }else {
+          if (!_syncContactsFetcher.isClosed) {
+            _syncContactsFetcher.sink.add(SyncContactsModel([], [], ""));
           }
         }
-        if(!_syncContactsFetcher.isClosed){
-          _syncContactsFetcher.sink.add(SyncContactsModel([], [], ""));
-        }
       } else {
-        if(!_syncContactsFetcher.isClosed){
+        if (!_syncContactsFetcher.isClosed) {
           _syncContactsFetcher.sink.add(SyncContactsModel([], [], ""));
         }
       }
     } else {
-      if(!_syncContactsFetcher.isClosed){
-        _syncContactsFetcher.sink.add(SyncContactsModel([], [], result.errors[0].message));
+      if (!_syncContactsFetcher.isClosed) {
+        _syncContactsFetcher.sink
+            .add(SyncContactsModel([], [], result.errors[0].message));
       }
     }
   }
@@ -166,7 +170,7 @@ class SyncContactsBloc {
     return SyncContactsModel(unjoinedContacts, joinedContacts, "");
   }
 
-  dispose(){
+  dispose() {
     _syncContactsFetcher.close();
   }
 }
