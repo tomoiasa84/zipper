@@ -13,13 +13,24 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'chat_screen.dart';
 
 class ConversationsScreen extends StatefulWidget {
+  final List<PubNubConversation> pubNubConversations;
+  final Function updateConversationsList;
+  final String currentUserId;
+
+  const ConversationsScreen(
+      {Key key,
+      this.pubNubConversations,
+      this.updateConversationsList,
+      this.currentUserId})
+      : super(key: key);
+
   @override
   _ConversationsScreenState createState() => _ConversationsScreenState();
 }
 
 class _ConversationsScreenState extends State<ConversationsScreen>
     with WidgetsBindingObserver {
-  bool _loading = true;
+  bool _loading = false;
   String _currentUserId;
   List<PubNubConversation> _pubNubConversations = List();
   final ConversationsBloc _conversationsBloc = ConversationsBloc();
@@ -29,10 +40,22 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    getCurrentUserId().then((currentUserId) {
-      _currentUserId = currentUserId;
-    });
-    _getConversations();
+    if (widget.currentUserId != null) {
+      _currentUserId = widget.currentUserId;
+      _pubNubConversations = widget.pubNubConversations;
+      _getConversations();
+    } else {
+      getCurrentUserId().then((currentUserId) {
+        _currentUserId = currentUserId;
+        if (widget.pubNubConversations != null) {
+          _pubNubConversations = widget.pubNubConversations;
+          _getConversations();
+        } else {
+          _loading = true;
+          _getConversations();
+        }
+      });
+    }
   }
 
   void _getConversations() {
@@ -40,6 +63,9 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     if (mounted) {
       _conversationsBloc.getPubNubConversations().then((conversations) {
         if (conversations != null) {
+          if (widget.updateConversationsList != null) {
+            widget.updateConversationsList(conversations);
+          }
           if (mounted) {
             setState(() {
               _pubNubConversations = conversations;

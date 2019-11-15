@@ -192,7 +192,7 @@ class AddCardScreenState extends State<AddCardScreen> {
             setState(() {
               _saving = false;
             });
-            if (result.errors == null) {
+            if (currentUserResult.errors == null) {
               widget.updateUsersCards(
                   User.fromJson(currentUserResult.data['get_user']).cards);
             }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/persistance/repository.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/global_variables.dart';
@@ -38,6 +39,10 @@ class HomeBloc {
         _navBarController.sink.add(NavBarItem.ACCOUNT);
         break;
     }
+  }
+
+  Future<List<PubNubConversation>> getPubNubConversations() async {
+    return Repository().getPubNubConversations();
   }
 
   void updateDeviceToken() {
