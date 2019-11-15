@@ -44,6 +44,12 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _syncResultsBloc.dispose();
+    super.dispose();
+  }
+
   AppBar _buildAppBar() {
     return AppBar(
       title: Text(Localization.of(context).getString("syncResults"),
@@ -66,7 +72,8 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
                 existingUsers.add(contact.formattedPhoneNumber);
               }
             });
-            _syncResultsBloc.loadConnections(existingUsers).then((response) {
+            _syncResultsBloc.loadConnections(existingUsers);
+            _syncResultsBloc.loadConnectionsObservable.listen((response) {
               setState(() {
                 _saving = false;
               });

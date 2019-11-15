@@ -1,10 +1,21 @@
 import 'package:contractor_search/persistance/repository.dart';
-import 'package:contractor_search/utils/global_variables.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 class SyncResultsBloc {
+  final _loadConnectionsFetcher = PublishSubject<QueryResult>();
 
-  Future<QueryResult> loadConnections(List<String> existingUsers) async {
-    return Repository().loadConnections(existingUsers);
+  Observable<QueryResult> get loadConnectionsObservable =>
+      _loadConnectionsFetcher.stream;
+
+  loadConnections(List<String> existingUsers) async {
+    QueryResult result = await Repository().loadConnections(existingUsers);
+    if (!_loadConnectionsFetcher.isClosed) {
+      _loadConnectionsFetcher.sink.add(result);
+    }
+  }
+
+  dispose() {
+    _loadConnectionsFetcher.close();
   }
 }
