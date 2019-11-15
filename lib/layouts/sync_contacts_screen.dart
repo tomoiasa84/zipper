@@ -54,8 +54,7 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
                 context: context,
                 builder: (BuildContext context) => CustomDialog(
                   title: Localization.of(context).getString("error"),
-                  description: Localization.of(context)
-                      .getString("noInternetConnection"),
+                  description: syncResult.error,
                   buttonText: Localization.of(context).getString("ok"),
                 ),
               );
