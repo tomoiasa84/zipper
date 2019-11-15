@@ -109,7 +109,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     super.dispose();
   }
 
-  Future<void> verifyPhone() async {
+  Future<void> verifyPhone(bool isResendTapped) async {
     _codeTimedOut = false;
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
       this.verificationId = verId;
@@ -121,10 +121,15 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
         _saving = false;
       });
       this.verificationId = verId;
+      if (!isResendTapped) {
+        setState(() {
+          prevAuthScreenType = authScreenType;
+          _smsCodeVerificationController.clear();
+          authScreenType = AuthScreenType.SMS_VERIFICATION;
+        });
+      }
       setState(() {
-        prevAuthScreenType = authScreenType;
         _smsCodeVerificationController.clear();
-        authScreenType = AuthScreenType.SMS_VERIFICATION;
       });
       _codeTimer = Timer(_timeOut, () {
         if (mounted) {
@@ -413,7 +418,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
                       _saving = true;
                     });
                     authType = AuthType.signUp;
-                    verifyPhone();
+                    verifyPhone(false);
                   } else {
                     setState(() {
                       _signUpAutoValidate = true;
@@ -679,7 +684,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
             _saving = true;
           });
           authType = AuthType.login;
-          verifyPhone();
+          verifyPhone(false);
         } else {
           setState(() {
             _loginAutoValidate = true;
@@ -791,7 +796,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
               backgroundColor: ColorUtils.lightLightGray,
               textColor: ColorUtils.textBlack,
               fontSize: 16.0);
-          verifyPhone();
+          verifyPhone(true);
         } else {
           _showDialog(Localization.of(context).getString("error"),
               Localization.of(context).getString("cantRetry"));
