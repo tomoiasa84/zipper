@@ -48,11 +48,12 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       _loading = true;
       getCurrentUserId().then((currentUserId) {
         _currentUserId = currentUserId;
-        if (widget.pubNubConversations != null && widget.pubNubConversations.isNotEmpty) {
+        if (widget.pubNubConversations != null &&
+            widget.pubNubConversations.isNotEmpty) {
           if (mounted) {
             setState(() {
               _loading = false;
-            } );
+            });
           }
           _pubNubConversations = widget.pubNubConversations;
           _getConversations();
@@ -66,7 +67,10 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   void _getConversations() {
     stopwatch.start();
     if (mounted) {
-      _conversationsBloc.getPubNubConversations().then((conversations) {
+      _conversationsBloc.getPubNubConversations();
+      _conversationsBloc.getPubNubConversationsObservable
+          .listen((conversations) {
+        print("getPubNubConversationsObservable called");
         if (conversations != null) {
           if (widget.updateConversationsList != null) {
             widget.updateConversationsList(conversations);
