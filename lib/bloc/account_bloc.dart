@@ -7,7 +7,9 @@ class AccountBloc {
   final _getUserByIdWithMainInfoFetcher = PublishSubject<QueryResult>();
   final _deleteCardFetcher = PublishSubject<QueryResult>();
 
-  Observable<QueryResult> get getUserByIdWithMainInfoObservable => _getUserByIdWithMainInfoFetcher.stream;
+  Observable<QueryResult> get getUserByIdWithMainInfoObservable =>
+      _getUserByIdWithMainInfoFetcher.stream;
+
   Observable<QueryResult> get deleteCardObservable => _deleteCardFetcher.stream;
 
   Future<String> getCurrentUserId() async {

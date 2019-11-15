@@ -83,9 +83,11 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
             });
           });
         } else {
-          setState(() {
-            _saving = false;
-          });
+          if (mounted) {
+            setState(() {
+              _saving = false;
+            });
+          }
         }
       });
     } else {
@@ -128,16 +130,20 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                 _saving = false;
               });
             } else {
-              setState(() {
-                _saving = false;
-              });
+              if (mounted) {
+                setState(() {
+                  _saving = false;
+                });
+              }
             }
           });
         });
       } else {
-        setState(() {
-          _saving = false;
-        });
+        if (mounted) {
+          setState(() {
+            _saving = false;
+          });
+        }
       }
     });
   }
@@ -149,9 +155,11 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   _onContactTapped() {
-    setState(() {
-      _saving = true;
-    });
+    if (mounted) {
+      setState(() {
+        _saving = true;
+      });
+    }
     if (_connectedToUser) {
       _deleteConnection();
     } else {
@@ -177,9 +185,11 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
 
   void _createConnection() {
     _getContactPermission().then((permission) {
-      setState(() {
-        _saving = true;
-      });
+      if (mounted) {
+        setState(() {
+          _saving = true;
+        });
+      }
       if (permission == PermissionStatus.granted) {
         _userDetailsBloc
             .createConnection(_currentUser.id, _user.id)
@@ -224,20 +234,24 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   void _reflectConnectionUI() {
-    setState(() {
-      _saving = false;
-      _connectedToUser = true;
-    });
+    if (mounted) {
+      setState(() {
+        _saving = false;
+        _connectedToUser = true;
+      });
+    }
     _showDialog('', Localization.of(context).getString('createdConnection'));
   }
 
   void _deleteConnection() {
     _userDetailsBloc.deleteConnection(_connection.id).then((onValue) {
       if (onValue.errors == null) {
-        setState(() {
-          _saving = false;
-          _connectedToUser = false;
-        });
+        if (mounted) {
+          setState(() {
+            _saving = false;
+            _connectedToUser = false;
+          });
+        }
         if (widget.connections != null) {
           User user = widget.connections
               .firstWhere((item) => item.id == _user.id, orElse: () => null);
@@ -262,13 +276,17 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   void _createConversation() {
-    setState(() {
-      _saving = true;
-    });
-    _userDetailsBloc.createConversation(_user).then((pubNubConversation) {
+    if (mounted) {
       setState(() {
-        _saving = false;
+        _saving = true;
       });
+    }
+    _userDetailsBloc.createConversation(_user).then((pubNubConversation) {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+        });
+      }
       if (pubNubConversation != null) {
         Navigator.of(context).push(new MaterialPageRoute(
             builder: (BuildContext context) =>
@@ -278,9 +296,11 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
             Localization.of(context).getString('anErrorHasOccured'));
       }
     }).then((value) {
-      setState(() {
-        _saving = false;
-      });
+      if (mounted) {
+        setState(() {
+          _saving = false;
+        });
+      }
     });
   }
 
@@ -557,25 +577,31 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     );
 
     if (dialogResult != null) {
-      setState(() {
-        _saving = true;
-      });
+      if (mounted) {
+        setState(() {
+          _saving = true;
+        });
+      }
       String currentUserId = await getCurrentUserId();
       _userDetailsBloc
           .createReview(currentUserId, userTagId, dialogResult.rating,
               dialogResult.message)
           .then((result) {
         if (result.errors == null) {
-          setState(() {
-            _getUserAndCurrentUser();
-            _saving = false;
-          });
+          if (mounted) {
+            setState(() {
+              _getUserAndCurrentUser();
+              _saving = false;
+            });
+          }
           _showDialog(Localization.of(context).getString('success'),
               Localization.of(context).getString('reviewAdded'));
         } else {
-          setState(() {
-            _saving = false;
-          });
+          if (mounted) {
+            setState(() {
+              _saving = false;
+            });
+          }
         }
       });
     }

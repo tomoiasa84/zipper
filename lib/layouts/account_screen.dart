@@ -149,31 +149,31 @@ class AccountScreenState extends State<AccountScreen> {
     setState(() {
       _saving = true;
     });
-  _accountBloc.deleteCard(card.id);
-  _accountBloc.deleteCardObservable.listen((result){
-    if (result.errors == null) {
-      setState(() {
-        _saving = false;
-        _user.cards.remove(card);
-        if (widget.onUserChanged != null) {
-          widget.onUserChanged(_user);
-        }
-      });
-    } else {
-      setState(() {
-        _saving = false;
-      });
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => CustomDialog(
-          title: Localization.of(context).getString("error"),
-          description:
-          Localization.of(context).getString("anErrorHasOccured"),
-          buttonText: Localization.of(context).getString("ok"),
-        ),
-      );
-    }
-  });
+    _accountBloc.deleteCard(card.id);
+    _accountBloc.deleteCardObservable.listen((result) {
+      if (result.errors == null) {
+        setState(() {
+          _saving = false;
+          _user.cards.remove(card);
+          if (widget.onUserChanged != null) {
+            widget.onUserChanged(_user);
+          }
+        });
+      } else {
+        setState(() {
+          _saving = false;
+        });
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: Localization.of(context).getString("error"),
+            description:
+                Localization.of(context).getString("anErrorHasOccured"),
+            buttonText: Localization.of(context).getString("ok"),
+          ),
+        );
+      }
+    });
   }
 
   @override
