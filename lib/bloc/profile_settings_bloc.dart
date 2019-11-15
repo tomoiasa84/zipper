@@ -1,34 +1,89 @@
 import 'dart:io';
 
 import 'package:contractor_search/persistance/repository.dart';
-import 'package:contractor_search/utils/global_variables.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ProfileSettingsBloc {
+  final _updateUserFetcher = PublishSubject<QueryResult>();
+  final _createUserTagFetcher = PublishSubject<QueryResult>();
+  final _updateMainUserTagFetcher = PublishSubject<QueryResult>();
+  final _deleteUserTagFetcher = PublishSubject<QueryResult>();
+  final _getTagsFetcher = PublishSubject<QueryResult>();
+  final _uploadPicFetcher = PublishSubject<String>();
 
-  Future<QueryResult> updateUser(String id, String firebaseId, String name, int location,
-      bool isActive, String phoneNumber, String profilePicUrl, String description) async {
-    return Repository().updateUser(
-        id, firebaseId, name, location, isActive, phoneNumber, profilePicUrl, description);
+  Observable<QueryResult> get updateUserObservable => _updateUserFetcher.stream;
+
+  Observable<QueryResult> get createUserTagObservable =>
+      _createUserTagFetcher.stream;
+
+  Observable<QueryResult> get updateMainUserTagObservable =>
+      _updateMainUserTagFetcher.stream;
+
+  Observable<QueryResult> get deleteUserTagObservable =>
+      _deleteUserTagFetcher.stream;
+
+  Observable<QueryResult> get getTagsObservable => _getTagsFetcher.stream;
+
+  Observable<String> get uploadPicObservable => _uploadPicFetcher.stream;
+
+  updateUser(
+      String id,
+      String firebaseId,
+      String name,
+      int location,
+      bool isActive,
+      String phoneNumber,
+      String profilePicUrl,
+      String description) async {
+    QueryResult result = await Repository().updateUser(id, firebaseId, name,
+        location, isActive, phoneNumber, profilePicUrl, description);
+    if (!_updateUserFetcher.isClosed) {
+      _updateUserFetcher.sink.add(result);
+    }
   }
 
-  Future<QueryResult> createUserTag(String userId, int tagId) async {
-    return Repository().createUserTag(userId, tagId);
+  createUserTag(String userId, int tagId) async {
+    QueryResult result = await Repository().createUserTag(userId, tagId);
+    if (!_createUserTagFetcher.isClosed) {
+      _createUserTagFetcher.sink.add(result);
+    }
   }
 
-  Future<QueryResult> updateMainUserTag(int userTagId) async {
-    return Repository().updateMainUserTag(userTagId);
+  updateMainUserTag(int userTagId) async {
+    QueryResult result = await Repository().updateMainUserTag(userTagId);
+    if (!_updateMainUserTagFetcher.isClosed) {
+      _updateMainUserTagFetcher.sink.add(result);
+    }
   }
 
-  Future<QueryResult> deleteUserTag(int userTagId) async {
-    return Repository().deleteUserTag(userTagId);
+  deleteUserTag(int userTagId) async {
+    QueryResult result = await Repository().deleteUserTag(userTagId);
+    if (!_deleteUserTagFetcher.isClosed) {
+      _deleteUserTagFetcher.sink.add(result);
+    }
   }
 
-  Future<QueryResult> getTags() async {
-    return Repository().getTags();
+  getTags() async {
+    QueryResult result = await Repository().getTags();
+    if (!_getTagsFetcher.isClosed) {
+      _getTagsFetcher.sink.add(result);
+    }
   }
 
-  Future<String> uploadPic(File image) async {
-    return await Repository().uploadPic(image);
+  uploadPic(File image) async {
+    String result = await Repository().uploadPic(image);
+    if (!_uploadPicFetcher.isClosed) {
+      _uploadPicFetcher.sink.add(result);
+    }
+  }
+
+  dispose() {
+    _updateUserFetcher.close();
+    _createUserTagFetcher.close();
+    _updateMainUserTagFetcher.close();
+    _deleteUserTagFetcher.close();
+    _getTagsFetcher.close();
+    _uploadPicFetcher.close();
   }
 }
