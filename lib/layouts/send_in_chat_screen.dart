@@ -7,7 +7,6 @@ import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
@@ -43,14 +42,24 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _sendInChatBloc.dispose();
+    super.dispose();
+  }
+
   void _getRecentUsers() async {
-    _recentUserConversations = await _sendInChatBloc.getRecentUsers();
+    _sendInChatBloc.getRecentUsers();
+    _sendInChatBloc.getRecentUsersObservable.listen((result) {
+      _recentUserConversations = result;
+    });
     _recentUsersLoaded = true;
     _hideLoading();
   }
 
   void _getAllFriends() async {
-    _sendInChatBloc.getCurrentUserWithConnections().then((result) {
+    _sendInChatBloc.getCurrentUserWithConnections();
+    _sendInChatBloc.getCurrentUserWithConnectionsObservable.listen((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
         currentUser.connections.forEach((connection) {
@@ -76,17 +85,6 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     }
   }
 
-  Future _showDialog(String title, String message) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: message,
-        buttonText: Localization.of(context).getString('ok'),
-      ),
-    );
-  }
-
   void _sendToUser(User user) {
     setState(() {
       _saving = true;
@@ -103,17 +101,17 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     setState(() {
       _saving = true;
     });
-    _sendInChatBloc.createConversation(user).then((pubNubConversation) {
-      if(pubNubConversation!=null) {
+    _sendInChatBloc.createConversation(user);
+    _sendInChatBloc.createConversationObservable.listen((pubNubConversation) {
+      if (pubNubConversation != null) {
         var pnGCM = PnGCM(WrappedMessage(
             PushNotification(
                 "Test", Localization.of(context).getString('sharedContact')),
             UserMessage.withSharedContact(DateTime.now(), _currentUserId,
                 widget.userToBeShared, pubNubConversation.id)));
 
-        _sendInChatBloc
-            .sendMessage(pubNubConversation.id, pnGCM)
-            .then((messageSent) {
+        _sendInChatBloc.sendMessage(pubNubConversation.id, pnGCM);
+        _sendInChatBloc.sendMessageObservable.listen((messageSent) {
           if (messageSent) {
             Navigator.of(context).pushReplacement(new MaterialPageRoute(
                 builder: (BuildContext context) =>
@@ -133,18 +131,17 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     setState(() {
       _saving = true;
     });
-    _sendInChatBloc.createConversation(user).then((pubNubConversation) {
-      if(pubNubConversation!=null) {
+    _sendInChatBloc.createConversation(user);
+    _sendInChatBloc.createConversationObservable.listen((pubNubConversation) {
+      if (pubNubConversation != null) {
         var pnGCM = PnGCM(WrappedMessage(
-            PushNotification(
-                "Test",
+            PushNotification("Test",
                 _createSharedCardPushNotificationText(widget.cardModel)),
             UserMessage.withSharedCard(DateTime.now(), _currentUserId,
                 widget.cardModel, pubNubConversation.id)));
 
-        _sendInChatBloc
-            .sendMessage(pubNubConversation.id, pnGCM)
-            .then((messageSent) {
+        _sendInChatBloc.sendMessage(pubNubConversation.id, pnGCM);
+        _sendInChatBloc.sendMessageObservable.listen((messageSent) {
           if (messageSent) {
             Navigator.of(context).pushReplacement(new MaterialPageRoute(
                 builder: (BuildContext context) =>

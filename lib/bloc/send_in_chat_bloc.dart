@@ -1,35 +1,54 @@
-import 'dart:async';
-
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/persistance/repository.dart';
 import 'package:contractor_search/utils/general_methods.dart';
-import 'package:contractor_search/utils/global_variables.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 class SendInChatBloc {
   String _currentUserId;
 
-  Future<QueryResult> getCurrentUserWithConnections() async {
+  final _getCurrentUserWithConnectionsFetcher = PublishSubject<QueryResult>();
+  final _createConversationFetcher = PublishSubject<PubNubConversation>();
+  final _sendMessageFetcher = PublishSubject<bool>();
+  final _getRecentUsersFetcher = PublishSubject<List<User>>();
+
+  Observable<QueryResult> get getCurrentUserWithConnectionsObservable =>
+      _getCurrentUserWithConnectionsFetcher.stream;
+
+  Observable<PubNubConversation> get createConversationObservable =>
+      _createConversationFetcher.stream;
+
+  Observable<bool> get sendMessageObservable => _sendMessageFetcher.stream;
+
+  Observable<List<User>> get getRecentUsersObservable =>
+      _getRecentUsersFetcher.stream;
+
+  getCurrentUserWithConnections() async {
     String userId = await getCurrentUserId();
-    return Repository().getUserByIdWithConnections(userId);
+    QueryResult result = await Repository().getUserByIdWithConnections(userId);
+    if (!_getCurrentUserWithConnectionsFetcher.isClosed) {
+      _getCurrentUserWithConnectionsFetcher.sink.add(result);
+    }
   }
 
-  Future<List<PubNubConversation>> getPubNubConversations() async {
-    return Repository().getPubNubConversations();
+  createConversation(User user) async {
+    PubNubConversation result = await Repository().createConversation(user);
+    if (!_createConversationFetcher.isClosed) {
+      _createConversationFetcher.sink.add(result);
+    }
   }
 
-  Future<PubNubConversation> createConversation(User user) async {
-    return await Repository().createConversation(user);
+  sendMessage(String channelId, PnGCM pnGCM) async {
+    bool result = await Repository().sendMessage(channelId, pnGCM);
+    if (!_sendMessageFetcher.isClosed) {
+      _sendMessageFetcher.sink.add(result);
+    }
   }
 
-  Future<bool> sendMessage(String channelId, PnGCM pnGCM) async {
-    return Repository().sendMessage(channelId, pnGCM);
-  }
-
-  Future<List<User>> getRecentUsers() async {
+  getRecentUsers() async {
     var recentUsers = List<User>();
     _currentUserId = await SharedPreferencesHelper.getCurrentUserId();
 
@@ -42,7 +61,9 @@ class SendInChatBloc {
         }
       }
     });
-    return recentUsers;
+    if (!_getRecentUsersFetcher.isClosed) {
+      _getRecentUsersFetcher.sink.add(recentUsers);
+    }
   }
 
   User _getInterlocutorUser(PubNubConversation pubNubConversation) {
@@ -51,5 +72,12 @@ class SendInChatBloc {
     } else {
       return pubNubConversation.user1;
     }
+  }
+
+  dispose() {
+    _getCurrentUserWithConnectionsFetcher.close();
+    _sendMessageFetcher.close();
+    _getRecentUsersFetcher.close();
+    _createConversationFetcher.close();
   }
 }
