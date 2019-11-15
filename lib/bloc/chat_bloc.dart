@@ -7,8 +7,8 @@ import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/persistance/repository.dart';
-import 'package:contractor_search/utils/global_variables.dart';
 import 'package:http/http.dart' as http;
+import 'package:rxdart/rxdart.dart';
 
 class ChatBloc {
   int historyStart;
@@ -17,11 +17,33 @@ class ChatBloc {
   final int _numberOfMessagesToFetch = 100;
   final StreamController ctrl = StreamController();
 
-  Future<String> uploadPic(File image) async {
-    return await Repository().uploadPic(image);
+  final _uploadPicFetcher = PublishSubject<String>();
+  final _getHistoryMessagesFetcher = PublishSubject<List<UserMessage>>();
+  final _sendMessageFetcher = PublishSubject<bool>();
+  final _getConversationFetcher = PublishSubject<PubNubConversation>();
+  final _createConversationFetcher = PublishSubject<PubNubConversation>();
+
+  Observable<String> get uploadPicObservable => _uploadPicFetcher.stream;
+
+  Observable<List<UserMessage>> get getHistoryMessagesObservable =>
+      _getHistoryMessagesFetcher.stream;
+
+  Observable<bool> get sendMessageObservable => _sendMessageFetcher.stream;
+
+  Observable<PubNubConversation> get getConversationObservable =>
+      _getConversationFetcher.stream;
+
+  Observable<PubNubConversation> get createConversationObservable =>
+      _createConversationFetcher.stream;
+
+  uploadPic(File image) async {
+    String result = await Repository().uploadPic(image);
+    if (!_uploadPicFetcher.isClosed) {
+      _uploadPicFetcher.sink.add(result);
+    }
   }
 
-  Future<List<UserMessage>> getHistoryMessages(String channelName) async {
+  getHistoryMessages(String channelName) async {
     var response = await Repository().getHistoryMessages(
         channelName, historyStart, _numberOfMessagesToFetch);
 
@@ -30,11 +52,16 @@ class ChatBloc {
     } else {
       print("Request failed with status: ${response.statusCode}.");
     }
-    return _messagesList;
+    if (!_getHistoryMessagesFetcher.isClosed) {
+      _getHistoryMessagesFetcher.sink.add(_messagesList);
+    }
   }
 
-  Future<bool> sendMessage(String channelId, PnGCM pnGCM) async {
-    return await Repository().sendMessage(channelId, pnGCM);
+  sendMessage(String channelId, PnGCM pnGCM) async {
+    bool result = await Repository().sendMessage(channelId, pnGCM);
+    if (!_sendMessageFetcher.isClosed) {
+      _sendMessageFetcher.sink.add(result);
+    }
   }
 
   void subscribeToChannel(String channelName, String currentUserId) async {
@@ -52,12 +79,19 @@ class ChatBloc {
     }).catchError((error) {});
   }
 
-  Future<PubNubConversation> getConversation(String conversationId) async {
-    return Repository().getConversation(conversationId);
+  getConversation(String conversationId) async {
+    PubNubConversation result =
+        await Repository().getConversation(conversationId);
+    if (!_getConversationFetcher.isClosed) {
+      _getConversationFetcher.sink.add(result);
+    }
   }
 
-  Future<PubNubConversation> createConversation(User user) async {
-    return await Repository().createConversation(user);
+  createConversation(User user) async {
+    PubNubConversation result = await Repository().createConversation(user);
+    if (!_createConversationFetcher.isClosed) {
+      _createConversationFetcher.sink.add(result);
+    }
   }
 
   void _addMessageToList(http.Response response) {
@@ -94,5 +128,10 @@ class ChatBloc {
 
   void dispose() {
     ctrl.close();
+    _uploadPicFetcher.close();
+    _getHistoryMessagesFetcher.close();
+    _createConversationFetcher.close();
+    _sendMessageFetcher.close();
+    _getConversationFetcher.close();
   }
 }
