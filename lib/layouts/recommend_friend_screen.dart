@@ -34,16 +34,23 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
 
   @override
   void initState() {
+    _recommendBloc = RecommendFriendBloc();
     getCurrentUser();
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _recommendBloc.dispose();
+    super.dispose();
+  }
+
   void getCurrentUser() {
-    _recommendBloc = RecommendFriendBloc();
     setState(() {
       _saving = true;
     });
-    _recommendBloc.getCurrentUserWithConnections().then((result) {
+    _recommendBloc.getCurrentUserWithConnections();
+    _recommendBloc.getCurrentUserWithConnectionsObservable.listen((result) {
       if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);
         if (currentUser != null) {
@@ -159,10 +166,9 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
                 selectedUserIndex = index;
                 _saving = true;
               });
-              _recommendBloc
-                  .createRecommend(widget.card.id, widget.card.postedBy.id,
-                      users.elementAt(index).id)
-                  .then((result) {
+              _recommendBloc.createRecommend(widget.card.id,
+                  widget.card.postedBy.id, users.elementAt(index).id);
+              _recommendBloc.createRecommendObservable.listen((result) {
                 if (result.errors == null) {
                   Recommend recommend =
                       Recommend.fromJson(result.data['create_recommand']);
@@ -188,18 +194,16 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
   }
 
   void _shareContact(BuildContext context, Recommend recommend) async {
-    _recommendBloc
-        .createConversation(recommend.userAsk)
-        .then((pubNubConversation) {
+    _recommendBloc.createConversation(recommend.userAsk);
+    _recommendBloc.createConversationObservable.listen((pubNubConversation) {
       if (pubNubConversation != null) {
         var pnGCM = PnGCM(WrappedMessage(
             PushNotification(recommend.userSend.name,
                 Localization.of(context).getString('sharedContact')),
             UserMessage.withSharedContact(DateTime.now(), recommend.userSend.id,
                 recommend.userRecommend, pubNubConversation.id)));
-        _recommendBloc
-            .sendMessage(pubNubConversation.id, pnGCM)
-            .then((messageSent) {
+        _recommendBloc.sendMessage(pubNubConversation.id, pnGCM);
+        _recommendBloc.sendMessageObservable.listen((messageSent) {
           if (messageSent) {
             setState(() {
               _saving = false;
