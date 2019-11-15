@@ -2,17 +2,36 @@ import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/persistance/repository.dart';
 import 'package:contractor_search/utils/general_methods.dart';
-import 'package:contractor_search/utils/global_variables.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 class SelectContactBloc {
+  final _createConversationFetcher = PublishSubject<PubNubConversation>();
+  final _getCurrentUserFetcher = PublishSubject<QueryResult>();
 
-  Future<PubNubConversation> createConversation(User user) async {
-    return await Repository().createConversation(user);
+  Observable<PubNubConversation> get createConversationObservable =>
+      _createConversationFetcher.stream;
+
+  Observable<QueryResult> get getCurrentUserObservable =>
+      _getCurrentUserFetcher.stream;
+
+  createConversation(User user) async {
+    PubNubConversation result = await Repository().createConversation(user);
+    if (!_createConversationFetcher.isClosed) {
+      _createConversationFetcher.sink.add(result);
+    }
   }
 
-  Future<QueryResult> getCurrentUser() async {
+  getCurrentUser() async {
     String userId = await getCurrentUserId();
-    return Repository().getUserByIdWithConnections(userId);
+    QueryResult result = await Repository().getUserByIdWithConnections(userId);
+    if (!_getCurrentUserFetcher.isClosed) {
+      _getCurrentUserFetcher.sink.add(result);
+    }
+  }
+
+  dispose() {
+    _createConversationFetcher.close();
+    _getCurrentUserFetcher.close();
   }
 }
