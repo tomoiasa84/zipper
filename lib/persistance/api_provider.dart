@@ -855,9 +855,10 @@ class ApiProvider {
   Future<QueryResult> createCard(
       String postedBy, int searchFor, String details) async {
     _client.queryManager.cache.reset();
+    String finalDetails = details.replaceAll("\n", "\\n");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
-                      create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$details"){
+                      create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$finalDetails"){
                         id
                         postedBy{
                           name
@@ -1204,6 +1205,7 @@ class ApiProvider {
       String profilePicUrl,
       String description) async {
     _client.queryManager.cache.reset();
+    String finalDescription = description.replaceAll("\n", "\\n");
 
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
@@ -1216,7 +1218,7 @@ class ApiProvider {
                             isActive: $isActive,
                             phoneNumber: "$phoneNumber",
                             profileURL: "$profilePicUrl",
-                            description: "$description") {
+                            description: "$finalDescription") {
                               name
                               phoneNumber
                               id
