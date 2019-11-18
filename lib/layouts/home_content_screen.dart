@@ -134,6 +134,10 @@ class HomeContentScreenState extends State<HomeContentScreen> {
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        valueColor:
+        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+      ),
       inAsyncCall: _saving,
       child: Scaffold(
         appBar: _buildAppBar(),

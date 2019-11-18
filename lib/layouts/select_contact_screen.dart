@@ -79,6 +79,10 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        valueColor:
+        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+      ),
       inAsyncCall: _loading,
       child: Scaffold(
         appBar: AppBar(

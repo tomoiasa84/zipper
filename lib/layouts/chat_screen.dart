@@ -348,6 +348,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return WillPopScope(
       onWillPop: _saveLastMessage,
       child: ModalProgressHUD(
+        progressIndicator: CircularProgressIndicator(
+          valueColor:
+          new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        ),
         inAsyncCall: _loading,
         child: Scaffold(
           appBar: AppBar(

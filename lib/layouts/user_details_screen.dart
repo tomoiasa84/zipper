@@ -308,6 +308,10 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        valueColor:
+        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+      ),
       inAsyncCall: _saving,
       child: _user != null
           ? Scaffold(

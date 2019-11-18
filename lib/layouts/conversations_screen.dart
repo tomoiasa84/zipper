@@ -176,6 +176,10 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         }
       },
       child: ModalProgressHUD(
+        progressIndicator: CircularProgressIndicator(
+          valueColor:
+          new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        ),
         inAsyncCall: _loading,
         child: Scaffold(
           appBar: AppBar(

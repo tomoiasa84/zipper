@@ -117,6 +117,10 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     return WillPopScope(
       onWillPop: _saveLastRecommendation,
       child: ModalProgressHUD(
+        progressIndicator: CircularProgressIndicator(
+          valueColor:
+          new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        ),
         inAsyncCall: _saving,
         child: Scaffold(
           appBar: _buildAppBar(),
