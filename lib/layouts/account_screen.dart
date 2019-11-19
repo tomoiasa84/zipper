@@ -100,7 +100,8 @@ class AccountScreenState extends State<AccountScreen> {
     setState(() {
       _saving = true;
     });
-    _accountBloc.getUserByIdWithMainInfo().then((result) {
+    _accountBloc.getUserByIdWithMainInfo();
+    _accountBloc.getUserByIdWithMainInfoObservable.listen((result) {
       if (result.errors == null && mounted) {
         setState(() {
           _user = User.fromJson(result.data['get_user']);
@@ -148,7 +149,8 @@ class AccountScreenState extends State<AccountScreen> {
     setState(() {
       _saving = true;
     });
-    _accountBloc.deleteCard(card.id).then((result) {
+    _accountBloc.deleteCard(card.id);
+    _accountBloc.deleteCardObservable.listen((result) {
       if (result.errors == null) {
         setState(() {
           _saving = false;
@@ -186,7 +188,8 @@ class AccountScreenState extends State<AccountScreen> {
       });
       _user = widget.user;
       _getMainTag();
-      _accountBloc.getUserByIdWithMainInfo().then((result) {
+      _accountBloc.getUserByIdWithMainInfo();
+      _accountBloc.getUserByIdWithMainInfoObservable.listen((result) {
         if (result.errors == null) {
           User newUser = User.fromJson(result.data['get_user']);
           if (_user != newUser && mounted) {
@@ -208,6 +211,12 @@ class AccountScreenState extends State<AccountScreen> {
       _getCurrentUserInfo();
     }
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _accountBloc.dispose();
+    super.dispose();
   }
 
   @override

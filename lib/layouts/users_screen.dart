@@ -6,7 +6,6 @@ import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/search_users_util.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,8 @@ class UsersScreen extends StatefulWidget {
   final Function updateCurrentUser;
   final Function updateConnectedUser;
 
-  const UsersScreen({Key key, this.user, this.updateCurrentUser, this.updateConnectedUser})
+  const UsersScreen(
+      {Key key, this.user, this.updateCurrentUser, this.updateConnectedUser})
       : super(key: key);
 
   @override
@@ -34,6 +34,7 @@ class UsersScreenState extends State<UsersScreen> {
 
   @override
   void initState() {
+    _usersBloc = UsersBloc();
     if (widget.user != null && widget.user.connections != null) {
       _user = widget.user;
       _user.connections.forEach((connection) {
@@ -52,15 +53,21 @@ class UsersScreenState extends State<UsersScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _usersBloc.dispose();
+    super.dispose();
+  }
+
   void getCurrentUserConnections() {
     Stopwatch stopwatch = Stopwatch()..start();
-    _usersBloc = UsersBloc();
     if (mounted) {
       setState(() {
         _saving = true;
       });
     }
-    _usersBloc.getCurrentUserWithConnections().then((result) {
+    _usersBloc.getCurrentUserWithConnections();
+    _usersBloc.getUserByIdWithConnectionObservable.listen((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
         if (_user != null) {
@@ -79,7 +86,8 @@ class UsersScreenState extends State<UsersScreen> {
         if (mounted) {
           setState(() {
             _saving = false;
-            print('Finished getCurrentUserWithConnections in: ${stopwatch.elapsed}');
+            print(
+                'Finished getCurrentUserWithConnections in: ${stopwatch.elapsed}');
           });
         }
       } else {
@@ -93,12 +101,16 @@ class UsersScreenState extends State<UsersScreen> {
   }
 
   void _checkUsersUpdates() {
-    _usersBloc = UsersBloc();
-    _usersBloc.getCurrentUserWithConnections().then((result) {
+    _usersBloc.getCurrentUserWithConnections();
+    _usersBloc.getUserByIdWithConnectionObservable.listen((result) {
       if (result.errors == null) {
         User newUser = User.fromJson(result.data['get_user']);
-        _user.connections = newUser.connections;
-        widget.updateCurrentUser(newUser.connections);
+        if (_user != null) {
+          _user.connections = newUser.connections;
+        }
+        if (widget.updateCurrentUser != null) {
+          widget.updateCurrentUser(newUser.connections);
+        }
         List<User> targetUsersList = [];
         newUser.connections.forEach((item) {
           targetUsersList.add(item.targetUser);
@@ -131,20 +143,6 @@ class UsersScreenState extends State<UsersScreen> {
         }
       }
     });
-  }
-
-  void _showDialog(String title, String description) {
-    setState(() {
-      _saving = false;
-    });
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: description,
-        buttonText: Localization.of(context).getString("ok"),
-      ),
-    );
   }
 
   @override
@@ -210,7 +208,7 @@ class UsersScreenState extends State<UsersScreen> {
                       _usersList[index].cards = user.cards;
                       _usersList[index].profilePicUrl = user.profilePicUrl;
                       _usersList[index].reviews = user.reviews;
-                      if(widget.updateConnectedUser!=null) {
+                      if (widget.updateConnectedUser != null) {
                         widget.updateConnectedUser(_usersList[index]);
                       }
                     }

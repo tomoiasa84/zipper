@@ -29,8 +29,8 @@ class ShareSelectedContactsScreenState
     _bloc = ShareSelectedBloc();
     List<String> phoneContactsToBeLoaded = _generateContactsToBeLoaded();
 
-    _bloc.loadContacts(phoneContactsToBeLoaded).then((result) {});
-    _bloc.loadConnections(_generateExistingUsers()).then((result) {});
+    _bloc.loadContacts(phoneContactsToBeLoaded);
+    _bloc.loadConnections(_generateExistingUsers());
     super.initState();
   }
 
@@ -54,6 +54,12 @@ class ShareSelectedContactsScreenState
       }
     });
     return existingUsers;
+  }
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
   }
 
   @override

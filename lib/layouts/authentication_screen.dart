@@ -72,8 +72,9 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
   Timer _codeTimer;
   String smsCode;
 
-  Future _getLocations() async {
-    await _authBloc.getLocations().then((snapshot) {
+  _getLocations() async {
+    _authBloc.getLocations();
+    _authBloc.getLocationsObservable.listen((snapshot) {
       if (this.mounted) {
         setState(() {
           snapshot.forEach((location) {
@@ -104,10 +105,11 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     _loginPhoneNumberController.dispose();
     _singUpPhoneNumberController.dispose();
     _smsCodeVerificationController.dispose();
+    _authBloc.dispose();
     super.dispose();
   }
 
-  Future<void> verifyPhone() async {
+  Future<void> verifyPhone(bool isResendTapped) async {
     _codeTimedOut = false;
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
       this.verificationId = verId;
@@ -119,10 +121,15 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
         _saving = false;
       });
       this.verificationId = verId;
+      if (!isResendTapped) {
+        setState(() {
+          prevAuthScreenType = authScreenType;
+          _smsCodeVerificationController.clear();
+          authScreenType = AuthScreenType.SMS_VERIFICATION;
+        });
+      }
       setState(() {
-        prevAuthScreenType = authScreenType;
         _smsCodeVerificationController.clear();
-        authScreenType = AuthScreenType.SMS_VERIFICATION;
       });
       _codeTimer = Timer(_timeOut, () {
         if (mounted) {
@@ -188,11 +195,10 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
   }
 
   void _authenticate(AuthResult authResult) {
-    _authBloc
-        .getUserFromContact(authType == AuthType.signUp
-            ? _singUpPhoneNumberController.text
-            : _loginPhoneNumberController.text)
-        .then((userFromContactResult) {
+    _authBloc.getUserFromContact(authType == AuthType.signUp
+        ? _singUpPhoneNumberController.text
+        : _loginPhoneNumberController.text);
+    _authBloc.getUserFromContactObservable.listen((userFromContactResult) {
       User user = userFromContactResult.data != null &&
               userFromContactResult.data['get_userFromContact'] != null
           ? User.fromJson(userFromContactResult.data['get_userFromContact'])
@@ -212,7 +218,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
           });
         }
       } else if (authType == AuthType.login) {
-        if (user == null || (user!=null && !user.isActive)) {
+        if (user == null || (user != null && !user.isActive)) {
           FirebaseAuth.instance.signOut().then((_) {
             SharedPreferencesHelper.clear().then((_) {
               _showDialog(Localization.of(context).getString('error'),
@@ -233,7 +239,8 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     if (loc != null) {
       _createUser(user, loc.id);
     } else {
-      _authBloc.createLocation(_typeAheadController.text).then((result) {
+      _authBloc.createLocation(_typeAheadController.text);
+      _authBloc.createLocationObservable.listen((result) {
         if (result.errors == null) {
           _createUser(
               user, LocationModel.fromJson(result.data['create_location']).id);
@@ -246,10 +253,9 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
   }
 
   void _createUser(AuthResult user, int locationId) {
-    _authBloc
-        .createUser(_signUpNameTextFieldController.text, locationId,
-            user.user.uid, user.user.phoneNumber)
-        .then((result) {
+    _authBloc.createUser(_signUpNameTextFieldController.text, locationId,
+        user.user.uid, user.user.phoneNumber);
+    _authBloc.createUserObservable.listen((result) {
       setState(() {
         _saving = false;
       });
@@ -272,7 +278,8 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     if (loc != null) {
       _updateUserData(authResult, loc.id, user);
     } else {
-      _authBloc.createLocation(_typeAheadController.text).then((result) {
+      _authBloc.createLocation(_typeAheadController.text);
+      _authBloc.createLocationObservable.listen((result) {
         if (result.errors == null) {
           _updateUserData(authResult,
               LocationModel.fromJson(result.data['create_location']).id, user);
@@ -285,15 +292,14 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
   }
 
   void _updateUserData(AuthResult authResult, int locationId, User user) {
-    _authBloc
-        .updateUser(
-            user.id,
-            authResult.user.uid,
-            _signUpNameTextFieldController.text,
-            locationId,
-            true,
-            authResult.user.phoneNumber)
-        .then((result) {
+    _authBloc.updateUser(
+        user.id,
+        authResult.user.uid,
+        _signUpNameTextFieldController.text,
+        locationId,
+        true,
+        authResult.user.phoneNumber);
+    _authBloc.updateUserObservable.listen((result) {
       if (result.errors == null) {
         User user = User.fromJson(result.data['update_user']);
         _finishLogin(user.id, user.name);
@@ -412,7 +418,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
                       _saving = true;
                     });
                     authType = AuthType.signUp;
-                    verifyPhone();
+                    verifyPhone(false);
                   } else {
                     setState(() {
                       _signUpAutoValidate = true;
@@ -540,7 +546,16 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
                 Icons.location_on)),
         suggestionsCallback: (pattern) async {
           if (locations.length == 0) {
-            await _getLocations().then((value) {
+            await _authBloc.getLocations();
+            _authBloc.getLocationsObservable.listen((snapshot) {
+              if (this.mounted) {
+                setState(() {
+                  snapshot.forEach((location) {
+                    locations.add(location.city);
+                    locationsList.add(location);
+                  });
+                });
+              }
               List<String> list = [];
               locations
                   .where((it) =>
@@ -669,7 +684,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
             _saving = true;
           });
           authType = AuthType.login;
-          verifyPhone();
+          verifyPhone(false);
         } else {
           setState(() {
             _loginAutoValidate = true;
@@ -781,7 +796,7 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
               backgroundColor: ColorUtils.lightLightGray,
               textColor: ColorUtils.textBlack,
               fontSize: 16.0);
-          verifyPhone();
+          verifyPhone(true);
         } else {
           _showDialog(Localization.of(context).getString("error"),
               Localization.of(context).getString("cantRetry"));

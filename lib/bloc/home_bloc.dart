@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/persistance/repository.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/global_variables.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -10,7 +12,6 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 enum NavBarItem { HOME, CONTACTS, PLUS, INBOX, ACCOUNT }
 
 class HomeBloc {
-  Repository _repository = Repository();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   final StreamController<NavBarItem> _navBarController =
@@ -40,12 +41,16 @@ class HomeBloc {
     }
   }
 
+  Future<List<PubNubConversation>> getPubNubConversations() async {
+    return Repository().getPubNubConversations();
+  }
+
   void updateDeviceToken() {
     SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
       _firebaseMessaging.getToken().then((deviceToken) {
         getCurrentUserWithFirebaseId(currentUserId).then((result) {
           if (result.errors == null) {
-            _repository.updateDeviceToken(currentUserId, deviceToken,
+            Repository().updateDeviceToken(currentUserId, deviceToken,
                 User.fromJson(result.data['get_user']).firebaseId);
           }
         });
@@ -58,11 +63,11 @@ class HomeBloc {
   }
 
   Future<QueryResult> getCurrentUserWithFirebaseId(String currentUserId) {
-    return _repository.getCurrentUserWithFirebaseId(currentUserId);
+    return Repository().getCurrentUserWithFirebaseId(currentUserId);
   }
 
   Future<QueryResult> getCurrentUser() async {
     String userId = await getCurrentUserId();
-    return _repository.getUserById(userId);
+    return Repository().getUserById(userId);
   }
 }

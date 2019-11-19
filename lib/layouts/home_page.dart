@@ -8,6 +8,7 @@ import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/layouts/home_content_screen.dart';
 import 'package:contractor_search/model/connection_model.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/PushNotification.dart';
 import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -46,6 +47,7 @@ class _HomePageState extends State<HomePage> {
   var _recommendationChannel =
       BasicMessageChannel<String>('iosRecommendationTapped', StringCodec());
   User _user;
+  List<PubNubConversation> _pubNubConversations = [];
 
   @override
   void initState() {
@@ -54,6 +56,9 @@ class _HomePageState extends State<HomePage> {
     if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
     }
+    _homeBloc.getPubNubConversations().then((pubNubConversations){
+      _pubNubConversations = pubNubConversations;
+    });
     _homeBloc.getCurrentUser().then((result) {
       if (result.errors == null) {
         _user = User.fromJson(result.data['get_user']);
@@ -257,7 +262,9 @@ class _HomePageState extends State<HomePage> {
                 case NavBarItem.PLUS:
                   return Container();
                 case NavBarItem.INBOX:
-                  return ConversationsScreen();
+                  return ConversationsScreen(currentUserId: _user!=null? _user.id:null, pubNubConversations: _pubNubConversations,updateConversationsList: (pubNubConversations){
+                    _pubNubConversations = pubNubConversations;
+                  },);
                 case NavBarItem.ACCOUNT:
                   return AccountScreen(
                     user: _user,

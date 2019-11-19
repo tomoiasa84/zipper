@@ -77,14 +77,13 @@ class _ChatScreenState extends State<ChatScreen> {
               escapeJsonCharacters(imageDownloadUrl),
               _currentUser.id,
               _pubNubConversation.id);
-          _chatBloc
-              .sendMessage(
-                  _pubNubConversation.id,
-                  PnGCM(WrappedMessage(
-                      PushNotification(_currentUser.name,
-                          Localization.of(context).getString('image')),
-                      message)))
-              .then((messageSent) {
+          _chatBloc.sendMessage(
+              _pubNubConversation.id,
+              PnGCM(WrappedMessage(
+                  PushNotification(_currentUser.name,
+                      Localization.of(context).getString('image')),
+                  message)));
+          _chatBloc.sendMessageObservable.listen((messageSent) {
             if (!messageSent) {
               _showDialog(
                   Localization.of(context).getString('error'),
@@ -123,8 +122,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _startConversation(User user) {
-    _chatBloc.createConversation(user).then((pubNubConversation) {
-      if(pubNubConversation!=null) {
+    _chatBloc.createConversation(user);
+    _chatBloc.createConversationObservable.listen((pubNubConversation) {
+      if (pubNubConversation != null) {
         Navigator.of(context).pushReplacement(new MaterialPageRoute(
             builder: (BuildContext context) =>
                 ChatScreen(pubNubConversation: pubNubConversation)));
@@ -207,9 +207,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future _getConversationFromDb(String currentUserId) async {
     if (_pubNubConversation == null) {
-      await _chatBloc
-          .getConversation(widget.conversationId)
-          .then((pubNubConversation) {
+      _chatBloc.getConversation(widget.conversationId);
+      _chatBloc.getConversationObservable.listen((pubNubConversation) {
         setState(() {
           _pubNubConversation = pubNubConversation;
         });
@@ -219,14 +218,13 @@ class _ChatScreenState extends State<ChatScreen> {
     SharedPreferencesHelper.saveConversation(_pubNubConversation);
   }
 
-  Future<bool> _loadMore() async {
+  _loadMore() async {
     if (_pubNubConversation == null) {
       return false;
     }
     if (_chatBloc.historyStart != 0) {
-      await _chatBloc
-          .getHistoryMessages(_pubNubConversation.id)
-          .then((historyMessages) {
+      _chatBloc.getHistoryMessages(_pubNubConversation.id);
+      _chatBloc.getHistoryMessagesObservable.listen((historyMessages) {
         if (mounted) {
           setState(() {
             _listOfMessages.addAll(historyMessages.reversed);
@@ -258,6 +256,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   bool lastMessageHasDifferentDate() {
+    if (_listOfMessages.length < 2) {
+      return true;
+    }
     var firstBeforeLastMessage = _listOfMessages[1] as UserMessage;
     var lastMessage = _listOfMessages[0] as UserMessage;
     if (firstBeforeLastMessage.timestamp.day == lastMessage.timestamp.day &&

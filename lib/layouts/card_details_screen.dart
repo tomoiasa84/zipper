@@ -46,6 +46,12 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _cardDetailsBloc.dispose();
+    super.dispose();
+  }
+
   void _showUnexistentCardDialog() {
     setState(() {
       _saving = false;
@@ -65,7 +71,8 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     setState(() {
       _saving = true;
     });
-    _cardDetailsBloc.getCardById(widget.cardId).then((result) {
+    _cardDetailsBloc.getCardById(widget.cardId);
+    _cardDetailsBloc.getCardByIdObservable.listen((result) {
       if (result.errors == null) {
         if (result.data['get_card'] == null) {
           _showUnexistentCardDialog();
@@ -97,7 +104,6 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   }
 
   Future<bool> _saveLastRecommendation() async {
-    print('saved');
     if (_card != null) {
       return SharedPreferencesHelper.saveCardRecommendsCount(
           _card.id.toString(), _card.recommendsCount);
@@ -169,8 +175,9 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   }
 
   void _startConversation(User user) {
-    _cardDetailsBloc.createConversation(user).then((pubNubConversation) {
-      if(pubNubConversation!=null) {
+    _cardDetailsBloc.createConversation(user);
+    _cardDetailsBloc.createConversationObservable.listen((pubNubConversation) {
+      if (pubNubConversation != null) {
         Navigator.of(context).pushReplacement(new MaterialPageRoute(
             builder: (BuildContext context) =>
                 ChatScreen(pubNubConversation: pubNubConversation)));

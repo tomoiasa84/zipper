@@ -32,6 +32,7 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
   @override
   void dispose() {
     _animationController.dispose();
+    _syncContactsBloc.dispose();
     super.dispose();
   }
 
@@ -46,13 +47,14 @@ class SyncContactsScreenState extends State<SyncContactsScreen>
     statusFuture.then((PermissionStatus status) {
       if (status == PermissionStatus.granted) {
         getCurrentUserId().then((userId) {
-          _syncContactsBloc.syncContacts(userId).then((syncResult) {
+          _syncContactsBloc.syncContacts(userId);
+          _syncContactsBloc.syncContactsObservable.listen((syncResult) {
             if (syncResult.error.isNotEmpty) {
               showDialog(
                 context: context,
                 builder: (BuildContext context) => CustomDialog(
                   title: Localization.of(context).getString("error"),
-                  description: Localization.of(context).getString("noInternetConnection"),
+                  description: syncResult.error,
                   buttonText: Localization.of(context).getString("ok"),
                 ),
               );

@@ -11,21 +11,26 @@ import 'package:country_pickers/country.dart';
 import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:phone_number/phone_number.dart';
+import 'package:rxdart/rxdart.dart';
 
 class SyncContactsBloc {
-  Repository _repository = Repository();
   Country countryCode;
 
+  final _syncContactsFetcher = PublishSubject<SyncContactsModel>();
+
+  Observable<SyncContactsModel> get syncContactsObservable =>
+      _syncContactsFetcher.stream;
+
   Future<Iterable<Contact>> getContacts() async {
-    return await _repository.getContacts();
+    return await Repository().getContacts();
   }
 
   Future<QueryResult> checkContacts(List<String> phoneContacts) async {
-    return await _repository.checkContacts(phoneContacts);
+    return await Repository().checkContacts(phoneContacts);
   }
 
-  Future<SyncContactsModel> syncContacts(String userId) async {
-    QueryResult result = await _repository.getUserByIdWithPhoneNumber(userId);
+  syncContacts(String userId) async {
+    QueryResult result = await Repository().getUserByIdWithPhoneNumber(userId);
 
     if (result.errors == null) {
       final parsedPhoneNumber = await PhoneNumber.parse(
@@ -43,16 +48,31 @@ class SyncContactsBloc {
           var checkResult = await checkContacts(
               formattedContacts.formattedPhoneNumbers.toSet().toList());
           if (checkResult.errors == null) {
-            return _groupExistingUsers(checkResult, formattedContacts);
-          } else
-            return SyncContactsModel([], [], result.errors[0].message);
+            if (!_syncContactsFetcher.isClosed) {
+              _syncContactsFetcher.sink
+                  .add(_groupExistingUsers(checkResult, formattedContacts));
+            }
+          } else {
+            if (!_syncContactsFetcher.isClosed) {
+              _syncContactsFetcher.sink
+                  .add(SyncContactsModel([], [], result.errors[0].message));
+            }
+          }
+        }else {
+          if (!_syncContactsFetcher.isClosed) {
+            _syncContactsFetcher.sink.add(SyncContactsModel([], [], ""));
+          }
         }
-        return SyncContactsModel([], [], "");
       } else {
-        return SyncContactsModel([], [], "");
+        if (!_syncContactsFetcher.isClosed) {
+          _syncContactsFetcher.sink.add(SyncContactsModel([], [], ""));
+        }
       }
     } else {
-      return SyncContactsModel([], [], result.errors[0].message);
+      if (!_syncContactsFetcher.isClosed) {
+        _syncContactsFetcher.sink
+            .add(SyncContactsModel([], [], result.errors[0].message));
+      }
     }
   }
 
@@ -148,5 +168,9 @@ class SyncContactsBloc {
       }
     });
     return SyncContactsModel(unjoinedContacts, joinedContacts, "");
+  }
+
+  dispose() {
+    _syncContactsFetcher.close();
   }
 }

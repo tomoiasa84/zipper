@@ -1,16 +1,25 @@
-import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/persistance/repository.dart';
-import 'package:contractor_search/utils/custom_auth_link.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 class HomeContentBloc {
+  final _getUserByIdWithCardsConnectionsFetcher = PublishSubject<QueryResult>();
 
-  Repository _repository = Repository();
+  Observable<QueryResult> get getUserByIdWithCardsConnectionsObservable =>
+      _getUserByIdWithCardsConnectionsFetcher.stream;
 
-  Future<QueryResult> getUserByIdWithCardsConnections() async {
+  getUserByIdWithCardsConnections() async {
     String userId = await getCurrentUserId();
 
-    return _repository.getUserByIdWithCardsConnections(userId);
+    QueryResult result =
+        await Repository().getUserByIdWithCardsConnections(userId);
+    if (!_getUserByIdWithCardsConnectionsFetcher.isClosed) {
+      _getUserByIdWithCardsConnectionsFetcher.sink.add(result);
+    }
+  }
+
+  dispose() {
+    _getUserByIdWithCardsConnectionsFetcher.close();
   }
 }

@@ -1,14 +1,33 @@
 import 'package:contractor_search/persistance/repository.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ShareSelectedBloc {
-  Repository _repository = Repository();
+  final _loadContactsFetcher = PublishSubject<QueryResult>();
+  final _loadConnectionsFetcher = PublishSubject<QueryResult>();
 
-  Future<QueryResult> loadContacts(List<String> phoneContacts) async {
-    return _repository.loadContacts(phoneContacts);
+  Observable<QueryResult> get loadContactsObservable =>
+      _loadContactsFetcher.stream;
+
+  Observable<QueryResult> get loadConnectionsObservable =>
+      _loadConnectionsFetcher.stream;
+
+  loadContacts(List<String> phoneContacts) async {
+    QueryResult result = await Repository().loadContacts(phoneContacts);
+    if (!_loadContactsFetcher.isClosed) {
+      _loadContactsFetcher.sink.add(result);
+    }
   }
 
-  Future<QueryResult> loadConnections(List<String> existingUsers) async {
-    return _repository.loadConnections(existingUsers);
+  loadConnections(List<String> existingUsers) async {
+    QueryResult result = await Repository().loadConnections(existingUsers);
+    if (!_loadConnectionsFetcher.isClosed) {
+      _loadConnectionsFetcher.sink.add(result);
+    }
+  }
+
+  dispose() {
+    _loadConnectionsFetcher.close();
+    _loadContactsFetcher.close();
   }
 }

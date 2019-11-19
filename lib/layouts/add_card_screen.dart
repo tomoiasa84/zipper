@@ -46,11 +46,18 @@ class AddCardScreenState extends State<AddCardScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _addCardBloc.dispose();
+    super.dispose();
+  }
+
   void getTags() {
     setState(() {
       _saving = true;
     });
-    _addCardBloc.getTags().then((result) {
+    _addCardBloc.getTags();
+    _addCardBloc.getTagsFetcherObservable.listen((result) {
       if (mounted) {
         setState(() {
           _saving = false;
@@ -85,7 +92,9 @@ class AddCardScreenState extends State<AddCardScreen> {
       _saving = true;
     });
     getCurrentUserId().then((userId) {
-      _addCardBloc.getUserNameIdPhoneNumberProfilePic(userId).then((result) {
+      _addCardBloc.getUserNameIdPhoneNumberProfilePic(userId);
+      _addCardBloc.getUserNameIdPhoneNumberProfilePicObservable
+          .listen((result) {
         if (result.errors == null) {
           setState(() {
             _user = User.fromJson(result.data['get_user']);
@@ -181,18 +190,18 @@ class AddCardScreenState extends State<AddCardScreen> {
       _saving = true;
     });
     getCurrentUserId().then((currentUserID) {});
-    _addCardBloc
-        .createCard(_user.id, tag.id, _addDetailsTextEditingController.text)
-        .then((result) {
+    _addCardBloc.createCard(
+        _user.id, tag.id, _addDetailsTextEditingController.text);
+    _addCardBloc.createCardObservable.listen((result) {
       if (result.errors == null) {
         getCurrentUserId().then((userId) {
-          _addCardBloc
-              .getCurrentUserWithCards(userId)
-              .then((currentUserResult) {
+          _addCardBloc.getCurrentUserWithCards(userId);
+          _addCardBloc.getCurrentUserWithCardsObservable
+              .listen((currentUserResult) {
             setState(() {
               _saving = false;
             });
-            if (result.errors == null) {
+            if (currentUserResult.errors == null) {
               widget.updateUsersCards(
                   User.fromJson(currentUserResult.data['get_user']).cards);
             }

@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:contractor_search/bloc/profile_settings_bloc.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
@@ -45,8 +46,16 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _profileSettingsBloc.dispose();
+    super.dispose();
+  }
+
   void getTags() {
-    _profileSettingsBloc.getTags().then((result) {
+    _profileSettingsBloc.getTags();
+    _profileSettingsBloc.getTagsObservable.listen((result) {
+      print("getTagsObservable called");
       if (result.errors == null) {
         final List<Map<String, dynamic>> tags =
             result.data['get_tags'].cast<Map<String, dynamic>>();
@@ -79,18 +88,25 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           (userTag) =>
               userTag.tag.name == _mainTextEditingController.text.substring(1),
           orElse: () => null);
-      _profileSettingsBloc
-          .updateMainUserTag(newMainUserTag.id)
-          .then((newMainTagResult) {
+      _profileSettingsBloc.updateMainUserTag(newMainUserTag.id);
+      _profileSettingsBloc.updateMainUserTagObservable
+          .listen((newMainTagResult) {
         if (newMainTagResult.errors == null) {
           updateUser();
-        }else{
-          _showDialog(Localization.of(context).getString("error"), Localization.of(context).getString("anErrorHasOccured"), Localization.of(context).getString("ok"));
+        } else {
+          _showDialog(
+              Localization.of(context).getString("error"),
+              Localization.of(context).getString("anErrorHasOccured"),
+              Localization.of(context).getString("ok"));
         }
       });
     } else {
       updateUser();
     }
+  }
+
+  Future<String> _uploadUserProfilePicture() async {
+    return await _profileSettingsBloc.uploadPic(_profilePic);
   }
 
   Future updateUser() async {
@@ -105,28 +121,25 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           widget.user.profilePicUrl != null ? widget.user.profilePicUrl : "";
     }
 
-    _profileSettingsBloc
-        .updateUser(
-            widget.user.id,
-            widget.user.firebaseId,
-            _nameTextEditingController.text,
-            widget.user.location.id,
-            true,
-            widget.user.phoneNumber,
-            profilePicUrl,
-            _bioTextEditingController.text)
-        .then((result) {
-      setState(() {
-        _saving = false;
-      });
+    _profileSettingsBloc.updateUser(
+        widget.user.id,
+        widget.user.firebaseId,
+        _nameTextEditingController.text,
+        widget.user.location.id,
+        true,
+        widget.user.phoneNumber,
+        profilePicUrl,
+        _bioTextEditingController.text);
+    _profileSettingsBloc.updateUserObservable.listen((result) {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+        });
+      }
       if (result.errors == null) {
         Navigator.pop(context);
       }
     });
-  }
-
-  Future<String> _uploadUserProfilePicture() async {
-    return await _profileSettingsBloc.uploadPic(_profilePic);
   }
 
   void _selectImage() async {
@@ -148,14 +161,18 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         (tag) => tag.name == _addTagsTextEditingController.text.substring(1),
         orElse: () => null);
     if (tag != null) {
-      _profileSettingsBloc.createUserTag(widget.user.id, tag.id).then((result) {
+      _profileSettingsBloc.createUserTag(widget.user.id, tag.id);
+      _profileSettingsBloc.createUserTagObservable.listen((result) {
         setState(() {
           _saving = false;
         });
         if (result.errors == null) {
           _updateTagAdded(tag, result);
-        }else{
-          _showDialog(Localization.of(context).getString("error"), Localization.of(context).getString("anErrorHasOccured"), Localization.of(context).getString("ok"));
+        } else {
+          _showDialog(
+              Localization.of(context).getString("error"),
+              Localization.of(context).getString("anErrorHasOccured"),
+              Localization.of(context).getString("ok"));
         }
       });
     }
@@ -179,14 +196,18 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     setState(() {
       _saving = true;
     });
-    _profileSettingsBloc.deleteUserTag(item.id).then((result) {
+    _profileSettingsBloc.deleteUserTag(item.id);
+    _profileSettingsBloc.deleteUserTagObservable.listen((result) {
       setState(() {
         _saving = false;
       });
       if (result.errors == null) {
         _updateTagDeleted(item);
-      }else{
-        _showDialog(Localization.of(context).getString("error"), Localization.of(context).getString("anErrorHasOccured"), Localization.of(context).getString("ok"));
+      } else {
+        _showDialog(
+            Localization.of(context).getString("error"),
+            Localization.of(context).getString("anErrorHasOccured"),
+            Localization.of(context).getString("ok"));
       }
     });
   }
@@ -199,9 +220,9 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         userTag = null;
         _mainTextEditingController.clear();
       } else if (userTag != null && !userTagsList.contains(userTag)) {
-        _profileSettingsBloc
-            .updateMainUserTag(userTagsList[0].id)
-            .then((updateNewTagResult) {
+        _profileSettingsBloc.updateMainUserTag(userTagsList[0].id);
+        _profileSettingsBloc.updateMainUserTagObservable
+            .listen((updateNewTagResult) {
           setState(() {
             _mainTextEditingController.text = '#' +
                 UserTag.fromJson(updateNewTagResult.data['update_userTag'])
@@ -286,7 +307,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           onPressed: () {
             FocusScope.of(context).requestFocus(FocusNode());
             if (_formKey.currentState.validate()) {
-                  _updateProfile();
+              _updateProfile();
             } else {
               setState(() {
                 _autoValidate = true;

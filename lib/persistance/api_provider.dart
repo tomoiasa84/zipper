@@ -53,8 +53,12 @@ class ApiProvider {
   }
 
   Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
+<<<<<<< HEAD
     Stopwatch stopwatch = new Stopwatch()..start();
     print("START getUserByIdWithPhoneNumber");
+=======
+    _client.queryManager.cache.reset();
+>>>>>>> 5202b4e4ea7411da3081d584533787c55a73bc3c
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -67,8 +71,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getUserFromContact(String phoneNumber) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getUserFromContact");
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                       get_userFromContact(contact:"$phoneNumber"){
@@ -84,8 +87,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getUserByIdWithConnections(String userId) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getUserByIdWithConnections");
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -158,8 +160,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getUserByIdWithCardsConnections(String userId) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getUserByIdWithCardsConnections");
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -345,8 +346,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getCurrentUserWithCards(String userId) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getCurrentUserWithCards");
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                       get_user(userId:"$userId"){
@@ -407,8 +407,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getCurrentUserWithFirebaseId(String userId) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getCurrentUserWithFirebaseId");
+    _client.queryManager.cache.reset();
     final QueryResult result =
         await _client.query(QueryOptions(document: '''query{
                      get_user(userId:"$userId"){
@@ -422,8 +421,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getUserById(String userId) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getUserById");
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -697,8 +695,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getUserByIdWithMainInfo(String userId) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getUserByIdWithMainInfo");
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -841,6 +838,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> deleteCard(int cardId) async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
                       delete_card(cardId:$cardId)
@@ -851,6 +849,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getTags() async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                       get_tags{
@@ -865,8 +864,7 @@ class ApiProvider {
 
   Future<QueryResult> createCard(
       String postedBy, int searchFor, String details) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START createCard");
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
                       create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$details"){
@@ -889,8 +887,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getConversation(String conversationId) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getConversation");
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_conversation(conversationId: "$conversationId"){
@@ -926,8 +923,7 @@ class ApiProvider {
 
   Future<QueryResult> createConnection(
       String currentUserId, String targetUserId) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START createConnection");
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
                     create_connection(origin:"$currentUserId", target:"$targetUserId"){
@@ -973,6 +969,8 @@ class ApiProvider {
 
   Future<QueryResult> createConversation(
       User user, String currentUserId) async {
+    _client.queryManager.cache.reset();
+    String userId = user.id;
 
     String userId = user.id;
     Stopwatch stopwatch = new Stopwatch()..start();
@@ -998,8 +996,8 @@ class ApiProvider {
 
   Future<QueryResult> getListOfChannelIdsFromBackend(
       String currentUserId) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getListOfChannelIdsFromBackend");
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_user(userId: "$currentUserId"){
@@ -1036,8 +1034,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> getCards() async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getCards");
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_cards{
@@ -1099,8 +1097,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> getCardById(int cardId) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getCardById");
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_card(cardId:$cardId){
@@ -1219,8 +1217,8 @@ class ApiProvider {
       String phoneNumber,
       String profilePicUrl,
       String description) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START updateUser");
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''
@@ -1277,6 +1275,8 @@ class ApiProvider {
 
   Future<QueryResult> updateDeviceToken(
       String id, String deviceToken, String firebaseId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''
@@ -1291,6 +1291,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> createUserTag(String userId, int tagId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1314,6 +1316,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> updateMainUserTag(int userTagId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1336,6 +1340,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> deleteUserTag(int userTagId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1349,8 +1355,8 @@ class ApiProvider {
 
   Future<QueryResult> loadContacts(List<String> phoneContacts) async {
     var phoneContactsJson = jsonEncode(phoneContacts);
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START loadContacts");
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1366,6 +1372,7 @@ class ApiProvider {
 
   Future<QueryResult> loadConnections(List<String> existingUsers) async {
     var existingUsersJson = jsonEncode(existingUsers);
+    _client.queryManager.cache.reset();
 
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
@@ -1389,6 +1396,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> getLocations() async {
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _unauthenticatedClient.query(QueryOptions(
       // query: readChars,
       document: '''query{
@@ -1404,8 +1413,8 @@ class ApiProvider {
 
   Future<QueryResult> createUser(
       String name, int location, String firebaseId, String phoneNumber) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START createUser");
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1430,6 +1439,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> createLocation(String city) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1445,6 +1456,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> checkContacts(List<String> phoneContacts) async {
+    _client.queryManager.cache.reset();
+
     var phoneContactsJson = jsonEncode(phoneContacts);
 
     final QueryResult queryResult = await _client.mutate(
@@ -1463,8 +1476,8 @@ class ApiProvider {
 
   Future<QueryResult> createReview(
       String userId, int userTagId, int stars, String text) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START createReview");
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1511,6 +1524,8 @@ class ApiProvider {
   }
 
   Future unsubscribeFromPushNotifications(String channels) async {
+    _client.queryManager.cache.reset();
+
     _firebaseMessaging.getToken().then((deviceId) {
       var url =
           "$_baseUrl/v1/push/sub-key/$_subscribeKey/devices/$deviceId?remove=$channels&type=gcm";
@@ -1519,6 +1534,8 @@ class ApiProvider {
   }
 
   Future<String> uploadPic(File image) async {
+    _client.queryManager.cache.reset();
+
     final StorageReference reference =
         _storage.ref().child(DateTime.now().toIso8601String());
     final StorageUploadTask uploadTask = reference.putFile(image);
@@ -1528,6 +1545,8 @@ class ApiProvider {
   }
 
   Future<bool> sendMessage(String channelId, PnGCM pnGCM) async {
+    _client.queryManager.cache.reset();
+
     var encodedMessage =
         escapeJsonCharacters(convert.jsonEncode(pnGCM.toJson()));
     var url =
@@ -1544,6 +1563,8 @@ class ApiProvider {
 
   Future<http.Response> getHistoryMessages(
       String channelName, int historyStart, int numberOfMessagesToFetch) async {
+    _client.queryManager.cache.reset();
+
     var url;
 
     if (historyStart == null) {
@@ -1559,6 +1580,8 @@ class ApiProvider {
 
   Future<http.Response> subscribeToChannel(
       String channelName, String currentUserId, String timestamp) async {
+    _client.queryManager.cache.reset();
+
     var url =
         "$_baseUrl/subscribe/$_subscribeKey/$channelName/0/$timestamp?uuid=$currentUserId";
     return _pubNubClient.get(url).then((subscribeResult) {
@@ -1567,6 +1590,8 @@ class ApiProvider {
   }
 
   Future<http.Response> getPubNubConversations(String channels) async {
+    _client.queryManager.cache.reset();
+
     var url =
         "$_baseUrl/v3/history/sub-key/$_subscribeKey/channel/$channels?max=1";
     return _pubNubClient.get(url).then((pubnubConversations) {
@@ -1580,8 +1605,8 @@ class ApiProvider {
 
   Future<QueryResult> createRecommend(
       int cardId, String userAskId, String userSendId, String userRecId) async {
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START createRecommend");
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1630,6 +1655,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> deleteConnection(int connectionId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.mutate(
       MutationOptions(
         document: '''  mutation{
