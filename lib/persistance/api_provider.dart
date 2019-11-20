@@ -53,12 +53,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
-<<<<<<< HEAD
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START getUserByIdWithPhoneNumber");
-=======
     _client.queryManager.cache.reset();
->>>>>>> 5202b4e4ea7411da3081d584533787c55a73bc3c
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -66,7 +61,7 @@ class ApiProvider {
                     }
               }''',
     ));
-    print('FINISH getUserByIdWithPhoneNumber ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -82,7 +77,7 @@ class ApiProvider {
                       }
                     }''',
     ));
-    print('FINISH getUserFromContact ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -155,7 +150,7 @@ class ApiProvider {
                     }
               }''',
     ));
-    print('FINISH getUserByIdWithConnections ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -341,7 +336,7 @@ class ApiProvider {
     							}
               }''',
     ));
-    print('FINISH getUserByIdWithCardsConnections ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -402,7 +397,7 @@ class ApiProvider {
                 }
               }''',
     ));
-    print('FINISH getCurrentUserWithCards ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -416,7 +411,7 @@ class ApiProvider {
                      }
                   }
       '''));
-    print('FINISH getCurrentUserWithFirebaseId ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -690,7 +685,7 @@ class ApiProvider {
                     }
               }''',
     ));
-    print('FINISH getUserById ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -833,7 +828,7 @@ class ApiProvider {
                     }
               }''',
     ));
-    print('FINISH getUserByIdWithMainInfo ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -883,7 +878,7 @@ class ApiProvider {
                       }
                     }''',
     ));
-    print('FINISH createCard ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -918,7 +913,7 @@ class ApiProvider {
                     }
                    }''',
     ));
-    print('FINISH getConversation ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -964,7 +959,7 @@ class ApiProvider {
                     }
                 }''',
     ));
-    print('FINISH createConnection ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -972,10 +967,6 @@ class ApiProvider {
       User user, String currentUserId) async {
     _client.queryManager.cache.reset();
     String userId = user.id;
-
-    String userId = user.id;
-    Stopwatch stopwatch = new Stopwatch()..start();
-    print("START createConversation");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
                       create_conversation(user1:"$currentUserId", user2:"$userId"){
@@ -991,7 +982,7 @@ class ApiProvider {
                       }
                      }''',
     ));
-    print('FINISH createConversation ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -1030,7 +1021,7 @@ class ApiProvider {
                     }
                 }''',
     ));
-    print('FINISH getListOfChannelIdsFromBackend ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -1093,7 +1084,7 @@ class ApiProvider {
                     }
                   }''',
     ));
-    print('FINISH getCards ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -1205,7 +1196,7 @@ class ApiProvider {
                     }
                   }''',
     ));
-    print('FINISH getCardById ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -1271,7 +1262,7 @@ class ApiProvider {
                   }''',
       ),
     );
-    print('FINISH updateUser ${stopwatch.elapsed}');
+
     return queryResult;
   }
 
@@ -1368,7 +1359,7 @@ class ApiProvider {
                   }''',
       ),
     );
-    print('FINISH loadContacts ${stopwatch.elapsed}');
+
     return queryResult;
   }
 
@@ -1436,7 +1427,7 @@ class ApiProvider {
                   }''',
       ),
     );
-    print('FINISH createUser ${stopwatch.elapsed}');
+
     return queryResult;
   }
 
@@ -1521,7 +1512,7 @@ class ApiProvider {
                       }''',
       ),
     );
-    print('FINISH createReview ${stopwatch.elapsed}');
+
     return result;
   }
 
@@ -1652,7 +1643,7 @@ class ApiProvider {
                           }''',
       ),
     );
-    print('FINISH createRecommend ${stopwatch.elapsed}');
+
     return result;
   }
 
