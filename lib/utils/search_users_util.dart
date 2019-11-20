@@ -47,7 +47,7 @@ class UserSearch extends SearchDelegate<String> {
     final suggestionList = query.isEmpty
         ? _users
         : _users.where(
-            (user) => user.name.toLowerCase().startsWith(query.toLowerCase()));
+            (user) => user.name.toLowerCase().contains(query.toLowerCase()));
 
     return ListView.builder(
       itemBuilder: (context, index) => ListTile(
@@ -66,7 +66,7 @@ class UserSearch extends SearchDelegate<String> {
             child: suggestionList.elementAt(index).profilePicUrl == null ||
                     suggestionList.elementAt(index).profilePicUrl.isEmpty
                 ? Text(
-                    suggestionList.elementAt(index).name.startsWith('+')
+                    suggestionList.elementAt(index).name.contains('+')
                         ? '+'
                         : getInitials(suggestionList.elementAt(index).name),
                     style: TextStyle(color: ColorUtils.darkerGray))
@@ -82,22 +82,10 @@ class UserSearch extends SearchDelegate<String> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            RichText(
-              text: TextSpan(
-                  text: suggestionList
-                      .elementAt(index)
-                      .name
-                      .substring(0, query.length),
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
-                  children: [
-                    TextSpan(
-                        text: suggestionList
-                            .elementAt(index)
-                            .name
-                            .substring(query.length),
-                        style: TextStyle(color: Colors.grey))
-                  ]),
+            Text(
+              suggestionList.elementAt(index).name,
+              style: TextStyle(
+                  color: ColorUtils.darkerGray, fontWeight: FontWeight.bold),
             ),
             Text(
               getMainTag(suggestionList.elementAt(index)) != null
