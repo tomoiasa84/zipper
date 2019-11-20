@@ -103,18 +103,26 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           (userTag) =>
               userTag.tag.name == _mainTextEditingController.text.substring(1),
           orElse: () => null);
-      _profileSettingsBloc.updateMainUserTag(newMainUserTag.id);
-      _profileSettingsBloc.updateMainUserTagObservable
-          .listen((newMainTagResult) {
-        if (newMainTagResult.errors == null) {
-          updateUser();
-        } else {
-          _showDialog(
-              Localization.of(context).getString("error"),
-              Localization.of(context).getString("anErrorHasOccured"),
-              Localization.of(context).getString("ok"));
-        }
-      });
+
+      if (newMainUserTag != null) {
+        _profileSettingsBloc.updateMainUserTag(newMainUserTag.id);
+        _profileSettingsBloc.updateMainUserTagObservable
+            .listen((newMainTagResult) {
+          if (newMainTagResult.errors == null) {
+            updateUser();
+          } else {
+            _showDialog(
+                Localization.of(context).getString("error"),
+                Localization.of(context).getString("anErrorHasOccured"),
+                Localization.of(context).getString("ok"));
+          }
+        });
+      } else {
+        _showDialog(
+            Localization.of(context).getString('error'),
+            Localization.of(context).getString('select_valid_tag'),
+            Localization.of(context).getString('ok'));
+      }
     } else {
       updateUser();
     }
@@ -269,8 +277,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       progressIndicator: CircularProgressIndicator(
-        valueColor:
-        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        valueColor: new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
       ),
       inAsyncCall: _saving,
       child: Scaffold(
@@ -462,9 +469,15 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                 ),
               ),
               suggestionsCallback: (pattern) {
+                if (pattern.startsWith('#')) {
+                  pattern = pattern.substring(1);
+                }
+
                 List<String> list = [];
                 userTagsList
-                    .where((it) => it.tag.name.toLowerCase().startsWith(pattern.toLowerCase()))
+                    .where((it) => it.tag.name
+                        .toLowerCase()
+                        .startsWith(pattern.toLowerCase()))
                     .toList()
                     .forEach((tag) => list.add(tag.tag.name));
                 return list;

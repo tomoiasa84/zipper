@@ -166,6 +166,7 @@ class Localization {
       'cardWasDeleted': 'This post doesn\'t exist anymore',
       'noInternetConnection': 'No internet connection',
       'anErrorHasOccured': 'An error has occured!',
+      'select_valid_tag' : 'Invalid main tag set. Please select a valid tag as your main tag.'
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -321,6 +322,7 @@ class Localization {
       'cardWasDeleted': 'Aceasta postare nu mai exista',
       'noInternetConnection': 'Nu exista conexiune la internet',
       'anErrorHasOccured': 'O eroare a avut loc!',
+      'select_valid_tag' : 'Tag principal invalid. Va rugam setati un tag valid ca tag principal.'
     },
   };
 
