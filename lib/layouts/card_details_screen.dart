@@ -119,7 +119,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       child: ModalProgressHUD(
         progressIndicator: CircularProgressIndicator(
           valueColor:
-          new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+              new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
         ),
         inAsyncCall: _saving,
         child: Scaffold(
@@ -538,7 +538,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       padding: const EdgeInsets.only(top: 16.0),
       child: (_card.text != null && _card.text.isNotEmpty)
           ? Text(
-              _card.text.replaceAll('&quot;', '"').replaceAll('&#39;', '\''),
+              replaceQuotes(_card.text),
               style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
             )
           : Container(),

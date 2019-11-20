@@ -9,35 +9,32 @@ import 'package:contractor_search/utils/general_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class SelectContactScreen extends StatefulWidget {
+class StartNewConversationScreen extends StatefulWidget {
   final bool shareContactScreen;
 
-  SelectContactScreen({Key key, @required this.shareContactScreen})
+  StartNewConversationScreen({Key key, @required this.shareContactScreen})
       : super(key: key);
 
   @override
-  _SelectContactScreenState createState() => _SelectContactScreenState();
+  _StartNewConversationScreenState createState() => _StartNewConversationScreenState();
 }
 
-class _SelectContactScreenState extends State<SelectContactScreen> {
+class _StartNewConversationScreenState extends State<StartNewConversationScreen> {
   bool _loading = true;
   List<User> _usersList = [];
   final SelectContactBloc _selectContactBloc = SelectContactBloc();
 
   @override
   void initState() {
-    _selectContactBloc.getCurrentUser();
+    _selectContactBloc.getCurrentUserWithActiveConnections();
     _selectContactBloc.getCurrentUserObservable.listen((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
-        currentUser.connections.forEach((connection) {
+        currentUser.activeConnections.forEach((connection) {
           _usersList.add(connection.targetUser);
         });
         _usersList.sort((a, b) {
           return a.name.compareTo(b.name);
-        });
-        _usersList.sort((a, b) {
-          return b.isActive.toString().compareTo(a.isActive.toString());
         });
         if (mounted) {
           setState(() {

@@ -1024,7 +1024,7 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: const EdgeInsets.only(top: 16.0),
       child: (cardModel.text != null && cardModel.text.isNotEmpty)
           ? Text(
-              cardModel.text,
+              replaceQuotes(cardModel.text),
               style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
             )
           : Container(),
@@ -1041,7 +1041,7 @@ class _ChatScreenState extends State<ChatScreen> {
       String bottomDescription,
       Function goToUserDetailsScreen) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8,0,8,0),
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
       child: Container(
         padding: const EdgeInsets.only(top: 16.0),
         child: Column(
@@ -1125,7 +1125,9 @@ class _ChatScreenState extends State<ChatScreen> {
                             onPressed: clickAction,
                             icon: Image.asset(
                               "assets/images/ic_inbox_orange.png",
-                              color: sharedByCurrentUser? ColorUtils.messageOrange : ColorUtils.almostBlack,
+                              color: sharedByCurrentUser
+                                  ? ColorUtils.messageOrange
+                                  : ColorUtils.almostBlack,
                             ),
                           ),
                           width: 40,
@@ -1170,7 +1172,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             Text(
                               bottomDescription,
                               style: TextStyle(
-                                  fontSize: 12.0, color: ColorUtils.almostBlack),
+                                  fontSize: 12.0,
+                                  color: ColorUtils.almostBlack),
                             ),
                             GestureDetector(
                               onTap: () {

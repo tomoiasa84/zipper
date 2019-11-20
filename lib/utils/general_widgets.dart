@@ -323,6 +323,10 @@ Widget generateContactUI(
   );
 }
 
+String replaceQuotes(String text){
+  return text.replaceAll('&quot;', '"').replaceAll('&#39;', '\'');
+}
+
 BoxDecoration getRoundedWhiteDecoration() {
   return BoxDecoration(
       color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(8)));

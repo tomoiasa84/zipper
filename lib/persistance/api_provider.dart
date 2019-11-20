@@ -77,6 +77,79 @@ class ApiProvider {
     return result;
   }
 
+  Future<QueryResult> getUserByIdWithActiveConnections(String userId) async {
+    _client.queryManager.cache.reset();
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                     get_user(userId:"$userId"){
+                        id
+                        firebaseId
+                        activeConnections{
+                            id
+                            originUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
+                                  }
+                             }
+                            }
+                            targetUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             description
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                    id
+                                    author{
+                                      name
+                                      profileURL
+                                    }
+                                    userTag{
+                                       id
+                                       score
+                                       tag{
+                                         name
+                                       }
+                                    }
+                                    stars
+                                    text
+                                 }
+                               }
+                            }
+                        }
+                    }
+              }''',
+    ));
+
+    return result;
+  }
+
   Future<QueryResult> getUserByIdWithConnections(String userId) async {
     _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(

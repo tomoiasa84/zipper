@@ -1,6 +1,7 @@
 import 'package:contractor_search/bloc/conversations_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
+import 'package:contractor_search/layouts/start_new_conversations_screen.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -139,7 +140,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         context,
         MaterialPageRoute(
             builder: (context) =>
-                SelectContactScreen(shareContactScreen: false)));
+                StartNewConversationScreen(shareContactScreen: false)));
   }
 
   void _goToChatScreen(PubNubConversation pubNubConversation) {

@@ -208,7 +208,7 @@ class RepliesScreenState extends State<RepliesScreen> {
       padding: const EdgeInsets.only(top: 16.0),
       child: (widget.card.text != null && widget.card.text.isNotEmpty)
           ? Text(
-              widget.card.text,
+              replaceQuotes(widget.card.text),
               style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
             )
           : Container(),

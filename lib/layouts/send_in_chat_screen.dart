@@ -52,17 +52,17 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     _sendInChatBloc.getRecentUsers();
     _sendInChatBloc.getRecentUsersObservable.listen((result) {
       _recentUserConversations = result;
+      _recentUsersLoaded = true;
+      _hideLoading();
     });
-    _recentUsersLoaded = true;
-    _hideLoading();
   }
 
   void _getAllFriends() async {
-    _sendInChatBloc.getCurrentUserWithConnections();
+    _sendInChatBloc.getCurrentUserWithActiveConnections();
     _sendInChatBloc.getCurrentUserWithConnectionsObservable.listen((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
-        currentUser.connections.forEach((connection) {
+        currentUser.activeConnections.forEach((connection) {
           _usersList.add(connection.targetUser);
         });
         _allUsersLoaded = true;

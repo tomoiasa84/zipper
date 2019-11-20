@@ -483,11 +483,14 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
               child: _setFollowButtonState(),
             ),
           ),
-          GestureDetector(
-            onTap: () => _createConversation(),
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: Image.asset('assets/images/ic_message_accent_bg.png'),
+          Visibility(
+            visible: _user.isActive,
+            child: GestureDetector(
+              onTap: () => _createConversation(),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: Image.asset('assets/images/ic_message_accent_bg.png'),
+              ),
             ),
           ),
         ],
