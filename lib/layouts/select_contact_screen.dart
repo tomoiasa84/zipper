@@ -21,7 +21,7 @@ class SelectContactScreen extends StatefulWidget {
 
 class _SelectContactScreenState extends State<SelectContactScreen> {
   bool _loading = true;
-  List<User> _usersList = [];
+  List<User> _usersList = List();
   final SelectContactBloc _selectContactBloc = SelectContactBloc();
 
   @override
@@ -30,15 +30,20 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
     _selectContactBloc.getCurrentUserObservable.listen((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
+        List<User> activeUsers = List();
+        List<User> inactiveUsers = List();
         currentUser.connections.forEach((connection) {
-          _usersList.add(connection.targetUser);
+          if (connection.targetUser.isActive){
+            activeUsers.add(connection.targetUser);
+          } else {
+            inactiveUsers.add(connection.targetUser);
+          }
         });
-        _usersList.sort((a, b) {
+        activeUsers.sort((a, b) {
           return a.name.compareTo(b.name);
         });
-        _usersList.sort((a, b) {
-          return b.isActive.toString().compareTo(a.isActive.toString());
-        });
+        _usersList.addAll(activeUsers);
+        _usersList.addAll(inactiveUsers);
         if (mounted) {
           setState(() {
             _loading = false;
