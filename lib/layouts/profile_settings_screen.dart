@@ -40,9 +40,24 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   bool _autoValidate = false;
   File _profilePic;
 
+  Tag tagCreated;
+
   @override
   void initState() {
     _fetchUsefulData();
+    _profileSettingsBloc.createUserTagObservable.listen((result) {
+      setState(() {
+        _saving = false;
+      });
+      if (result.errors == null && tagCreated != null) {
+        _updateTagAdded(tagCreated, result);
+      } else {
+        _showDialog(
+            Localization.of(context).getString("error"),
+            Localization.of(context).getString("anErrorHasOccured"),
+            Localization.of(context).getString("ok"));
+      }
+    });
     super.initState();
   }
 
@@ -153,7 +168,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     });
   }
 
-  void _createNewUserTag() {
+  Future<void> _createNewUserTag() async {
     setState(() {
       _saving = true;
     });
@@ -162,19 +177,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         orElse: () => null);
     if (tag != null) {
       _profileSettingsBloc.createUserTag(widget.user.id, tag.id);
-      _profileSettingsBloc.createUserTagObservable.listen((result) {
-        setState(() {
-          _saving = false;
-        });
-        if (result.errors == null) {
-          _updateTagAdded(tag, result);
-        } else {
-          _showDialog(
-              Localization.of(context).getString("error"),
-              Localization.of(context).getString("anErrorHasOccured"),
-              Localization.of(context).getString("ok"));
-        }
-      });
+      tagCreated = tag;
     }
   }
 
@@ -265,6 +268,10 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        valueColor:
+        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+      ),
       inAsyncCall: _saving,
       child: Scaffold(
         appBar: _buildAppBar(context),

@@ -150,6 +150,10 @@ class UsersScreenState extends State<UsersScreen> {
     return SafeArea(
         top: false,
         child: ModalProgressHUD(
+          progressIndicator: CircularProgressIndicator(
+            valueColor:
+                new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+          ),
           inAsyncCall: _saving,
           child: Scaffold(
             appBar: _buildAppBar(),

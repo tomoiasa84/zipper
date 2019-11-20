@@ -173,11 +173,7 @@ List<Widget> generateTags(List<UserTag> userTag, Function onTapAction,
       ),
     );
   });
-  if (tags.length > 5) {
-    return tags.sublist(0, 5);
-  } else {
-    return tags;
-  }
+  return tags;
 }
 
 Widget generateContactUI(
@@ -343,7 +339,7 @@ BoxDecoration getRoundedOrangeDecoration() {
       borderRadius: BorderRadius.all(Radius.circular(8)));
 }
 
-Center buildNoInternetMessage(String message){
+Center buildNoInternetMessage(String message) {
   return Center(
     child: Text(message),
   );

@@ -151,19 +151,9 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+
     _pubNubConversation = widget.pubNubConversation;
-    _initScreen().then((value) {
-      _controller.addListener(_scrollListener);
-      _loadMore().then((onValue) {
-        if (mounted) {
-          setState(() {
-            _loading = false;
-          });
-        } else {
-          print('NOT LOADED');
-        }
-      });
-    });
+    _initScreen();
   }
 
   _scrollListener() {
@@ -186,36 +176,52 @@ class _ChatScreenState extends State<ChatScreen> {
             _pubNubConversation = pubNubConversation;
           });
           if (_pubNubConversation == null) {
-            await _getConversationFromDb(currentUserId);
+            _getConversationFromDb(currentUserId);
           }
         });
+      } else {
+        await _setMessagesListener(_pubNubConversation.id, currentUserId);
+
+        setState(() {
+          if (currentUserId == _pubNubConversation.user1.id) {
+            _currentUser = _pubNubConversation.user1;
+            _interlocutorUser = _pubNubConversation.user2;
+          } else {
+            _currentUser = _pubNubConversation.user2;
+            _interlocutorUser = _pubNubConversation.user1;
+          }
+        });
+        _controller.addListener(_scrollListener);
+        _loadMore();
       }
-
-      await _setMessagesListener(_pubNubConversation.id, currentUserId);
-
-      setState(() {
-        if (currentUserId == _pubNubConversation.user1.id) {
-          _currentUser = _pubNubConversation.user1;
-          _interlocutorUser = _pubNubConversation.user2;
-        } else {
-          _currentUser = _pubNubConversation.user2;
-          _interlocutorUser = _pubNubConversation.user1;
-        }
-      });
     });
   }
 
-  Future _getConversationFromDb(String currentUserId) async {
+  _getConversationFromDb(String currentUserId) {
     if (_pubNubConversation == null) {
       _chatBloc.getConversation(widget.conversationId);
+
       _chatBloc.getConversationObservable.listen((pubNubConversation) {
         setState(() {
           _pubNubConversation = pubNubConversation;
         });
+        _setMessagesListener(_pubNubConversation.id, currentUserId)
+            .then((value) {
+          setState(() {
+            if (currentUserId == _pubNubConversation.user1.id) {
+              _currentUser = _pubNubConversation.user1;
+              _interlocutorUser = _pubNubConversation.user2;
+            } else {
+              _currentUser = _pubNubConversation.user2;
+              _interlocutorUser = _pubNubConversation.user1;
+            }
+          });
+          _controller.addListener(_scrollListener);
+          _loadMore();
+          SharedPreferencesHelper.saveConversation(_pubNubConversation);
+        });
       });
     }
-
-    SharedPreferencesHelper.saveConversation(_pubNubConversation);
   }
 
   _loadMore() async {
@@ -227,6 +233,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _chatBloc.getHistoryMessagesObservable.listen((historyMessages) {
         if (mounted) {
           setState(() {
+            _loading = false;
             _listOfMessages.addAll(historyMessages.reversed);
             _addHeadersIfNecessary();
           });
@@ -348,6 +355,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return WillPopScope(
       onWillPop: _saveLastMessage,
       child: ModalProgressHUD(
+        progressIndicator: CircularProgressIndicator(
+          valueColor:
+              new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        ),
         inAsyncCall: _loading,
         child: Scaffold(
           appBar: AppBar(

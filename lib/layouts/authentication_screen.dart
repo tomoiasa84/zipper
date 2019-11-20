@@ -348,6 +348,10 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
         top: false,
         bottom: false,
         child: ModalProgressHUD(
+          progressIndicator: CircularProgressIndicator(
+            valueColor:
+            new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+          ),
           inAsyncCall: _saving,
           child: Scaffold(
             backgroundColor: ColorUtils.white,
