@@ -538,21 +538,10 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       padding: const EdgeInsets.only(top: 16.0),
       child: (_card.text != null && _card.text.isNotEmpty)
           ? Text(
-              _card.text,
+              _card.text.replaceAll('&quot;', '"').replaceAll('&#39;', '\''),
               style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
             )
           : Container(),
-    );
-  }
-
-  Future _showDialog(String title, String message) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: message,
-        buttonText: Localization.of(context).getString('ok'),
-      ),
     );
   }
 

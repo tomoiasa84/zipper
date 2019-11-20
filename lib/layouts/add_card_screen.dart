@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:contractor_search/bloc/add_card_bloc.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/tag.dart';
@@ -194,8 +196,11 @@ class AddCardScreenState extends State<AddCardScreen> {
       _saving = true;
     });
     getCurrentUserId().then((currentUserID) {});
+    HtmlEscape escape = HtmlEscape();
+    var text = escape.convert(_addDetailsTextEditingController.text.replaceAll("\n", "\\n").replaceAll(r"\", r'\\'));
     _addCardBloc.createCard(
-        _user.id, tag.id, _addDetailsTextEditingController.text);
+        _user.id, tag.id, text);
+
     _addCardBloc.createCardObservable.listen((result) {
       if (result.errors == null) {
         getCurrentUserId().then((userId) {

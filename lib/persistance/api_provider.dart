@@ -855,10 +855,9 @@ class ApiProvider {
   Future<QueryResult> createCard(
       String postedBy, int searchFor, String details) async {
     _client.queryManager.cache.reset();
-    String finalDetails = details.replaceAll("\n", "\\n");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
-                      create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$finalDetails"){
+                      create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$details"){
                         id
                         postedBy{
                           name
