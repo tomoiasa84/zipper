@@ -439,7 +439,8 @@ class _ChatScreenState extends State<ChatScreen> {
         if (item.sharedContact.tags != null) {
           mainTag = getMainTag(item.sharedContact);
         }
-        return generateContactUI(
+        return _generateContactUI(
+            _messageAuthorIsCurrentUser(item),
             item.sharedContact,
             item.sharedContact,
             mainTag != null ? mainTag.tag.name : '',
@@ -1027,6 +1028,169 @@ class _ChatScreenState extends State<ChatScreen> {
               style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
             )
           : Container(),
+    );
+  }
+
+  Widget _generateContactUI(
+      bool sharedByCurrentUser,
+      User userRec,
+      User userSend,
+      String tagName,
+      int score,
+      Function clickAction,
+      String bottomDescription,
+      Function goToUserDetailsScreen) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8,0,8,0),
+      child: Container(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: Column(
+          children: <Widget>[
+            Stack(
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsets.only(left: 28.0),
+                  decoration: sharedByCurrentUser
+                      ? getRoundedOrangeDecoration()
+                      : getRoundedLightGrayDecoration(),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(48.0, 18.0, 18.0, 16.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              GestureDetector(
+                                onTap: () {
+                                  goToUserDetailsScreen(userRec);
+                                },
+                                child: Text(
+                                  userRec.name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: sharedByCurrentUser
+                                          ? ColorUtils.white
+                                          : ColorUtils.almostBlack,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  tagName.length > 0
+                                      ? Flexible(
+                                          child: Text(
+                                            '#' + tagName,
+                                            overflow: TextOverflow.clip,
+                                            style: TextStyle(
+                                                color: sharedByCurrentUser
+                                                    ? ColorUtils.white
+                                                    : ColorUtils.almostBlack),
+                                          ),
+                                        )
+                                      : Container(),
+                                  score != -1
+                                      ? Padding(
+                                          padding:
+                                              EdgeInsets.fromLTRB(45, 0, 0, 0),
+                                          child: Icon(
+                                            Icons.star,
+                                            color: sharedByCurrentUser
+                                                ? Colors.white
+                                                : ColorUtils.almostBlack,
+                                            size: 16,
+                                          ),
+                                        )
+                                      : Container(),
+                                  score != -1
+                                      ? Text(score.toString(),
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: sharedByCurrentUser
+                                                  ? Colors.white
+                                                  : ColorUtils.almostBlack))
+                                      : Container()
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(left: 4.0),
+                          decoration: getRoundWhiteCircle(),
+                          child: new IconButton(
+                            onPressed: clickAction,
+                            icon: Image.asset(
+                              "assets/images/ic_inbox_orange.png",
+                              color: sharedByCurrentUser? ColorUtils.messageOrange : ColorUtils.almostBlack,
+                            ),
+                          ),
+                          width: 40,
+                          height: 40,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
+                  width: 56,
+                  height: 56,
+                  decoration: new BoxDecoration(shape: BoxShape.circle),
+                  child: CircleAvatar(
+                    child: userRec.profilePicUrl == null ||
+                            userRec.profilePicUrl.isEmpty
+                        ? Text(
+                            userRec.name.startsWith('+')
+                                ? '+'
+                                : getInitials(userRec.name),
+                            style: TextStyle(color: ColorUtils.darkerGray))
+                        : null,
+                    backgroundImage: userRec.profilePicUrl != null &&
+                            userRec.profilePicUrl.isNotEmpty
+                        ? NetworkImage(userRec.profilePicUrl)
+                        : null,
+                    backgroundColor: ColorUtils.lightLightGray,
+                  ),
+                )
+              ],
+            ),
+            Visibility(
+              visible: bottomDescription != null,
+              child: Container(
+                  margin: const EdgeInsets.only(top: 8.0),
+                  alignment: Alignment.centerRight,
+                  child: bottomDescription != null
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              bottomDescription,
+                              style: TextStyle(
+                                  fontSize: 12.0, color: ColorUtils.almostBlack),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                goToUserDetailsScreen(userSend);
+                              },
+                              child: Text(
+                                userSend.name,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12.0,
+                                    color: ColorUtils.almostBlack),
+                              ),
+                            )
+                          ],
+                        )
+                      : Container()),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

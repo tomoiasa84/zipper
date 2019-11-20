@@ -328,6 +328,11 @@ BoxDecoration getRoundedWhiteDecoration() {
       color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(8)));
 }
 
+BoxDecoration getRoundedLightGrayDecoration() {
+  return BoxDecoration(
+      color: ColorUtils.messageGray, borderRadius: BorderRadius.all(Radius.circular(8)));
+}
+
 BoxDecoration getRoundWhiteCircle() {
   return BoxDecoration(
       color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(20)));
