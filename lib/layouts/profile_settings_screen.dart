@@ -464,7 +464,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               suggestionsCallback: (pattern) {
                 List<String> list = [];
                 userTagsList
-                    .where((it) => it.tag.name.startsWith(pattern))
+                    .where((it) => it.tag.name.toLowerCase().startsWith(pattern.toLowerCase()))
                     .toList()
                     .forEach((tag) => list.add(tag.tag.name));
                 return list;
