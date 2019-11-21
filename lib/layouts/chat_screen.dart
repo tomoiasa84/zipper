@@ -77,13 +77,14 @@ class _ChatScreenState extends State<ChatScreen> {
               escapeJsonCharacters(imageDownloadUrl),
               _currentUser.id,
               _pubNubConversation.id);
-          _chatBloc.sendMessage(
-              _pubNubConversation.id,
-              PnGCM(WrappedMessage(
-                  PushNotification(_currentUser.name,
-                      Localization.of(context).getString('image')),
-                  message)));
-          _chatBloc.sendMessageObservable.listen((messageSent) {
+          _chatBloc
+              .sendMessage(
+                  _pubNubConversation.id,
+                  PnGCM(WrappedMessage(
+                      PushNotification(_currentUser.name,
+                          Localization.of(context).getString('image')),
+                      message)))
+              .then((messageSent) {
             if (!messageSent) {
               _showDialog(
                   Localization.of(context).getString('error'),
@@ -122,8 +123,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _startConversation(User user) {
-    _chatBloc.createConversation(user);
-    _chatBloc.createConversationObservable.listen((pubNubConversation) {
+    _chatBloc.createConversation(user).then((pubNubConversation) {
       if (pubNubConversation != null) {
         Navigator.of(context).pushReplacement(new MaterialPageRoute(
             builder: (BuildContext context) =>
@@ -151,9 +151,19 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-
     _pubNubConversation = widget.pubNubConversation;
-    _initScreen();
+    _initScreen().then((value) {
+      _controller.addListener(_scrollListener);
+      _loadMore().then((onValue) {
+        if (mounted) {
+          setState(() {
+            _loading = false;
+          });
+        } else {
+          print('NOT LOADED');
+        }
+      });
+    });
   }
 
   _scrollListener() {
@@ -176,64 +186,49 @@ class _ChatScreenState extends State<ChatScreen> {
             _pubNubConversation = pubNubConversation;
           });
           if (_pubNubConversation == null) {
-            _getConversationFromDb(currentUserId);
+            await _getConversationFromDb(currentUserId);
           }
         });
-      } else {
-        await _setMessagesListener(_pubNubConversation.id, currentUserId);
-
-        setState(() {
-          if (currentUserId == _pubNubConversation.user1.id) {
-            _currentUser = _pubNubConversation.user1;
-            _interlocutorUser = _pubNubConversation.user2;
-          } else {
-            _currentUser = _pubNubConversation.user2;
-            _interlocutorUser = _pubNubConversation.user1;
-          }
-        });
-        _controller.addListener(_scrollListener);
-        _loadMore();
       }
+
+      await _setMessagesListener(_pubNubConversation.id, currentUserId);
+
+      setState(() {
+        if (currentUserId == _pubNubConversation.user1.id) {
+          _currentUser = _pubNubConversation.user1;
+          _interlocutorUser = _pubNubConversation.user2;
+        } else {
+          _currentUser = _pubNubConversation.user2;
+          _interlocutorUser = _pubNubConversation.user1;
+        }
+      });
     });
   }
 
-  _getConversationFromDb(String currentUserId) {
+  Future _getConversationFromDb(String currentUserId) async {
     if (_pubNubConversation == null) {
-      _chatBloc.getConversation(widget.conversationId);
-
-      _chatBloc.getConversationObservable.listen((pubNubConversation) {
+      await _chatBloc
+          .getConversation(widget.conversationId)
+          .then((pubNubConversation) {
         setState(() {
           _pubNubConversation = pubNubConversation;
         });
-        _setMessagesListener(_pubNubConversation.id, currentUserId)
-            .then((value) {
-          setState(() {
-            if (currentUserId == _pubNubConversation.user1.id) {
-              _currentUser = _pubNubConversation.user1;
-              _interlocutorUser = _pubNubConversation.user2;
-            } else {
-              _currentUser = _pubNubConversation.user2;
-              _interlocutorUser = _pubNubConversation.user1;
-            }
-          });
-          _controller.addListener(_scrollListener);
-          _loadMore();
-          SharedPreferencesHelper.saveConversation(_pubNubConversation);
-        });
       });
     }
+
+    SharedPreferencesHelper.saveConversation(_pubNubConversation);
   }
 
-  _loadMore() async {
+  Future<bool> _loadMore() async {
     if (_pubNubConversation == null) {
       return false;
     }
     if (_chatBloc.historyStart != 0) {
-      _chatBloc.getHistoryMessages(_pubNubConversation.id);
-      _chatBloc.getHistoryMessagesObservable.listen((historyMessages) {
+      await _chatBloc
+          .getHistoryMessages(_pubNubConversation.id)
+          .then((historyMessages) {
         if (mounted) {
           setState(() {
-            _loading = false;
             _listOfMessages.addAll(historyMessages.reversed);
             _addHeadersIfNecessary();
           });
@@ -355,11 +350,11 @@ class _ChatScreenState extends State<ChatScreen> {
     return WillPopScope(
       onWillPop: _saveLastMessage,
       child: ModalProgressHUD(
+        inAsyncCall: _loading,
         progressIndicator: CircularProgressIndicator(
           valueColor:
               new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
         ),
-        inAsyncCall: _loading,
         child: Scaffold(
           appBar: AppBar(
             title: Text(
