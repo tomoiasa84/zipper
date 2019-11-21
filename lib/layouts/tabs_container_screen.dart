@@ -52,7 +52,6 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
 
   @override
   void initState() {
-    Stopwatch stopwatch = Stopwatch()..start();
     _tabsContainerBloc = TabsContainerBloc();
     if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
@@ -69,7 +68,6 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
     _initLocalNotifications();
     _tabsContainerBloc.updateDeviceToken();
     _notificationsChannel.setMessageHandler((String message) async {
-      print('Received: $message');
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
@@ -78,15 +76,12 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
       return '';
     });
     _recommendationChannel.setMessageHandler((String message) async {
-      print('Received: $message');
       _goToCardDetailsScreen(int.parse(message));
       return '';
     });
     SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
       _currentUserChannel.send(currentUserId);
-      print('USER SENT');
     });
-    print('Finished initState in home_page in: ${stopwatch.elapsed}');
     super.initState();
   }
 
@@ -133,8 +128,6 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
   }
 
   Future onSelectNotification(String payload) async {
-    print('Notification tapped');
-
     if (_message.cardId != null) {
       _goToCardDetailsScreen(_message.cardId);
     } else {
@@ -164,7 +157,6 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        print('on message $message');
         _filterNotifications(message);
       },
       onResume: (Map<String, dynamic> message) async {
@@ -195,7 +187,6 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
         IosNotificationSettings(sound: true, badge: true, alert: true));
     _firebaseMessaging.onIosSettingsRegistered
         .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
     });
   }
 

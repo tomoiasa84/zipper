@@ -44,7 +44,6 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     _notificationsChannel.setMessageHandler((String message) async {
-      print('Received: $message');
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
@@ -53,19 +52,16 @@ class MyAppState extends State<MyApp> {
       return '';
     });
     _recommendationChannel.setMessageHandler((String message) async {
-      print('Received: $message');
       _goToCardDetailsScreen(int.parse(message));
       return '';
     });
     SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
       _currentUserChannel.send(currentUserId);
-      print('USER SENT');
     });
     _initFirebaseClientMessaging();
     _initLocalNotifications();
     checkAuthStatus();
     _getSyncContactsFlag();
-    debugPrint('DART INITIALIZED');
     super.initState();
   }
 
@@ -112,8 +108,6 @@ class MyAppState extends State<MyApp> {
   }
 
   Future onSelectNotification(String payload) async {
-    print('Notification tapped');
-
     if (_message.cardId != null) {
       _goToCardDetailsScreen(_message.cardId);
     } else {
@@ -141,7 +135,6 @@ class MyAppState extends State<MyApp> {
   void _initFirebaseClientMessaging() {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        print('on message $message');
         _filterNotifications(message);
       },
       onResume: (Map<String, dynamic> message) async {
@@ -235,7 +228,6 @@ class MyAppState extends State<MyApp> {
         authStatus = AuthStatus.LOGGED_IN;
       });
     }
-    print("ACCESS TOKEN: $accessToken");
   }
 
   void checkFirebaseUserAuthStatus() async {

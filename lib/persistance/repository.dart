@@ -312,11 +312,7 @@ class Repository {
   }
 
   Future<List<PubNubConversation>> getPubNubConversations() async {
-    Stopwatch stopwatch = Stopwatch()..start();
     var conversationsList = await getListOfConversationIdsFromBackend();
-    print(
-        'Finished getListOfConversationIdsFromBackend in: ${stopwatch.elapsed}');
-
     String channels = "";
 
     if (conversationsList != null) {
@@ -324,10 +320,8 @@ class Repository {
         channels = channels + item.id.toString() + ",";
       }
 
-      Stopwatch stopwatch2 = Stopwatch()..start();
       return appApiProvider.getPubNubConversations(channels).then((response) {
         if (response.statusCode == 200) {
-          print('Finished getPubNubConversations in: ${stopwatch2.elapsed}');
           BatchHistoryResponse batchHistoryResponse =
               BatchHistoryResponse.fromJson(convert.jsonDecode(response.body));
 

@@ -28,11 +28,9 @@ class HomeScreenState extends State<HomeScreen> {
   var _saving = false;
   HomeBloc _homeBloc = HomeBloc();
   List<CardModel> _cardsList = [];
-  Stopwatch stopwatch = Stopwatch();
 
   @override
   void initState() {
-    stopwatch.start();
     if (widget.user != null && widget.user.cardsConnections != null) {
       _cardsList.clear();
       _cardsList.addAll(widget.user.cardsConnections);
@@ -44,7 +42,6 @@ class HomeScreenState extends State<HomeScreen> {
       });
       _homeBloc.getUserByIdWithCardsConnections();
       _homeBloc.getUserByIdWithCardsConnectionsObservable.listen((result) {
-        print("getUserByIdWithCardsConnectionsObservable called");
         if (result.errors == null && mounted) {
           User currentUser = User.fromJson(result.data['get_user']);
           widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
@@ -92,7 +89,6 @@ class HomeScreenState extends State<HomeScreen> {
   void getCards() {
     _homeBloc.getUserByIdWithCardsConnections();
     _homeBloc.getUserByIdWithCardsConnectionsObservable.listen((result) {
-      print("getUserByIdWithCardsConnectionsObservable called");
       if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);
         List<CardModel> newCardsList = [];
@@ -109,7 +105,6 @@ class HomeScreenState extends State<HomeScreen> {
             setState(() {
               _cardsList = newCardsList;
               _saving = false;
-              print('Finished getCards overall in: ${stopwatch.elapsed}');
             });
           }
         } else {

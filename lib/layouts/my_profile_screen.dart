@@ -95,7 +95,6 @@ class MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   void _getCurrentUserInfo() {
-    Stopwatch stopwatch = Stopwatch()..start();
     setState(() {
       _saving = true;
     });
@@ -114,7 +113,6 @@ class MyProfileScreenState extends State<MyProfileScreen> {
           });
           _saving = false;
           _getMainTag();
-          print('Finished _getCurrentUserInfo in: ${stopwatch.elapsed}');
         });
       } else {
         if (mounted) {
@@ -177,7 +175,6 @@ class MyProfileScreenState extends State<MyProfileScreen> {
 
   @override
   void initState() {
-    Stopwatch stopwatch = Stopwatch()..start();
     if (widget.user != null) {
       widget.user.cards.sort((a, b) {
         DateTime dateA = parseDateFromString(a.createdAt);
@@ -204,7 +201,6 @@ class MyProfileScreenState extends State<MyProfileScreen> {
           }
         }
       });
-      print('Finished getCachedUser in: ${stopwatch.elapsed}');
     } else {
       _getCurrentUserInfo();
     }

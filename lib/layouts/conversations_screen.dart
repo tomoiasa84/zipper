@@ -36,7 +36,6 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   String _currentUserId;
   List<PubNubConversation> _pubNubConversations = List();
   final ConversationsBloc _conversationsBloc = ConversationsBloc();
-  Stopwatch stopwatch = Stopwatch();
 
   @override
   void initState() {
@@ -67,13 +66,11 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   void _getConversations() {
-    stopwatch.start();
     if (mounted && _allowLoading) {
       _allowLoading = false;
       _conversationsBloc.getPubNubConversations();
       _conversationsBloc.getPubNubConversationsObservable
           .listen((conversations) {
-        print("getPubNubConversationsObservable called");
         if (conversations != null) {
           if (widget.updateConversationsList != null) {
             widget.updateConversationsList(conversations);
@@ -136,7 +133,6 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         }
       }
     }
-    print('Finished _getConversations in: ${stopwatch.elapsed}');
   }
 
   void _startNewConversation() {
