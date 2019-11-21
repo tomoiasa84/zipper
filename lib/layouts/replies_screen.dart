@@ -1,4 +1,4 @@
-import 'package:contractor_search/layouts/account_screen.dart';
+import 'package:contractor_search/layouts/my_profile_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -56,7 +56,7 @@ class RepliesScreenState extends State<RepliesScreen> {
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          AccountScreen(isStartedFromHomeScreen: false)));
+                          MyProfileScreen(isStartedFromHomeScreen: false)));
             } else {
               Navigator.push(
                   context,

@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:contractor_search/bloc/account_bloc.dart';
-import 'package:contractor_search/layouts/profile_settings_screen.dart';
+import 'package:contractor_search/layouts/my_profile_settings_screen.dart';
 import 'package:contractor_search/layouts/replies_screen.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
 import 'package:contractor_search/model/card.dart';
@@ -18,13 +18,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class AccountScreen extends StatefulWidget {
+class MyProfileScreen extends StatefulWidget {
   final ValueChanged<bool> onChanged;
   final bool isStartedFromHomeScreen;
   final User user;
   final Function onUserChanged;
 
-  const AccountScreen(
+  const MyProfileScreen(
       {Key key,
       this.onChanged,
       this.isStartedFromHomeScreen,
@@ -34,11 +34,11 @@ class AccountScreen extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return AccountScreenState();
+    return MyProfileScreenState();
   }
 }
 
-class AccountScreenState extends State<AccountScreen> {
+class MyProfileScreenState extends State<MyProfileScreen> {
   AccountBloc _accountBloc;
   User _user;
   UserTag _mainUserTag;
@@ -617,7 +617,7 @@ class AccountScreenState extends State<AccountScreen> {
 
   Future _goToSettingsScreen() async {
     await Navigator.push(context,
-        MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
+        MaterialPageRoute(builder: (_) => MyProfileSettingsScreen(_user)));
     _getCurrentUserInfo();
   }
 

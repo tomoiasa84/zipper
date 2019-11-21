@@ -12,20 +12,20 @@ import 'package:contractor_search/utils/search_card_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-import 'account_screen.dart';
+import 'my_profile_screen.dart';
 
-class HomeContentScreen extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   final User user;
   final Function onUserUpdated;
 
-  const HomeContentScreen({Key key, this.user, this.onUserUpdated})
+  const HomeScreen({Key key, this.user, this.onUserUpdated})
       : super(key: key);
 
   @override
-  HomeContentScreenState createState() => HomeContentScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class HomeContentScreenState extends State<HomeContentScreen> {
+class HomeScreenState extends State<HomeScreen> {
   var _saving = false;
   HomeContentBloc _homeContentBloc = HomeContentBloc();
   List<CardModel> _cardsList = [];
@@ -260,7 +260,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => AccountScreen(
+                                    builder: (context) => MyProfileScreen(
                                         isStartedFromHomeScreen: false)));
                           } else {
                             Navigator.push(

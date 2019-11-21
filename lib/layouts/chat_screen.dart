@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:contractor_search/bloc/chat_bloc.dart';
-import 'package:contractor_search/layouts/account_screen.dart';
+import 'package:contractor_search/layouts/my_profile_screen.dart';
 import 'package:contractor_search/layouts/image_preview_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
@@ -447,7 +447,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        AccountScreen(isStartedFromHomeScreen: false)));
+                        MyProfileScreen(isStartedFromHomeScreen: false)));
           } else {
             Navigator.push(
                 context,

@@ -15,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'layouts/authentication_screen.dart';
 import 'layouts/card_details_screen.dart';
 import 'layouts/chat_screen.dart';
-import 'layouts/home_page.dart';
+import 'layouts/tabs_container_screen.dart';
 import 'models/PushNotification.dart';
 import 'models/UserMessage.dart';
 
@@ -199,7 +199,7 @@ class MyAppState extends State<MyApp> {
         home: Builder(
           builder: (context) => authStatus == AuthStatus.LOGGED_IN
               ? (_syncContactsFlag
-                  ? HomePage(
+                  ? TabsContainerScreen(
                       syncContactsFlagRequired: false,
                     )
                   : TutorialScreen())
@@ -213,7 +213,7 @@ class MyAppState extends State<MyApp> {
           '/phoneAuthScreen': (BuildContext context) => AuthenticationScreen(
                 showExpiredSessionMessage: false,
               ),
-          '/homepage': (BuildContext context) => HomePage(
+          '/homepage': (BuildContext context) => TabsContainerScreen(
                 syncContactsFlagRequired: false,
               ),
         });

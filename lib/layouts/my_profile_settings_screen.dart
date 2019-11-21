@@ -15,16 +15,16 @@ import 'package:graphql/src/core/query_result.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class ProfileSettingsScreen extends StatefulWidget {
+class MyProfileSettingsScreen extends StatefulWidget {
   final User user;
 
-  ProfileSettingsScreen(this.user);
+  MyProfileSettingsScreen(this.user);
 
   @override
-  ProfileSettingsScreenState createState() => ProfileSettingsScreenState();
+  MyProfileSettingsScreenState createState() => MyProfileSettingsScreenState();
 }
 
-class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
+class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
   final _formKey = GlobalKey<FormState>();
 
   TextEditingController _nameTextEditingController = TextEditingController();

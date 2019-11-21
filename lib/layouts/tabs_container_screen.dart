@@ -5,7 +5,7 @@ import 'dart:ui';
 import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
-import 'package:contractor_search/layouts/home_content_screen.dart';
+import 'package:contractor_search/layouts/home_screen.dart';
 import 'package:contractor_search/model/connection_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
@@ -20,21 +20,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import 'account_screen.dart';
+import 'my_profile_screen.dart';
 import 'add_card_screen.dart';
 import 'chat_screen.dart';
 import 'users_screen.dart';
 
-class HomePage extends StatefulWidget {
+class TabsContainerScreen extends StatefulWidget {
   final bool syncContactsFlagRequired;
 
-  HomePage({Key key, this.syncContactsFlagRequired}) : super(key: key);
+  TabsContainerScreen({Key key, this.syncContactsFlagRequired}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _TabsContainerScreenState createState() => _TabsContainerScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _TabsContainerScreenState extends State<TabsContainerScreen> {
   bool blurred = false;
   HomeBloc _homeBloc = HomeBloc();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
@@ -218,7 +218,7 @@ class _HomePageState extends State<HomePage> {
                 (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
               switch (snapshot.data) {
                 case NavBarItem.HOME:
-                  return HomeContentScreen(
+                  return HomeScreen(
                     user: _user,
                     onUserUpdated: (cardsConnections, cards) {
                       if (_user != null) {
@@ -266,7 +266,7 @@ class _HomePageState extends State<HomePage> {
                     _pubNubConversations = pubNubConversations;
                   },);
                 case NavBarItem.ACCOUNT:
-                  return AccountScreen(
+                  return MyProfileScreen(
                     user: _user,
                     onChanged: _onBlurredChanged,
                     isStartedFromHomeScreen: true,

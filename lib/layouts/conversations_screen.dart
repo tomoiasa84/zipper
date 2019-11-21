@@ -31,6 +31,7 @@ class ConversationsScreen extends StatefulWidget {
 
 class _ConversationsScreenState extends State<ConversationsScreen>
     with WidgetsBindingObserver {
+  bool _allowLoading = true;
   bool _loading = false;
   String _currentUserId;
   List<PubNubConversation> _pubNubConversations = List();
@@ -67,7 +68,8 @@ class _ConversationsScreenState extends State<ConversationsScreen>
 
   void _getConversations() {
     stopwatch.start();
-    if (mounted) {
+    if (mounted && _allowLoading) {
+      _allowLoading = false;
       _conversationsBloc.getPubNubConversations();
       _conversationsBloc.getPubNubConversationsObservable
           .listen((conversations) {
@@ -81,12 +83,14 @@ class _ConversationsScreenState extends State<ConversationsScreen>
               _pubNubConversations = conversations;
               _loading = false;
               _setConversationReadState(conversations);
+              _allowLoading = true;
             });
           }
         } else {
           if (mounted) {
             setState(() {
               _loading = false;
+              _allowLoading = true;
             });
           }
         }
