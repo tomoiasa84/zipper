@@ -4,7 +4,7 @@ import 'package:contractor_search/persistance/repository.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
-class ProfileSettingsBloc {
+class MyProfileSettingsBloc {
   final _updateUserFetcher = PublishSubject<QueryResult>();
   final _createUserTagFetcher = PublishSubject<QueryResult>();
   final _updateMainUserTagFetcher = PublishSubject<QueryResult>();

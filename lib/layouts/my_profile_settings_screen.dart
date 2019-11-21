@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:contractor_search/bloc/profile_settings_bloc.dart';
+import 'package:contractor_search/bloc/my_profile_settings_bloc.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
@@ -36,16 +36,15 @@ class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
   List<Tag> tagsList = [];
   UserTag userTag;
   bool _saving = false;
-  ProfileSettingsBloc _profileSettingsBloc;
+  MyProfileSettingsBloc _myProfileSettingsBloc = MyProfileSettingsBloc();
   bool _autoValidate = false;
   File _profilePic;
-
   Tag tagCreated;
 
   @override
   void initState() {
     _fetchUsefulData();
-    _profileSettingsBloc.createUserTagObservable.listen((result) {
+    _myProfileSettingsBloc.createUserTagObservable.listen((result) {
       setState(() {
         _saving = false;
       });
@@ -63,13 +62,13 @@ class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
 
   @override
   void dispose() {
-    _profileSettingsBloc.dispose();
+    _myProfileSettingsBloc.dispose();
     super.dispose();
   }
 
   void getTags() {
-    _profileSettingsBloc.getTags();
-    _profileSettingsBloc.getTagsObservable.listen((result) {
+    _myProfileSettingsBloc.getTags();
+    _myProfileSettingsBloc.getTagsObservable.listen((result) {
       print("getTagsObservable called");
       if (result.errors == null) {
         final List<Map<String, dynamic>> tags =
@@ -105,8 +104,8 @@ class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
           orElse: () => null);
 
       if (newMainUserTag != null) {
-        _profileSettingsBloc.updateMainUserTag(newMainUserTag.id);
-        _profileSettingsBloc.updateMainUserTagObservable
+        _myProfileSettingsBloc.updateMainUserTag(newMainUserTag.id);
+        _myProfileSettingsBloc.updateMainUserTagObservable
             .listen((newMainTagResult) {
           if (newMainTagResult.errors == null) {
             updateUser();
@@ -129,7 +128,7 @@ class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
   }
 
   Future<String> _uploadUserProfilePicture() async {
-    return await _profileSettingsBloc.uploadPic(_profilePic);
+    return await _myProfileSettingsBloc.uploadPic(_profilePic);
   }
 
   Future updateUser() async {
@@ -144,7 +143,7 @@ class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
           widget.user.profilePicUrl != null ? widget.user.profilePicUrl : "";
     }
 
-    _profileSettingsBloc.updateUser(
+    _myProfileSettingsBloc.updateUser(
         widget.user.id,
         widget.user.firebaseId,
         _nameTextEditingController.text,
@@ -153,7 +152,7 @@ class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
         widget.user.phoneNumber,
         profilePicUrl,
         _bioTextEditingController.text);
-    _profileSettingsBloc.updateUserObservable.listen((result) {
+    _myProfileSettingsBloc.updateUserObservable.listen((result) {
       if (mounted) {
         setState(() {
           _saving = false;
@@ -184,7 +183,7 @@ class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
         (tag) => tag.name == _addTagsTextEditingController.text.substring(1),
         orElse: () => null);
     if (tag != null) {
-      _profileSettingsBloc.createUserTag(widget.user.id, tag.id);
+      _myProfileSettingsBloc.createUserTag(widget.user.id, tag.id);
       tagCreated = tag;
     }
   }
@@ -207,8 +206,8 @@ class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
     setState(() {
       _saving = true;
     });
-    _profileSettingsBloc.deleteUserTag(item.id);
-    _profileSettingsBloc.deleteUserTagObservable.listen((result) {
+    _myProfileSettingsBloc.deleteUserTag(item.id);
+    _myProfileSettingsBloc.deleteUserTagObservable.listen((result) {
       setState(() {
         _saving = false;
       });
@@ -231,8 +230,8 @@ class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
         userTag = null;
         _mainTextEditingController.clear();
       } else if (userTag != null && !userTagsList.contains(userTag)) {
-        _profileSettingsBloc.updateMainUserTag(userTagsList[0].id);
-        _profileSettingsBloc.updateMainUserTagObservable
+        _myProfileSettingsBloc.updateMainUserTag(userTagsList[0].id);
+        _myProfileSettingsBloc.updateMainUserTagObservable
             .listen((updateNewTagResult) {
           setState(() {
             _mainTextEditingController.text = '#' +
@@ -246,7 +245,6 @@ class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
   }
 
   void _fetchUsefulData() {
-    _profileSettingsBloc = ProfileSettingsBloc();
     getTags();
     widget.user.tags.forEach((item) {
       if (item.defaultTag) {

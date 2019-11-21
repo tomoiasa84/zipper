@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:contractor_search/bloc/account_bloc.dart';
+import 'package:contractor_search/bloc/my_profile_bloc.dart';
 import 'package:contractor_search/layouts/my_profile_settings_screen.dart';
 import 'package:contractor_search/layouts/replies_screen.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
@@ -39,7 +39,7 @@ class MyProfileScreen extends StatefulWidget {
 }
 
 class MyProfileScreenState extends State<MyProfileScreen> {
-  AccountBloc _accountBloc;
+  MyProfileBloc _myProfileBloc = MyProfileBloc();
   User _user;
   UserTag _mainUserTag;
   bool _saving = false;
@@ -87,7 +87,7 @@ class MyProfileScreenState extends State<MyProfileScreen> {
     setState(() {
       _saving = true;
     });
-    _accountBloc.clearUserSession().then((_) {
+    _myProfileBloc.clearUserSession().then((_) {
       setState(() {
         _saving = false;
       });
@@ -96,12 +96,11 @@ class MyProfileScreenState extends State<MyProfileScreen> {
 
   void _getCurrentUserInfo() {
     Stopwatch stopwatch = Stopwatch()..start();
-    _accountBloc = AccountBloc();
     setState(() {
       _saving = true;
     });
-    _accountBloc.getUserByIdWithMainInfo();
-    _accountBloc.getUserByIdWithMainInfoObservable.listen((result) {
+    _myProfileBloc.getUserByIdWithMainInfo();
+    _myProfileBloc.getUserByIdWithMainInfoObservable.listen((result) {
       if (result.errors == null && mounted) {
         setState(() {
           _user = User.fromJson(result.data['get_user']);
@@ -149,8 +148,8 @@ class MyProfileScreenState extends State<MyProfileScreen> {
     setState(() {
       _saving = true;
     });
-    _accountBloc.deleteCard(card.id);
-    _accountBloc.deleteCardObservable.listen((result) {
+    _myProfileBloc.deleteCard(card.id);
+    _myProfileBloc.deleteCardObservable.listen((result) {
       if (result.errors == null) {
         setState(() {
           _saving = false;
@@ -180,7 +179,6 @@ class MyProfileScreenState extends State<MyProfileScreen> {
   void initState() {
     Stopwatch stopwatch = Stopwatch()..start();
     if (widget.user != null) {
-      _accountBloc = AccountBloc();
       widget.user.cards.sort((a, b) {
         DateTime dateA = parseDateFromString(a.createdAt);
         DateTime dateB = parseDateFromString(b.createdAt);
@@ -188,8 +186,8 @@ class MyProfileScreenState extends State<MyProfileScreen> {
       });
       _user = widget.user;
       _getMainTag();
-      _accountBloc.getUserByIdWithMainInfo();
-      _accountBloc.getUserByIdWithMainInfoObservable.listen((result) {
+      _myProfileBloc.getUserByIdWithMainInfo();
+      _myProfileBloc.getUserByIdWithMainInfoObservable.listen((result) {
         if (result.errors == null) {
           User newUser = User.fromJson(result.data['get_user']);
           if (_user != newUser && mounted) {
@@ -215,7 +213,7 @@ class MyProfileScreenState extends State<MyProfileScreen> {
 
   @override
   void dispose() {
-    _accountBloc.dispose();
+    _myProfileBloc.dispose();
     super.dispose();
   }
 

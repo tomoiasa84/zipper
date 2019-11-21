@@ -1,5 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:contractor_search/bloc/home_content_bloc.dart';
+import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/send_in_chat_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
@@ -27,7 +27,7 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   var _saving = false;
-  HomeContentBloc _homeContentBloc = HomeContentBloc();
+  HomeBloc _homeBloc = HomeBloc();
   List<CardModel> _cardsList = [];
   Stopwatch stopwatch = Stopwatch();
 
@@ -43,8 +43,8 @@ class HomeScreenState extends State<HomeScreen> {
         DateTime dateB = parseDateFromString(b.createdAt);
         return dateB.compareTo(dateA);
       });
-      _homeContentBloc.getUserByIdWithCardsConnections();
-      _homeContentBloc.getUserByIdWithCardsConnectionsObservable
+      _homeBloc.getUserByIdWithCardsConnections();
+      _homeBloc.getUserByIdWithCardsConnectionsObservable
           .listen((result) {
         print("getUserByIdWithCardsConnectionsObservable called");
         if (result.errors == null && mounted) {
@@ -87,13 +87,13 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    _homeContentBloc.dispose();
+    _homeBloc.dispose();
     super.dispose();
   }
 
   void getCards() {
-    _homeContentBloc.getUserByIdWithCardsConnections();
-    _homeContentBloc.getUserByIdWithCardsConnectionsObservable.listen((result) {
+    _homeBloc.getUserByIdWithCardsConnections();
+    _homeBloc.getUserByIdWithCardsConnectionsObservable.listen((result) {
       print("getUserByIdWithCardsConnectionsObservable called");
       if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:contractor_search/bloc/home_bloc.dart';
+import 'package:contractor_search/bloc/tabs_container_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/layouts/home_screen.dart';
@@ -20,15 +20,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import 'my_profile_screen.dart';
 import 'add_card_screen.dart';
 import 'chat_screen.dart';
+import 'my_profile_screen.dart';
 import 'users_screen.dart';
 
 class TabsContainerScreen extends StatefulWidget {
   final bool syncContactsFlagRequired;
 
-  TabsContainerScreen({Key key, this.syncContactsFlagRequired}) : super(key: key);
+  TabsContainerScreen({Key key, this.syncContactsFlagRequired})
+      : super(key: key);
 
   @override
   _TabsContainerScreenState createState() => _TabsContainerScreenState();
@@ -36,7 +37,7 @@ class TabsContainerScreen extends StatefulWidget {
 
 class _TabsContainerScreenState extends State<TabsContainerScreen> {
   bool blurred = false;
-  HomeBloc _homeBloc = HomeBloc();
+  TabsContainerBloc _tabsContainerBloc = TabsContainerBloc();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   UserMessage _message;
@@ -52,21 +53,21 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
   @override
   void initState() {
     Stopwatch stopwatch = Stopwatch()..start();
-    _homeBloc = HomeBloc();
+    _tabsContainerBloc = TabsContainerBloc();
     if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
     }
-    _homeBloc.getPubNubConversations().then((pubNubConversations){
+    _tabsContainerBloc.getPubNubConversations().then((pubNubConversations) {
       _pubNubConversations = pubNubConversations;
     });
-    _homeBloc.getCurrentUser().then((result) {
+    _tabsContainerBloc.getCurrentUser().then((result) {
       if (result.errors == null) {
         _user = User.fromJson(result.data['get_user']);
       }
     });
     _initFirebaseClientMessaging();
     _initLocalNotifications();
-    _homeBloc.updateDeviceToken();
+    _tabsContainerBloc.updateDeviceToken();
     _notificationsChannel.setMessageHandler((String message) async {
       print('Received: $message');
       Navigator.pushAndRemoveUntil(
@@ -204,16 +205,16 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
       children: <Widget>[
         Scaffold(
           bottomNavigationBar: StreamBuilder<NavBarItem>(
-            stream: _homeBloc.itemStream,
-            initialData: _homeBloc.defaultItem,
+            stream: _tabsContainerBloc.itemStream,
+            initialData: _tabsContainerBloc.defaultItem,
             builder:
                 (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
               return _buildBottomNavigationBar(snapshot);
             },
           ),
           body: StreamBuilder<NavBarItem>(
-            stream: _homeBloc.itemStream,
-            initialData: _homeBloc.defaultItem,
+            stream: _tabsContainerBloc.itemStream,
+            initialData: _tabsContainerBloc.defaultItem,
             builder:
                 (BuildContext context, AsyncSnapshot<NavBarItem> snapshot) {
               switch (snapshot.data) {
@@ -225,7 +226,7 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
                         _user.cardsConnections = cardsConnections;
                         _user.cards = cards;
                       } else {
-                        _homeBloc.getCurrentUser().then((result) {
+                        _tabsContainerBloc.getCurrentUser().then((result) {
                           if (result.errors == null) {
                             _user = User.fromJson(result.data['get_user']);
                           }
@@ -240,7 +241,7 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
                       if (_user != null) {
                         _user.connections = connections;
                       } else {
-                        _homeBloc.getCurrentUser().then((result) {
+                        _tabsContainerBloc.getCurrentUser().then((result) {
                           if (result.errors == null) {
                             _user = User.fromJson(result.data['get_user']);
                           }
@@ -262,9 +263,13 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
                 case NavBarItem.PLUS:
                   return Container();
                 case NavBarItem.INBOX:
-                  return ConversationsScreen(currentUserId: _user!=null? _user.id:null, pubNubConversations: _pubNubConversations,updateConversationsList: (pubNubConversations){
-                    _pubNubConversations = pubNubConversations;
-                  },);
+                  return ConversationsScreen(
+                    currentUserId: _user != null ? _user.id : null,
+                    pubNubConversations: _pubNubConversations,
+                    updateConversationsList: (pubNubConversations) {
+                      _pubNubConversations = pubNubConversations;
+                    },
+                  );
                 case NavBarItem.ACCOUNT:
                   return MyProfileScreen(
                     user: _user,
@@ -280,7 +285,7 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
                         _user.profilePicUrl = newUser.profilePicUrl;
                         _user.reviews = newUser.reviews;
                       } else {
-                        _homeBloc.getCurrentUser().then((result) {
+                        _tabsContainerBloc.getCurrentUser().then((result) {
                           if (result.errors == null) {
                             _user = User.fromJson(result.data['get_user']);
                           }
@@ -320,9 +325,9 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
       onTap: (index) {
         if (index == 2) {
           _goToAddCardScreen();
-          _homeBloc.pickItem(index);
+          _tabsContainerBloc.pickItem(index);
         } else {
-          _homeBloc.pickItem(index);
+          _tabsContainerBloc.pickItem(index);
         }
       },
       selectedItemColor: Colors.black,
@@ -379,7 +384,7 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
                 }
               },
             )));
-    _homeBloc.pickItem(0);
+    _tabsContainerBloc.pickItem(0);
     if (result != null) {
       showDialog(
         context: context,

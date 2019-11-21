@@ -1640,8 +1640,6 @@ class ApiProvider {
 
   Future<http.Response> subscribeToChannel(
       String channelName, String currentUserId, String timestamp) async {
-    _client.queryManager.cache.reset();
-
     var url =
         "$_baseUrl/subscribe/$_subscribeKey/$channelName/0/$timestamp?uuid=$currentUserId";
     return _pubNubClient.get(url).then((subscribeResult) {
@@ -1650,8 +1648,6 @@ class ApiProvider {
   }
 
   Future<http.Response> getPubNubConversations(String channels) async {
-    _client.queryManager.cache.reset();
-
     var url =
         "$_baseUrl/v3/history/sub-key/$_subscribeKey/channel/$channels?max=1";
     return _pubNubClient.get(url).then((pubnubConversations) {
