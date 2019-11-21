@@ -18,8 +18,7 @@ class HomeScreen extends StatefulWidget {
   final User user;
   final Function onUserUpdated;
 
-  const HomeScreen({Key key, this.user, this.onUserUpdated})
-      : super(key: key);
+  const HomeScreen({Key key, this.user, this.onUserUpdated}) : super(key: key);
 
   @override
   HomeScreenState createState() => HomeScreenState();
@@ -44,8 +43,7 @@ class HomeScreenState extends State<HomeScreen> {
         return dateB.compareTo(dateA);
       });
       _homeBloc.getUserByIdWithCardsConnections();
-      _homeBloc.getUserByIdWithCardsConnectionsObservable
-          .listen((result) {
+      _homeBloc.getUserByIdWithCardsConnectionsObservable.listen((result) {
         print("getUserByIdWithCardsConnectionsObservable called");
         if (result.errors == null && mounted) {
           User currentUser = User.fromJson(result.data['get_user']);
@@ -135,8 +133,7 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       progressIndicator: CircularProgressIndicator(
-        valueColor:
-        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        valueColor: new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
       ),
       inAsyncCall: _saving,
       child: Scaffold(

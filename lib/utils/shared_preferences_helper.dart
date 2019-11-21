@@ -54,15 +54,15 @@ class SharedPreferencesHelper {
     return prefs.setString(_currentUserName, value);
   }
 
-  static Future<String> getAllConversationIds() async {
+  static Future<List<String>> getAllConversationIds() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getString(_allConversationIds) ?? "";
+    return prefs.getStringList(_allConversationIds) ?? "";
   }
 
-  static Future<bool> saveAllConversationIds(String value) async {
+  static Future<bool> saveAllConversationIds(
+      List<String> allConversationIds) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setString(_allConversationIds, value);
+    return prefs.setStringList(_allConversationIds, allConversationIds);
   }
 
   static Future<PubNubConversation> getConversation(
