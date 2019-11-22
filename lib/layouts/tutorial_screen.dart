@@ -1,4 +1,5 @@
 import 'package:contractor_search/layouts/sync_contacts_screen.dart';
+import 'package:contractor_search/model/phoneContactInput.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:dots_indicator/dots_indicator.dart';
@@ -21,7 +22,7 @@ class TutorialScreenState extends State<TutorialScreen> {
   PermissionStatus _permissionStatus = PermissionStatus.unknown;
   SyncContactsBloc _syncContactsBloc;
   ShareSelectedBloc _bloc;
-  SyncContactsModel _syncResults;
+  List<PhoneContactInput> _syncResults;
   void initState() {
     _syncContactsBloc = SyncContactsBloc();
     _bloc = ShareSelectedBloc();
@@ -111,13 +112,19 @@ class TutorialScreenState extends State<TutorialScreen> {
             Localization.of(context).getString('tutorialContent'),
             'assets/images/ic_contacts_gray_bg.png');
       case 1:
-        List<String> phoneContactsToBeLoaded = _generateContactsToBeLoaded(_syncResults);
-        _bloc.loadContacts(phoneContactsToBeLoaded).then((result) {
-          print('Load contacts works');
-        });
-        _bloc.loadConnections(_generateExistingUsers(_syncResults)).then((result) {
-          print('Load connections works');
-        });
+        if(_syncResults != null){
+          _bloc.loadAgenda(_syncResults).then((result){
+            print('Load results');
+          });
+        }
+
+//        List<String> phoneContactsToBeLoaded = _generateContactsToBeLoaded(_syncResults);
+//        _bloc.loadContacts(phoneContactsToBeLoaded).then((result) {
+//          print('Load contacts works');
+//        });
+//        _bloc.loadConnections(_generateExistingUsers(_syncResults)).then((result) {
+//          print('Load connections works');
+//        });
         return _builtContent(
             'Lorem ipsum dolor sit',
             Localization.of(context).getString('tutorialContent'),

@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/model/contact_model.dart';
+import 'package:contractor_search/model/phoneContactInput.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PnGCM.dart';
 import 'package:contractor_search/utils/custom_auth_link.dart';
@@ -1068,7 +1069,22 @@ class ApiProvider {
 
     return queryResult;
   }
+  Future<QueryResult> loadAgenda(List<PhoneContactInput> phoneContacts) async {
 
+
+    var phoneContactsJson = jsonEncode(phoneContacts);
+    final QueryResult queryResult = await _client.mutate(
+      MutationOptions(
+        document: '''mutation{
+                         load_agenda(phoneContacts: $phoneContactsJson) {
+                            id
+                       }
+                  }''',
+      ),
+    );
+
+    return queryResult;
+  }
   Future<QueryResult> loadConnections(List<String> existingUsers) async {
     var existingUsersJson = jsonEncode(existingUsers);
 

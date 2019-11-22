@@ -1,4 +1,5 @@
 import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/model/phoneContactInput.dart';
 import 'package:contractor_search/model/sync_contacts_model.dart';
 import 'package:contractor_search/model/contact_model.dart';
 import 'package:contractor_search/model/unjoined_contacts_model.dart';
@@ -20,8 +21,10 @@ class SyncContactsBloc {
   Future<QueryResult> loadContacts(List<String> phoneContacts) async {
     return await _repository.loadContacts(phoneContacts);
   }
-
-  Future<SyncContactsModel> syncContacts(String userId) async {
+  Future<QueryResult> loadAgenda(List<PhoneContactInput> phoneContacts) async {
+    return await _repository.loadAgenda(phoneContacts);
+  }
+  Future<List<PhoneContactInput>> syncContacts(String userId) async {
     QueryResult result = await _repository.getUserByIdWithPhoneNumber(userId);
 
     if (result.errors == null) {
@@ -30,27 +33,28 @@ class SyncContactsBloc {
 
       var contactsResult = await getContacts();
       if (contactsResult != null && contactsResult.isNotEmpty) {
-        List<String> phoneContacts = _formatContactsNumber(contactsResult);
+        List<PhoneContactInput> phoneContacts = _formatContactsNumber(contactsResult);
 
         if (phoneContacts.isNotEmpty) {
-          var checkResult = await checkContacts(phoneContacts.toSet().toList());
-          if (checkResult.errors == null) {
-            return _groupExistingUsers(checkResult, contactsResult);
-          } else
-            return SyncContactsModel(
-                [], [], countryCode, result.errors[0].message);
+          return phoneContacts;
+//          var checkResult = await checkContacts(phoneContacts.toSet().toList());
+//          if (checkResult.errors == null) {
+//            return _groupExistingUsers(checkResult, contactsResult);
+//          } else
+//            return SyncContactsModel(
+//                [], [], countryCode, result.errors[0].message);
         }
-        return SyncContactsModel([], [], countryCode, "");
+        return null;
       } else {
-        return SyncContactsModel([], [], countryCode, "");
+        return null;
       }
     } else {
-      return SyncContactsModel([], [], countryCode, result.errors[0].message);
+      return null;
     }
   }
 
-  List<String> _formatContactsNumber(Iterable<Contact> contactsResult) {
-    List<String> phoneContacts = [];
+  List<PhoneContactInput> _formatContactsNumber(Iterable<Contact> contactsResult) {
+    List<PhoneContactInput> phoneContacts = [];
     contactsResult.forEach((item) {
       //print(item.displayName);
       if (item.phones != null && item.phones.toList().isNotEmpty) {
@@ -60,10 +64,10 @@ class SyncContactsBloc {
             .value
             .toString()
             .startsWith("+")) {
-          phoneContacts.add(item.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), ""));
+          phoneContacts.add(PhoneContactInput.fromJson({"name":item.displayName,"phoneNumber":item.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), "")}));
         } else {
           phoneContacts
-              .add(countryCode + item.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), ""));
+              .add(PhoneContactInput.fromJson({"name":item.displayName,"phoneNumber":countryCode + item.phones.toList().elementAt(0).value.replaceAll(new RegExp(r"\s+\b|\b\s"), "")}));
         }
       }
     });

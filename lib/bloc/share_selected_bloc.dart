@@ -1,3 +1,4 @@
+import 'package:contractor_search/model/phoneContactInput.dart';
 import 'package:contractor_search/persistance/repository.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -10,5 +11,8 @@ class ShareSelectedBloc {
 
   Future<QueryResult> loadConnections(List<String> existingUsers) async {
     return _repository.loadConnections(existingUsers);
+  }
+  Future<QueryResult> loadAgenda(List<PhoneContactInput> phoneContacts) async {
+    return await _repository.loadAgenda(phoneContacts);
   }
 }

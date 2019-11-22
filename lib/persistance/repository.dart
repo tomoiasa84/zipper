@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/model/conversation_model.dart';
+import 'package:contractor_search/model/phoneContactInput.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/BatchHistoryResponse.dart';
 import 'package:contractor_search/models/PnGCM.dart';
@@ -202,7 +203,11 @@ class Repository {
     checkTokenError(result);
     return result;
   }
-
+  Future<QueryResult> loadAgenda(List<PhoneContactInput> phoneContacts) async {
+    var result = await appApiProvider.loadAgenda(phoneContacts);
+    checkTokenError(result);
+    return result;
+  }
   Future<QueryResult> loadConnections(List<String> existingUsers) async {
     var result = await appApiProvider.loadConnections(existingUsers);
     checkTokenError(result);
