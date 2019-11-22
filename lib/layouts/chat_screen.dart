@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:contractor_search/bloc/chat_bloc.dart';
-import 'package:contractor_search/layouts/my_profile_screen.dart';
 import 'package:contractor_search/layouts/image_preview_screen.dart';
+import 'package:contractor_search/layouts/my_profile_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
@@ -642,7 +642,8 @@ class _ChatScreenState extends State<ChatScreen> {
                           : getInitials(_currentUser.name),
                       style: TextStyle(color: ColorUtils.darkerGray))
                   : null,
-              backgroundImage: _currentUser.profilePicUrl != null
+              backgroundImage: _currentUser.profilePicUrl != null &&
+                      _currentUser.profilePicUrl.isNotEmpty
                   ? NetworkImage(_currentUser.profilePicUrl)
                   : null,
               backgroundColor: ColorUtils.lightLightGray,
@@ -676,7 +677,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             : getInitials(_interlocutorUser.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
-                backgroundImage: _interlocutorUser.profilePicUrl != null
+                backgroundImage: _interlocutorUser.profilePicUrl != null &&
+                        _interlocutorUser.profilePicUrl.isNotEmpty
                     ? NetworkImage(_interlocutorUser.profilePicUrl)
                     : null,
                 backgroundColor: ColorUtils.lightLightGray,
@@ -731,7 +733,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             : getInitials(_interlocutorUser.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
-                backgroundImage: _interlocutorUser.profilePicUrl != null
+                backgroundImage: _interlocutorUser.profilePicUrl != null &&
+                        _interlocutorUser.profilePicUrl.isNotEmpty
                     ? NetworkImage(_interlocutorUser.profilePicUrl)
                     : null,
                 backgroundColor: ColorUtils.lightLightGray,
