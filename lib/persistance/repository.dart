@@ -204,6 +204,8 @@ class Repository {
     return result;
   }
   Future<QueryResult> loadAgenda(List<PhoneContactInput> phoneContacts) async {
+    print("Hit repository");
+    print(phoneContacts.length);
     var result = await appApiProvider.loadAgenda(phoneContacts);
     checkTokenError(result);
     return result;

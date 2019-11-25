@@ -1073,6 +1073,7 @@ class ApiProvider {
 
 
     var phoneContactsJson = jsonEncode(phoneContacts);
+    print(phoneContacts);
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{

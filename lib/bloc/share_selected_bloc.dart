@@ -13,6 +13,8 @@ class ShareSelectedBloc {
     return _repository.loadConnections(existingUsers);
   }
   Future<QueryResult> loadAgenda(List<PhoneContactInput> phoneContacts) async {
+    print("Hit bloc function");
+    print(phoneContacts.length);
     return await _repository.loadAgenda(phoneContacts);
   }
 }

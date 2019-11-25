@@ -26,15 +26,17 @@ class SyncContactsBloc {
   }
   Future<List<PhoneContactInput>> syncContacts(String userId) async {
     QueryResult result = await _repository.getUserByIdWithPhoneNumber(userId);
-
+    print("Hit syncContacs");
     if (result.errors == null) {
       countryCode =
           User.fromJson(result.data['get_user']).phoneNumber.substring(0, 2);
 
       var contactsResult = await getContacts();
+      print("Got contactResult");
+      print(contactsResult.length);
       if (contactsResult != null && contactsResult.isNotEmpty) {
         List<PhoneContactInput> phoneContacts = _formatContactsNumber(contactsResult);
-
+        print(phoneContacts.length);
         if (phoneContacts.isNotEmpty) {
           return phoneContacts;
 //          var checkResult = await checkContacts(phoneContacts.toSet().toList());
@@ -55,6 +57,7 @@ class SyncContactsBloc {
 
   List<PhoneContactInput> _formatContactsNumber(Iterable<Contact> contactsResult) {
     List<PhoneContactInput> phoneContacts = [];
+    print(contactsResult);
     contactsResult.forEach((item) {
       //print(item.displayName);
       if (item.phones != null && item.phones.toList().isNotEmpty) {

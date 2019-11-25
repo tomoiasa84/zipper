@@ -154,6 +154,7 @@ class TutorialScreenState extends State<TutorialScreen> {
           _syncContactsBloc.syncContacts(userId).then((syncResult) {
             _syncResults = syncResult;
             print('Getting sync results');
+            print(_syncResults.length);
             _updatePosition(++_currentPosition);
           });
         });
