@@ -15,7 +15,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class ApiProvider {
-  static HttpLink link = HttpLink(uri: 'https://xfriends.azurewebsites.net/');
+  static HttpLink link = HttpLink(uri: 'http://192.168.0.100:4000/');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
@@ -1073,7 +1073,7 @@ class ApiProvider {
 
 
     var phoneContactsJson = jsonEncode(phoneContacts);
-    print(phoneContacts);
+    print(phoneContactsJson);
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1083,7 +1083,7 @@ class ApiProvider {
                   }''',
       ),
     );
-
+    print("LOAD AGENDA");
     return queryResult;
   }
   Future<QueryResult> loadConnections(List<String> existingUsers) async {
