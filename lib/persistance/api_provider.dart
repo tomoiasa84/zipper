@@ -1073,11 +1073,13 @@ class ApiProvider {
 
 
     var phoneContactsJson = jsonEncode(phoneContacts);
-    print(phoneContactsJson);
+    var nameReplace = phoneContactsJson.replaceAll("\"name\"","name");
+    var phoneNumberReplace = nameReplace.replaceAll("\"phoneNumber\"","phoneNumber");
+    print(phoneNumberReplace);
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
-                         load_agenda(phoneContacts: $phoneContactsJson) {
+                         load_agenda(phoneContacts: $phoneNumberReplace) {
                             id
                        }
                   }''',
