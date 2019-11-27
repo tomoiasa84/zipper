@@ -186,6 +186,7 @@ class MyAppState extends State<MyApp> {
           const Locale('en', ''),
           const Locale('ro', ''),
         ],
+        debugShowCheckedModeBanner: false,
         navigatorKey: GlobalVariable.navigatorKey,
         title: 'Flutter Demo',
         theme: ThemeData(primaryColor: ColorUtils.white, fontFamily: "Arial"),

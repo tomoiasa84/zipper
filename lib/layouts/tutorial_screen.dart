@@ -55,17 +55,17 @@ class TutorialScreenState extends State<TutorialScreen> {
       case 0:
         return _builtContent(
             Localization.of(context).getString('accessAgenda'),
-            Localization.of(context).getString('tutorialContent'),
+            Localization.of(context).getString('accessAgendaText'),
             'assets/images/ic_contacts_gray_bg.png');
       case 1:
         return _builtContent(
-            'Lorem ipsum dolor sit',
-            Localization.of(context).getString('tutorialContent'),
+            Localization.of(context).getString('saveTime'),
+            Localization.of(context).getString('saveTimeText'),
             'assets/images/ic_hourglass_gray_bg.png');
       case 2:
         return _builtContent(
             Localization.of(context).getString('tagYourFriends'),
-            Localization.of(context).getString('tutorialContent'),
+            Localization.of(context).getString('tagYourFriendsText'),
             'assets/images/ic_tag_gray_bg.png');
     }
     return _builtContent(
