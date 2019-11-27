@@ -1,4 +1,5 @@
 import 'package:contractor_search/bloc/sync_results_bloc.dart';
+import 'package:contractor_search/layouts/home_page.dart';
 import 'package:contractor_search/layouts/share_selected_screen.dart';
 import 'package:contractor_search/layouts/unjoined_contacts_screen.dart';
 import 'package:contractor_search/model/sync_contacts_model.dart';
@@ -8,7 +9,6 @@ import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-import 'home_page.dart';
 import 'joined_contacts_screen.dart';
 
 class SyncResultsScreen extends StatefulWidget {
@@ -29,6 +29,10 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        valueColor:
+        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+      ),
       inAsyncCall: _saving,
       child: Scaffold(
         appBar: _buildAppBar(),
@@ -42,6 +46,12 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
     unjoinedContacts = widget.syncResult.unjoinedContacts;
     _syncResultsBloc = SyncResultsBloc();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _syncResultsBloc.dispose();
+    super.dispose();
   }
 
   AppBar _buildAppBar() {
@@ -60,34 +70,14 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
             });
             List<String> existingUsers = [];
             widget.syncResult.existingUsers.forEach((contact) {
-              if (contact.phones != null &&
-                  contact.phones.toList().isNotEmpty) {
-                if (contact.phones
-                    .toList()
-                    .elementAt(0)
-                    .value
-                    .toString()
-                    .startsWith("+")) {
-                  existingUsers.add(contact.phones
-                      .toList()
-                      .elementAt(0)
-                      .value
-                      .toString()
-                      .split(" ")
-                      .join(""));
-                } else {
-                  existingUsers.add(widget.syncResult.countryCode +
-                      contact.phones
-                          .toList()
-                          .elementAt(0)
-                          .value
-                          .toString()
-                          .split(" ")
-                          .join(""));
-                }
+              if (contact != null &&
+                  contact.formattedPhoneNumber != null &&
+                  contact.formattedPhoneNumber.isNotEmpty) {
+                existingUsers.add(contact.formattedPhoneNumber);
               }
             });
-            _syncResultsBloc.loadConnections(existingUsers).then((response) {
+            _syncResultsBloc.loadConnections(existingUsers);
+            _syncResultsBloc.loadConnectionsObservable.listen((response) {
               setState(() {
                 _saving = false;
               });
@@ -271,7 +261,6 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
                   builder: (context) => ShareSelectedContactsScreen(
                         existingUsers: widget.syncResult.existingUsers,
                         unjoinedContacts: widget.syncResult.unjoinedContacts,
-                        countryCode: widget.syncResult.countryCode,
                       )),
               ModalRoute.withName("/homepage"));
         },

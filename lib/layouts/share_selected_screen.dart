@@ -1,20 +1,18 @@
-import 'package:contacts_service/contacts_service.dart';
 import 'package:contractor_search/bloc/share_selected_bloc.dart';
+import 'package:contractor_search/model/formatted_contact_model.dart';
 import 'package:contractor_search/model/unjoined_contacts_model.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:flutter/material.dart';
 
 import 'home_page.dart';
 
 class ShareSelectedContactsScreen extends StatefulWidget {
   final List<UnjoinedContactsModel> unjoinedContacts;
-  final List<Contact> existingUsers;
-  final String countryCode;
+  final List<FormattedContactModel> existingUsers;
 
   const ShareSelectedContactsScreen(
-      {Key key, this.unjoinedContacts, this.countryCode, this.existingUsers})
+      {Key key, this.unjoinedContacts, this.existingUsers})
       : super(key: key);
 
   @override
@@ -31,32 +29,16 @@ class ShareSelectedContactsScreenState
     _bloc = ShareSelectedBloc();
     List<String> phoneContactsToBeLoaded = _generateContactsToBeLoaded();
 
-    _bloc.loadContacts(phoneContactsToBeLoaded).then((result) {
-    });
-    _bloc.loadConnections(_generateExistingUsers()).then((result) {
-    });
+    _bloc.loadContacts(phoneContactsToBeLoaded);
+    _bloc.loadConnections(_generateExistingUsers());
     super.initState();
   }
 
   List<String> _generateContactsToBeLoaded() {
     List<String> phoneContactsToBeLoaded = [];
     widget.unjoinedContacts.forEach((contact) {
-      if (contact.selected) {
-        if (contact.contact.phones != null &&
-            contact.contact.phones.toList().isNotEmpty) {
-          if (contact.contact.phones
-              .toList()
-              .elementAt(0)
-              .value
-              .toString()
-              .startsWith("+")) {
-            phoneContactsToBeLoaded.add(
-                contact.contact.phones.toList().elementAt(0).value.toString());
-          } else {
-            phoneContactsToBeLoaded.add(widget.countryCode +
-                contact.contact.phones.toList().elementAt(0).value.toString());
-          }
-        }
+      if (contact != null && contact.selected && contact.contact != null) {
+        phoneContactsToBeLoaded.add(contact.contact.formattedPhoneNumber);
       }
     });
     return phoneContactsToBeLoaded;
@@ -65,22 +47,19 @@ class ShareSelectedContactsScreenState
   List<String> _generateExistingUsers() {
     List<String> existingUsers = [];
     widget.existingUsers.forEach((contact) {
-      if (contact.phones != null && contact.phones.toList().isNotEmpty) {
-        if (contact.phones
-            .toList()
-            .elementAt(0)
-            .value
-            .toString()
-            .startsWith("+")) {
-          existingUsers
-              .add(contact.phones.toList().elementAt(0).value.toString());
-        } else {
-          existingUsers.add(widget.countryCode +
-              contact.phones.toList().elementAt(0).value.toString());
-        }
+      if (contact != null &&
+          contact.formattedPhoneNumber != null &&
+          contact.formattedPhoneNumber.isNotEmpty) {
+        existingUsers.add(contact.formattedPhoneNumber);
       }
     });
     return existingUsers;
+  }
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
   }
 
   @override

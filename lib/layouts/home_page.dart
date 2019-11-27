@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
@@ -5,7 +6,9 @@ import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/layouts/home_content_screen.dart';
+import 'package:contractor_search/model/connection_model.dart';
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/PushNotification.dart';
 import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -44,13 +47,18 @@ class _HomePageState extends State<HomePage> {
   var _recommendationChannel =
       BasicMessageChannel<String>('iosRecommendationTapped', StringCodec());
   User _user;
+  List<PubNubConversation> _pubNubConversations = [];
 
   @override
   void initState() {
+    Stopwatch stopwatch = Stopwatch()..start();
     _homeBloc = HomeBloc();
     if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
     }
+    _homeBloc.getPubNubConversations().then((pubNubConversations){
+      _pubNubConversations = pubNubConversations;
+    });
     _homeBloc.getCurrentUser().then((result) {
       if (result.errors == null) {
         _user = User.fromJson(result.data['get_user']);
@@ -64,10 +72,7 @@ class _HomePageState extends State<HomePage> {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-              builder: (context) => ChatScreen(
-                    conversationId: message,
-                    maybePop: true,
-                  )),
+              builder: (context) => ChatScreen(conversationId: message)),
           ModalRoute.withName("/"));
       return '';
     });
@@ -80,7 +85,7 @@ class _HomePageState extends State<HomePage> {
       _currentUserChannel.send(currentUserId);
       print('USER SENT');
     });
-
+    print('Finished initState in home_page in: ${stopwatch.elapsed}');
     super.initState();
   }
 
@@ -140,10 +145,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-            builder: (context) => CardDetailsScreen(
-                  cardId: cardId,
-                  maybePop: true,
-                )),
+            builder: (context) => CardDetailsScreen(cardId: cardId)),
         ModalRoute.withName("/"));
   }
 
@@ -151,10 +153,8 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-            builder: (context) => ChatScreen(
-                  conversationId: _message.channelId,
-                  maybePop: true,
-                )),
+            builder: (context) =>
+                ChatScreen(conversationId: _message.channelId)),
         ModalRoute.withName("/"));
   }
 
@@ -172,8 +172,8 @@ class _HomePageState extends State<HomePage> {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                    conversationId: _message.channelId, maybePop: true)),
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
             ModalRoute.withName("/"));
       },
       onLaunch: (Map<String, dynamic> message) async {
@@ -182,8 +182,8 @@ class _HomePageState extends State<HomePage> {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                    conversationId: _message.channelId, maybePop: true)),
+                builder: (context) =>
+                    ChatScreen(conversationId: _message.channelId)),
             ModalRoute.withName("/"));
       },
     );
@@ -220,9 +220,16 @@ class _HomePageState extends State<HomePage> {
                 case NavBarItem.HOME:
                   return HomeContentScreen(
                     user: _user,
-                    onUserUpdated: (cardsConnections) {
+                    onUserUpdated: (cardsConnections, cards) {
                       if (_user != null) {
                         _user.cardsConnections = cardsConnections;
+                        _user.cards = cards;
+                      } else {
+                        _homeBloc.getCurrentUser().then((result) {
+                          if (result.errors == null) {
+                            _user = User.fromJson(result.data['get_user']);
+                          }
+                        });
                       }
                     },
                   );
@@ -230,28 +237,63 @@ class _HomePageState extends State<HomePage> {
                   return UsersScreen(
                     user: _user,
                     updateCurrentUser: (connections) {
-                      _user.connections = connections;
+                      if (_user != null) {
+                        _user.connections = connections;
+                      } else {
+                        _homeBloc.getCurrentUser().then((result) {
+                          if (result.errors == null) {
+                            _user = User.fromJson(result.data['get_user']);
+                          }
+                        });
+                        _user = User();
+                        _user.connections = connections;
+                      }
+                    },
+                    updateConnectedUser: (connectedUser) {
+                      Connection connection = _user.connections.firstWhere(
+                          (item) => item.targetUser.id == connectedUser.id,
+                          orElse: () => null);
+                      if (connection != null) {
+                        int index = _user.connections.indexOf(connection);
+                        _user.connections[index].targetUser = connectedUser;
+                      }
                     },
                   );
                 case NavBarItem.PLUS:
                   return Container();
                 case NavBarItem.INBOX:
-                  return ConversationsScreen();
+                  return ConversationsScreen(currentUserId: _user!=null? _user.id:null, pubNubConversations: _pubNubConversations,updateConversationsList: (pubNubConversations){
+                    _pubNubConversations = pubNubConversations;
+                  },);
                 case NavBarItem.ACCOUNT:
                   return AccountScreen(
                     user: _user,
                     onChanged: _onBlurredChanged,
                     isStartedFromHomeScreen: true,
                     onUserChanged: (newUser) {
-                      if(_user!=null && newUser!=null)
-                      _user.name = newUser.name;
-                      _user.phoneNumber = newUser.phoneNumber;
-                      _user.description = newUser.description;
-                      _user.tags = newUser.tags;
-                      _user.cards = newUser.cards;
-                      _user.profilePicUrl = newUser.profilePicUrl;
-                      _user.reviews = newUser.reviews;
-
+                      if (_user != null && newUser != null) {
+                        _user.name = newUser.name;
+                        _user.phoneNumber = newUser.phoneNumber;
+                        _user.description = newUser.description;
+                        _user.tags = newUser.tags;
+                        _user.cards = newUser.cards;
+                        _user.profilePicUrl = newUser.profilePicUrl;
+                        _user.reviews = newUser.reviews;
+                      } else {
+                        _homeBloc.getCurrentUser().then((result) {
+                          if (result.errors == null) {
+                            _user = User.fromJson(result.data['get_user']);
+                          }
+                        });
+                        _user = new User();
+                        _user.name = newUser.name;
+                        _user.phoneNumber = newUser.phoneNumber;
+                        _user.description = newUser.description;
+                        _user.tags = newUser.tags;
+                        _user.cards = newUser.cards;
+                        _user.profilePicUrl = newUser.profilePicUrl;
+                        _user.reviews = newUser.reviews;
+                      }
                     },
                   );
                 default:

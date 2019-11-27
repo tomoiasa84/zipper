@@ -6,7 +6,6 @@ import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/search_users_util.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +14,10 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 class UsersScreen extends StatefulWidget {
   final User user;
   final Function updateCurrentUser;
+  final Function updateConnectedUser;
 
-  const UsersScreen({Key key, this.user, this.updateCurrentUser})
+  const UsersScreen(
+      {Key key, this.user, this.updateCurrentUser, this.updateConnectedUser})
       : super(key: key);
 
   @override
@@ -33,10 +34,14 @@ class UsersScreenState extends State<UsersScreen> {
 
   @override
   void initState() {
-    if (widget.user != null) {
+    _usersBloc = UsersBloc();
+    if (widget.user != null && widget.user.connections != null) {
       _user = widget.user;
       _user.connections.forEach((connection) {
         _usersList.add(connection.targetUser);
+      });
+      _usersList.sort((a, b) {
+        return a.name.compareTo(b.name);
       });
       _usersList.sort((a, b) {
         return b.isActive.toString().compareTo(a.isActive.toString());
@@ -48,14 +53,21 @@ class UsersScreenState extends State<UsersScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _usersBloc.dispose();
+    super.dispose();
+  }
+
   void getCurrentUserConnections() {
-    _usersBloc = UsersBloc();
+    Stopwatch stopwatch = Stopwatch()..start();
     if (mounted) {
       setState(() {
         _saving = true;
       });
     }
-    _usersBloc.getCurrentUserWithConnections().then((result) {
+    _usersBloc.getCurrentUserWithConnections();
+    _usersBloc.getUserByIdWithConnectionObservable.listen((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
         if (_user != null) {
@@ -66,27 +78,39 @@ class UsersScreenState extends State<UsersScreen> {
           _usersList.add(connection.targetUser);
         });
         _usersList.sort((a, b) {
+          return a.name.compareTo(b.name);
+        });
+        _usersList.sort((a, b) {
           return b.isActive.toString().compareTo(a.isActive.toString());
         });
         if (mounted) {
           setState(() {
             _saving = false;
+            print(
+                'Finished getCurrentUserWithConnections in: ${stopwatch.elapsed}');
           });
         }
       } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message);
+        if (mounted) {
+          setState(() {
+            _saving = false;
+          });
+        }
       }
     });
   }
 
   void _checkUsersUpdates() {
-    _usersBloc = UsersBloc();
-    _usersBloc.getCurrentUserWithConnections().then((result) {
+    _usersBloc.getCurrentUserWithConnections();
+    _usersBloc.getUserByIdWithConnectionObservable.listen((result) {
       if (result.errors == null) {
         User newUser = User.fromJson(result.data['get_user']);
-        _user.connections = newUser.connections;
-        widget.updateCurrentUser(newUser.connections);
+        if (_user != null) {
+          _user.connections = newUser.connections;
+        }
+        if (widget.updateCurrentUser != null) {
+          widget.updateCurrentUser(newUser.connections);
+        }
         List<User> targetUsersList = [];
         newUser.connections.forEach((item) {
           targetUsersList.add(item.targetUser);
@@ -97,42 +121,45 @@ class UsersScreenState extends State<UsersScreen> {
             setState(() {
               _saving = false;
               _usersList.sort((a, b) {
+                return a.name.compareTo(b.name);
+              });
+              _usersList.sort((a, b) {
                 return b.isActive.toString().compareTo(a.isActive.toString());
               });
             });
           }
+        } else {
+          if (mounted) {
+            setState(() {
+              _saving = false;
+            });
+          }
         }
       } else {
-        setState(() {
-          _saving = false;
-        });
+        if (mounted) {
+          setState(() {
+            _saving = false;
+          });
+        }
       }
     });
-  }
-
-  void _showDialog(String title, String description) {
-    setState(() {
-      _saving = false;
-    });
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: description,
-        buttonText: Localization.of(context).getString("ok"),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      top: false,
-      child: ModalProgressHUD(
-        inAsyncCall: _saving,
-        child: Scaffold(appBar: _buildAppBar(), body: _buildUsersListView()),
-      ),
-    );
+        top: false,
+        child: ModalProgressHUD(
+          progressIndicator: CircularProgressIndicator(
+            valueColor:
+                new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+          ),
+          inAsyncCall: _saving,
+          child: Scaffold(
+            appBar: _buildAppBar(),
+            body: _buildUsersListView(),
+          ),
+        ));
   }
 
   AppBar _buildAppBar() {
@@ -170,11 +197,27 @@ class UsersScreenState extends State<UsersScreen> {
             builder: (context) => UserDetailsScreen(
                   user: user,
                   currentUser: _user,
+                  connections: _usersList,
+                  updateUser: (user) {
+                    User findUser = _usersList.firstWhere(
+                        (item) => item.id == user.id,
+                        orElse: () => null);
+                    if (findUser != null) {
+                      int index = _usersList.indexOf(findUser);
+                      _usersList[index].connections = user.connections;
+                      _usersList[index].name = user.name;
+                      _usersList[index].phoneNumber = user.phoneNumber;
+                      _usersList[index].description = user.description;
+                      _usersList[index].tags = user.tags;
+                      _usersList[index].cards = user.cards;
+                      _usersList[index].profilePicUrl = user.profilePicUrl;
+                      _usersList[index].reviews = user.reviews;
+                      if (widget.updateConnectedUser != null) {
+                        widget.updateConnectedUser(_usersList[index]);
+                      }
+                    }
+                  },
                 )));
-    _usersList.clear();
-    setState(() {
-      _saving = true;
-    });
     _checkUsersUpdates();
   }
 
@@ -206,14 +249,14 @@ class UsersScreenState extends State<UsersScreen> {
             navigateToUserDetailsScreen(user);
           },
           leading: CircleAvatar(
-            child: user.profilePicUrl == null ||
-                    (user.profilePicUrl != null && user.profilePicUrl.isEmpty)
+            child: user.profilePicUrl == null || user.profilePicUrl.isEmpty
                 ? Text(user.name.startsWith('+') ? '+' : getInitials(user.name),
                     style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
-            backgroundImage: user.profilePicUrl != null
-                ? NetworkImage(user.profilePicUrl)
-                : null,
+            backgroundImage:
+                user.profilePicUrl != null && user.profilePicUrl.isNotEmpty
+                    ? NetworkImage(user.profilePicUrl)
+                    : null,
             backgroundColor: ColorUtils.lightLightGray,
           ),
           title: Row(

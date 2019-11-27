@@ -7,11 +7,12 @@ import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/search_card_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+
+import 'account_screen.dart';
 
 class HomeContentScreen extends StatefulWidget {
   final User user;
@@ -28,91 +29,115 @@ class HomeContentScreenState extends State<HomeContentScreen> {
   var _saving = false;
   HomeContentBloc _homeContentBloc = HomeContentBloc();
   List<CardModel> _cardsList = [];
+  Stopwatch stopwatch = Stopwatch();
 
   @override
   void initState() {
-    if (widget.user != null) {
+    stopwatch.start();
+    if (widget.user != null && widget.user.cardsConnections != null) {
       _cardsList.clear();
       _cardsList.addAll(widget.user.cardsConnections);
+      _cardsList.addAll(widget.user.cards);
       _cardsList.sort((a, b) {
         DateTime dateA = parseDateFromString(a.createdAt);
         DateTime dateB = parseDateFromString(b.createdAt);
         return dateB.compareTo(dateA);
       });
-      _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
+      _homeContentBloc.getUserByIdWithCardsConnections();
+      _homeContentBloc.getUserByIdWithCardsConnectionsObservable
+          .listen((result) {
+        print("getUserByIdWithCardsConnectionsObservable called");
         if (result.errors == null && mounted) {
           User currentUser = User.fromJson(result.data['get_user']);
-          widget.onUserUpdated(currentUser.cardsConnections);
+          widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
           if (currentUser != null && currentUser.cardsConnections != null) {
             if (_cardsList != currentUser.cardsConnections) {
-              _cardsList = currentUser.cardsConnections;
-              setState(() {
-                _cardsList.sort((a, b) {
-                  DateTime dateA = parseDateFromString(a.createdAt);
-                  DateTime dateB = parseDateFromString(b.createdAt);
-                  return dateB.compareTo(dateA);
+              _cardsList.clear();
+              _cardsList.addAll(currentUser.cardsConnections);
+              _cardsList.addAll(currentUser.cards);
+              if (mounted) {
+                setState(() {
+                  _cardsList.sort((a, b) {
+                    DateTime dateA = parseDateFromString(a.createdAt);
+                    DateTime dateB = parseDateFromString(b.createdAt);
+                    return dateB.compareTo(dateA);
+                  });
                 });
-              });
+              }
             }
+          }
+        } else {
+          if (mounted) {
+            setState(() {
+              _saving = false;
+            });
           }
         }
       });
     } else {
+      if (mounted) {
+        setState(() {
+          _saving = true;
+        });
+      }
       getCards();
     }
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _homeContentBloc.dispose();
+    super.dispose();
+  }
+
   void getCards() {
-    if (mounted) {
-      setState(() {
-        _saving = true;
-      });
-    }
-    _homeContentBloc = HomeContentBloc();
-    _homeContentBloc.getUserByIdWithCardsConnections().then((result) {
+    _homeContentBloc.getUserByIdWithCardsConnections();
+    _homeContentBloc.getUserByIdWithCardsConnectionsObservable.listen((result) {
+      print("getUserByIdWithCardsConnectionsObservable called");
       if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);
-        currentUser.cardsConnections.sort((a, b) {
+        List<CardModel> newCardsList = [];
+        newCardsList.addAll(currentUser.cardsConnections);
+        newCardsList.addAll(currentUser.cards);
+        newCardsList.sort((a, b) {
           DateTime dateA = parseDateFromString(a.createdAt);
           DateTime dateB = parseDateFromString(b.createdAt);
           return dateB.compareTo(dateA);
         });
-        widget.onUserUpdated(currentUser.cardsConnections);
+        widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
         if (currentUser != null && currentUser.cardsConnections != null) {
-          setState(() {
-            _cardsList.addAll(currentUser.cardsConnections);
-            _saving = false;
-          });
+          if (mounted) {
+            setState(() {
+              _cardsList = newCardsList;
+              _saving = false;
+              print('Finished getCards overall in: ${stopwatch.elapsed}');
+            });
+          }
         } else {
+          if (mounted) {
+            setState(() {
+              _saving = false;
+            });
+          }
+        }
+      } else {
+        if (mounted) {
           setState(() {
             _saving = false;
           });
         }
-      } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message);
       }
     });
-  }
-
-  void _showDialog(String title, String description) {
-    setState(() {
-      _saving = false;
-    });
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: description,
-        buttonText: Localization.of(context).getString("ok"),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        valueColor:
+        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+      ),
       inAsyncCall: _saving,
       child: Scaffold(
         appBar: _buildAppBar(),
@@ -207,15 +232,15 @@ class HomeContentScreenState extends State<HomeContentScreen> {
       children: <Widget>[
         CircleAvatar(
           child: card.postedBy.profilePicUrl == null ||
-                  (card.postedBy.profilePicUrl != null &&
-                      card.postedBy.profilePicUrl.isEmpty)
+                  card.postedBy.profilePicUrl.isEmpty
               ? Text(
                   card.postedBy.name.startsWith('+')
                       ? '+'
                       : getInitials(card.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: card.postedBy.profilePicUrl != null
+          backgroundImage: card.postedBy.profilePicUrl != null &&
+                  card.postedBy.profilePicUrl.isNotEmpty
               ? NetworkImage(card.postedBy.profilePicUrl)
               : null,
           backgroundColor: ColorUtils.lightLightGray,
@@ -230,13 +255,24 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => UserDetailsScreen(
-                                      user: card.postedBy,
-                                      currentUser: widget.user,
-                                    )));
+                        getCurrentUserId().then((currentUserId) async {
+                          if (currentUserId == card.postedBy.id) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AccountScreen(
+                                        isStartedFromHomeScreen: false)));
+                          } else {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => UserDetailsScreen(
+                                        user: card.postedBy,
+                                        currentUser: widget.user))).then((_) {
+                              getCards();
+                            });
+                          }
+                        });
                       },
                       child: Text(card.postedBy.name,
                           style: TextStyle(fontWeight: FontWeight.bold)),
@@ -322,11 +358,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
     await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => CardDetailsScreen(
-                  cardId: card.id,
-                  maybePop: false,
-                )));
-    _cardsList.clear();
+            builder: (context) => CardDetailsScreen(cardId: card.id)));
     getCards();
   }
 

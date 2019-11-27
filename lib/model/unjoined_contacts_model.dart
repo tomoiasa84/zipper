@@ -1,9 +1,8 @@
-import 'package:contacts_service/contacts_service.dart';
+import 'package:contractor_search/model/formatted_contact_model.dart';
 
-class UnjoinedContactsModel{
-  Contact contact;
+class UnjoinedContactsModel {
+  FormattedContactModel contact;
   bool selected;
 
   UnjoinedContactsModel(this.contact, this.selected);
-
 }

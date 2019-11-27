@@ -13,7 +13,16 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'chat_screen.dart';
 
 class ConversationsScreen extends StatefulWidget {
-  ConversationsScreen({Key key}) : super(key: key);
+  final List<PubNubConversation> pubNubConversations;
+  final Function updateConversationsList;
+  final String currentUserId;
+
+  const ConversationsScreen(
+      {Key key,
+      this.pubNubConversations,
+      this.updateConversationsList,
+      this.currentUserId})
+      : super(key: key);
 
   @override
   _ConversationsScreenState createState() => _ConversationsScreenState();
@@ -21,29 +30,67 @@ class ConversationsScreen extends StatefulWidget {
 
 class _ConversationsScreenState extends State<ConversationsScreen>
     with WidgetsBindingObserver {
-  bool _loading = true;
+  bool _loading = false;
   String _currentUserId;
   List<PubNubConversation> _pubNubConversations = List();
   final ConversationsBloc _conversationsBloc = ConversationsBloc();
+  Stopwatch stopwatch = Stopwatch();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    getCurrentUserId().then((currentUserId) {
-      _currentUserId = currentUserId;
-    });
+    if (widget.currentUserId != null) {
+      _currentUserId = widget.currentUserId;
+      _pubNubConversations = widget.pubNubConversations;
+      _getConversations();
+    } else {
+      _loading = true;
+      getCurrentUserId().then((currentUserId) {
+        _currentUserId = currentUserId;
+        if (widget.pubNubConversations != null &&
+            widget.pubNubConversations.isNotEmpty) {
+          if (mounted) {
+            setState(() {
+              _loading = false;
+            });
+          }
+          _pubNubConversations = widget.pubNubConversations;
+          _getConversations();
+        } else {
+          _getConversations();
+        }
+      });
+    }
   }
 
   void _getConversations() {
-    print('GET CONVERSATIONS');
-    _conversationsBloc.getPubNubConversations().then((conversations) {
-      setState(() {
-        _pubNubConversations = conversations;
-        _loading = false;
-        _setConversationReadState(conversations);
+    stopwatch.start();
+    if (mounted) {
+      _conversationsBloc.getPubNubConversations();
+      _conversationsBloc.getPubNubConversationsObservable
+          .listen((conversations) {
+        print("getPubNubConversationsObservable called");
+        if (conversations != null) {
+          if (widget.updateConversationsList != null) {
+            widget.updateConversationsList(conversations);
+          }
+          if (mounted) {
+            setState(() {
+              _pubNubConversations = conversations;
+              _loading = false;
+              _setConversationReadState(conversations);
+            });
+          }
+        } else {
+          if (mounted) {
+            setState(() {
+              _loading = false;
+            });
+          }
+        }
       });
-    });
+    }
   }
 
   Future _setConversationReadState(
@@ -55,29 +102,36 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                 conversation.id);
         if (lastMessageTimestamp !=
             conversation.lastMessage.message.timestamp.toIso8601String()) {
-          setState(() {
-            conversation.read = false;
-          });
+          if (mounted) {
+            setState(() {
+              conversation.read = false;
+            });
+          }
         }
       } else {
         var lastRecommendCount =
             await SharedPreferencesHelper.getCardRecommendsCount(
                 conversation.lastMessage.message.cardId.toString());
         if (lastRecommendCount == null) {
-          setState(() {
-            conversation.read = false;
-          });
+          if (mounted) {
+            setState(() {
+              conversation.read = false;
+            });
+          }
         }
         if (lastRecommendCount ==
             conversation.lastMessage.message.cardRecommendationsCount) {
-          setState(() {
-            conversation.read = true;
-          });
+          if (mounted) {
+            setState(() {
+              conversation.read = true;
+            });
+          }
         } else {
           conversation.read = false;
         }
       }
     }
+    print('Finished _getConversations in: ${stopwatch.elapsed}');
   }
 
   void _startNewConversation() {
@@ -89,15 +143,11 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   void _goToChatScreen(PubNubConversation pubNubConversation) {
-    var convId = pubNubConversation.id;
-    print('CONVERSATION ID IS: $convId');
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => ChatScreen(
-                pubNubConversation: pubNubConversation,
-                maybePop: true,
-              )),
+          builder: (context) =>
+              ChatScreen(pubNubConversation: pubNubConversation)),
     );
   }
 
@@ -106,10 +156,14 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       context,
       MaterialPageRoute(
           builder: (context) => CardDetailsScreen(
-                cardId: pubNubConversation.lastMessage.message.cardId,
-                maybePop: true,
-              )),
+              cardId: pubNubConversation.lastMessage.message.cardId)),
     );
+  }
+
+  @override
+  void dispose() {
+    _conversationsBloc.dispose();
+    super.dispose();
   }
 
   @override
@@ -122,23 +176,25 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         }
       },
       child: ModalProgressHUD(
+        progressIndicator: CircularProgressIndicator(
+          valueColor:
+          new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        ),
         inAsyncCall: _loading,
         child: Scaffold(
-          body: new Column(children: <Widget>[
-            AppBar(
-              title: Text(
-                Localization.of(context).getString('messages'),
-                style: TextStyle(
-                    color: ColorUtils.textBlack,
-                    fontSize: 14,
-                    fontFamily: 'Arial',
-                    fontWeight: FontWeight.bold),
-              ),
-              centerTitle: true,
-              backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: Text(
+              Localization.of(context).getString('messages'),
+              style: TextStyle(
+                  color: ColorUtils.textBlack,
+                  fontSize: 14,
+                  fontFamily: 'Arial',
+                  fontWeight: FontWeight.bold),
             ),
-            _showConversationsUI(),
-          ]),
+            centerTitle: true,
+            backgroundColor: Colors.white,
+          ),
+          body: _showConversationsUI(),
           floatingActionButton: Container(
             height: 42,
             width: 42,
@@ -162,13 +218,11 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   Widget _showConversationsUI() {
-    return Expanded(
-      child: Container(
-        color: ColorUtils.messageGray,
-        child: new Container(
-          margin: EdgeInsets.fromLTRB(16, 16, 16, 16),
-          child: _getListView(_pubNubConversations),
-        ),
+    return Container(
+      color: ColorUtils.messageGray,
+      child: new Container(
+        margin: EdgeInsets.fromLTRB(16, 16, 16, 16),
+        child: _getListView(_pubNubConversations),
       ),
     );
   }
@@ -268,18 +322,17 @@ class _ConversationsScreenState extends State<ConversationsScreen>
               width: 40,
               height: 40,
               child: CircleAvatar(
-                child: user.profilePicUrl == null ||
-                        (user.profilePicUrl != null &&
-                            user.profilePicUrl.isEmpty)
+                child: user.profilePicUrl == null || user.profilePicUrl.isEmpty
                     ? Text(
                         user.name.startsWith('+')
                             ? '+'
                             : getInitials(user.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
-                backgroundImage: user.profilePicUrl != null
-                    ? NetworkImage(user.profilePicUrl)
-                    : null,
+                backgroundImage:
+                    user.profilePicUrl != null && user.profilePicUrl.isNotEmpty
+                        ? NetworkImage(user.profilePicUrl)
+                        : null,
                 backgroundColor: ColorUtils.lightLightGray,
               ),
             ),

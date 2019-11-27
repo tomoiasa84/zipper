@@ -6,10 +6,12 @@ import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
+import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql/src/core/query_result.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -17,10 +19,8 @@ import 'chat_screen.dart';
 
 class CardDetailsScreen extends StatefulWidget {
   final int cardId;
-  final bool maybePop;
 
-  const CardDetailsScreen({Key key, this.cardId, this.maybePop})
-      : super(key: key);
+  const CardDetailsScreen({Key key, this.cardId}) : super(key: key);
 
   @override
   CardDetailsScreenState createState() => CardDetailsScreenState();
@@ -28,10 +28,12 @@ class CardDetailsScreen extends StatefulWidget {
 
 class CardDetailsScreenState extends State<CardDetailsScreen> {
   CardModel _card;
-  CardDetailsBloc _cardDetailsBloc;
+  CardDetailsBloc _cardDetailsBloc = CardDetailsBloc();
   bool _saving = false;
 
   String _currentUserId;
+
+  bool connected = true;
 
   @override
   void initState() {
@@ -44,24 +46,70 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _cardDetailsBloc.dispose();
+    super.dispose();
+  }
+
+  void _showUnexistentCardDialog() {
+    setState(() {
+      _saving = false;
+    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: Localization.of(context).getString('error'),
+        description: Localization.of(context).getString('cardWasDeleted'),
+        buttonText: Localization.of(context).getString("ok"),
+        function: _returnToPreviousScreen,
+      ),
+    );
+  }
+
   void getCurrentCard() {
-    _cardDetailsBloc = CardDetailsBloc();
     setState(() {
       _saving = true;
     });
-    _cardDetailsBloc.getCardById(widget.cardId).then((result) {
-      if (result.errors == null && mounted) {
-        setState(() {
-          _saving = false;
-          _card = CardModel.fromJson(result.data['get_card']);
-        });
+    _cardDetailsBloc.getCardById(widget.cardId);
+    _cardDetailsBloc.getCardByIdObservable.listen((result) {
+      if (result.errors == null) {
+        if (result.data['get_card'] == null) {
+          _showUnexistentCardDialog();
+        } else {
+          _processCardResponse(result);
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _saving = false;
+            connected = false;
+          });
+        }
       }
     });
   }
 
+  void _returnToPreviousScreen() {
+    Navigator.pop(context);
+  }
+
+  void _processCardResponse(QueryResult result) {
+    if (result.errors == null && mounted) {
+      setState(() {
+        _saving = false;
+        _card = CardModel.fromJson(result.data['get_card']);
+      });
+    }
+  }
+
   Future<bool> _saveLastRecommendation() async {
-    return SharedPreferencesHelper.saveCardRecommendsCount(
-        _card.id.toString(), _card.recommendsCount);
+    if (_card != null) {
+      return SharedPreferencesHelper.saveCardRecommendsCount(
+          _card.id.toString(), _card.recommendsCount);
+    } else {
+      return true;
+    }
   }
 
   @override
@@ -69,10 +117,17 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     return WillPopScope(
       onWillPop: _saveLastRecommendation,
       child: ModalProgressHUD(
+        progressIndicator: CircularProgressIndicator(
+          valueColor:
+          new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        ),
         inAsyncCall: _saving,
         child: Scaffold(
           appBar: _buildAppBar(),
-          body: _buildContent(),
+          body: connected
+              ? _buildContent()
+              : buildNoInternetMessage(
+                  Localization.of(context).getString('noInternetConnection')),
         ),
       ),
     );
@@ -89,11 +144,9 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       ),
       centerTitle: true,
       leading: buildBackButton(Icons.arrow_back, () {
-        if (widget.maybePop) {
-          Navigator.maybePop(context);
-        } else {
+        _saveLastRecommendation().then((value) {
           Navigator.pop(context);
-        }
+        });
       }),
     );
   }
@@ -126,12 +179,13 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
   }
 
   void _startConversation(User user) {
-    _cardDetailsBloc.createConversation(user).then((pubNubConversation) {
-      Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (BuildContext context) => ChatScreen(
-                pubNubConversation: pubNubConversation,
-                maybePop: false,
-              )));
+    _cardDetailsBloc.createConversation(user);
+    _cardDetailsBloc.createConversationObservable.listen((pubNubConversation) {
+      if (pubNubConversation != null) {
+        Navigator.of(context).pushReplacement(new MaterialPageRoute(
+            builder: (BuildContext context) =>
+                ChatScreen(pubNubConversation: pubNubConversation)));
+      }
     });
   }
 
@@ -162,15 +216,27 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text(
-                                _card.recommendsList
-                                    .elementAt(index)
-                                    .userRecommend
-                                    .name,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    color: ColorUtils.textBlack,
-                                    fontWeight: FontWeight.bold),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              UserDetailsScreen(
+                                                  user: _card.recommendsList
+                                                      .elementAt(index)
+                                                      .userRecommend)));
+                                },
+                                child: Text(
+                                  _card.recommendsList
+                                      .elementAt(index)
+                                      .userRecommend
+                                      .name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: ColorUtils.textBlack,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                               Row(
                                 children: <Widget>[
@@ -249,16 +315,11 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                                     .userRecommend
                                     .profilePicUrl ==
                                 null ||
-                            (_card.recommendsList
-                                        .elementAt(index)
-                                        .userRecommend
-                                        .profilePicUrl !=
-                                    null &&
-                                _card.recommendsList
-                                    .elementAt(index)
-                                    .userRecommend
-                                    .profilePicUrl
-                                    .isEmpty)
+                            _card.recommendsList
+                                .elementAt(index)
+                                .userRecommend
+                                .profilePicUrl
+                                .isEmpty
                         ? Text(
                             _card.recommendsList
                                     .elementAt(index)
@@ -273,10 +334,15 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                             style: TextStyle(color: ColorUtils.darkerGray))
                         : null,
                     backgroundImage: _card.recommendsList
+                                    .elementAt(index)
+                                    .userRecommend
+                                    .profilePicUrl !=
+                                null &&
+                            _card.recommendsList
                                 .elementAt(index)
                                 .userRecommend
-                                .profilePicUrl !=
-                            null
+                                .profilePicUrl
+                                .isNotEmpty
                         ? NetworkImage(_card.recommendsList
                             .elementAt(index)
                             .userRecommend
@@ -314,9 +380,10 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => UserDetailsScreen(
-                                      user: _card.recommendsList
-                                          .elementAt(index)
-                                          .userSend)));
+                                        user: _card.recommendsList
+                                            .elementAt(index)
+                                            .userSend,
+                                      )));
                         }
                       });
                     },
@@ -347,7 +414,8 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 54.0),
+                padding: EdgeInsets.fromLTRB(16.0, 24.0, 16.0,
+                    _currentUserId != _card.postedBy.id ? 54.0 : 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -359,11 +427,13 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
               ),
             ),
           ),
-          Positioned(
-              bottom: 0.0,
-              right: 0.0,
-              left: 0.0,
-              child: _buildRecommendButton())
+          _currentUserId != _card.postedBy.id
+              ? Positioned(
+                  bottom: 0.0,
+                  right: 0.0,
+                  left: 0.0,
+                  child: _buildRecommendButton())
+              : Container()
         ],
       ),
     );
@@ -374,15 +444,15 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       children: <Widget>[
         CircleAvatar(
           child: _card.postedBy.profilePicUrl == null ||
-                  (_card.postedBy.profilePicUrl != null &&
-                      _card.postedBy.profilePicUrl.isEmpty)
+                  _card.postedBy.profilePicUrl.isEmpty
               ? Text(
                   _card.postedBy.name.startsWith('+')
                       ? '+'
                       : getInitials(_card.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: _card.postedBy.profilePicUrl != null
+          backgroundImage: _card.postedBy.profilePicUrl != null &&
+                  _card.postedBy.profilePicUrl.isNotEmpty
               ? NetworkImage(_card.postedBy.profilePicUrl)
               : null,
           backgroundColor: ColorUtils.lightLightGray,
@@ -475,6 +545,17 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
     );
   }
 
+  Future _showDialog(String title, String message) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: title,
+        description: message,
+        buttonText: Localization.of(context).getString('ok'),
+      ),
+    );
+  }
+
   GestureDetector _buildRecommendButton() {
     return GestureDetector(
       onTap: () {
@@ -504,7 +585,6 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => RecommendFriendScreen(card: _card)));
-
     getCurrentCard();
   }
 }

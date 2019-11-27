@@ -140,16 +140,16 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
         padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 16.0),
         child: Row(
           children: <Widget>[
-            (unjoinedContact.contact.avatar != null &&
-                    unjoinedContact.contact.avatar.length > 0)
+            (unjoinedContact.contact.contact.avatar != null &&
+                    unjoinedContact.contact.contact.avatar.length > 0)
                 ? CircleAvatar(
                     backgroundImage:
-                        MemoryImage(unjoinedContact.contact.avatar))
+                        MemoryImage(unjoinedContact.contact.contact.avatar))
                 : CircleAvatar(
                     child: Text(
-                        unjoinedContact.contact.displayName.startsWith('+')
+                        unjoinedContact.contact.contact.displayName.startsWith('+')
                             ? '+'
-                            : getInitials(unjoinedContact.contact.displayName),
+                            : getInitials(unjoinedContact.contact.contact.displayName),
                         style: TextStyle(color: ColorUtils.darkerGray)),
                     backgroundColor: ColorUtils.lightLightGray,
                   ),
@@ -157,9 +157,10 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Text(
-                  unjoinedContact.contact.displayName,
+                  unjoinedContact.contact.contact.displayName,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold),
                 ),
               ),
             ),

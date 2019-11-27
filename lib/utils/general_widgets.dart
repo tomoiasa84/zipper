@@ -173,11 +173,7 @@ List<Widget> generateTags(List<UserTag> userTag, Function onTapAction,
       ),
     );
   });
-  if (tags.length > 5) {
-    return tags.sublist(0, 5);
-  } else {
-    return tags;
-  }
+  return tags;
 }
 
 Widget generateContactUI(
@@ -208,12 +204,17 @@ Widget generateContactUI(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(
-                            userRec.name,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                color: ColorUtils.white,
-                                fontWeight: FontWeight.bold),
+                          GestureDetector(
+                            onTap: () {
+                              goToUserDetailsScreen(userRec);
+                            },
+                            child: Text(
+                              userRec.name,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: ColorUtils.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                           Row(
                             children: <Widget>[
@@ -271,15 +272,15 @@ Widget generateContactUI(
               decoration: new BoxDecoration(shape: BoxShape.circle),
               child: CircleAvatar(
                 child: userRec.profilePicUrl == null ||
-                        (userRec.profilePicUrl != null &&
-                            userRec.profilePicUrl.isEmpty)
+                        userRec.profilePicUrl.isEmpty
                     ? Text(
                         userRec.name.startsWith('+')
                             ? '+'
                             : getInitials(userRec.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
-                backgroundImage: userRec.profilePicUrl != null
+                backgroundImage: userRec.profilePicUrl != null &&
+                        userRec.profilePicUrl.isNotEmpty
                     ? NetworkImage(userRec.profilePicUrl)
                     : null,
                 backgroundColor: ColorUtils.lightLightGray,
@@ -336,4 +337,10 @@ BoxDecoration getRoundedOrangeDecoration() {
   return BoxDecoration(
       color: ColorUtils.messageOrange,
       borderRadius: BorderRadius.all(Radius.circular(8)));
+}
+
+Center buildNoInternetMessage(String message) {
+  return Center(
+    child: Text(message),
+  );
 }

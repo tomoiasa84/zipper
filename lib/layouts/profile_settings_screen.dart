@@ -40,14 +40,37 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   bool _autoValidate = false;
   File _profilePic;
 
+  Tag tagCreated;
+
   @override
   void initState() {
     _fetchUsefulData();
+    _profileSettingsBloc.createUserTagObservable.listen((result) {
+      setState(() {
+        _saving = false;
+      });
+      if (result.errors == null && tagCreated != null) {
+        _updateTagAdded(tagCreated, result);
+      } else {
+        _showDialog(
+            Localization.of(context).getString("error"),
+            Localization.of(context).getString("anErrorHasOccured"),
+            Localization.of(context).getString("ok"));
+      }
+    });
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _profileSettingsBloc.dispose();
+    super.dispose();
+  }
+
   void getTags() {
-    _profileSettingsBloc.getTags().then((result) {
+    _profileSettingsBloc.getTags();
+    _profileSettingsBloc.getTagsObservable.listen((result) {
+      print("getTagsObservable called");
       if (result.errors == null) {
         final List<Map<String, dynamic>> tags =
             result.data['get_tags'].cast<Map<String, dynamic>>();
@@ -65,9 +88,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             tagsList.add(tagItem);
           }
         });
-      } else {
-        _showDialog(Localization.of(context).getString("error"),
-            result.errors[0].message, Localization.of(context).getString('ok'));
       }
     });
   }
@@ -83,16 +103,25 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           (userTag) =>
               userTag.tag.name == _mainTextEditingController.text.substring(1),
           orElse: () => null);
-      _profileSettingsBloc
-          .updateMainUserTag(newMainUserTag.id)
-          .then((newMainTagResult) {
+      _profileSettingsBloc.updateMainUserTag(newMainUserTag.id);
+      _profileSettingsBloc.updateMainUserTagObservable
+          .listen((newMainTagResult) {
         if (newMainTagResult.errors == null) {
           updateUser();
+        } else {
+          _showDialog(
+              Localization.of(context).getString("error"),
+              Localization.of(context).getString("anErrorHasOccured"),
+              Localization.of(context).getString("ok"));
         }
       });
     } else {
       updateUser();
     }
+  }
+
+  Future<String> _uploadUserProfilePicture() async {
+    return await _profileSettingsBloc.uploadPic(_profilePic);
   }
 
   Future updateUser() async {
@@ -103,34 +132,29 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         profilePicUrl = imageUrl;
       });
     } else {
-      profilePicUrl = widget.user.profilePicUrl!=null ? widget.user.profilePicUrl: "" ;
+      profilePicUrl =
+          widget.user.profilePicUrl != null ? widget.user.profilePicUrl : "";
     }
 
-    _profileSettingsBloc
-        .updateUser(
-            widget.user.id,
-            widget.user.firebaseId,
-            _nameTextEditingController.text,
-            widget.user.location.id,
-            true,
-            widget.user.phoneNumber,
-            profilePicUrl,
-            _bioTextEditingController.text)
-        .then((result) {
-      setState(() {
-        _saving = false;
-      });
+    _profileSettingsBloc.updateUser(
+        widget.user.id,
+        widget.user.firebaseId,
+        _nameTextEditingController.text,
+        widget.user.location.id,
+        true,
+        widget.user.phoneNumber,
+        profilePicUrl,
+        _bioTextEditingController.text);
+    _profileSettingsBloc.updateUserObservable.listen((result) {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+        });
+      }
       if (result.errors == null) {
         Navigator.pop(context);
-      } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message, Localization.of(context).getString('ok'));
       }
     });
-  }
-
-  Future<String> _uploadUserProfilePicture() async {
-    return await _profileSettingsBloc.uploadPic(_profilePic);
   }
 
   void _selectImage() async {
@@ -144,7 +168,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     });
   }
 
-  void _createNewUserTag() {
+  Future<void> _createNewUserTag() async {
     setState(() {
       _saving = true;
     });
@@ -152,19 +176,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         (tag) => tag.name == _addTagsTextEditingController.text.substring(1),
         orElse: () => null);
     if (tag != null) {
-      _profileSettingsBloc.createUserTag(widget.user.id, tag.id).then((result) {
-        setState(() {
-          _saving = false;
-        });
-        if (result.errors == null) {
-          _updateTagAdded(tag, result);
-        } else {
-          _showDialog(
-              Localization.of(context).getString("error"),
-              result.errors[0].message,
-              Localization.of(context).getString("ok"));
-        }
-      });
+      _profileSettingsBloc.createUserTag(widget.user.id, tag.id);
+      tagCreated = tag;
     }
   }
 
@@ -186,12 +199,18 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     setState(() {
       _saving = true;
     });
-    _profileSettingsBloc.deleteUserTag(item.id).then((result) {
+    _profileSettingsBloc.deleteUserTag(item.id);
+    _profileSettingsBloc.deleteUserTagObservable.listen((result) {
       setState(() {
         _saving = false;
       });
       if (result.errors == null) {
         _updateTagDeleted(item);
+      } else {
+        _showDialog(
+            Localization.of(context).getString("error"),
+            Localization.of(context).getString("anErrorHasOccured"),
+            Localization.of(context).getString("ok"));
       }
     });
   }
@@ -204,9 +223,9 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         userTag = null;
         _mainTextEditingController.clear();
       } else if (userTag != null && !userTagsList.contains(userTag)) {
-        _profileSettingsBloc
-            .updateMainUserTag(userTagsList[0].id)
-            .then((updateNewTagResult) {
+        _profileSettingsBloc.updateMainUserTag(userTagsList[0].id);
+        _profileSettingsBloc.updateMainUserTagObservable
+            .listen((updateNewTagResult) {
           setState(() {
             _mainTextEditingController.text = '#' +
                 UserTag.fromJson(updateNewTagResult.data['update_userTag'])
@@ -249,6 +268,10 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        valueColor:
+        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+      ),
       inAsyncCall: _saving,
       child: Scaffold(
         appBar: _buildAppBar(context),
@@ -327,7 +350,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     if (_profilePic != null) {
       return FileImage(_profilePic);
     } else {
-      if (widget.user.profilePicUrl == null) {
+      if (widget.user.profilePicUrl == null ||
+          widget.user.profilePicUrl.isEmpty) {
         return null;
       } else {
         return NetworkImage(widget.user.profilePicUrl);
@@ -340,8 +364,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       children: <Widget>[
         CircleAvatar(
           child: widget.user.profilePicUrl == null ||
-                  (widget.user.profilePicUrl != null &&
-                      widget.user.profilePicUrl.isEmpty)
+                  widget.user.profilePicUrl.isEmpty
               ? Text(
                   widget.user.name.startsWith('+')
                       ? '+'

@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:contractor_search/bloc/chat_bloc.dart';
+import 'package:contractor_search/layouts/account_screen.dart';
 import 'package:contractor_search/layouts/image_preview_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
+import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
@@ -28,10 +30,8 @@ import 'card_details_screen.dart';
 class ChatScreen extends StatefulWidget {
   final PubNubConversation pubNubConversation;
   final String conversationId;
-  final bool maybePop;
 
-  ChatScreen(
-      {Key key, this.pubNubConversation, this.conversationId, this.maybePop})
+  ChatScreen({Key key, this.pubNubConversation, this.conversationId})
       : super(key: key);
 
   @override
@@ -77,14 +77,13 @@ class _ChatScreenState extends State<ChatScreen> {
               escapeJsonCharacters(imageDownloadUrl),
               _currentUser.id,
               _pubNubConversation.id);
-          _chatBloc
-              .sendMessage(
-                  _pubNubConversation.id,
-                  PnGCM(WrappedMessage(
-                      PushNotification(_currentUser.name,
-                          Localization.of(context).getString('image')),
-                      message)))
-              .then((messageSent) {
+          _chatBloc.sendMessage(
+              _pubNubConversation.id,
+              PnGCM(WrappedMessage(
+                  PushNotification(_currentUser.name,
+                      Localization.of(context).getString('image')),
+                  message)));
+          _chatBloc.sendMessageObservable.listen((messageSent) {
             if (!messageSent) {
               _showDialog(
                   Localization.of(context).getString('error'),
@@ -123,10 +122,13 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _startConversation(User user) {
-    _chatBloc.createConversation(user).then((pubNubConversation) {
-      Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (BuildContext context) => ChatScreen(
-              pubNubConversation: pubNubConversation, maybePop: false)));
+    _chatBloc.createConversation(user);
+    _chatBloc.createConversationObservable.listen((pubNubConversation) {
+      if (pubNubConversation != null) {
+        Navigator.of(context).pushReplacement(new MaterialPageRoute(
+            builder: (BuildContext context) =>
+                ChatScreen(pubNubConversation: pubNubConversation)));
+      }
     });
   }
 
@@ -149,19 +151,9 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+
     _pubNubConversation = widget.pubNubConversation;
-    _initScreen().then((value) {
-      _controller.addListener(_scrollListener);
-      _loadMore().then((onValue) {
-        if (mounted) {
-          setState(() {
-            _loading = false;
-          });
-        } else {
-          print('NOT LOADED');
-        }
-      });
-    });
+    _initScreen();
   }
 
   _scrollListener() {
@@ -184,49 +176,64 @@ class _ChatScreenState extends State<ChatScreen> {
             _pubNubConversation = pubNubConversation;
           });
           if (_pubNubConversation == null) {
-            await _getConversationFromDb(currentUserId);
+            _getConversationFromDb(currentUserId);
           }
         });
+      } else {
+        await _setMessagesListener(_pubNubConversation.id, currentUserId);
+
+        setState(() {
+          if (currentUserId == _pubNubConversation.user1.id) {
+            _currentUser = _pubNubConversation.user1;
+            _interlocutorUser = _pubNubConversation.user2;
+          } else {
+            _currentUser = _pubNubConversation.user2;
+            _interlocutorUser = _pubNubConversation.user1;
+          }
+        });
+        _controller.addListener(_scrollListener);
+        _loadMore();
       }
-
-      await _setMessagesListener(_pubNubConversation.id, currentUserId);
-
-      setState(() {
-        if (currentUserId == _pubNubConversation.user1.id) {
-          _currentUser = _pubNubConversation.user1;
-          _interlocutorUser = _pubNubConversation.user2;
-        } else {
-          _currentUser = _pubNubConversation.user2;
-          _interlocutorUser = _pubNubConversation.user1;
-        }
-      });
     });
   }
 
-  Future _getConversationFromDb(String currentUserId) async {
+  _getConversationFromDb(String currentUserId) {
     if (_pubNubConversation == null) {
-      await _chatBloc
-          .getConversation(widget.conversationId)
-          .then((pubNubConversation) {
+      _chatBloc.getConversation(widget.conversationId);
+
+      _chatBloc.getConversationObservable.listen((pubNubConversation) {
         setState(() {
           _pubNubConversation = pubNubConversation;
         });
+        _setMessagesListener(_pubNubConversation.id, currentUserId)
+            .then((value) {
+          setState(() {
+            if (currentUserId == _pubNubConversation.user1.id) {
+              _currentUser = _pubNubConversation.user1;
+              _interlocutorUser = _pubNubConversation.user2;
+            } else {
+              _currentUser = _pubNubConversation.user2;
+              _interlocutorUser = _pubNubConversation.user1;
+            }
+          });
+          _controller.addListener(_scrollListener);
+          _loadMore();
+          SharedPreferencesHelper.saveConversation(_pubNubConversation);
+        });
       });
     }
-
-    SharedPreferencesHelper.saveConversation(_pubNubConversation);
   }
 
-  Future<bool> _loadMore() async {
+  _loadMore() async {
     if (_pubNubConversation == null) {
       return false;
     }
     if (_chatBloc.historyStart != 0) {
-      await _chatBloc
-          .getHistoryMessages(_pubNubConversation.id)
-          .then((historyMessages) {
+      _chatBloc.getHistoryMessages(_pubNubConversation.id);
+      _chatBloc.getHistoryMessagesObservable.listen((historyMessages) {
         if (mounted) {
           setState(() {
+            _loading = false;
             _listOfMessages.addAll(historyMessages.reversed);
             _addHeadersIfNecessary();
           });
@@ -256,6 +263,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   bool lastMessageHasDifferentDate() {
+    if (_listOfMessages.length < 2) {
+      return true;
+    }
     var firstBeforeLastMessage = _listOfMessages[1] as UserMessage;
     var lastMessage = _listOfMessages[0] as UserMessage;
     if (firstBeforeLastMessage.timestamp.day == lastMessage.timestamp.day &&
@@ -345,6 +355,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return WillPopScope(
       onWillPop: _saveLastMessage,
       child: ModalProgressHUD(
+        progressIndicator: CircularProgressIndicator(
+          valueColor:
+              new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        ),
         inAsyncCall: _loading,
         child: Scaffold(
           appBar: AppBar(
@@ -363,19 +377,15 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: ColorUtils.almostBlack,
               ),
               onPressed: () {
-                if (widget.maybePop) {
-                  Navigator.maybePop(context);
-                } else {
-                  Navigator.pop(context);
-                }
+                _saveLastMessage().then((messageSaved) {
+                  Navigator.of(context).pop();
+                });
               },
             ),
             backgroundColor: Colors.white,
           ),
-          body: new Column(children: <Widget>[
-            _showMessagesUI(),
-            _showUserInputUI()
-          ]),
+          body: new Column(
+              children: <Widget>[_showMessagesUI(), _showUserInputUI()]),
         ),
       ),
     );
@@ -435,8 +445,21 @@ class _ChatScreenState extends State<ChatScreen> {
             mainTag != null ? mainTag.tag.name : '',
             mainTag != null ? mainTag.score : -1,
             () => _startConversation(item.sharedContact),
-            null,
-            () {});
+            null, (userSend) {
+          if (_currentUser.id == userSend.id) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        AccountScreen(isStartedFromHomeScreen: false)));
+          } else {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => UserDetailsScreen(
+                        user: userSend, currentUser: _currentUser)));
+          }
+        });
       }
 
       if (item.cardModel != null) {
@@ -554,15 +577,15 @@ class _ChatScreenState extends State<ChatScreen> {
             height: 32,
             child: CircleAvatar(
               child: _currentUser.profilePicUrl == null ||
-                      (_currentUser.profilePicUrl != null &&
-                          _currentUser.profilePicUrl.isEmpty)
+                      _currentUser.profilePicUrl.isEmpty
                   ? Text(
                       _currentUser.name.startsWith('+')
                           ? '+'
                           : getInitials(_currentUser.name),
                       style: TextStyle(color: ColorUtils.darkerGray))
                   : null,
-              backgroundImage: _currentUser.profilePicUrl != null
+              backgroundImage: _currentUser.profilePicUrl != null &&
+                      _currentUser.profilePicUrl.isNotEmpty
                   ? NetworkImage(_currentUser.profilePicUrl)
                   : null,
               backgroundColor: ColorUtils.lightLightGray,
@@ -705,8 +728,7 @@ class _ChatScreenState extends State<ChatScreen> {
               height: 32,
               child: CircleAvatar(
                 child: _interlocutorUser.profilePicUrl == null ||
-                        (_interlocutorUser.profilePicUrl != null &&
-                            _interlocutorUser.profilePicUrl.isEmpty)
+                        _interlocutorUser.profilePicUrl.isEmpty
                     ? Text(
                         _interlocutorUser.name.startsWith('+')
                             ? '+'
@@ -871,10 +893,7 @@ class _ChatScreenState extends State<ChatScreen> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => CardDetailsScreen(
-                      cardId: cardModel.id,
-                      maybePop: false,
-                    )));
+                builder: (context) => CardDetailsScreen(cardId: cardModel.id)));
       },
       child: Padding(
         padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
@@ -907,15 +926,15 @@ class _ChatScreenState extends State<ChatScreen> {
       children: <Widget>[
         CircleAvatar(
           child: cardModel.postedBy.profilePicUrl == null ||
-                  (cardModel.postedBy.profilePicUrl != null &&
-                      cardModel.postedBy.profilePicUrl.isEmpty)
+                  cardModel.postedBy.profilePicUrl.isEmpty
               ? Text(
                   cardModel.postedBy.name.startsWith('+')
                       ? '+'
                       : getInitials(cardModel.postedBy.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: cardModel.postedBy.profilePicUrl != null
+          backgroundImage: cardModel.postedBy.profilePicUrl != null &&
+                  cardModel.postedBy.profilePicUrl.isNotEmpty
               ? NetworkImage(cardModel.postedBy.profilePicUrl)
               : null,
           backgroundColor: ColorUtils.lightLightGray,

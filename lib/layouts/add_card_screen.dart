@@ -46,11 +46,18 @@ class AddCardScreenState extends State<AddCardScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _addCardBloc.dispose();
+    super.dispose();
+  }
+
   void getTags() {
     setState(() {
       _saving = true;
     });
-    _addCardBloc.getTags().then((result) {
+    _addCardBloc.getTags();
+    _addCardBloc.getTagsFetcherObservable.listen((result) {
       if (mounted) {
         setState(() {
           _saving = false;
@@ -62,9 +69,6 @@ class AddCardScreenState extends State<AddCardScreen> {
         tags.forEach((item) {
           tagsList.add(Tag.fromJson(item));
         });
-      } else {
-        _showDialog(Localization.of(context).getString("error"),
-            result.errors[0].message);
       }
     });
   }
@@ -88,15 +92,20 @@ class AddCardScreenState extends State<AddCardScreen> {
       _saving = true;
     });
     getCurrentUserId().then((userId) {
-      _addCardBloc.getUserNameIdPhoneNumberProfilePic(userId).then((result) {
+      _addCardBloc.getUserNameIdPhoneNumberProfilePic(userId);
+      _addCardBloc.getUserNameIdPhoneNumberProfilePicObservable
+          .listen((result) {
         if (result.errors == null) {
           setState(() {
             _user = User.fromJson(result.data['get_user']);
             _saving = false;
           });
         } else {
-          _showDialog(Localization.of(context).getString('error'),
-              result.errors[0].message);
+          setState(() {
+            _saving = false;
+          });
+          _showDialog(Localization.of(context).getString("error"),
+              Localization.of(context).getString("anErrorHasOccured"));
         }
       });
     });
@@ -124,17 +133,20 @@ class AddCardScreenState extends State<AddCardScreen> {
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        valueColor:
+        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+      ),
       inAsyncCall: _saving,
       child: Scaffold(
-        appBar: _buildAppBar(),
-        body: (_user != null)
-            ? SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[_buildPreviewCard(), _buildTagsCard()],
-                ),
-              )
-            : Container(),
-      ),
+          appBar: _buildAppBar(),
+          body: (_user != null)
+              ? SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[_buildPreviewCard(), _buildTagsCard()],
+                  ),
+                )
+              : Container()),
     );
   }
 
@@ -182,18 +194,18 @@ class AddCardScreenState extends State<AddCardScreen> {
       _saving = true;
     });
     getCurrentUserId().then((currentUserID) {});
-    _addCardBloc
-        .createCard(_user.id, tag.id, _addDetailsTextEditingController.text)
-        .then((result) {
+    _addCardBloc.createCard(
+        _user.id, tag.id, _addDetailsTextEditingController.text);
+    _addCardBloc.createCardObservable.listen((result) {
       if (result.errors == null) {
         getCurrentUserId().then((userId) {
-          _addCardBloc
-              .getCurrentUserWithCards(userId)
-              .then((currentUserResult) {
+          _addCardBloc.getCurrentUserWithCards(userId);
+          _addCardBloc.getCurrentUserWithCardsObservable
+              .listen((currentUserResult) {
             setState(() {
               _saving = false;
             });
-            if (result.errors == null) {
+            if (currentUserResult.errors == null) {
               widget.updateUsersCards(
                   User.fromJson(currentUserResult.data['get_user']).cards);
             }
@@ -205,14 +217,8 @@ class AddCardScreenState extends State<AddCardScreen> {
         setState(() {
           _saving = false;
         });
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => CustomDialog(
-            title: Localization.of(context).getString("error"),
-            description: result.errors[0].message,
-            buttonText: Localization.of(context).getString("ok"),
-          ),
-        );
+        _showDialog(Localization.of(context).getString("error"),
+            Localization.of(context).getString("anErrorHasOccured"));
       }
     });
   }
@@ -317,15 +323,15 @@ class AddCardScreenState extends State<AddCardScreen> {
       child: Row(
         children: <Widget>[
           CircleAvatar(
-            child: _user.profilePicUrl == null ||
-                    (_user.profilePicUrl != null && _user.profilePicUrl.isEmpty)
+            child: _user.profilePicUrl == null || _user.profilePicUrl.isEmpty
                 ? Text(
                     _user.name.startsWith('+') ? '+' : getInitials(_user.name),
                     style: TextStyle(color: ColorUtils.darkerGray))
                 : null,
-            backgroundImage: _user.profilePicUrl != null
-                ? NetworkImage(_user.profilePicUrl)
-                : null,
+            backgroundImage:
+                _user.profilePicUrl != null && _user.profilePicUrl.isNotEmpty
+                    ? NetworkImage(_user.profilePicUrl)
+                    : null,
             backgroundColor: ColorUtils.lightLightGray,
           ),
           Flexible(

@@ -95,11 +95,13 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   void _getCurrentUserInfo() {
+    Stopwatch stopwatch = Stopwatch()..start();
     _accountBloc = AccountBloc();
     setState(() {
       _saving = true;
     });
-    _accountBloc.getUserByIdWithMainInfo().then((result) {
+    _accountBloc.getUserByIdWithMainInfo();
+    _accountBloc.getUserByIdWithMainInfoObservable.listen((result) {
       if (result.errors == null && mounted) {
         setState(() {
           _user = User.fromJson(result.data['get_user']);
@@ -113,26 +115,26 @@ class AccountScreenState extends State<AccountScreen> {
           });
           _saving = false;
           _getMainTag();
+          print('Finished _getCurrentUserInfo in: ${stopwatch.elapsed}');
         });
       } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message);
+        if (mounted) {
+          setState(() {
+            _saving = false;
+          });
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => CustomDialog(
+              title: Localization.of(context).getString("error"),
+              description:
+                  Localization.of(context).getString("anErrorHasOccured"),
+              buttonText: Localization.of(context).getString("ok"),
+            ),
+          );
+        }
       }
     });
-  }
-
-  void _showDialog(String title, String description) {
-    setState(() {
-      _saving = false;
-    });
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: description,
-        buttonText: Localization.of(context).getString("ok"),
-      ),
-    );
   }
 
   void _getMainTag() {
@@ -147,7 +149,8 @@ class AccountScreenState extends State<AccountScreen> {
     setState(() {
       _saving = true;
     });
-    _accountBloc.deleteCard(card.id).then((result) {
+    _accountBloc.deleteCard(card.id);
+    _accountBloc.deleteCardObservable.listen((result) {
       if (result.errors == null) {
         setState(() {
           _saving = false;
@@ -157,12 +160,16 @@ class AccountScreenState extends State<AccountScreen> {
           }
         });
       } else {
+        setState(() {
+          _saving = false;
+        });
         showDialog(
           context: context,
           builder: (BuildContext context) => CustomDialog(
             title: Localization.of(context).getString("error"),
-            description: result.errors[0].message,
-            buttonText: Localization.of(context).getString('ok'),
+            description:
+                Localization.of(context).getString("anErrorHasOccured"),
+            buttonText: Localization.of(context).getString("ok"),
           ),
         );
       }
@@ -171,6 +178,7 @@ class AccountScreenState extends State<AccountScreen> {
 
   @override
   void initState() {
+    Stopwatch stopwatch = Stopwatch()..start();
     if (widget.user != null) {
       _accountBloc = AccountBloc();
       widget.user.cards.sort((a, b) {
@@ -180,20 +188,25 @@ class AccountScreenState extends State<AccountScreen> {
       });
       _user = widget.user;
       _getMainTag();
-      _accountBloc.getUserByIdWithMainInfo().then((result) {
-        User newUser = User.fromJson(result.data['get_user']);
-        if (_user != newUser && mounted) {
-          setState(() {
-            _user = newUser;
-            _user.cards.sort((a, b) {
-              DateTime dateA = parseDateFromString(a.createdAt);
-              DateTime dateB = parseDateFromString(b.createdAt);
-              return dateB.compareTo(dateA);
+      _accountBloc.getUserByIdWithMainInfo();
+      _accountBloc.getUserByIdWithMainInfoObservable.listen((result) {
+        if (result.errors == null) {
+          User newUser = User.fromJson(result.data['get_user']);
+          if (_user != newUser && mounted) {
+            setState(() {
+              newUser.cards = _user.cards;
+              _user = newUser;
+              _user.cards.sort((a, b) {
+                DateTime dateA = parseDateFromString(a.createdAt);
+                DateTime dateB = parseDateFromString(b.createdAt);
+                return dateB.compareTo(dateA);
+              });
+              _getMainTag();
             });
-            _getMainTag();
-          });
+          }
         }
       });
+      print('Finished getCachedUser in: ${stopwatch.elapsed}');
     } else {
       _getCurrentUserInfo();
     }
@@ -201,8 +214,18 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   @override
+  void dispose() {
+    _accountBloc.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+        progressIndicator: CircularProgressIndicator(
+          valueColor:
+              new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        ),
         inAsyncCall: _saving,
         child: Scaffold(
             appBar:
@@ -317,14 +340,14 @@ class AccountScreenState extends State<AccountScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: _user.profilePicUrl == null ||
-                  (_user.profilePicUrl != null && _user.profilePicUrl.isEmpty)
+          child: _user.profilePicUrl == null || _user.profilePicUrl.isEmpty
               ? Text(_user.name.startsWith('+') ? '+' : getInitials(_user.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: _user.profilePicUrl != null
-              ? NetworkImage(_user.profilePicUrl)
-              : null,
+          backgroundImage:
+              _user.profilePicUrl != null && _user.profilePicUrl.isNotEmpty
+                  ? NetworkImage(_user.profilePicUrl)
+                  : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Flexible(
@@ -508,14 +531,14 @@ class AccountScreenState extends State<AccountScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: _user.profilePicUrl == null ||
-                  (_user.profilePicUrl != null && _user.profilePicUrl.isEmpty)
+          child: _user.profilePicUrl == null || _user.profilePicUrl.isEmpty
               ? Text(_user.name.startsWith('+') ? '+' : getInitials(_user.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: _user.profilePicUrl != null
-              ? NetworkImage(_user.profilePicUrl)
-              : null,
+          backgroundImage:
+              _user.profilePicUrl != null && _user.profilePicUrl.isNotEmpty
+                  ? NetworkImage(_user.profilePicUrl)
+                  : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Flexible(

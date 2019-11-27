@@ -21,8 +21,11 @@ import 'chat_screen.dart';
 class UserDetailsScreen extends StatefulWidget {
   final User user;
   final User currentUser;
+  final List<User> connections;
+  final Function updateUser;
 
-  const UserDetailsScreen({Key key, this.user, this.currentUser})
+  const UserDetailsScreen(
+      {Key key, this.user, this.currentUser, this.connections, this.updateUser})
       : super(key: key);
 
   @override
@@ -40,7 +43,9 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
 
   @override
   void initState() {
-    if (widget.user != null && widget.currentUser != null) {
+    if (widget.user != null &&
+        widget.currentUser != null &&
+        widget.currentUser.connections != null) {
       _user = widget.user;
       _currentUser = widget.currentUser;
       for (var connection in _currentUser.connections) {
@@ -51,10 +56,51 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         }
       }
       _getMainTag();
+      _userDetailsBloc.getUserByIdWithMainInfo(widget.user.id);
+      _userDetailsBloc.getUserByIdWithMainInfoObservable.listen((result) {
+        if (result.errors == null && mounted) {
+          getCurrentUserId().then((currentUserId) {
+            _userDetailsBloc.getUserByIdWithConnections(currentUserId);
+            _userDetailsBloc.getUserByIdWithConnectionsObservable
+                .listen((currentUserResult) {
+              if (currentUserResult.errors == null && mounted) {
+                setState(() {
+                  _user = User.fromJson(result.data['get_user']);
+                  if (widget.updateUser != null) {
+                    widget.updateUser(_user);
+                  }
+                  _currentUser =
+                      User.fromJson(currentUserResult.data['get_user']);
+                  for (var connection in _currentUser.connections) {
+                    if (connection.targetUser.id == widget.user.id) {
+                      _connection = connection;
+                      _connectedToUser = true;
+                      break;
+                    }
+                  }
+                  _getMainTag();
+                });
+              }
+            });
+          });
+        } else {
+          if (mounted) {
+            setState(() {
+              _saving = false;
+            });
+          }
+        }
+      });
     } else {
       _getUserAndCurrentUser();
     }
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _userDetailsBloc.dispose();
+    super.dispose();
   }
 
   Future _getUserAndCurrentUser() async {
@@ -64,17 +110,19 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
         _saving = true;
       });
     }
-    await _userDetailsBloc
-        .getUserByIdWithMainInfo(widget.user.id)
-        .then((result) {
+    _userDetailsBloc.getUserByIdWithMainInfo(widget.user.id);
+    _userDetailsBloc.getUserByIdWithMainInfoObservable.listen((result) {
       if (result.errors == null && mounted) {
         getCurrentUserId().then((currentUserId) {
-          _userDetailsBloc
-              .getUserByIdWithConnections(currentUserId)
-              .then((currentUserResult) {
+          _userDetailsBloc.getUserByIdWithConnections(currentUserId);
+          _userDetailsBloc.getUserByIdWithConnectionsObservable
+              .listen((currentUserResult) {
             if (currentUserResult.errors == null && mounted) {
               setState(() {
                 _user = User.fromJson(result.data['get_user']);
+                if (widget.updateUser != null) {
+                  widget.updateUser(_user);
+                }
                 _currentUser =
                     User.fromJson(currentUserResult.data['get_user']);
                 for (var connection in _currentUser.connections) {
@@ -88,17 +136,20 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                 _saving = false;
               });
             } else {
-              setState(() {
-                _saving = false;
-              });
-              _showDialog(Localization.of(context).getString("error"),
-                  result.errors[0].message);
+              if (mounted) {
+                setState(() {
+                  _saving = false;
+                });
+              }
             }
           });
         });
       } else {
-        _showDialog(Localization.of(context).getString("error"),
-            result.errors[0].message);
+        if (mounted) {
+          setState(() {
+            _saving = false;
+          });
+        }
       }
     });
   }
@@ -110,9 +161,11 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   _onContactTapped() {
-    setState(() {
-      _saving = true;
-    });
+    if (mounted) {
+      setState(() {
+        _saving = true;
+      });
+    }
     if (_connectedToUser) {
       _deleteConnection();
     } else {
@@ -138,46 +191,86 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
 
   void _createConnection() {
     _getContactPermission().then((permission) {
-      setState(() {
-        _saving = true;
-      });
+      if (mounted) {
+        setState(() {
+          _saving = true;
+        });
+      }
       if (permission == PermissionStatus.granted) {
-        _userDetailsBloc
-            .createConnection(_currentUser.id, _user.id)
-            .then((onValue) {
-          _addContactToPhoneAgenda();
+        _userDetailsBloc.createConnection(_currentUser.id, _user.id);
+        _userDetailsBloc.createConnectionObservable.listen((result) {
+          if (result.errors == null) {
+            if (widget.connections != null) {
+              widget.connections.add(
+                  Connection.fromJson(result.data['create_connection'])
+                      .targetUser);
+              widget.connections.sort((a, b) {
+                return a.name.compareTo(b.name);
+              });
+              widget.connections.sort((a, b) {
+                return b.isActive.toString().compareTo(a.isActive.toString());
+              });
+            }
+            _addContactToPhoneAgenda();
+          } else {
+            _showDialog(Localization.of(context).getString('error'),
+                Localization.of(context).getString('anErrorHasOccured'));
+          }
         });
       } else {
-        _userDetailsBloc
-            .createConnection(_currentUser.id, _user.id)
-            .then((result) {
-          _reflectConnectionUI();
+        _userDetailsBloc.createConnection(_currentUser.id, _user.id);
+        _userDetailsBloc.createConnectionObservable.listen((result) {
+          if (result.errors == null) {
+            _reflectConnectionUI();
+          } else {
+            _showDialog(Localization.of(context).getString('error'),
+                Localization.of(context).getString('anErrorHasOccured'));
+          }
         });
       }
     });
   }
 
   Future<void> _addContactToPhoneAgenda() async {
-    _userDetailsBloc.addContact(_user.name, _user.phoneNumber).then((_) {
+    _userDetailsBloc.addContact(_user.name, _user.phoneNumber);
+    _userDetailsBloc.addContactObservable.listen((result) {
       _reflectConnectionUI();
     });
   }
 
   void _reflectConnectionUI() {
-    setState(() {
-      _saving = false;
-      _connectedToUser = true;
-    });
+    if (mounted) {
+      setState(() {
+        _saving = false;
+        _connectedToUser = true;
+      });
+    }
     _showDialog('', Localization.of(context).getString('createdConnection'));
   }
 
   void _deleteConnection() {
-    _userDetailsBloc.deleteConnection(_connection.id).then((onValue) {
-      setState(() {
-        _saving = false;
-        _connectedToUser = false;
-      });
-      _showDialog('', Localization.of(context).getString('deletedConnection'));
+    _userDetailsBloc.deleteConnection(_connection.id);
+    _userDetailsBloc.deleteConnectionObservable.listen((onValue) {
+      if (onValue.errors == null) {
+        if (mounted) {
+          setState(() {
+            _saving = false;
+            _connectedToUser = false;
+          });
+        }
+        if (widget.connections != null) {
+          User user = widget.connections
+              .firstWhere((item) => item.id == _user.id, orElse: () => null);
+          if (user != null) {
+            widget.connections.remove(user);
+          }
+        }
+        _showDialog(
+            '', Localization.of(context).getString('deletedConnection'));
+      } else {
+        _showDialog(Localization.of(context).getString('error'),
+            Localization.of(context).getString('anErrorHasOccured'));
+      }
     });
   }
 
@@ -189,23 +282,36 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   void _createConversation() {
-    setState(() {
-      _saving = true;
-    });
-    _userDetailsBloc.createConversation(_user).then((pubNubConversation) {
-      Navigator.of(context).push(new MaterialPageRoute(
-          builder: (BuildContext context) => ChatScreen(
-              pubNubConversation: pubNubConversation, maybePop: true)));
-    }).then((value) {
+    if (mounted) {
       setState(() {
-        _saving = false;
+        _saving = true;
       });
+    }
+    _userDetailsBloc.createConversation(_user);
+    _userDetailsBloc.createConversationObservable.listen((pubNubConversation) {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+        });
+      }
+      if (pubNubConversation != null) {
+        Navigator.of(context).push(new MaterialPageRoute(
+            builder: (BuildContext context) =>
+                ChatScreen(pubNubConversation: pubNubConversation)));
+      } else {
+        _showDialog(Localization.of(context).getString('error'),
+            Localization.of(context).getString('anErrorHasOccured'));
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        valueColor:
+        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+      ),
       inAsyncCall: _saving,
       child: _user != null
           ? Scaffold(
@@ -281,14 +387,14 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     return Row(
       children: <Widget>[
         CircleAvatar(
-          child: _user.profilePicUrl == null ||
-                  (_user.profilePicUrl != null && _user.profilePicUrl.isEmpty)
+          child: _user.profilePicUrl == null || _user.profilePicUrl.isEmpty
               ? Text(_user.name.startsWith('+') ? '+' : getInitials(_user.name),
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
-          backgroundImage: _user.profilePicUrl != null
-              ? NetworkImage(_user.profilePicUrl)
-              : null,
+          backgroundImage:
+              _user.profilePicUrl != null && _user.profilePicUrl.isNotEmpty
+                  ? NetworkImage(_user.profilePicUrl)
+                  : null,
           backgroundColor: ColorUtils.lightLightGray,
         ),
         Flexible(
@@ -340,7 +446,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   Container _buildDescription() {
-    return _user.description != null
+    return _user.description != null && _user.description.isNotEmpty
         ? Container(
             padding: const EdgeInsets.only(top: 16.0),
             child: Text(
@@ -427,11 +533,14 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
                     ),
                     Container(
                       child: Column(
-                        children: generateTags(_user.tags, (userTagId) {
-                          openLeaveReviewDialog(userTagId);
-                        }, (reviews) {
-                          goToReviewsScreen(reviews);
-                        }, Localization.of(context).getString('noReviews')),
+                        children: _user.tags != null
+                            ? generateTags(_user.tags, (userTagId) {
+                                openLeaveReviewDialog(userTagId);
+                              }, (reviews) {
+                                goToReviewsScreen(reviews);
+                              },
+                                Localization.of(context).getString('noReviews'))
+                            : [],
                       ),
                     )
                   ],
@@ -473,27 +582,30 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     );
 
     if (dialogResult != null) {
-      setState(() {
-        _saving = true;
-      });
+      if (mounted) {
+        setState(() {
+          _saving = true;
+        });
+      }
       String currentUserId = await getCurrentUserId();
-      _userDetailsBloc
-          .createReview(currentUserId, userTagId, dialogResult.rating,
-              dialogResult.message)
-          .then((result) {
+      _userDetailsBloc.createReview(
+          currentUserId, userTagId, dialogResult.rating, dialogResult.message);
+      _userDetailsBloc.createReviewObservable.listen((result) {
         if (result.errors == null) {
-          setState(() {
-            _getUserAndCurrentUser();
-            _saving = false;
-          });
+          if (mounted) {
+            setState(() {
+              _getUserAndCurrentUser();
+              _saving = false;
+            });
+          }
           _showDialog(Localization.of(context).getString('success'),
               Localization.of(context).getString('reviewAdded'));
         } else {
-          setState(() {
-            _saving = false;
-          });
-          _showDialog(Localization.of(context).getString('error'),
-              result.errors[0].message);
+          if (mounted) {
+            setState(() {
+              _saving = false;
+            });
+          }
         }
       });
     }

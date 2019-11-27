@@ -4,40 +4,97 @@ import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/persistance/repository.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 class UserDetailsBloc {
-  Repository _repository = Repository();
+  final _getUserByIdWithMainInfoFetcher = PublishSubject<QueryResult>();
+  final _getUserByIdWithConnectionsFetcher = PublishSubject<QueryResult>();
+  final _createConversationFetcher = PublishSubject<PubNubConversation>();
+  final _createConnectionFetcher = PublishSubject<QueryResult>();
+  final _deleteConnectionFetcher = PublishSubject<QueryResult>();
+  final _createReviewFetcher = PublishSubject<QueryResult>();
+  final _addContactFetcher = PublishSubject<dynamic>();
 
-  Future<QueryResult> getUserByIdWithMainInfo(String userId) async {
-    return await _repository.getUserByIdWithMainInfo(userId);
+  Observable<QueryResult> get getUserByIdWithMainInfoObservable =>
+      _getUserByIdWithMainInfoFetcher.stream;
+
+  Observable<QueryResult> get getUserByIdWithConnectionsObservable =>
+      _getUserByIdWithConnectionsFetcher.stream;
+
+  Observable<PubNubConversation> get createConversationObservable =>
+      _createConversationFetcher.stream;
+
+  Observable<QueryResult> get createConnectionObservable =>
+      _createConnectionFetcher.stream;
+
+  Observable<QueryResult> get deleteConnectionObservable =>
+      _deleteConnectionFetcher.stream;
+
+  Observable<QueryResult> get createReviewObservable =>
+      _createReviewFetcher.stream;
+
+  Observable<dynamic> get addContactObservable => _addContactFetcher.stream;
+
+  getUserByIdWithMainInfo(String userId) async {
+    QueryResult result = await Repository().getUserByIdWithMainInfo(userId);
+    if (!_getUserByIdWithMainInfoFetcher.isClosed) {
+      _getUserByIdWithMainInfoFetcher.sink.add(result);
+    }
   }
 
-  Future<QueryResult> getUserByIdWithConnections(String userId) async {
-    return await _repository.getUserByIdWithConnections(userId);
+  getUserByIdWithConnections(String userId) async {
+    QueryResult result = await Repository().getUserByIdWithConnections(userId);
+    if (!_getUserByIdWithConnectionsFetcher.isClosed) {
+      _getUserByIdWithConnectionsFetcher.sink.add(result);
+    }
   }
 
-  Future<PubNubConversation> createConversation(User user) async {
-    return await _repository.createConversation(user);
+  createConversation(User user) async {
+    PubNubConversation result = await Repository().createConversation(user);
+    if (!_createConversationFetcher.isClosed) {
+      _createConversationFetcher.sink.add(result);
+    }
   }
 
-  Future createConnection(String currentUserId, String targetUserId) async {
-    return await _repository.createConnection(currentUserId, targetUserId);
+  createConnection(String currentUserId, String targetUserId) async {
+    QueryResult result =
+        await Repository().createConnection(currentUserId, targetUserId);
+    if (!_createConnectionFetcher.isClosed) {
+      _createConnectionFetcher.sink.add(result);
+    }
   }
 
-  Future deleteConnection(int connectionId) async {
-    return await _repository.deleteConnection(connectionId);
+  deleteConnection(int connectionId) async {
+    QueryResult result = await Repository().deleteConnection(connectionId);
+    if (!_deleteConnectionFetcher.isClosed) {
+      _deleteConnectionFetcher.sink.add(result);
+    }
   }
 
-  Future<QueryResult> createReview(
-      String userId, int userTagId, int stars, String text) async {
-    return _repository.createReview(
+  createReview(String userId, int userTagId, int stars, String text) async {
+    QueryResult result = await Repository().createReview(
         userId, userTagId, stars, removeMultilineCharacters(text));
+    if (!_createReviewFetcher.isClosed) {
+      _createReviewFetcher.sink.add(result);
+    }
   }
 
-  Future<dynamic> addContact(String displayName, String phoneNumber) {
+  addContact(String displayName, String phoneNumber) {
     Contact contact = Contact();
     contact.familyName = displayName;
     contact.phones = [Item(label: "mobile", value: phoneNumber)];
-    return ContactsService.addContact(contact);
+    if (!_addContactFetcher.isClosed) {
+      _addContactFetcher.sink.add(ContactsService.addContact(contact));
+    }
+  }
+
+  dispose() {
+    _getUserByIdWithConnectionsFetcher.close();
+    _getUserByIdWithMainInfoFetcher.close();
+    _createConversationFetcher.close();
+    _createConnectionFetcher.close();
+    _deleteConnectionFetcher.close();
+    _createReviewFetcher.close();
+    _addContactFetcher.close();
   }
 }

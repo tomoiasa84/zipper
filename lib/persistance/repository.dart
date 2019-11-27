@@ -17,10 +17,21 @@ import 'package:http/http.dart' as http;
 import 'api_provider.dart';
 
 class Repository {
+  static final Repository _instance = Repository._internal();
+
+  Repository._internal();
+
+  factory Repository() {
+    return _instance;
+  }
+
   ApiProvider appApiProvider = ApiProvider();
 
   getContacts() async {
-    return ContactsService.getContacts(withThumbnails:false);
+    return ContactsService.getContacts(
+        photoHighResolution: false,
+        orderByGivenName: false,
+        withThumbnails: false);
   }
 
   Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
@@ -113,7 +124,8 @@ class Repository {
     return pubNubConversation;
   }
 
-  Future createConnection(String currentUserId, String targetUserId) async {
+  Future<QueryResult> createConnection(
+      String currentUserId, String targetUserId) async {
     var result =
         await appApiProvider.createConnection(currentUserId, targetUserId);
     checkTokenError(result);
@@ -125,11 +137,14 @@ class Repository {
     QueryResult result =
         await appApiProvider.createConversation(user, currentUserId);
 
-    ConversationModel conversationModel =
-        ConversationModel.fromJson(result.data['create_conversation']);
-    PubNubConversation pubNubConversation =
-        PubNubConversation.fromConversation(conversationModel);
-    return pubNubConversation;
+    if (result.data != null) {
+      ConversationModel conversationModel =
+          ConversationModel.fromJson(result.data['create_conversation']);
+      PubNubConversation pubNubConversation =
+          PubNubConversation.fromConversation(conversationModel);
+      return pubNubConversation;
+    } else
+      return null;
   }
 
   Future<List<ConversationModel>> getListOfConversationIdsFromBackend() async {
@@ -137,20 +152,26 @@ class Repository {
     var result =
         await appApiProvider.getListOfChannelIdsFromBackend(currentUserId);
     checkTokenError(result);
-    User currentUser = User.fromJson(result.data['get_user']);
-    return currentUser.conversations;
+    if (result.data != null) {
+      User currentUser = User.fromJson(result.data['get_user']);
+      return currentUser.conversations;
+    } else
+      return null;
   }
 
   Future<String> getStringOfChannelIds() async {
     var listOfConversations = await getListOfConversationIdsFromBackend();
 
-    String channelIds = "";
+    if (listOfConversations != null) {
+      String channelIds = "";
 
-    for (var item in listOfConversations) {
-      channelIds = channelIds + item.id.toString() + ",";
-    }
+      for (var item in listOfConversations) {
+        channelIds = channelIds + item.id.toString() + ",";
+      }
 
-    return channelIds;
+      return channelIds;
+    } else
+      return null;
   }
 
   Future<QueryResult> getCards() async {
@@ -174,8 +195,10 @@ class Repository {
     return result;
   }
 
-  Future<QueryResult> updateDeviceToken(String id, String deviceToken, String firebaseId) async {
-    var result = await appApiProvider.updateDeviceToken(id, deviceToken, firebaseId);
+  Future<QueryResult> updateDeviceToken(
+      String id, String deviceToken, String firebaseId) async {
+    var result =
+        await appApiProvider.updateDeviceToken(id, deviceToken, firebaseId);
     checkTokenError(result);
     return result;
   }
@@ -280,32 +303,41 @@ class Repository {
   }
 
   Future<List<PubNubConversation>> getPubNubConversations() async {
+    Stopwatch stopwatch = Stopwatch()..start();
     var conversationsList = await getListOfConversationIdsFromBackend();
+    print(
+        'Finished getListOfConversationIdsFromBackend in: ${stopwatch.elapsed}');
 
     String channels = "";
 
-    for (var item in conversationsList) {
-      channels = channels + item.id.toString() + ",";
-    }
-
-    var response = await appApiProvider.getPubNubConversations(channels);
-
-    if (response.statusCode == 200) {
-      BatchHistoryResponse batchHistoryResponse =
-          BatchHistoryResponse.fromJson(convert.jsonDecode(response.body));
-
-      var pubNubConversationsList = batchHistoryResponse.conversations;
-
-      for (var pubNubConversation in pubNubConversationsList) {
-        var conversation = conversationsList
-            .firstWhere((con) => con.id == pubNubConversation.id);
-        pubNubConversation.user1 = conversation.user1;
-        pubNubConversation.user2 = conversation.user2;
+    if (conversationsList != null) {
+      for (var item in conversationsList) {
+        channels = channels + item.id.toString() + ",";
       }
-      return pubNubConversationsList;
+
+      Stopwatch stopwatch2 = Stopwatch()..start();
+      return appApiProvider.getPubNubConversations(channels).then((response) {
+        if (response.statusCode == 200) {
+          print('Finished getPubNubConversations in: ${stopwatch2.elapsed}');
+          BatchHistoryResponse batchHistoryResponse =
+              BatchHistoryResponse.fromJson(convert.jsonDecode(response.body));
+
+          var pubNubConversationsList = batchHistoryResponse.conversations;
+
+          for (var pubNubConversation in pubNubConversationsList) {
+            var conversation = conversationsList
+                .firstWhere((con) => con.id == pubNubConversation.id);
+            pubNubConversation.user1 = conversation.user1;
+            pubNubConversation.user2 = conversation.user2;
+          }
+          return pubNubConversationsList;
+        } else {
+          print("Request failed with status: ${response.statusCode}.");
+          return List<PubNubConversation>();
+        }
+      }).catchError((error) {});
     } else {
-      print("Request failed with status: ${response.statusCode}.");
-      return List<PubNubConversation>();
+      return null;
     }
   }
 

@@ -162,7 +162,10 @@ class Localization {
       'pleaseLoginAgain': 'Please login again.',
       'resendSmsCodeMessage':
           'Please check your phone for the verification code.',
-      'imLookingFor': 'I\'m looking for '
+      'imLookingFor': 'I\'m looking for ',
+      'cardWasDeleted': 'This post doesn\'t exist anymore',
+      'noInternetConnection': 'No internet connection',
+      'anErrorHasOccured': 'An error has occured!',
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -314,7 +317,10 @@ class Localization {
       'yourSessionExpired': 'Sesiunea a expirat!',
       'pleaseLoginAgain': 'Va rugam sa va autentificati din nou..',
       'resendSmsCodeMessage': 'Verificati mesageria pentru a gasi codul.',
-      'imLookingFor': 'Caut'
+      'imLookingFor': 'Caut',
+      'cardWasDeleted': 'Aceasta postare nu mai exista',
+      'noInternetConnection': 'Nu exista conexiune la internet',
+      'anErrorHasOccured': 'O eroare a avut loc!',
     },
   };
 

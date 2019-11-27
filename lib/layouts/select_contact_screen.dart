@@ -5,7 +5,6 @@ import 'package:contractor_search/layouts/chat_screen.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -27,34 +26,30 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
 
   @override
   void initState() {
-    _selectContactBloc.getCurrentUser().then((result) {
+    _selectContactBloc.getCurrentUser();
+    _selectContactBloc.getCurrentUserObservable.listen((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
         currentUser.connections.forEach((connection) {
           _usersList.add(connection.targetUser);
+        });
+        _usersList.sort((a, b) {
+          return b.isActive.toString().compareTo(a.isActive.toString());
         });
         if (mounted) {
           setState(() {
             _loading = false;
           });
         }
-      } else {
-        _showDialog(Localization.of(context).getString('error'),
-            result.errors[0].message);
       }
     });
     super.initState();
   }
 
-  void _showDialog(String title, String description) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: description,
-        buttonText: Localization.of(context).getString("ok"),
-      ),
-    );
+  @override
+  void dispose() {
+    _selectContactBloc.dispose();
+    super.dispose();
   }
 
   void _onItemTapped(User user) {
@@ -70,16 +65,24 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
   }
 
   void _startConversation(User user) {
-    _selectContactBloc.createConversation(user).then((pubNubConversation) {
-      Navigator.of(context).pushReplacement(new MaterialPageRoute(
-          builder: (BuildContext context) => ChatScreen(
-              pubNubConversation: pubNubConversation, maybePop: true)));
+    _selectContactBloc.createConversation(user);
+    _selectContactBloc.createConversationObservable
+        .listen((pubNubConversation) {
+      if (pubNubConversation != null) {
+        Navigator.of(context).pushReplacement(new MaterialPageRoute(
+            builder: (BuildContext context) =>
+                ChatScreen(pubNubConversation: pubNubConversation)));
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        valueColor:
+        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+      ),
       inAsyncCall: _loading,
       child: Scaffold(
         appBar: AppBar(
@@ -138,15 +141,15 @@ class _SelectContactScreenState extends State<SelectContactScreen> {
               _onItemTapped(user);
             },
             leading: CircleAvatar(
-              child: user.profilePicUrl == null ||
-                      (user.profilePicUrl != null && user.profilePicUrl.isEmpty)
+              child: user.profilePicUrl == null || user.profilePicUrl.isEmpty
                   ? Text(
                       user.name.startsWith('+') ? '+' : getInitials(user.name),
                       style: TextStyle(color: ColorUtils.darkerGray))
                   : null,
-              backgroundImage: user.profilePicUrl != null
-                  ? NetworkImage(user.profilePicUrl)
-                  : null,
+              backgroundImage:
+                  user.profilePicUrl != null && user.profilePicUrl.isNotEmpty
+                      ? NetworkImage(user.profilePicUrl)
+                      : null,
               backgroundColor: ColorUtils.lightLightGray,
             ),
             title: Row(

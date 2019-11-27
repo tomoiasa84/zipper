@@ -37,6 +37,8 @@ class ApiProvider {
   );
 
   Future<QueryResult> getUserNameIdPhoneNumberProfilePic(String userId) async {
+    Stopwatch stopwatch = new Stopwatch()..start();
+    print("START getUserNameIdPhoneNumberProfilePic");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -48,10 +50,12 @@ class ApiProvider {
                     }
               }''',
     ));
+    print('FINISH getUserNameIdPhoneNumberProfilePic ${stopwatch.elapsed}');
     return result;
   }
 
   Future<QueryResult> getUserByIdWithPhoneNumber(String userId) async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -59,10 +63,12 @@ class ApiProvider {
                     }
               }''',
     ));
+
     return result;
   }
 
   Future<QueryResult> getUserFromContact(String phoneNumber) async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                       get_userFromContact(contact:"$phoneNumber"){
@@ -73,10 +79,12 @@ class ApiProvider {
                       }
                     }''',
     ));
+
     return result;
   }
 
   Future<QueryResult> getUserByIdWithConnections(String userId) async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -100,6 +108,10 @@ class ApiProvider {
                                   score
                                   reviews{
                                      id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
                                   }
                              }
                             }
@@ -108,6 +120,7 @@ class ApiProvider {
                              name
                              profileURL
                              isActive
+                             description
                              phoneNumber
                              tags{
                                   id
@@ -118,9 +131,22 @@ class ApiProvider {
                                   }
                                   score
                                   reviews{
-                                     id
-                                  }
-                             }
+                                    id
+                                    author{
+                                      name
+                                      profileURL
+                                    }
+                                    userTag{
+                                       id
+                                       score
+                                       tag{
+                                         name
+                                       }
+                                    }
+                                    stars
+                                    text
+                                 }
+                               }
                             }
                         }
                     }
@@ -131,75 +157,37 @@ class ApiProvider {
   }
 
   Future<QueryResult> getUserByIdWithCardsConnections(String userId) async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
                      firebaseId
                         cardsConnections{
                            id
-                      postedBy{
-                        profileURL
-                        name
-                        id
-                      }
-                      searchFor{
-                        name
-                        id
-                      }
-                      createdAt
-                      text
-                      recommandsCount
-                      recommandsList{
-                         id
-                         card{
-                           id
-                           searchFor{
-                              id
-                              name
-                           }
-                         }
-                         userAsk{
-                           id
-                           name
-                         }
-                         userSend{
-                           id
-                           name
-                         }
-                         userRecommand{
-                           name
-                            tags{
+                           postedBy{
                                 id
-                                default
-                                user{
-                                  name
-                                }
-                                score
-                                reviews{
+                                name
+                                profileURL
+                                phoneNumber
+                                description
+                                isActive
+                                 tags{
                                   id
-                                }
-                                tag{
-                                  id
-                                  name
-                                }
-                              }
-                         }
-                         acceptedFlag
-                      }
-                        }
-    							}
-              }''',
-    ));
-
-    return result;
-  }
-
-  Future<QueryResult> getCurrentUserWithCards(String userId) async {
-    final QueryResult result = await _client.query(QueryOptions(
-      document: '''query{
-                      get_user(userId:"$userId"){
-                        firebaseId
-                        cards{
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
+                                  }
+                             }
+                             cards{
                             id
                             createdAt
                             searchFor{
@@ -246,80 +234,120 @@ class ApiProvider {
                               acceptedFlag
                             }
                         }
-                }
+                            }
+                      searchFor{
+                        name
+                        id
+                      }
+                      createdAt
+                      text
+                      recommandsCount
+                      recommandsList{
+                         id
+                         card{
+                           id
+                           searchFor{
+                              id
+                              name
+                           }
+                         }
+                         userAsk{
+                           id
+                           name
+                         }
+                         userSend{
+                           id
+                           name
+                         }
+                         userRecommand{
+                           id
+                           name
+                            tags{
+                                id
+                                default
+                                user{
+                                  name
+                                }
+                                score
+                                reviews{
+                                  id
+                                }
+                                tag{
+                                  id
+                                  name
+                                }
+                              }
+                         }
+                         acceptedFlag
+                      }
+                        }
+                     cards{
+                         id
+                      postedBy{
+                        profileURL
+                        name
+                        id
+                      }
+                      searchFor{
+                        name
+                        id
+                      }
+                      createdAt
+                      text
+                      recommandsCount
+                      recommandsList{
+                         id
+                         card{
+                           id
+                           searchFor{
+                              id
+                              name
+                           }
+                         }
+                         userAsk{
+                           id
+                           name
+                         }
+                         userSend{
+                           id
+                           name
+                         }
+                         userRecommand{
+                           id
+                           name
+                            tags{
+                                id
+                                default
+                                user{
+                                  name
+                                }
+                                score
+                                reviews{
+                                  id
+                                }
+                                tag{
+                                  id
+                                  name
+                                }
+                              }
+                         }
+                         acceptedFlag
+                      }
+                      }
+
+    							}
               }''',
     ));
 
     return result;
   }
 
-  Future<QueryResult> getCurrentUserWithFirebaseId(String userId) async {
+  Future<QueryResult> getCurrentUserWithCards(String userId) async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
-                     get_user(userId:"$userId"){
-                        id
+                      get_user(userId:"$userId"){
                         firebaseId
-                     }
-                  }
-      '''
-    ));
-    return result;
-  }
-
-  Future<QueryResult> getUserById(String userId) async {
-    final QueryResult result = await _client.query(QueryOptions(
-      document: '''query{
-                     get_user(userId:"$userId"){
-                        name
-                        phoneNumber
-                        id
-                        firebaseId
-                        profileURL
-                        location{
-                            id
-                            city
-                        }
-                        connections{
-                            id
-                            originUser{
-                              id
-                             name
-                             profileURL
-                             isActive
-                             phoneNumber
-                             tags{
-                                  id
-                                  default
-                                  tag{
-                                    id
-                                    name
-                                  }
-                                  score
-                                  reviews{
-                                     id
-                                  }
-                             }
-                            }
-                            targetUser{
-                              id
-                             name
-                             profileURL
-                             isActive
-                             phoneNumber
-                             tags{
-                                  id
-                                  default
-                                  tag{
-                                    id
-                                    name
-                                  }
-                                  score
-                                  reviews{
-                                     id
-                                  }
-                             }
-                            }
-                        }
                         cards{
                             id
                             createdAt
@@ -352,6 +380,168 @@ class ApiProvider {
                               }
                               userRecommand{
                                 name
+                                id
+                                tags{
+                                  id
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                                }
+                              }
+                              acceptedFlag
+                            }
+                        }
+                }
+              }''',
+    ));
+
+    return result;
+  }
+
+  Future<QueryResult> getCurrentUserWithFirebaseId(String userId) async {
+    _client.queryManager.cache.reset();
+    final QueryResult result =
+        await _client.query(QueryOptions(document: '''query{
+                     get_user(userId:"$userId"){
+                        id
+                        firebaseId
+                     }
+                  }
+      '''));
+
+    return result;
+  }
+
+  Future<QueryResult> getUserById(String userId) async {
+    _client.queryManager.cache.reset();
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                     get_user(userId:"$userId"){
+                        name
+                        phoneNumber
+                        id
+                        firebaseId
+                        profileURL
+                        location{
+                            id
+                            city
+                        }
+                        connections{
+                            id
+                            originUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
+                                  }
+                             }
+                            }
+                            targetUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             description
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                    author{
+                                      name
+                                      profileURL
+                                    }
+                                    userTag{
+                                       id
+                                       score
+                                       tag{
+                                         name
+                                       }
+                                    }
+                                    stars
+                                    text
+                                  }
+                             }
+                            }
+                        }
+                        cards{
+                            id
+                            createdAt
+                            searchFor{
+                              name
+                            }
+                            postedBy{
+                                id
+                                name
+                                profileURL
+                                phoneNumber
+                                description
+                                isActive
+                                 tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
+                                  }
+                             }
+                            }
+                            text
+                            recommandsCount
+                            recommandsList{
+                               id
+                              card{
+                                id
+                                searchFor{
+                                  id
+                                  name
+                                }
+                              }
+                              userAsk{
+                                id
+                                name
+                              }
+                              userSend{
+                                id
+                                name
+                              }
+                              userRecommand{
+                                name
+                                id
                                 tags{
                                   id
                                   tag{
@@ -502,6 +692,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getUserByIdWithMainInfo(String userId) async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                      get_user(userId:"$userId"){
@@ -644,6 +835,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> deleteCard(int cardId) async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
                       delete_card(cardId:$cardId)
@@ -654,6 +846,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getTags() async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                       get_tags{
@@ -668,9 +861,11 @@ class ApiProvider {
 
   Future<QueryResult> createCard(
       String postedBy, int searchFor, String details) async {
+    _client.queryManager.cache.reset();
+    String finalDetails = details.replaceAll("\n", "\\n");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
-                      create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$details"){
+                      create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$finalDetails"){
                         id
                         postedBy{
                           name
@@ -690,6 +885,7 @@ class ApiProvider {
   }
 
   Future<QueryResult> getConversation(String conversationId) async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_conversation(conversationId: "$conversationId"){
@@ -725,20 +921,54 @@ class ApiProvider {
 
   Future<QueryResult> createConnection(
       String currentUserId, String targetUserId) async {
+    _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
                     create_connection(origin:"$currentUserId", target:"$targetUserId"){
                       id
+                      targetUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                    id
+                                    author{
+                                      name
+                                      profileURL
+                                    }
+                                    userTag{
+                                       id
+                                       score
+                                       tag{
+                                         name
+                                       }
+                                    }
+                                    stars
+                                    text
+                                 }
+                               }
+                            }
                     }
                 }''',
     ));
+
     return result;
   }
 
   Future<QueryResult> createConversation(
       User user, String currentUserId) async {
+    _client.queryManager.cache.reset();
     String userId = user.id;
-
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
                       create_conversation(user1:"$currentUserId", user2:"$userId"){
@@ -760,6 +990,8 @@ class ApiProvider {
 
   Future<QueryResult> getListOfChannelIdsFromBackend(
       String currentUserId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_user(userId: "$currentUserId"){
@@ -796,6 +1028,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> getCards() async {
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_cards{
@@ -857,6 +1091,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> getCardById(int cardId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.query(QueryOptions(
       document: '''query{
                     get_card(cardId:$cardId){
@@ -865,6 +1101,53 @@ class ApiProvider {
                         name
                         id
                         profileURL
+                        cards{
+                            id
+                            createdAt
+                            searchFor{
+                              name
+                            }
+                            postedBy{
+                                id
+                                name
+                                profileURL
+                            }
+                            text
+                            recommandsCount
+                            recommandsList{
+                               id
+                              card{
+                                id
+                                searchFor{
+                                  id
+                                  name
+                                }
+                              }
+                              userAsk{
+                                id
+                                name
+                              }
+                              userSend{
+                                id
+                                name
+                              }
+                              userRecommand{
+                                name
+                                tags{
+                                  id
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                  }
+                                }
+                              }
+                              acceptedFlag
+                            }
+                        }
                       }
                       searchFor{
                         name
@@ -928,6 +1211,9 @@ class ApiProvider {
       String phoneNumber,
       String profilePicUrl,
       String description) async {
+    _client.queryManager.cache.reset();
+    String finalDescription = description.replaceAll("\n", "\\n");
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''
@@ -939,7 +1225,7 @@ class ApiProvider {
                             isActive: $isActive,
                             phoneNumber: "$phoneNumber",
                             profileURL: "$profilePicUrl",
-                            description: "$description") {
+                            description: "$finalDescription") {
                               name
                               phoneNumber
                               id
@@ -982,7 +1268,10 @@ class ApiProvider {
     return queryResult;
   }
 
-  Future<QueryResult> updateDeviceToken(String id, String deviceToken, String firebaseId) async {
+  Future<QueryResult> updateDeviceToken(
+      String id, String deviceToken, String firebaseId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''
@@ -997,6 +1286,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> createUserTag(String userId, int tagId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1020,6 +1311,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> updateMainUserTag(int userTagId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1042,6 +1335,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> deleteUserTag(int userTagId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1054,9 +1349,9 @@ class ApiProvider {
   }
 
   Future<QueryResult> loadContacts(List<String> phoneContacts) async {
-
-
     var phoneContactsJson = jsonEncode(phoneContacts);
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1090,6 +1385,7 @@ class ApiProvider {
   }
   Future<QueryResult> loadConnections(List<String> existingUsers) async {
     var existingUsersJson = jsonEncode(existingUsers);
+    _client.queryManager.cache.reset();
 
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
@@ -1113,6 +1409,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> getLocations() async {
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _unauthenticatedClient.query(QueryOptions(
       // query: readChars,
       document: '''query{
@@ -1128,6 +1426,8 @@ class ApiProvider {
 
   Future<QueryResult> createUser(
       String name, int location, String firebaseId, String phoneNumber) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult queryResult = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1152,6 +1452,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> createLocation(String city) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1167,6 +1469,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> checkContacts(List<String> phoneContacts) async {
+    _client.queryManager.cache.reset();
+
     var phoneContactsJson = jsonEncode(phoneContacts);
 
     final QueryResult queryResult = await _client.mutate(
@@ -1185,6 +1489,8 @@ class ApiProvider {
 
   Future<QueryResult> createReview(
       String userId, int userTagId, int stars, String text) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1231,6 +1537,8 @@ class ApiProvider {
   }
 
   Future unsubscribeFromPushNotifications(String channels) async {
+    _client.queryManager.cache.reset();
+
     _firebaseMessaging.getToken().then((deviceId) {
       var url =
           "$_baseUrl/v1/push/sub-key/$_subscribeKey/devices/$deviceId?remove=$channels&type=gcm";
@@ -1239,6 +1547,8 @@ class ApiProvider {
   }
 
   Future<String> uploadPic(File image) async {
+    _client.queryManager.cache.reset();
+
     final StorageReference reference =
         _storage.ref().child(DateTime.now().toIso8601String());
     final StorageUploadTask uploadTask = reference.putFile(image);
@@ -1248,6 +1558,8 @@ class ApiProvider {
   }
 
   Future<bool> sendMessage(String channelId, PnGCM pnGCM) async {
+    _client.queryManager.cache.reset();
+
     var encodedMessage =
         escapeJsonCharacters(convert.jsonEncode(pnGCM.toJson()));
     var url =
@@ -1264,6 +1576,8 @@ class ApiProvider {
 
   Future<http.Response> getHistoryMessages(
       String channelName, int historyStart, int numberOfMessagesToFetch) async {
+    _client.queryManager.cache.reset();
+
     var url;
 
     if (historyStart == null) {
@@ -1279,15 +1593,23 @@ class ApiProvider {
 
   Future<http.Response> subscribeToChannel(
       String channelName, String currentUserId, String timestamp) async {
+    _client.queryManager.cache.reset();
+
     var url =
         "$_baseUrl/subscribe/$_subscribeKey/$channelName/0/$timestamp?uuid=$currentUserId";
-    return await _pubNubClient.get(url);
+    return _pubNubClient.get(url).then((subscribeResult) {
+      return subscribeResult;
+    }).catchError((error) {});
   }
 
   Future<http.Response> getPubNubConversations(String channels) async {
+    _client.queryManager.cache.reset();
+
     var url =
         "$_baseUrl/v3/history/sub-key/$_subscribeKey/channel/$channels?max=1";
-    return await _pubNubClient.get(url);
+    return _pubNubClient.get(url).then((pubnubConversations) {
+      return pubnubConversations;
+    }).catchError((error) {});
   }
 
   void dispose() {
@@ -1296,6 +1618,8 @@ class ApiProvider {
 
   Future<QueryResult> createRecommend(
       int cardId, String userAskId, String userSendId, String userRecId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.mutate(
       MutationOptions(
         document: '''mutation{
@@ -1344,6 +1668,8 @@ class ApiProvider {
   }
 
   Future<QueryResult> deleteConnection(int connectionId) async {
+    _client.queryManager.cache.reset();
+
     final QueryResult result = await _client.mutate(
       MutationOptions(
         document: '''  mutation{

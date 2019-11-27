@@ -1,18 +1,22 @@
-import 'dart:async';
-
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/persistance/repository.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ConversationsBloc {
-  Repository _repository = Repository();
-  final StreamController ctrl = StreamController();
+  final _getPubNubConversationsFetcher =
+      PublishSubject<List<PubNubConversation>>();
 
-  Future<List<PubNubConversation>> getPubNubConversations() async {
-    return _repository.getPubNubConversations();
+  Observable<List<PubNubConversation>> get getPubNubConversationsObservable =>
+      _getPubNubConversationsFetcher.stream;
+
+  getPubNubConversations() async {
+    var result = await Repository().getPubNubConversations();
+    if (!_getPubNubConversationsFetcher.isClosed) {
+      _getPubNubConversationsFetcher.sink.add(result);
+    }
   }
 
   void dispose() {
-    _repository.dispose();
-    ctrl.close();
+    _getPubNubConversationsFetcher.close();
   }
 }

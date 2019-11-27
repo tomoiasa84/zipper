@@ -12,6 +12,7 @@ import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
 import 'package:contractor_search/bloc/share_selected_bloc.dart';
 import 'home_page.dart';
 class TutorialScreen extends StatefulWidget {
+
   @override
   State createState() => new TutorialScreenState();
 }
@@ -37,49 +38,49 @@ class TutorialScreenState extends State<TutorialScreen> {
     if (position < 0) return _totalDots - 1;
     return position;
   }
-  List<String> _generateContactsToBeLoaded(SyncContactsModel numbers) {
-    List<String> phoneContactsToBeLoaded = [];
-    numbers.unjoinedContacts.forEach((contact) {
-      if (contact.selected) {
-        if (contact.contact.phones != null &&
-            contact.contact.phones.toList().isNotEmpty) {
-          if (contact.contact.phones
-              .toList()
-              .elementAt(0)
-              .value
-              .toString()
-              .startsWith("+")) {
-            phoneContactsToBeLoaded.add(
-                contact.contact.phones.toList().elementAt(0).value.toString());
-          } else {
-            phoneContactsToBeLoaded.add(numbers.countryCode +
-                contact.contact.phones.toList().elementAt(0).value.toString());
-          }
-        }
-      }
-    });
-    return phoneContactsToBeLoaded;
-  }
-  List<String> _generateExistingUsers(SyncContactsModel numbers) {
-    List<String> existingUsers = [];
-    numbers.existingUsers.forEach((contact) {
-      if (contact.phones != null && contact.phones.toList().isNotEmpty) {
-        if (contact.phones
-            .toList()
-            .elementAt(0)
-            .value
-            .toString()
-            .startsWith("+")) {
-          existingUsers
-              .add(contact.phones.toList().elementAt(0).value.toString());
-        } else {
-          existingUsers.add(numbers.countryCode +
-              contact.phones.toList().elementAt(0).value.toString());
-        }
-      }
-    });
-    return existingUsers;
-  }
+//  List<String> _generateContactsToBeLoaded(SyncContactsModel numbers) {
+//    List<String> phoneContactsToBeLoaded = [];
+//    numbers.unjoinedContacts.forEach((contact) {
+//      if (contact.selected) {
+//        if (contact.contact.phones != null &&
+//            contact.contact.phones.toList().isNotEmpty) {
+//          if (contact.contact.phones
+//              .toList()
+//              .elementAt(0)
+//              .value
+//              .toString()
+//              .startsWith("+")) {
+//            phoneContactsToBeLoaded.add(
+//                contact.contact.phones.toList().elementAt(0).value.toString());
+//          } else {
+//            phoneContactsToBeLoaded.add(numbers.countryCode +
+//                contact.contact.phones.toList().elementAt(0).value.toString());
+//          }
+//        }
+//      }
+//    });
+//    return phoneContactsToBeLoaded;
+//  }
+//  List<String> _generateExistingUsers(SyncContactsModel numbers) {
+//    List<String> existingUsers = [];
+//    numbers.existingUsers.forEach((contact) {
+//      if (contact.phones != null && contact.phones.toList().isNotEmpty) {
+//        if (contact.phones
+//            .toList()
+//            .elementAt(0)
+//            .value
+//            .toString()
+//            .startsWith("+")) {
+//          existingUsers
+//              .add(contact.phones.toList().elementAt(0).value.toString());
+//        } else {
+//          existingUsers.add(numbers.countryCode +
+//              contact.phones.toList().elementAt(0).value.toString());
+//        }
+//      }
+//    });
+//    return existingUsers;
+//  }
   @override
   Widget build(BuildContext context) {
     return new Scaffold(

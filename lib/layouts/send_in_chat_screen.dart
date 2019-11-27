@@ -7,8 +7,8 @@ import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/models/WrappedMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
-import 'package:contractor_search/utils/custom_dialog.dart';
 import 'package:contractor_search/utils/general_methods.dart';
+import 'package:contractor_search/utils/general_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -42,14 +42,24 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _sendInChatBloc.dispose();
+    super.dispose();
+  }
+
   void _getRecentUsers() async {
-    _recentUserConversations = await _sendInChatBloc.getRecentUsers();
+    _sendInChatBloc.getRecentUsers();
+    _sendInChatBloc.getRecentUsersObservable.listen((result) {
+      _recentUserConversations = result;
+    });
     _recentUsersLoaded = true;
     _hideLoading();
   }
 
   void _getAllFriends() async {
-    _sendInChatBloc.getCurrentUserWithConnections().then((result) {
+    _sendInChatBloc.getCurrentUserWithConnections();
+    _sendInChatBloc.getCurrentUserWithConnectionsObservable.listen((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
         currentUser.connections.forEach((connection) {
@@ -58,8 +68,11 @@ class SendInChatScreenState extends State<SendInChatScreen> {
         _allUsersLoaded = true;
         _hideLoading();
       } else {
-        _showDialog(Localization.of(context).getString("error"),
-            result.errors[0].message);
+        setState(() {
+          _saving = false;
+        });
+        buildNoInternetMessage(
+            Localization.of(context).getString('noInternetConnection'));
       }
     });
   }
@@ -70,17 +83,6 @@ class SendInChatScreenState extends State<SendInChatScreen> {
         _saving = false;
       });
     }
-  }
-
-  Future _showDialog(String title, String message) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: message,
-        buttonText: Localization.of(context).getString('ok'),
-      ),
-    );
   }
 
   void _sendToUser(User user) {
@@ -99,24 +101,29 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     setState(() {
       _saving = true;
     });
-    _sendInChatBloc.createConversation(user).then((pubNubConversation) {
-      var pnGCM = PnGCM(WrappedMessage(
-          PushNotification(
-              "Test", Localization.of(context).getString('sharedContact')),
-          UserMessage.withSharedContact(DateTime.now(), _currentUserId,
-              widget.userToBeShared, pubNubConversation.id)));
+    _sendInChatBloc.createConversation(user);
+    _sendInChatBloc.createConversationObservable.listen((pubNubConversation) {
+      if (pubNubConversation != null) {
+        var pnGCM = PnGCM(WrappedMessage(
+            PushNotification(
+                "Test", Localization.of(context).getString('sharedContact')),
+            UserMessage.withSharedContact(DateTime.now(), _currentUserId,
+                widget.userToBeShared, pubNubConversation.id)));
 
-      _sendInChatBloc
-          .sendMessage(pubNubConversation.id, pnGCM)
-          .then((messageSent) {
-        if (messageSent) {
-          Navigator.of(context).pushReplacement(new MaterialPageRoute(
-              builder: (BuildContext context) => ChatScreen(
-                  pubNubConversation: pubNubConversation, maybePop: true)));
-        } else {
-          print('Could not send message');
-        }
-      });
+        _sendInChatBloc.sendMessage(pubNubConversation.id, pnGCM);
+        _sendInChatBloc.sendMessageObservable.listen((messageSent) {
+          if (messageSent) {
+            Navigator.of(context).pushReplacement(new MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    ChatScreen(pubNubConversation: pubNubConversation)));
+          } else {
+            setState(() {
+              _saving = false;
+            });
+            print('Could not send message');
+          }
+        });
+      }
     });
   }
 
@@ -124,24 +131,29 @@ class SendInChatScreenState extends State<SendInChatScreen> {
     setState(() {
       _saving = true;
     });
-    _sendInChatBloc.createConversation(user).then((pubNubConversation) {
-      var pnGCM = PnGCM(WrappedMessage(
-          PushNotification(
-              "Test", _createSharedCardPushNotificationText(widget.cardModel)),
-          UserMessage.withSharedCard(DateTime.now(), _currentUserId,
-              widget.cardModel, pubNubConversation.id)));
+    _sendInChatBloc.createConversation(user);
+    _sendInChatBloc.createConversationObservable.listen((pubNubConversation) {
+      if (pubNubConversation != null) {
+        var pnGCM = PnGCM(WrappedMessage(
+            PushNotification("Test",
+                _createSharedCardPushNotificationText(widget.cardModel)),
+            UserMessage.withSharedCard(DateTime.now(), _currentUserId,
+                widget.cardModel, pubNubConversation.id)));
 
-      _sendInChatBloc
-          .sendMessage(pubNubConversation.id, pnGCM)
-          .then((messageSent) {
-        if (messageSent) {
-          Navigator.of(context).pushReplacement(new MaterialPageRoute(
-              builder: (BuildContext context) => ChatScreen(
-                  pubNubConversation: pubNubConversation, maybePop: true)));
-        } else {
-          print('Could not send message');
-        }
-      });
+        _sendInChatBloc.sendMessage(pubNubConversation.id, pnGCM);
+        _sendInChatBloc.sendMessageObservable.listen((messageSent) {
+          if (messageSent) {
+            Navigator.of(context).pushReplacement(new MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    ChatScreen(pubNubConversation: pubNubConversation)));
+          } else {
+            setState(() {
+              _saving = true;
+            });
+            print('Could not send message');
+          }
+        });
+      }
     });
   }
 
@@ -156,6 +168,10 @@ class SendInChatScreenState extends State<SendInChatScreen> {
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        valueColor:
+        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+      ),
       inAsyncCall: _saving,
       child: Scaffold(
         appBar: _buildAppBar(),
@@ -300,8 +316,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
               ),
               child: CircleAvatar(
                 child: usersList.elementAt(index).profilePicUrl == null ||
-                        (usersList.elementAt(index).profilePicUrl != null &&
-                            usersList.elementAt(index).profilePicUrl.isEmpty)
+                        usersList.elementAt(index).profilePicUrl.isEmpty
                     ? Text(
                         usersList.elementAt(index).name.startsWith('+')
                             ? '+'
@@ -309,7 +324,8 @@ class SendInChatScreenState extends State<SendInChatScreen> {
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
                 backgroundImage:
-                    usersList.elementAt(index).profilePicUrl != null
+                    usersList.elementAt(index).profilePicUrl != null &&
+                            usersList.elementAt(index).profilePicUrl.isNotEmpty
                         ? NetworkImage(usersList.elementAt(index).profilePicUrl)
                         : null,
                 backgroundColor: ColorUtils.lightLightGray,
