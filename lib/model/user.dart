@@ -47,6 +47,11 @@ class User {
                 ?.map((i) => Connection.fromJson(i))
                 ?.toList()
             : null,
+        activeConnections = json['activeConnections'] != null
+            ? (json['activeConnections'] as List)
+                ?.map((i) => Connection.fromJson(i))
+                ?.toList()
+            : null,
         cardsConnections = json['cardsConnections'] != null
             ? (json['cardsConnections'] as List)
                 ?.map((i) => CardModel.fromJson(i))
@@ -64,15 +69,16 @@ class User {
             : null,
         description = json['description'];
 
-   String id;
-   String firebaseId;
+  String id;
+  String firebaseId;
   String name;
   LocationModel location;
   String description;
   String phoneNumber;
   bool isActive;
-   List<ConversationModel> conversations;
+  List<ConversationModel> conversations;
   List<Connection> connections;
+  List<Connection> activeConnections;
   List<CardModel> cards;
   List<UserTag> tags;
   List<CardModel> cardsConnections;
@@ -81,5 +87,4 @@ class User {
   String profilePicUrl;
 
   User();
-
 }

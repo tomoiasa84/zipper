@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:contractor_search/bloc/chat_bloc.dart';
-import 'package:contractor_search/layouts/account_screen.dart';
 import 'package:contractor_search/layouts/image_preview_screen.dart';
+import 'package:contractor_search/layouts/my_profile_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
@@ -77,13 +77,14 @@ class _ChatScreenState extends State<ChatScreen> {
               escapeJsonCharacters(imageDownloadUrl),
               _currentUser.id,
               _pubNubConversation.id);
-          _chatBloc.sendMessage(
-              _pubNubConversation.id,
-              PnGCM(WrappedMessage(
-                  PushNotification(_currentUser.name,
-                      Localization.of(context).getString('image')),
-                  message)));
-          _chatBloc.sendMessageObservable.listen((messageSent) {
+          _chatBloc
+              .sendMessage(
+                  _pubNubConversation.id,
+                  PnGCM(WrappedMessage(
+                      PushNotification(_currentUser.name,
+                          Localization.of(context).getString('image')),
+                      message)))
+              .then((messageSent) {
             if (!messageSent) {
               _showDialog(
                   Localization.of(context).getString('error'),
@@ -122,8 +123,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _startConversation(User user) {
-    _chatBloc.createConversation(user);
-    _chatBloc.createConversationObservable.listen((pubNubConversation) {
+    _chatBloc.createConversation(user).then((pubNubConversation) {
       if (pubNubConversation != null) {
         Navigator.of(context).pushReplacement(new MaterialPageRoute(
             builder: (BuildContext context) =>
@@ -151,9 +151,19 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-
     _pubNubConversation = widget.pubNubConversation;
-    _initScreen();
+    _initScreen().then((value) {
+      _controller.addListener(_scrollListener);
+      _loadMore().then((onValue) {
+        if (mounted) {
+          setState(() {
+            _loading = false;
+          });
+        } else {
+          print('NOT LOADED');
+        }
+      });
+    });
   }
 
   _scrollListener() {
@@ -176,64 +186,49 @@ class _ChatScreenState extends State<ChatScreen> {
             _pubNubConversation = pubNubConversation;
           });
           if (_pubNubConversation == null) {
-            _getConversationFromDb(currentUserId);
+            await _getConversationFromDb(currentUserId);
           }
         });
-      } else {
-        await _setMessagesListener(_pubNubConversation.id, currentUserId);
-
-        setState(() {
-          if (currentUserId == _pubNubConversation.user1.id) {
-            _currentUser = _pubNubConversation.user1;
-            _interlocutorUser = _pubNubConversation.user2;
-          } else {
-            _currentUser = _pubNubConversation.user2;
-            _interlocutorUser = _pubNubConversation.user1;
-          }
-        });
-        _controller.addListener(_scrollListener);
-        _loadMore();
       }
+
+      await _setMessagesListener(_pubNubConversation.id, currentUserId);
+
+      setState(() {
+        if (currentUserId == _pubNubConversation.user1.id) {
+          _currentUser = _pubNubConversation.user1;
+          _interlocutorUser = _pubNubConversation.user2;
+        } else {
+          _currentUser = _pubNubConversation.user2;
+          _interlocutorUser = _pubNubConversation.user1;
+        }
+      });
     });
   }
 
-  _getConversationFromDb(String currentUserId) {
+  Future _getConversationFromDb(String currentUserId) async {
     if (_pubNubConversation == null) {
-      _chatBloc.getConversation(widget.conversationId);
-
-      _chatBloc.getConversationObservable.listen((pubNubConversation) {
+      await _chatBloc
+          .getConversation(widget.conversationId)
+          .then((pubNubConversation) {
         setState(() {
           _pubNubConversation = pubNubConversation;
         });
-        _setMessagesListener(_pubNubConversation.id, currentUserId)
-            .then((value) {
-          setState(() {
-            if (currentUserId == _pubNubConversation.user1.id) {
-              _currentUser = _pubNubConversation.user1;
-              _interlocutorUser = _pubNubConversation.user2;
-            } else {
-              _currentUser = _pubNubConversation.user2;
-              _interlocutorUser = _pubNubConversation.user1;
-            }
-          });
-          _controller.addListener(_scrollListener);
-          _loadMore();
-          SharedPreferencesHelper.saveConversation(_pubNubConversation);
-        });
       });
     }
+
+    SharedPreferencesHelper.saveConversation(_pubNubConversation);
   }
 
-  _loadMore() async {
+  Future<bool> _loadMore() async {
     if (_pubNubConversation == null) {
       return false;
     }
     if (_chatBloc.historyStart != 0) {
-      _chatBloc.getHistoryMessages(_pubNubConversation.id);
-      _chatBloc.getHistoryMessagesObservable.listen((historyMessages) {
+      await _chatBloc
+          .getHistoryMessages(_pubNubConversation.id)
+          .then((historyMessages) {
         if (mounted) {
           setState(() {
-            _loading = false;
             _listOfMessages.addAll(historyMessages.reversed);
             _addHeadersIfNecessary();
           });
@@ -355,11 +350,11 @@ class _ChatScreenState extends State<ChatScreen> {
     return WillPopScope(
       onWillPop: _saveLastMessage,
       child: ModalProgressHUD(
+        inAsyncCall: _loading,
         progressIndicator: CircularProgressIndicator(
           valueColor:
               new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
         ),
-        inAsyncCall: _loading,
         child: Scaffold(
           appBar: AppBar(
             title: Text(
@@ -439,7 +434,8 @@ class _ChatScreenState extends State<ChatScreen> {
         if (item.sharedContact.tags != null) {
           mainTag = getMainTag(item.sharedContact);
         }
-        return generateContactUI(
+        return _generateContactUI(
+            _messageAuthorIsCurrentUser(item),
             item.sharedContact,
             item.sharedContact,
             mainTag != null ? mainTag.tag.name : '',
@@ -451,7 +447,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        AccountScreen(isStartedFromHomeScreen: false)));
+                        MyProfileScreen(isStartedFromHomeScreen: false)));
           } else {
             Navigator.push(
                 context,
@@ -646,7 +642,8 @@ class _ChatScreenState extends State<ChatScreen> {
                           : getInitials(_currentUser.name),
                       style: TextStyle(color: ColorUtils.darkerGray))
                   : null,
-              backgroundImage: _currentUser.profilePicUrl != null
+              backgroundImage: _currentUser.profilePicUrl != null &&
+                      _currentUser.profilePicUrl.isNotEmpty
                   ? NetworkImage(_currentUser.profilePicUrl)
                   : null,
               backgroundColor: ColorUtils.lightLightGray,
@@ -680,7 +677,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             : getInitials(_interlocutorUser.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
-                backgroundImage: _interlocutorUser.profilePicUrl != null
+                backgroundImage: _interlocutorUser.profilePicUrl != null &&
+                        _interlocutorUser.profilePicUrl.isNotEmpty
                     ? NetworkImage(_interlocutorUser.profilePicUrl)
                     : null,
                 backgroundColor: ColorUtils.lightLightGray,
@@ -735,7 +733,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             : getInitials(_interlocutorUser.name),
                         style: TextStyle(color: ColorUtils.darkerGray))
                     : null,
-                backgroundImage: _interlocutorUser.profilePicUrl != null
+                backgroundImage: _interlocutorUser.profilePicUrl != null &&
+                        _interlocutorUser.profilePicUrl.isNotEmpty
                     ? NetworkImage(_interlocutorUser.profilePicUrl)
                     : null,
                 backgroundColor: ColorUtils.lightLightGray,
@@ -1023,10 +1022,176 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: const EdgeInsets.only(top: 16.0),
       child: (cardModel.text != null && cardModel.text.isNotEmpty)
           ? Text(
-              cardModel.text,
+              replaceQuotes(cardModel.text),
               style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
             )
           : Container(),
+    );
+  }
+
+  Widget _generateContactUI(
+      bool sharedByCurrentUser,
+      User userRec,
+      User userSend,
+      String tagName,
+      int score,
+      Function clickAction,
+      String bottomDescription,
+      Function goToUserDetailsScreen) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+      child: Container(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: Column(
+          children: <Widget>[
+            Stack(
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsets.only(left: 28.0),
+                  decoration: sharedByCurrentUser
+                      ? getRoundedOrangeDecoration()
+                      : getRoundedLightGrayDecoration(),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(48.0, 18.0, 18.0, 16.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              GestureDetector(
+                                onTap: () {
+                                  goToUserDetailsScreen(userRec);
+                                },
+                                child: Text(
+                                  userRec.name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: sharedByCurrentUser
+                                          ? ColorUtils.white
+                                          : ColorUtils.almostBlack,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  tagName.length > 0
+                                      ? Flexible(
+                                          child: Text(
+                                            '#' + tagName,
+                                            overflow: TextOverflow.clip,
+                                            style: TextStyle(
+                                                color: sharedByCurrentUser
+                                                    ? ColorUtils.white
+                                                    : ColorUtils.almostBlack),
+                                          ),
+                                        )
+                                      : Container(),
+                                  score != -1
+                                      ? Padding(
+                                          padding:
+                                              EdgeInsets.fromLTRB(45, 0, 0, 0),
+                                          child: Icon(
+                                            Icons.star,
+                                            color: sharedByCurrentUser
+                                                ? Colors.white
+                                                : ColorUtils.almostBlack,
+                                            size: 16,
+                                          ),
+                                        )
+                                      : Container(),
+                                  score != -1
+                                      ? Text(score.toString(),
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: sharedByCurrentUser
+                                                  ? Colors.white
+                                                  : ColorUtils.almostBlack))
+                                      : Container()
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(left: 4.0),
+                          decoration: getRoundWhiteCircle(),
+                          child: new IconButton(
+                            onPressed: clickAction,
+                            icon: Image.asset(
+                              "assets/images/ic_inbox_orange.png",
+                              color: sharedByCurrentUser
+                                  ? ColorUtils.messageOrange
+                                  : ColorUtils.almostBlack,
+                            ),
+                          ),
+                          width: 40,
+                          height: 40,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
+                  width: 56,
+                  height: 56,
+                  decoration: new BoxDecoration(shape: BoxShape.circle),
+                  child: CircleAvatar(
+                    child: userRec.profilePicUrl == null ||
+                            userRec.profilePicUrl.isEmpty
+                        ? Text(
+                            userRec.name.startsWith('+')
+                                ? '+'
+                                : getInitials(userRec.name),
+                            style: TextStyle(color: ColorUtils.darkerGray))
+                        : null,
+                    backgroundImage: userRec.profilePicUrl != null &&
+                            userRec.profilePicUrl.isNotEmpty
+                        ? NetworkImage(userRec.profilePicUrl)
+                        : null,
+                    backgroundColor: ColorUtils.lightLightGray,
+                  ),
+                )
+              ],
+            ),
+            Visibility(
+              visible: bottomDescription != null,
+              child: Container(
+                  margin: const EdgeInsets.only(top: 8.0),
+                  alignment: Alignment.centerRight,
+                  child: bottomDescription != null
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              bottomDescription,
+                              style: TextStyle(
+                                  fontSize: 12.0,
+                                  color: ColorUtils.almostBlack),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                goToUserDetailsScreen(userSend);
+                              },
+                              child: Text(
+                                userSend.name,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12.0,
+                                    color: ColorUtils.almostBlack),
+                              ),
+                            )
+                          ],
+                        )
+                      : Container()),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

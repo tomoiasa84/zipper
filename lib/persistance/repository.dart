@@ -51,6 +51,12 @@ class Repository {
     return result;
   }
 
+  Future<QueryResult> getUserByIdWithActiveConnections(String userId) async {
+    var result = await appApiProvider.getUserByIdWithActiveConnections(userId);
+    checkTokenError(result);
+    return result;
+  }
+
   Future<QueryResult> getUserByIdWithCardsConnections(String userId) async {
     var result = await appApiProvider.getUserByIdWithCardsConnections(userId);
     checkTokenError(result);
@@ -153,6 +159,11 @@ class Repository {
     checkTokenError(result);
     if (result.data != null) {
       User currentUser = User.fromJson(result.data['get_user']);
+      List<String> allConversationsIds = List();
+      for (var conversation in currentUser.conversations) {
+        allConversationsIds.add(conversation.id);
+      }
+      SharedPreferencesHelper.saveAllConversationIds(allConversationsIds);
       return currentUser.conversations;
     } else
       return null;
@@ -271,7 +282,12 @@ class Repository {
   }
 
   Future unsubscribeFromPushNotifications() async {
-    var channels = await getStringOfChannelIds();
+    var conversationIdsList =
+        await SharedPreferencesHelper.getAllConversationIds();
+    var channels = "";
+    for (var item in conversationIdsList) {
+      channels = channels + item + ",";
+    }
     return await appApiProvider.unsubscribeFromPushNotifications(channels);
   }
 
@@ -296,11 +312,7 @@ class Repository {
   }
 
   Future<List<PubNubConversation>> getPubNubConversations() async {
-    Stopwatch stopwatch = Stopwatch()..start();
     var conversationsList = await getListOfConversationIdsFromBackend();
-    print(
-        'Finished getListOfConversationIdsFromBackend in: ${stopwatch.elapsed}');
-
     String channels = "";
 
     if (conversationsList != null) {
@@ -308,10 +320,8 @@ class Repository {
         channels = channels + item.id.toString() + ",";
       }
 
-      Stopwatch stopwatch2 = Stopwatch()..start();
       return appApiProvider.getPubNubConversations(channels).then((response) {
         if (response.statusCode == 200) {
-          print('Finished getPubNubConversations in: ${stopwatch2.elapsed}');
           BatchHistoryResponse batchHistoryResponse =
               BatchHistoryResponse.fromJson(convert.jsonDecode(response.body));
 
@@ -370,10 +380,13 @@ class Repository {
   }
 
   Future clearUserSession(bool showExpiredSessionMessage) async {
-    await FirebaseAuth.instance.signOut().then((_) async {
-      SharedPreferencesHelper.clear().then((_) {
-        logout(showExpiredSessionMessage);
+    unsubscribeFromPushNotifications().then((value) async {
+      await FirebaseAuth.instance.signOut().then((_) async {
+        SharedPreferencesHelper.clear().then((_) {
+          logout(showExpiredSessionMessage);
+        });
       });
     });
+
   }
 }

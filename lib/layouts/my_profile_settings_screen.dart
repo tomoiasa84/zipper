@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:contractor_search/bloc/profile_settings_bloc.dart';
+import 'package:contractor_search/bloc/my_profile_settings_bloc.dart';
 import 'package:contractor_search/model/tag.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/model/user_tag.dart';
@@ -15,16 +15,16 @@ import 'package:graphql/src/core/query_result.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class ProfileSettingsScreen extends StatefulWidget {
+class MyProfileSettingsScreen extends StatefulWidget {
   final User user;
 
-  ProfileSettingsScreen(this.user);
+  MyProfileSettingsScreen(this.user);
 
   @override
-  ProfileSettingsScreenState createState() => ProfileSettingsScreenState();
+  MyProfileSettingsScreenState createState() => MyProfileSettingsScreenState();
 }
 
-class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
+class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
   final _formKey = GlobalKey<FormState>();
 
   TextEditingController _nameTextEditingController = TextEditingController();
@@ -36,16 +36,15 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   List<Tag> tagsList = [];
   UserTag userTag;
   bool _saving = false;
-  ProfileSettingsBloc _profileSettingsBloc;
+  MyProfileSettingsBloc _myProfileSettingsBloc = MyProfileSettingsBloc();
   bool _autoValidate = false;
   File _profilePic;
-
   Tag tagCreated;
 
   @override
   void initState() {
     _fetchUsefulData();
-    _profileSettingsBloc.createUserTagObservable.listen((result) {
+    _myProfileSettingsBloc.createUserTagObservable.listen((result) {
       setState(() {
         _saving = false;
       });
@@ -63,13 +62,13 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
   @override
   void dispose() {
-    _profileSettingsBloc.dispose();
+    _myProfileSettingsBloc.dispose();
     super.dispose();
   }
 
   void getTags() {
-    _profileSettingsBloc.getTags();
-    _profileSettingsBloc.getTagsObservable.listen((result) {
+    _myProfileSettingsBloc.getTags();
+    _myProfileSettingsBloc.getTagsObservable.listen((result) {
       print("getTagsObservable called");
       if (result.errors == null) {
         final List<Map<String, dynamic>> tags =
@@ -103,25 +102,33 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           (userTag) =>
               userTag.tag.name == _mainTextEditingController.text.substring(1),
           orElse: () => null);
-      _profileSettingsBloc.updateMainUserTag(newMainUserTag.id);
-      _profileSettingsBloc.updateMainUserTagObservable
-          .listen((newMainTagResult) {
-        if (newMainTagResult.errors == null) {
-          updateUser();
-        } else {
-          _showDialog(
-              Localization.of(context).getString("error"),
-              Localization.of(context).getString("anErrorHasOccured"),
-              Localization.of(context).getString("ok"));
-        }
-      });
+
+      if (newMainUserTag != null) {
+        _myProfileSettingsBloc.updateMainUserTag(newMainUserTag.id);
+        _myProfileSettingsBloc.updateMainUserTagObservable
+            .listen((newMainTagResult) {
+          if (newMainTagResult.errors == null) {
+            updateUser();
+          } else {
+            _showDialog(
+                Localization.of(context).getString("error"),
+                Localization.of(context).getString("anErrorHasOccured"),
+                Localization.of(context).getString("ok"));
+          }
+        });
+      } else {
+        _showDialog(
+            Localization.of(context).getString('error'),
+            Localization.of(context).getString('select_valid_tag'),
+            Localization.of(context).getString('ok'));
+      }
     } else {
       updateUser();
     }
   }
 
   Future<String> _uploadUserProfilePicture() async {
-    return await _profileSettingsBloc.uploadPic(_profilePic);
+    return await _myProfileSettingsBloc.uploadPic(_profilePic);
   }
 
   Future updateUser() async {
@@ -136,7 +143,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           widget.user.profilePicUrl != null ? widget.user.profilePicUrl : "";
     }
 
-    _profileSettingsBloc.updateUser(
+    _myProfileSettingsBloc.updateUser(
         widget.user.id,
         widget.user.firebaseId,
         _nameTextEditingController.text,
@@ -145,7 +152,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         widget.user.phoneNumber,
         profilePicUrl,
         _bioTextEditingController.text);
-    _profileSettingsBloc.updateUserObservable.listen((result) {
+    _myProfileSettingsBloc.updateUserObservable.listen((result) {
       if (mounted) {
         setState(() {
           _saving = false;
@@ -176,7 +183,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         (tag) => tag.name == _addTagsTextEditingController.text.substring(1),
         orElse: () => null);
     if (tag != null) {
-      _profileSettingsBloc.createUserTag(widget.user.id, tag.id);
+      _myProfileSettingsBloc.createUserTag(widget.user.id, tag.id);
       tagCreated = tag;
     }
   }
@@ -199,8 +206,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     setState(() {
       _saving = true;
     });
-    _profileSettingsBloc.deleteUserTag(item.id);
-    _profileSettingsBloc.deleteUserTagObservable.listen((result) {
+    _myProfileSettingsBloc.deleteUserTag(item.id);
+    _myProfileSettingsBloc.deleteUserTagObservable.listen((result) {
       setState(() {
         _saving = false;
       });
@@ -223,8 +230,8 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         userTag = null;
         _mainTextEditingController.clear();
       } else if (userTag != null && !userTagsList.contains(userTag)) {
-        _profileSettingsBloc.updateMainUserTag(userTagsList[0].id);
-        _profileSettingsBloc.updateMainUserTagObservable
+        _myProfileSettingsBloc.updateMainUserTag(userTagsList[0].id);
+        _myProfileSettingsBloc.updateMainUserTagObservable
             .listen((updateNewTagResult) {
           setState(() {
             _mainTextEditingController.text = '#' +
@@ -238,7 +245,6 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   }
 
   void _fetchUsefulData() {
-    _profileSettingsBloc = ProfileSettingsBloc();
     getTags();
     widget.user.tags.forEach((item) {
       if (item.defaultTag) {
@@ -269,8 +275,7 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       progressIndicator: CircularProgressIndicator(
-        valueColor:
-        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        valueColor: new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
       ),
       inAsyncCall: _saving,
       child: Scaffold(
@@ -462,9 +467,15 @@ class ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                 ),
               ),
               suggestionsCallback: (pattern) {
+                if (pattern.startsWith('#')) {
+                  pattern = pattern.substring(1);
+                }
+
                 List<String> list = [];
                 userTagsList
-                    .where((it) => it.tag.name.startsWith(pattern))
+                    .where((it) => it.tag.name
+                        .toLowerCase()
+                        .startsWith(pattern.toLowerCase()))
                     .toList()
                     .forEach((tag) => list.add(tag.tag.name));
                 return list;

@@ -3,7 +3,7 @@ import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
-class AccountBloc {
+class MyProfileBloc {
   final _getUserByIdWithMainInfoFetcher = PublishSubject<QueryResult>();
   final _deleteCardFetcher = PublishSubject<QueryResult>();
 

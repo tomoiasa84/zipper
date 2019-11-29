@@ -15,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'layouts/authentication_screen.dart';
 import 'layouts/card_details_screen.dart';
 import 'layouts/chat_screen.dart';
-import 'layouts/home_page.dart';
+import 'layouts/tabs_container_screen.dart';
 import 'models/PushNotification.dart';
 import 'models/UserMessage.dart';
 
@@ -44,7 +44,6 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     _notificationsChannel.setMessageHandler((String message) async {
-      print('Received: $message');
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
@@ -53,19 +52,16 @@ class MyAppState extends State<MyApp> {
       return '';
     });
     _recommendationChannel.setMessageHandler((String message) async {
-      print('Received: $message');
       _goToCardDetailsScreen(int.parse(message));
       return '';
     });
     SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
       _currentUserChannel.send(currentUserId);
-      print('USER SENT');
     });
     _initFirebaseClientMessaging();
     _initLocalNotifications();
     checkAuthStatus();
     _getSyncContactsFlag();
-    debugPrint('DART INITIALIZED');
     super.initState();
   }
 
@@ -112,8 +108,6 @@ class MyAppState extends State<MyApp> {
   }
 
   Future onSelectNotification(String payload) async {
-    print('Notification tapped');
-
     if (_message.cardId != null) {
       _goToCardDetailsScreen(_message.cardId);
     } else {
@@ -141,7 +135,6 @@ class MyAppState extends State<MyApp> {
   void _initFirebaseClientMessaging() {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        print('on message $message');
         _filterNotifications(message);
       },
       onResume: (Map<String, dynamic> message) async {
@@ -193,13 +186,14 @@ class MyAppState extends State<MyApp> {
           const Locale('en', ''),
           const Locale('ro', ''),
         ],
+        debugShowCheckedModeBanner: false,
         navigatorKey: GlobalVariable.navigatorKey,
         title: 'Flutter Demo',
         theme: ThemeData(primaryColor: ColorUtils.white, fontFamily: "Arial"),
         home: Builder(
           builder: (context) => authStatus == AuthStatus.LOGGED_IN
               ? (_syncContactsFlag
-                  ? HomePage(
+                  ? TabsContainerScreen(
                       syncContactsFlagRequired: false,
                     )
                   : TutorialScreen())
@@ -213,7 +207,7 @@ class MyAppState extends State<MyApp> {
           '/phoneAuthScreen': (BuildContext context) => AuthenticationScreen(
                 showExpiredSessionMessage: false,
               ),
-          '/homepage': (BuildContext context) => HomePage(
+          '/homepage': (BuildContext context) => TabsContainerScreen(
                 syncContactsFlagRequired: false,
               ),
         });
@@ -235,7 +229,6 @@ class MyAppState extends State<MyApp> {
         authStatus = AuthStatus.LOGGED_IN;
       });
     }
-    print("ACCESS TOKEN: $accessToken");
   }
 
   void checkFirebaseUserAuthStatus() async {

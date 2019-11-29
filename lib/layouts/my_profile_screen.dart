@@ -1,7 +1,7 @@
 import 'dart:ui';
 
-import 'package:contractor_search/bloc/account_bloc.dart';
-import 'package:contractor_search/layouts/profile_settings_screen.dart';
+import 'package:contractor_search/bloc/my_profile_bloc.dart';
+import 'package:contractor_search/layouts/my_profile_settings_screen.dart';
 import 'package:contractor_search/layouts/replies_screen.dart';
 import 'package:contractor_search/layouts/reviews_screen.dart';
 import 'package:contractor_search/model/card.dart';
@@ -18,13 +18,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-class AccountScreen extends StatefulWidget {
+class MyProfileScreen extends StatefulWidget {
   final ValueChanged<bool> onChanged;
   final bool isStartedFromHomeScreen;
   final User user;
   final Function onUserChanged;
 
-  const AccountScreen(
+  const MyProfileScreen(
       {Key key,
       this.onChanged,
       this.isStartedFromHomeScreen,
@@ -34,12 +34,12 @@ class AccountScreen extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return AccountScreenState();
+    return MyProfileScreenState();
   }
 }
 
-class AccountScreenState extends State<AccountScreen> {
-  AccountBloc _accountBloc;
+class MyProfileScreenState extends State<MyProfileScreen> {
+  MyProfileBloc _myProfileBloc = MyProfileBloc();
   User _user;
   UserTag _mainUserTag;
   bool _saving = false;
@@ -87,7 +87,7 @@ class AccountScreenState extends State<AccountScreen> {
     setState(() {
       _saving = true;
     });
-    _accountBloc.clearUserSession().then((_) {
+    _myProfileBloc.clearUserSession().then((_) {
       setState(() {
         _saving = false;
       });
@@ -95,13 +95,11 @@ class AccountScreenState extends State<AccountScreen> {
   }
 
   void _getCurrentUserInfo() {
-    Stopwatch stopwatch = Stopwatch()..start();
-    _accountBloc = AccountBloc();
     setState(() {
       _saving = true;
     });
-    _accountBloc.getUserByIdWithMainInfo();
-    _accountBloc.getUserByIdWithMainInfoObservable.listen((result) {
+    _myProfileBloc.getUserByIdWithMainInfo();
+    _myProfileBloc.getUserByIdWithMainInfoObservable.listen((result) {
       if (result.errors == null && mounted) {
         setState(() {
           _user = User.fromJson(result.data['get_user']);
@@ -115,7 +113,6 @@ class AccountScreenState extends State<AccountScreen> {
           });
           _saving = false;
           _getMainTag();
-          print('Finished _getCurrentUserInfo in: ${stopwatch.elapsed}');
         });
       } else {
         if (mounted) {
@@ -149,8 +146,8 @@ class AccountScreenState extends State<AccountScreen> {
     setState(() {
       _saving = true;
     });
-    _accountBloc.deleteCard(card.id);
-    _accountBloc.deleteCardObservable.listen((result) {
+    _myProfileBloc.deleteCard(card.id);
+    _myProfileBloc.deleteCardObservable.listen((result) {
       if (result.errors == null) {
         setState(() {
           _saving = false;
@@ -178,9 +175,7 @@ class AccountScreenState extends State<AccountScreen> {
 
   @override
   void initState() {
-    Stopwatch stopwatch = Stopwatch()..start();
     if (widget.user != null) {
-      _accountBloc = AccountBloc();
       widget.user.cards.sort((a, b) {
         DateTime dateA = parseDateFromString(a.createdAt);
         DateTime dateB = parseDateFromString(b.createdAt);
@@ -188,8 +183,8 @@ class AccountScreenState extends State<AccountScreen> {
       });
       _user = widget.user;
       _getMainTag();
-      _accountBloc.getUserByIdWithMainInfo();
-      _accountBloc.getUserByIdWithMainInfoObservable.listen((result) {
+      _myProfileBloc.getUserByIdWithMainInfo();
+      _myProfileBloc.getUserByIdWithMainInfoObservable.listen((result) {
         if (result.errors == null) {
           User newUser = User.fromJson(result.data['get_user']);
           if (_user != newUser && mounted) {
@@ -206,7 +201,6 @@ class AccountScreenState extends State<AccountScreen> {
           }
         }
       });
-      print('Finished getCachedUser in: ${stopwatch.elapsed}');
     } else {
       _getCurrentUserInfo();
     }
@@ -215,7 +209,7 @@ class AccountScreenState extends State<AccountScreen> {
 
   @override
   void dispose() {
-    _accountBloc.dispose();
+    _myProfileBloc.dispose();
     super.dispose();
   }
 
@@ -617,7 +611,7 @@ class AccountScreenState extends State<AccountScreen> {
 
   Future _goToSettingsScreen() async {
     await Navigator.push(context,
-        MaterialPageRoute(builder: (_) => ProfileSettingsScreen(_user)));
+        MaterialPageRoute(builder: (_) => MyProfileSettingsScreen(_user)));
     _getCurrentUserInfo();
   }
 

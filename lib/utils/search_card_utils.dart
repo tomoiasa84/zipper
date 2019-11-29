@@ -53,7 +53,7 @@ class SearchCard extends SearchDelegate<String> {
     final suggestionList = query.isEmpty
         ? _cards
         : _cards.where((card) =>
-            card.searchFor.name.toLowerCase().startsWith(query.toLowerCase()));
+            card.searchFor.name.toLowerCase().contains(query.toLowerCase()));
 
     return ListView.builder(
         itemCount: suggestionList.length ?? 0,

@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key></key>
-	<string></string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -13,7 +11,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>contractor_search</string>
+	<string>Recommend Friend</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -32,17 +30,29 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This app requires media library access to function.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>This app requires calendar access to function.</string>
 	<key>NSCameraUsageDescription</key>
-	<string></string>
+	<string>This app requires camera access to function.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>This app requires contacts access to function.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app requires location access to function.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app requires location access to function.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string></string>
+	<string>This app requires microphone access to function.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>This app requires motion usage access to function.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string></string>
+	<string>This app requires photo library access to function.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app requires speech recognition access to function.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

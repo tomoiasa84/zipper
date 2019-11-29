@@ -1,5 +1,5 @@
 import 'package:contractor_search/bloc/card_details_bloc.dart';
-import 'package:contractor_search/layouts/account_screen.dart';
+import 'package:contractor_search/layouts/my_profile_screen.dart';
 import 'package:contractor_search/layouts/recommend_friend_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
@@ -119,7 +119,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       child: ModalProgressHUD(
         progressIndicator: CircularProgressIndicator(
           valueColor:
-          new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+              new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
         ),
         inAsyncCall: _saving,
         child: Scaffold(
@@ -373,7 +373,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => AccountScreen(
+                                  builder: (context) => MyProfileScreen(
                                       isStartedFromHomeScreen: false)));
                         } else {
                           Navigator.push(
@@ -538,21 +538,10 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
       padding: const EdgeInsets.only(top: 16.0),
       child: (_card.text != null && _card.text.isNotEmpty)
           ? Text(
-              _card.text,
+              replaceQuotes(_card.text),
               style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
             )
           : Container(),
-    );
-  }
-
-  Future _showDialog(String title, String message) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialog(
-        title: title,
-        description: message,
-        buttonText: Localization.of(context).getString('ok'),
-      ),
     );
   }
 

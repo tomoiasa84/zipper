@@ -1,5 +1,5 @@
 import 'package:contractor_search/bloc/sync_results_bloc.dart';
-import 'package:contractor_search/layouts/home_page.dart';
+import 'package:contractor_search/layouts/tabs_container_screen.dart';
 import 'package:contractor_search/layouts/share_selected_screen.dart';
 import 'package:contractor_search/layouts/unjoined_contacts_screen.dart';
 import 'package:contractor_search/model/sync_contacts_model.dart';
@@ -84,7 +84,7 @@ class SyncResultsScreenState extends State<SyncResultsScreen> {
               Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => HomePage(
+                      builder: (context) => TabsContainerScreen(
                             syncContactsFlagRequired: true,
                           )),
                   ModalRoute.withName("/homepage"));

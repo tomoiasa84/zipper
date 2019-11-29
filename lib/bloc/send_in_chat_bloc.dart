@@ -26,9 +26,9 @@ class SendInChatBloc {
   Observable<List<User>> get getRecentUsersObservable =>
       _getRecentUsersFetcher.stream;
 
-  getCurrentUserWithConnections() async {
+  getCurrentUserWithActiveConnections() async {
     String userId = await getCurrentUserId();
-    QueryResult result = await Repository().getUserByIdWithConnections(userId);
+    QueryResult result = await Repository().getUserByIdWithActiveConnections(userId);
     if (!_getCurrentUserWithConnectionsFetcher.isClosed) {
       _getCurrentUserWithConnectionsFetcher.sink.add(result);
     }

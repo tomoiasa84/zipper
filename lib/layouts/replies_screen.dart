@@ -1,4 +1,4 @@
-import 'package:contractor_search/layouts/account_screen.dart';
+import 'package:contractor_search/layouts/my_profile_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
 import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/resources/color_utils.dart';
@@ -56,7 +56,7 @@ class RepliesScreenState extends State<RepliesScreen> {
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          AccountScreen(isStartedFromHomeScreen: false)));
+                          MyProfileScreen(isStartedFromHomeScreen: false)));
             } else {
               Navigator.push(
                   context,
@@ -208,7 +208,7 @@ class RepliesScreenState extends State<RepliesScreen> {
       padding: const EdgeInsets.only(top: 16.0),
       child: (widget.card.text != null && widget.card.text.isNotEmpty)
           ? Text(
-              widget.card.text,
+              replaceQuotes(widget.card.text),
               style: TextStyle(color: ColorUtils.darkerGray, height: 1.5),
             )
           : Container(),

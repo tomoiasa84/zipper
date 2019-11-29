@@ -145,7 +145,6 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
       setState(() {
         _saving = false;
       });
-      print('verified');
       _codeTimedOut = true;
       if (!_smsCodeSent && authCredential != null) {
         authenticate(authCredential);
@@ -153,7 +152,6 @@ class AuthenticationScreenState extends State<AuthenticationScreen> {
     };
 
     final PhoneVerificationFailed veriFailed = (AuthException exception) {
-      print('${exception.message}');
       setState(() {
         _saving = false;
       });

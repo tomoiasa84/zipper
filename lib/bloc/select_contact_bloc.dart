@@ -30,6 +30,14 @@ class SelectContactBloc {
     }
   }
 
+  getCurrentUserWithActiveConnections() async {
+    String userId = await getCurrentUserId();
+    QueryResult result = await Repository().getUserByIdWithActiveConnections(userId);
+    if (!_getCurrentUserFetcher.isClosed) {
+      _getCurrentUserFetcher.sink.add(result);
+    }
+  }
+
   dispose() {
     _createConversationFetcher.close();
     _getCurrentUserFetcher.close();

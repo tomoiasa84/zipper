@@ -1,5 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:contractor_search/bloc/home_content_bloc.dart';
+import 'package:contractor_search/bloc/home_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/send_in_chat_screen.dart';
 import 'package:contractor_search/layouts/user_details_screen.dart';
@@ -12,28 +12,25 @@ import 'package:contractor_search/utils/search_card_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-import 'account_screen.dart';
+import 'my_profile_screen.dart';
 
-class HomeContentScreen extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   final User user;
   final Function onUserUpdated;
 
-  const HomeContentScreen({Key key, this.user, this.onUserUpdated})
-      : super(key: key);
+  const HomeScreen({Key key, this.user, this.onUserUpdated}) : super(key: key);
 
   @override
-  HomeContentScreenState createState() => HomeContentScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class HomeContentScreenState extends State<HomeContentScreen> {
+class HomeScreenState extends State<HomeScreen> {
   var _saving = false;
-  HomeContentBloc _homeContentBloc = HomeContentBloc();
+  HomeBloc _homeBloc = HomeBloc();
   List<CardModel> _cardsList = [];
-  Stopwatch stopwatch = Stopwatch();
 
   @override
   void initState() {
-    stopwatch.start();
     if (widget.user != null && widget.user.cardsConnections != null) {
       _cardsList.clear();
       _cardsList.addAll(widget.user.cardsConnections);
@@ -43,10 +40,8 @@ class HomeContentScreenState extends State<HomeContentScreen> {
         DateTime dateB = parseDateFromString(b.createdAt);
         return dateB.compareTo(dateA);
       });
-      _homeContentBloc.getUserByIdWithCardsConnections();
-      _homeContentBloc.getUserByIdWithCardsConnectionsObservable
-          .listen((result) {
-        print("getUserByIdWithCardsConnectionsObservable called");
+      _homeBloc.getUserByIdWithCardsConnections();
+      _homeBloc.getUserByIdWithCardsConnectionsObservable.listen((result) {
         if (result.errors == null && mounted) {
           User currentUser = User.fromJson(result.data['get_user']);
           widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
@@ -87,14 +82,13 @@ class HomeContentScreenState extends State<HomeContentScreen> {
 
   @override
   void dispose() {
-    _homeContentBloc.dispose();
+    _homeBloc.dispose();
     super.dispose();
   }
 
   void getCards() {
-    _homeContentBloc.getUserByIdWithCardsConnections();
-    _homeContentBloc.getUserByIdWithCardsConnectionsObservable.listen((result) {
-      print("getUserByIdWithCardsConnectionsObservable called");
+    _homeBloc.getUserByIdWithCardsConnections();
+    _homeBloc.getUserByIdWithCardsConnectionsObservable.listen((result) {
       if (result.errors == null && mounted) {
         User currentUser = User.fromJson(result.data['get_user']);
         List<CardModel> newCardsList = [];
@@ -111,7 +105,6 @@ class HomeContentScreenState extends State<HomeContentScreen> {
             setState(() {
               _cardsList = newCardsList;
               _saving = false;
-              print('Finished getCards overall in: ${stopwatch.elapsed}');
             });
           }
         } else {
@@ -135,8 +128,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       progressIndicator: CircularProgressIndicator(
-        valueColor:
-        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        valueColor: new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
       ),
       inAsyncCall: _saving,
       child: Scaffold(
@@ -260,7 +252,7 @@ class HomeContentScreenState extends State<HomeContentScreen> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => AccountScreen(
+                                    builder: (context) => MyProfileScreen(
                                         isStartedFromHomeScreen: false)));
                           } else {
                             Navigator.push(

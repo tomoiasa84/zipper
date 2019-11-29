@@ -1,6 +1,7 @@
 import 'package:contractor_search/bloc/conversations_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/select_contact_screen.dart';
+import 'package:contractor_search/layouts/start_new_conversations_screen.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
@@ -30,11 +31,11 @@ class ConversationsScreen extends StatefulWidget {
 
 class _ConversationsScreenState extends State<ConversationsScreen>
     with WidgetsBindingObserver {
+  bool _allowLoading = true;
   bool _loading = false;
   String _currentUserId;
   List<PubNubConversation> _pubNubConversations = List();
   final ConversationsBloc _conversationsBloc = ConversationsBloc();
-  Stopwatch stopwatch = Stopwatch();
 
   @override
   void initState() {
@@ -65,12 +66,11 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   void _getConversations() {
-    stopwatch.start();
-    if (mounted) {
+    if (mounted && _allowLoading) {
+      _allowLoading = false;
       _conversationsBloc.getPubNubConversations();
       _conversationsBloc.getPubNubConversationsObservable
           .listen((conversations) {
-        print("getPubNubConversationsObservable called");
         if (conversations != null) {
           if (widget.updateConversationsList != null) {
             widget.updateConversationsList(conversations);
@@ -80,12 +80,14 @@ class _ConversationsScreenState extends State<ConversationsScreen>
               _pubNubConversations = conversations;
               _loading = false;
               _setConversationReadState(conversations);
+              _allowLoading = true;
             });
           }
         } else {
           if (mounted) {
             setState(() {
               _loading = false;
+              _allowLoading = true;
             });
           }
         }
@@ -131,7 +133,6 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         }
       }
     }
-    print('Finished _getConversations in: ${stopwatch.elapsed}');
   }
 
   void _startNewConversation() {
@@ -139,7 +140,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         context,
         MaterialPageRoute(
             builder: (context) =>
-                SelectContactScreen(shareContactScreen: false)));
+                StartNewConversationScreen(shareContactScreen: false)));
   }
 
   void _goToChatScreen(PubNubConversation pubNubConversation) {

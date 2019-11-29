@@ -8,6 +8,7 @@ class SharedPreferencesHelper {
   static final String _currentUserId = "currentUsertId";
   static final String _currentUserName = "currentUsertName";
   static final String _syncContactsFlag = "syncContactsFlag";
+  static final String _allConversationIds = "allConversationIds";
   static final String _allowPushNotifications = "allowPushNotifications";
   static final String _allowMessageNotification = "allowMessageNotification";
   static final String _allowRecommendSearchNotification =
@@ -50,8 +51,18 @@ class SharedPreferencesHelper {
 
   static Future<bool> saveCurrentUserName(String value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-
     return prefs.setString(_currentUserName, value);
+  }
+
+  static Future<List<String>> getAllConversationIds() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_allConversationIds) ?? "";
+  }
+
+  static Future<bool> saveAllConversationIds(
+      List<String> allConversationIds) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setStringList(_allConversationIds, allConversationIds);
   }
 
   static Future<PubNubConversation> getConversation(
@@ -68,6 +79,7 @@ class SharedPreferencesHelper {
 
   static Future<bool> saveConversation(PubNubConversation conversation) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+
     return prefs.setString(
         conversation.id, convert.jsonEncode(conversation.toJson()));
   }

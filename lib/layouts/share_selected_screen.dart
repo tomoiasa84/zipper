@@ -5,7 +5,7 @@ import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:flutter/material.dart';
 
-import 'home_page.dart';
+import 'tabs_container_screen.dart';
 
 class ShareSelectedContactsScreen extends StatefulWidget {
   final List<UnjoinedContactsModel> unjoinedContacts;
@@ -111,7 +111,7 @@ class ShareSelectedContactsScreenState
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                  builder: (context) => HomePage(
+                  builder: (context) => TabsContainerScreen(
                         syncContactsFlagRequired: true,
                       )),
               ModalRoute.withName("/homepage"));

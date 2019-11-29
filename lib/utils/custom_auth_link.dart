@@ -44,7 +44,6 @@ Future<FetchResult> getRequestStream(StreamController<FetchResult> controller,
             "auth/id-token-expired") {
       var token = await refreshToken(accessToken);
 
-      print("Token refreshed!!!");
       if (token.isNotEmpty) {
         await saveAccessToken(token);
         operation.setContext(<String, Map<String, String>>{

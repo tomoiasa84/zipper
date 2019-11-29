@@ -81,6 +81,79 @@ class ApiProvider {
     return result;
   }
 
+  Future<QueryResult> getUserByIdWithActiveConnections(String userId) async {
+    _client.queryManager.cache.reset();
+    final QueryResult result = await _client.query(QueryOptions(
+      document: '''query{
+                     get_user(userId:"$userId"){
+                        id
+                        firebaseId
+                        activeConnections{
+                            id
+                            originUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                     id
+                                      author{
+                                      name
+                                      profileURL
+                                    }
+                                  }
+                             }
+                            }
+                            targetUser{
+                              id
+                             name
+                             profileURL
+                             isActive
+                             description
+                             phoneNumber
+                             tags{
+                                  id
+                                  default
+                                  tag{
+                                    id
+                                    name
+                                  }
+                                  score
+                                  reviews{
+                                    id
+                                    author{
+                                      name
+                                      profileURL
+                                    }
+                                    userTag{
+                                       id
+                                       score
+                                       tag{
+                                         name
+                                       }
+                                    }
+                                    stars
+                                    text
+                                 }
+                               }
+                            }
+                        }
+                    }
+              }''',
+    ));
+
+    return result;
+  }
+
   Future<QueryResult> getUserByIdWithConnections(String userId) async {
     _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
@@ -860,10 +933,9 @@ class ApiProvider {
   Future<QueryResult> createCard(
       String postedBy, int searchFor, String details) async {
     _client.queryManager.cache.reset();
-    String finalDetails = details.replaceAll("\n", "\\n");
     final QueryResult result = await _client.query(QueryOptions(
       document: '''mutation{
-                      create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$finalDetails"){
+                      create_card(postedBy:"$postedBy", searchFor:$searchFor, text:"$details"){
                         id
                         postedBy{
                           name
@@ -1573,8 +1645,6 @@ class ApiProvider {
 
   Future<http.Response> subscribeToChannel(
       String channelName, String currentUserId, String timestamp) async {
-    _client.queryManager.cache.reset();
-
     var url =
         "$_baseUrl/subscribe/$_subscribeKey/$channelName/0/$timestamp?uuid=$currentUserId";
     return _pubNubClient.get(url).then((subscribeResult) {
@@ -1583,8 +1653,6 @@ class ApiProvider {
   }
 
   Future<http.Response> getPubNubConversations(String channels) async {
-    _client.queryManager.cache.reset();
-
     var url =
         "$_baseUrl/v3/history/sub-key/$_subscribeKey/channel/$channels?max=1";
     return _pubNubClient.get(url).then((pubnubConversations) {
