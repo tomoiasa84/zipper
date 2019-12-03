@@ -25,12 +25,6 @@ apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 apply plugin: 'com.google.gms.google-services'
 
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-
 android {
     compileSdkVersion 28
 
@@ -39,7 +33,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.contractor_search"
+        applicationId "truly.elementary.recommend_friend"
         minSdkVersion 16
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()
@@ -48,19 +42,12 @@ android {
         multiDexEnabled true
     }
 
-    signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-        }
-    }
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
     }
+
 }
 
 flutter {
@@ -71,6 +58,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
-    //implementation 'com.google.firebase:firebase-auth:19.0.0'
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.google.firebase:firebase-auth:19.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
 }
