@@ -14,17 +14,11 @@ Container buildLogo(BuildContext context) {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Image.asset(
-          "assets/images/ic_logo_orange.png",
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 4.5),
-          child: Text(
-            Localization.of(context).getString('logo').toUpperCase(),
-            style: TextStyle(
-                fontFamily: 'GothamRounded',
-                fontWeight: FontWeight.bold,
-                fontSize: 35.0),
+        SizedBox(
+          width: 128,
+          height: 128,
+          child: Image.asset(
+            "assets/images/ic_logo.png",
           ),
         )
       ],
