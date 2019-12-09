@@ -166,7 +166,8 @@ class Localization {
       'saveTimeText': 'Your time is valuable. Get recommends from your friends',
       'tagYourFriendsText':
           'Tag your friends and let the world know what they are good at',
-      'saveTime':'Save Time'
+      'saveTime':'Save Time',
+      'noContacts': 'You have no contacts you can start a conversation with'
     },
     'ro': {
       'sharedContact': 'Contact distribuit',
@@ -322,7 +323,8 @@ class Localization {
       'saveTimeText': 'Timpul tau e valoros. Primeste recomandari de la prietenii tai',
       'tagYourFriendsText':
           'Eticheteaza-ti prietenii si spune lumii intregi la ce se pricep ei',
-      'saveTime':'Economiseste Timp'
+      'saveTime':'Economiseste Timp',
+      'noContacts': 'Nu aveti contacte cu care sa puteti initia o conversatie'
     },
   };
 
