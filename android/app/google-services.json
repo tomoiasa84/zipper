@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "239495170702-372ktlve1sfr0kc9loke91s1oce0srcs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.contractor_search",
+            "certificate_hash": "5d9a85f5f883952848644cdab53de3f8a38d32af"
+          }
+        },
+        {
+          "client_id": "239495170702-890n43l0l3ihpbo3qcl6r0l680mdm4s6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.contractor_search",
+            "certificate_hash": "41f1a4064afd1fc90952d35939c23d00621f2af6"
+          }
+        },
+        {
           "client_id": "239495170702-iqfe3p2bcjgu5r61903d1t78b5k2idc3.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -56,10 +72,86 @@
               "client_type": 3
             },
             {
-              "client_id": "239495170702-1h5hfhm3ru5s8dcjsf7vmdn9o2tlpplh.apps.googleusercontent.com",
+              "client_id": "239495170702-js3gsqj99e2k9lr9bg93dnfpggi9t947.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.zipper.contractorSearch"
+                "bundle_id": "asd.asd"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:239495170702:android:99685e3ee1bf8fbff7d7df",
+        "android_client_info": {
+          "package_name": "truly.elementary.recommend_friend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "239495170702-g7jmukoeafki7scn4t58p7duiaqcf0e1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "truly.elementary.recommend_friend",
+            "certificate_hash": "5d9a85f5f883952848644cdab53de3f8a38d32af"
+          }
+        },
+        {
+          "client_id": "239495170702-5v3044g9j89ivtct2otflvbifi8rkmcj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "truly.elementary.recommend_friend",
+            "certificate_hash": "41f1a4064afd1fc90952d35939c23d00621f2af6"
+          }
+        },
+        {
+          "client_id": "239495170702-c7tckcpals2v1c4u8si5kcm3lpf4f9f3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "truly.elementary.recommend_friend",
+            "certificate_hash": "8d489302ca34c2a1e461d6657e8309c217fd65d5"
+          }
+        },
+        {
+          "client_id": "239495170702-ksqfb3uqq859mbmfq990b7023s4lnu88.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "truly.elementary.recommend_friend",
+            "certificate_hash": "ae1a0b64b1e9c91f7539ac98694aaa54db9a2f71"
+          }
+        },
+        {
+          "client_id": "239495170702-aa55epri95ljjljc7erbph7kemhgl34p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "truly.elementary.recommend_friend",
+            "certificate_hash": "4fe0a87fc56daf58d2a31edfc4547338906a3fda"
+          }
+        },
+        {
+          "client_id": "239495170702-snbhu5e2fmh39q7fut7hu3i5a48b523o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCU19VQmcklW4EO2t40aUySBZ5YzRLnGas"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "239495170702-snbhu5e2fmh39q7fut7hu3i5a48b523o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "239495170702-js3gsqj99e2k9lr9bg93dnfpggi9t947.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "asd.asd"
               }
             }
           ]
