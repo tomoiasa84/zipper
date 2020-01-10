@@ -15,7 +15,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -28,6 +28,14 @@
 				<string>com.googleusercontent.apps.239495170702-1h5hfhm3ru5s8dcjsf7vmdn9o2tlpplh</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.239495170702-kl6icv5ovvesp6lqkec3k5d19do48fhh</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
@@ -38,9 +46,9 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>This app requires calendar access to function.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>This app requires camera access to function.</string>
+	<string>We need access to your photos so that you may set a profile pic or send pictures in chat</string>
 	<key>NSContactsUsageDescription</key>
-	<string>This app requires contacts access to function.</string>
+	<string>We need your permission to access your contacts in order to sync them and let you enjoy the full experience of this app</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This app requires location access to function.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -50,7 +58,7 @@
 	<key>NSMotionUsageDescription</key>
 	<string>This app requires motion usage access to function.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app requires photo library access to function.</string>
+	<string>We need access to your photos so that you may set a profile pic or send pictures in chat</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>This app requires speech recognition access to function.</string>
 	<key>UILaunchStoryboardName</key>

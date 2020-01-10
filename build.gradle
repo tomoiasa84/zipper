@@ -3,21 +3,17 @@ buildscript {
         google()
         jcenter()
     }
-
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.2'
+        classpath 'com.android.tools.build:gradle:3.4.2'
         classpath 'com.google.gms:google-services:4.3.1'
-
     }
 }
-
 allprojects {
     repositories {
         google()
         jcenter()
     }
 }
-
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
@@ -25,9 +21,7 @@ subprojects {
 subprojects {
     project.evaluationDependsOn(':app')
 }
-
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
 apply plugin: 'com.google.gms.google-services'

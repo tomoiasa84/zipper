@@ -16,10 +16,13 @@ class StartNewConversationScreen extends StatefulWidget {
       : super(key: key);
 
   @override
-  _StartNewConversationScreenState createState() => _StartNewConversationScreenState();
+  _StartNewConversationScreenState createState() =>
+      _StartNewConversationScreenState();
 }
 
-class _StartNewConversationScreenState extends State<StartNewConversationScreen> {
+class _StartNewConversationScreenState
+    extends State<StartNewConversationScreen> {
+  bool _noContactsToBeShown = false;
   bool _loading = true;
   List<User> _usersList = [];
   final SelectContactBloc _selectContactBloc = SelectContactBloc();
@@ -39,6 +42,11 @@ class _StartNewConversationScreenState extends State<StartNewConversationScreen>
         if (mounted) {
           setState(() {
             _loading = false;
+            if (_usersList.length == 0) {
+              _noContactsToBeShown = true;
+            } else {
+              _noContactsToBeShown = false;
+            }
           });
         }
       }
@@ -80,8 +88,7 @@ class _StartNewConversationScreenState extends State<StartNewConversationScreen>
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       progressIndicator: CircularProgressIndicator(
-        valueColor:
-        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        valueColor: new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
       ),
       inAsyncCall: _loading,
       child: Scaffold(
@@ -114,8 +121,19 @@ class _StartNewConversationScreenState extends State<StartNewConversationScreen>
 
   Widget _showContacts() {
     return Expanded(
-      child: _buildUsersListView(),
+      child: _noContactsToBeShown ? _noContactsText() : _buildUsersListView(),
     );
+  }
+
+  Widget _noContactsText() {
+    return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Text(
+      Localization.of(context).getString('noContacts'),
+      style: TextStyle(color: ColorUtils.textBlack), textAlign: TextAlign.center,
+    ),
+        ));
   }
 
   ListView _buildUsersListView() {
