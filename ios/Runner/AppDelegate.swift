@@ -4,7 +4,7 @@ import Firebase
 
 @available(iOS 10.0, *)
 @UIApplicationMain
-class AppDelegate: FlutterAppDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: FlutterAppDelegate {
     
     var currentUserId: String = ""
     
@@ -63,7 +63,7 @@ class AppDelegate: FlutterAppDelegate, UNUserNotificationCenterDelegate {
     }
     
     @available(iOS 10.0, *)
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
+    override func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse, withCompletionHandler
         completionHandler: @escaping () -> Void) {
         
@@ -83,7 +83,7 @@ class AppDelegate: FlutterAppDelegate, UNUserNotificationCenterDelegate {
         return completionHandler()
     }
     
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    override func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         if let messageAuthor = notification.request.content.userInfo["messageAuthor"] as? String{
             if (currentUserId != messageAuthor){
                  completionHandler([.alert, .badge, .sound])
