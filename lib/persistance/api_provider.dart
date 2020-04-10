@@ -13,7 +13,7 @@ import 'package:http/http.dart' as http;
 
 class ApiProvider {
   static HttpLink link =
-      HttpLink(uri: 'https://xfriends.azurewebsites.net/graphql');
+      HttpLink(uri: 'http://192.168.100.41:4000');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 
@@ -161,31 +161,10 @@ class ApiProvider {
                      get_user(userId:"$userId"){
                         id
                         firebaseId
+                        isActive
+                        profileURL
                         connections{
                             id
-                            originUser{
-                              id
-                             name
-                             profileURL
-                             isActive
-                             phoneNumber
-                             tags{
-                                  id
-                                  default
-                                  tag{
-                                    id
-                                    name
-                                  }
-                                  score
-                                  reviews{
-                                     id
-                                      author{
-                                      name
-                                      profileURL
-                                    }
-                                  }
-                             }
-                            }
                             targetUser{
                               id
                              name
@@ -193,31 +172,15 @@ class ApiProvider {
                              isActive
                              description
                              phoneNumber
-                             tags{
+                             tags {
+                                id
+                                default
+                                tag {
                                   id
-                                  default
-                                  tag{
-                                    id
-                                    name
-                                  }
-                                  score
-                                  reviews{
-                                    id
-                                    author{
-                                      name
-                                      profileURL
-                                    }
-                                    userTag{
-                                       id
-                                       score
-                                       tag{
-                                         name
-                                       }
-                                    }
-                                    stars
-                                    text
-                                 }
-                               }
+                                  name
+                                }
+                                score
+                              }
                             }
                         }
                     }
@@ -230,184 +193,44 @@ class ApiProvider {
   Future<QueryResult> getUserByIdWithCardsConnections(String userId) async {
     _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
-      document: '''query{
-                     get_user(userId:"$userId"){
-                     firebaseId
-                        cardsConnections{
-                           id
-                           postedBy{
-                                id
-                                name
-                                profileURL
-                                phoneNumber
-                                description
-                                isActive
-                                 tags{
-                                  id
-                                  default
-                                  tag{
-                                    id
-                                    name
-                                  }
-                                  score
-                                  reviews{
-                                     id
-                                      author{
-                                      name
-                                      profileURL
-                                    }
-                                  }
-                             }
-                             cards{
-                            id
-                            createdAt
-                            searchFor{
-                              name
-                            }
-                            postedBy{
-                                id
-                                name
-                                profileURL
-                            }
-                            text
-                            recommandsCount
-                            recommandsList{
-                               id
-                              card{
-                                id
-                                searchFor{
-                                  id
-                                  name
-                                }
-                              }
-                              userAsk{
-                                id
-                                name
-                              }
-                              userSend{
-                                id
-                                name
-                              }
-                              userRecommand{
-                                name
-                                tags{
-                                  id
-                                  tag{
-                                    id
-                                    name
-                                  }
-                                  score
-                                  reviews{
-                                     id
-                                  }
-                                }
-                              }
-                              acceptedFlag
-                            }
+      document: '''query {
+                    get_user(userId: "$userId") {
+                      firebaseId
+                      cardsConnections {
+                        id
+                        postedBy {
+                          id
+                          name
+                          profileURL
+                          phoneNumber
+                          description
+                          isActive
                         }
-                            }
-                      searchFor{
-                        name
-                        id
-                      }
-                      createdAt
-                      text
-                      recommandsCount
-                      recommandsList{
-                         id
-                         card{
-                           id
-                           searchFor{
-                              id
-                              name
-                           }
-                         }
-                         userAsk{
-                           id
-                           name
-                         }
-                         userSend{
-                           id
-                           name
-                         }
-                         userRecommand{
-                           id
-                           name
-                            tags{
-                                id
-                                default
-                                user{
-                                  name
-                                }
-                                score
-                                reviews{
-                                  id
-                                }
-                                tag{
-                                  id
-                                  name
-                                }
-                              }
-                         }
-                         acceptedFlag
-                      }
+                        searchFor {
+                          name
+                          id
                         }
-                     cards{
-                         id
-                      postedBy{
-                        profileURL
-                        name
+                        createdAt
+                        text
+                        recommandsCount
+                      }
+                      cards {
                         id
+                        postedBy {
+                          profileURL
+                          name
+                          id
+                        }
+                        searchFor {
+                          name
+                          id
+                        }
+                        createdAt
+                        text
+                        recommandsCount
                       }
-                      searchFor{
-                        name
-                        id
-                      }
-                      createdAt
-                      text
-                      recommandsCount
-                      recommandsList{
-                         id
-                         card{
-                           id
-                           searchFor{
-                              id
-                              name
-                           }
-                         }
-                         userAsk{
-                           id
-                           name
-                         }
-                         userSend{
-                           id
-                           name
-                         }
-                         userRecommand{
-                           id
-                           name
-                            tags{
-                                id
-                                default
-                                user{
-                                  name
-                                }
-                                score
-                                reviews{
-                                  id
-                                }
-                                tag{
-                                  id
-                                  name
-                                }
-                              }
-                         }
-                         acceptedFlag
-                      }
-                      }
-
-    							}
-              }''',
+                    }
+                  }''',
     ));
 
     return result;
@@ -489,274 +312,114 @@ class ApiProvider {
   }
 
   Future<QueryResult> getUserById(String userId) async {
+    print('USER ID: $userId');
     _client.queryManager.cache.reset();
     final QueryResult result = await _client.query(QueryOptions(
-      document: '''query{
-                     get_user(userId:"$userId"){
-                        name
-                        phoneNumber
-                        id
-                        firebaseId
-                        profileURL
-                        location{
+      document: '''query {
+                        get_user(userId: "$userId") {
+                          name
+                          phoneNumber
+                          id
+                          firebaseId
+                          profileURL
+                          location {
                             id
                             city
-                        }
-                        connections{
-                            id
-                            originUser{
-                              id
-                             name
-                             profileURL
-                             isActive
-                             phoneNumber
-                             tags{
-                                  id
-                                  default
-                                  tag{
-                                    id
-                                    name
-                                  }
-                                  score
-                                  reviews{
-                                     id
-                                      author{
-                                      name
-                                      profileURL
-                                    }
-                                  }
-                             }
-                            }
-                            targetUser{
-                              id
-                             name
-                             profileURL
-                             isActive
-                             description
-                             phoneNumber
-                             tags{
-                                  id
-                                  default
-                                  tag{
-                                    id
-                                    name
-                                  }
-                                  score
-                                  reviews{
-                                     id
-                                    author{
-                                      name
-                                      profileURL
-                                    }
-                                    userTag{
-                                       id
-                                       score
-                                       tag{
-                                         name
-                                       }
-                                    }
-                                    stars
-                                    text
-                                  }
-                             }
-                            }
-                        }
-                        cards{
+                          }
+                          cards {
                             id
                             createdAt
-                            searchFor{
+                            searchFor {
                               name
                             }
-                            postedBy{
-                                id
-                                name
-                                profileURL
-                                phoneNumber
-                                description
-                                isActive
-                                 tags{
-                                  id
-                                  default
-                                  tag{
-                                    id
-                                    name
-                                  }
-                                  score
-                                  reviews{
-                                     id
-                                      author{
-                                      name
-                                      profileURL
-                                    }
-                                  }
-                             }
-                            }
-                            text
-                            recommandsCount
-                            recommandsList{
-                               id
-                              card{
-                                id
-                                searchFor{
-                                  id
-                                  name
-                                }
-                              }
-                              userAsk{
-                                id
-                                name
-                              }
-                              userSend{
-                                id
-                                name
-                              }
-                              userRecommand{
-                                name
-                                id
-                                tags{
-                                  id
-                                  tag{
-                                    id
-                                    name
-                                  }
-                                  score
-                                  reviews{
-                                     id
-                                  }
-                                }
-                              }
-                              acceptedFlag
-                            }
-                        }
-                        cardsConnections{
-                           id
-                      postedBy{
-                        profileURL
-                        name
-                        id
-                      }
-                      searchFor{
-                        name
-                        id
-                      }
-                      createdAt
-                      text
-                      recommandsCount
-                      recommandsList{
-                         id
-                         card{
-                           id
-                           searchFor{
+                            postedBy {
                               id
                               name
-                           }
-                         }
-                         userAsk{
-                           id
-                           name
-                         }
-                         userSend{
-                           id
-                           name
-                         }
-                         userRecommand{
-                           name
-                            tags{
+                              profileURL
+                              phoneNumber
+                              description
+                              isActive
+                            }
+                            text
+                          }
+                          description
+                          tags {
+                            id
+                            default
+                            user {
+                              name
+                            }
+                            tag {
+                              id
+                              name
+                            }
+                            score
+                            reviews {
+                              author {
+                                name
+                                profileURL
+                              }
+                              stars
+                              userTag {
                                 id
-                                default
-                                user{
+                                tag {
                                   name
+                                }
+                                user {
+                                  name
+                                }
+                                reviews {
+                                  id
+                                  author {
+                                    name
+                                    profileURL
+                                  }
+                                  userTag {
+                                    id
+                                    score
+                                  }
+                                  stars
+                                  text
                                 }
                                 score
-                                reviews{
-                                  id
-                                }
-                                tag{
-                                  id
+                              }
+                              text
+                            }
+                          }
+                          reviews {
+                            author {
+                              name
+                              profileURL
+                            }
+                            stars
+                            userTag {
+                              id
+                              tag {
+                                name
+                              }
+                              user {
+                                name
+                              }
+                              reviews {
+                                id
+                                author {
                                   name
+                                  profileURL
                                 }
+                                userTag {
+                                  id
+                                  score
+                                }
+                                stars
+                                text
                               }
-                         }
-                         acceptedFlag
+                              score
+                            }
+                            text
+                          }
+                        }
                       }
-                        }
-                        description
-                        tags{
-                          id
-                          default
-                          user{
-                            name
-                          }
-                          tag{
-                            id
-                            name
-                          }
-                          score
-                          reviews{
-                            author{
-                              name
-                              profileURL
-                            }
-                            stars
-                           userTag{
-                            id
-                            tag{
-                              name
-                            }
-                            user{
-                              name
-                            }
-                            reviews{
-                              id
-                              author{
-                                name
-                                profileURL
-                              }
-                              userTag{
-                                 id
-                                 score
-                              }
-                              stars
-                              text
-                            }
-                            score
-                          }
-                            text
-                          }
-                        }
-                         reviews{
-                            author{
-                              name
-                              profileURL
-                            }
-                            stars
-                           userTag{
-                            id
-                            tag{
-                              name
-                            }
-                            user{
-                              name
-                            }
-                            reviews{
-                              id
-                              author{
-                                name
-                                profileURL
-                              }
-                              userTag{
-                                 id
-                                 score
-                              }
-                              stars
-                              text
-                            }
-                            score
-                          }
-                            text
-                          }
-                    }
-              }''',
+                      ''',
     ));
 
     return result;
@@ -772,6 +435,7 @@ class ApiProvider {
                         id
                         firebaseId
                         profileURL
+                        isActive
                         location{
                             id
                             city

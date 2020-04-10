@@ -15,10 +15,10 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'my_profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  final User user;
-  final Function onUserUpdated;
+  final List<CardModel> cards;
+  final Function onCardsUpdated;
 
-  const HomeScreen({Key key, this.user, this.onUserUpdated}) : super(key: key);
+  const HomeScreen({Key key, this.cards, this.onCardsUpdated}) : super(key: key);
 
   @override
   HomeScreenState createState() => HomeScreenState();
@@ -31,50 +31,8 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    if (widget.user != null && widget.user.cardsConnections != null) {
-      _cardsList.clear();
-      _cardsList.addAll(widget.user.cardsConnections);
-      _cardsList.addAll(widget.user.cards);
-      _cardsList.sort((a, b) {
-        DateTime dateA = parseDateFromString(a.createdAt);
-        DateTime dateB = parseDateFromString(b.createdAt);
-        return dateB.compareTo(dateA);
-      });
-      _homeBloc.getUserByIdWithCardsConnections();
-      _homeBloc.getUserByIdWithCardsConnectionsObservable.listen((result) {
-        if (result.errors == null && mounted) {
-          User currentUser = User.fromJson(result.data['get_user']);
-          widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
-          if (currentUser != null && currentUser.cardsConnections != null) {
-            if (_cardsList != currentUser.cardsConnections) {
-              _cardsList.clear();
-              _cardsList.addAll(currentUser.cardsConnections);
-              _cardsList.addAll(currentUser.cards);
-              if (mounted) {
-                setState(() {
-                  _cardsList.sort((a, b) {
-                    DateTime dateA = parseDateFromString(a.createdAt);
-                    DateTime dateB = parseDateFromString(b.createdAt);
-                    return dateB.compareTo(dateA);
-                  });
-                });
-              }
-            }
-          }
-        } else {
-          if (mounted) {
-            setState(() {
-              _saving = false;
-            });
-          }
-        }
-      });
-    } else {
-      if (mounted) {
-        setState(() {
-          _saving = true;
-        });
-      }
+    _cardsList = widget.cards;
+    if (_cardsList.isEmpty) {
       getCards();
     }
     super.initState();
@@ -87,33 +45,24 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void getCards() {
+    if (mounted) {
+      setState(() {
+        _saving = true;
+      });
+    }
     _homeBloc.getUserByIdWithCardsConnections();
     _homeBloc.getUserByIdWithCardsConnectionsObservable.listen((result) {
-      if (result.errors == null && mounted) {
+      if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
         List<CardModel> newCardsList = [];
         newCardsList.addAll(currentUser.cardsConnections);
         newCardsList.addAll(currentUser.cards);
-        newCardsList.sort((a, b) {
-          DateTime dateA = parseDateFromString(a.createdAt);
-          DateTime dateB = parseDateFromString(b.createdAt);
-          return dateB.compareTo(dateA);
+        newCardsList.sort(sortCardsByTime);
+        widget.onCardsUpdated(newCardsList);
+        setState(() {
+          _cardsList = newCardsList;
+          _saving = false;
         });
-        widget.onUserUpdated(currentUser.cardsConnections, currentUser.cards);
-        if (currentUser != null && currentUser.cardsConnections != null) {
-          if (mounted) {
-            setState(() {
-              _cardsList = newCardsList;
-              _saving = false;
-            });
-          }
-        } else {
-          if (mounted) {
-            setState(() {
-              _saving = false;
-            });
-          }
-        }
       } else {
         if (mounted) {
           setState(() {
@@ -260,7 +209,7 @@ class HomeScreenState extends State<HomeScreen> {
                                 MaterialPageRoute(
                                     builder: (context) => UserDetailsScreen(
                                         user: card.postedBy,
-                                        currentUser: widget.user))).then((_) {
+                                        ))).then((_) {
                               getCards();
                             });
                           }

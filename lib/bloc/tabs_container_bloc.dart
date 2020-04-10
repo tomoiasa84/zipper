@@ -48,6 +48,7 @@ class TabsContainerBloc {
   void updateDeviceToken() {
     SharedPreferencesHelper.getCurrentUserId().then((currentUserId) {
       _firebaseMessaging.getToken().then((deviceToken) {
+        print('DEVICE TOKEN:$deviceToken');
         getCurrentUserWithFirebaseId(currentUserId).then((result) {
           if (result.errors == null) {
             Repository().updateDeviceToken(currentUserId, deviceToken,

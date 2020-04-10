@@ -137,7 +137,7 @@ List<Widget> generateTags(List<UserTag> userTag, Function onTapAction,
                     )),
               ),
             ),
-            item.reviews.isNotEmpty
+            (item.reviews != null && item.reviews.isNotEmpty)
                 ? GestureDetector(
                     onTap: () {
                       onStarsTapAction(item.reviews);

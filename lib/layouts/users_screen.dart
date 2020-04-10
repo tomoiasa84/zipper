@@ -13,11 +13,16 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class UsersScreen extends StatefulWidget {
   final User user;
-  final Function updateCurrentUser;
+  final List<User> connections;
+  final Function updateConnections;
   final Function updateConnectedUser;
 
   const UsersScreen(
-      {Key key, this.user, this.updateCurrentUser, this.updateConnectedUser})
+      {Key key,
+      this.user,
+      this.connections,
+      this.updateConnections,
+      this.updateConnectedUser})
       : super(key: key);
 
   @override
@@ -30,24 +35,13 @@ class UsersScreenState extends State<UsersScreen> {
   UsersBloc _usersBloc;
   List<User> _usersList = [];
   bool _saving = false;
-  User _user;
 
   @override
   void initState() {
     _usersBloc = UsersBloc();
-    if (widget.user != null && widget.user.connections != null) {
-      _user = widget.user;
-      _user.connections.forEach((connection) {
-        _usersList.add(connection.targetUser);
-      });
-      _usersList.sort((a, b) {
-        return a.name.compareTo(b.name);
-      });
-      _usersList.sort((a, b) {
-        return b.isActive.toString().compareTo(a.isActive.toString());
-      });
-      _checkUsersUpdates();
-    } else {
+    _usersList = widget.connections;
+    if (_usersList.isEmpty) {
+      print('empty connections list!');
       getCurrentUserConnections();
     }
     super.initState();
@@ -69,24 +63,20 @@ class UsersScreenState extends State<UsersScreen> {
     _usersBloc.getUserByIdWithConnectionObservable.listen((result) {
       if (result.errors == null) {
         User currentUser = User.fromJson(result.data['get_user']);
-        if (_user != null) {
-          _user.connections = currentUser.connections;
-        }
-        widget.updateCurrentUser(currentUser.connections);
-        currentUser.connections.forEach((connection) {
-          _usersList.add(connection.targetUser);
+        List<User> users = currentUser.connections
+            .map((connection) => connection.targetUser)
+            .toList();
+        users.sort((a, b) => a.name.compareTo(b.name));
+        users.sort(
+            (a, b) => b.isActive.toString().compareTo(a.isActive.toString()));
+        widget.updateConnections(users);
+        users.forEach((user) {
+          _usersList.add(user);
         });
-        _usersList.sort((a, b) {
-          return a.name.compareTo(b.name);
+        setState(() {
+          _usersList = users;
+          _saving = false;
         });
-        _usersList.sort((a, b) {
-          return b.isActive.toString().compareTo(a.isActive.toString());
-        });
-        if (mounted) {
-          setState(() {
-            _saving = false;
-          });
-        }
       } else {
         if (mounted) {
           setState(() {
@@ -102,11 +92,8 @@ class UsersScreenState extends State<UsersScreen> {
     _usersBloc.getUserByIdWithConnectionObservable.listen((result) {
       if (result.errors == null) {
         User newUser = User.fromJson(result.data['get_user']);
-        if (_user != null) {
-          _user.connections = newUser.connections;
-        }
-        if (widget.updateCurrentUser != null) {
-          widget.updateCurrentUser(newUser.connections);
+        if (widget.updateConnections != null) {
+          widget.updateConnections(newUser.connections);
         }
         List<User> targetUsersList = [];
         newUser.connections.forEach((item) {
@@ -193,29 +180,9 @@ class UsersScreenState extends State<UsersScreen> {
         MaterialPageRoute(
             builder: (context) => UserDetailsScreen(
                   user: user,
-                  currentUser: _user,
+                  currentUser: widget.user,
                   connections: _usersList,
-                  updateUser: (user) {
-                    User findUser = _usersList.firstWhere(
-                        (item) => item.id == user.id,
-                        orElse: () => null);
-                    if (findUser != null) {
-                      int index = _usersList.indexOf(findUser);
-                      _usersList[index].connections = user.connections;
-                      _usersList[index].name = user.name;
-                      _usersList[index].phoneNumber = user.phoneNumber;
-                      _usersList[index].description = user.description;
-                      _usersList[index].tags = user.tags;
-                      _usersList[index].cards = user.cards;
-                      _usersList[index].profilePicUrl = user.profilePicUrl;
-                      _usersList[index].reviews = user.reviews;
-                      if (widget.updateConnectedUser != null) {
-                        widget.updateConnectedUser(_usersList[index]);
-                      }
-                    }
-                  },
                 )));
-    _checkUsersUpdates();
   }
 
   ListView _buildUsersListView() {

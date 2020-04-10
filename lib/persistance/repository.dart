@@ -46,8 +46,12 @@ class Repository {
   }
 
   Future<QueryResult> getUserByIdWithConnections(String userId) async {
+    Stopwatch stopwatch = Stopwatch()..start();
+    print('START getUserByIdWithConnections');
     var result = await appApiProvider.getUserByIdWithConnections(userId);
     checkTokenError(result);
+    print('getUserByIdWithConnections time: ${stopwatch.elapsed}');
+    stopwatch.stop();
     return result;
   }
 
@@ -58,8 +62,12 @@ class Repository {
   }
 
   Future<QueryResult> getUserByIdWithCardsConnections(String userId) async {
+    Stopwatch stopwatch = Stopwatch()..start();
+    print('START getUserByIdWithCardsConnections');
     var result = await appApiProvider.getUserByIdWithCardsConnections(userId);
     checkTokenError(result);
+    print('getUserByIdWithCardsConnections time: ${stopwatch.elapsed}');
+    stopwatch.stop();
     return result;
   }
 
@@ -77,8 +85,12 @@ class Repository {
   }
 
   Future<QueryResult> getUserById(String userId) async {
+    Stopwatch stopwatch = Stopwatch()..start();
+    print('START getUserById');
     var result = await appApiProvider.getUserById(userId);
     checkTokenError(result);
+    print('getUserById time: ${stopwatch.elapsed}');
+    stopwatch.stop();
     return result;
   }
 
@@ -89,8 +101,12 @@ class Repository {
   }
 
   Future<QueryResult> getUserByIdWithMainInfo(String userId) async {
+    Stopwatch stopwatch = Stopwatch()..start();
+    print('START getUserByIdWithMainInfo');
     var result = await appApiProvider.getUserByIdWithMainInfo(userId);
     checkTokenError(result);
+    print('getUserByIdWithMainInfo time: ${stopwatch.elapsed}');
+    stopwatch.stop();
     return result;
   }
 
@@ -312,6 +328,8 @@ class Repository {
   }
 
   Future<List<PubNubConversation>> getPubNubConversations() async {
+    print('START getPubNubConversations');
+    Stopwatch stopwatch = Stopwatch()..start();
     var conversationsList = await getListOfConversationIdsFromBackend();
     String channels = "";
 
@@ -333,6 +351,8 @@ class Repository {
             pubNubConversation.user1 = conversation.user1;
             pubNubConversation.user2 = conversation.user2;
           }
+          print('getPubNubConversations ${stopwatch.elapsed}');
+          stopwatch.stop();
           return pubNubConversationsList;
         } else {
           print("Request failed with status: ${response.statusCode}.");

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
 
@@ -6,6 +7,7 @@ import 'package:contractor_search/bloc/tabs_container_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/layouts/home_screen.dart';
+import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/connection_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
@@ -14,6 +16,7 @@ import 'package:contractor_search/models/UserMessage.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:contractor_search/resources/localization_class.dart';
 import 'package:contractor_search/utils/custom_dialog.dart';
+import 'package:contractor_search/utils/general_methods.dart';
 import 'package:contractor_search/utils/shared_preferences_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -48,6 +51,8 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
   var _recommendationChannel =
       BasicMessageChannel<String>('iosRecommendationTapped', StringCodec());
   User _user;
+  List<CardModel> _cards = [];
+  List<User> _userConnections = [];
   List<PubNubConversation> _pubNubConversations = [];
 
   @override
@@ -211,37 +216,19 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
               switch (snapshot.data) {
                 case NavBarItem.HOME:
                   return HomeScreen(
-                    user: _user,
-                    onUserUpdated: (cardsConnections, cards) {
-                      if (_user != null) {
-                        _user.cardsConnections = cardsConnections;
-                        _user.cards = cards;
-                      } else {
-                        _tabsContainerBloc.getCurrentUser().then((result) {
-                          if (result.errors == null) {
-                            _user = User.fromJson(result.data['get_user']);
-                          }
-                        });
-                      }
+                    cards: _cards,
+                    onCardsUpdated: (cards) {
+                      _cards = cards;
                     },
                   );
                 case NavBarItem.CONTACTS:
                   return UsersScreen(
                     user: _user,
-                    updateCurrentUser: (connections) {
-                      if (_user != null) {
-                        _user.connections = connections;
-                      } else {
-                        _tabsContainerBloc.getCurrentUser().then((result) {
-                          if (result.errors == null) {
-                            _user = User.fromJson(result.data['get_user']);
-                          }
-                        });
-                        _user = User();
-                        _user.connections = connections;
-                      }
+                    connections: _userConnections,
+                    updateConnections: (List<User> connections) {
+                      _userConnections = connections;
                     },
-                    updateConnectedUser: (connectedUser) {
+                    /*updateConnectedUser: (connectedUser) {
                       Connection connection = _user.connections.firstWhere(
                           (item) => item.targetUser.id == connectedUser.id,
                           orElse: () => null);
@@ -249,7 +236,7 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
                         int index = _user.connections.indexOf(connection);
                         _user.connections[index].targetUser = connectedUser;
                       }
-                    },
+                    },*/
                   );
                 case NavBarItem.PLUS:
                   return Container();
@@ -370,9 +357,8 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
         builder: (BuildContext context) => AddCardScreen(
               user: _user,
               updateUsersCards: (userCards) {
-                if (_user != null) {
-                  _user.cards = userCards;
-                }
+                _cards.add(userCards);
+                _cards.sort(sortCardsByTime);
               },
             )));
     _tabsContainerBloc.pickItem(0);

@@ -212,7 +212,7 @@ class AddCardScreenState extends State<AddCardScreen> {
             });
             if (currentUserResult.errors == null) {
               widget.updateUsersCards(
-                  User.fromJson(currentUserResult.data['get_user']).cards);
+                  User.fromJson(currentUserResult.data['get_user']).cards.last);
             }
             Navigator.pop(
                 context, CardModel.fromJson(result.data['create_card']));

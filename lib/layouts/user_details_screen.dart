@@ -22,10 +22,9 @@ class UserDetailsScreen extends StatefulWidget {
   final User user;
   final User currentUser;
   final List<User> connections;
-  final Function updateUser;
 
   const UserDetailsScreen(
-      {Key key, this.user, this.currentUser, this.connections, this.updateUser})
+      {Key key, this.user, this.currentUser, this.connections})
       : super(key: key);
 
   @override
@@ -43,57 +42,13 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
 
   @override
   void initState() {
-    if (widget.user != null &&
-        widget.currentUser != null &&
-        widget.currentUser.connections != null) {
-      _user = widget.user;
-      _currentUser = widget.currentUser;
-      for (var connection in _currentUser.connections) {
-        if (connection.targetUser.id == widget.user.id) {
-          _connection = connection;
-          _connectedToUser = true;
-          break;
-        }
-      }
-      _getMainTag();
-      _userDetailsBloc.getUserByIdWithMainInfo(widget.user.id);
-      _userDetailsBloc.getUserByIdWithMainInfoObservable.listen((result) {
-        if (result.errors == null && mounted) {
-          getCurrentUserId().then((currentUserId) {
-            _userDetailsBloc.getUserByIdWithConnections(currentUserId);
-            _userDetailsBloc.getUserByIdWithConnectionsObservable
-                .listen((currentUserResult) {
-              if (currentUserResult.errors == null && mounted) {
-                setState(() {
-                  _user = User.fromJson(result.data['get_user']);
-                  if (widget.updateUser != null) {
-                    widget.updateUser(_user);
-                  }
-                  _currentUser =
-                      User.fromJson(currentUserResult.data['get_user']);
-                  for (var connection in _currentUser.connections) {
-                    if (connection.targetUser.id == widget.user.id) {
-                      _connection = connection;
-                      _connectedToUser = true;
-                      break;
-                    }
-                  }
-                  _getMainTag();
-                });
-              }
-            });
-          });
-        } else {
-          if (mounted) {
-            setState(() {
-              _saving = false;
-            });
-          }
-        }
-      });
-    } else {
-      _getUserAndCurrentUser();
+    _currentUser = widget.currentUser;
+    _user = widget.user;
+    if (widget.connections.firstWhere((user) => user.id == widget.user.id) !=
+        null) {
+      _connectedToUser = true;
     }
+    _getUserAndCurrentUser();
     super.initState();
   }
 
@@ -112,45 +67,28 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
     }
     _userDetailsBloc.getUserByIdWithMainInfo(widget.user.id);
     _userDetailsBloc.getUserByIdWithMainInfoObservable.listen((result) {
-      if (result.errors == null && mounted) {
-        getCurrentUserId().then((currentUserId) {
-          _userDetailsBloc.getUserByIdWithConnections(currentUserId);
-          _userDetailsBloc.getUserByIdWithConnectionsObservable
-              .listen((currentUserResult) {
-            if (currentUserResult.errors == null && mounted) {
-              setState(() {
-                _user = User.fromJson(result.data['get_user']);
-                if (widget.updateUser != null) {
-                  widget.updateUser(_user);
-                }
-                _currentUser =
-                    User.fromJson(currentUserResult.data['get_user']);
-                for (var connection in _currentUser.connections) {
-                  if (connection.targetUser.id == widget.user.id) {
-                    _connection = connection;
-                    _connectedToUser = true;
-                    break;
-                  }
-                }
-                _getMainTag();
-                _saving = false;
-              });
-            } else {
-              if (mounted) {
-                setState(() {
-                  _saving = false;
-                });
-              }
-            }
-          });
+      if (result.errors == null) {
+        setState(() {
+          _user = User.fromJson(result.data['get_user']);
         });
-      } else {
-        if (mounted) {
-          setState(() {
-            _saving = false;
-          });
-        }
       }
+      getCurrentUserId().then((currentUserId) {
+        _userDetailsBloc.getUserByIdWithConnections(currentUserId);
+        _userDetailsBloc.getUserByIdWithConnectionsObservable
+            .listen((currentUserResult) {
+          if (currentUserResult.errors == null) {
+            setState(() {
+              _currentUser = User.fromJson(currentUserResult.data['get_user']);
+              _getMainTag();
+              _saving = false;
+            });
+          } else {
+            setState(() {
+              _saving = false;
+            });
+          }
+        });
+      });
     });
   }
 
@@ -309,8 +247,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       progressIndicator: CircularProgressIndicator(
-        valueColor:
-        new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+        valueColor: new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
       ),
       inAsyncCall: _saving,
       child: _user != null

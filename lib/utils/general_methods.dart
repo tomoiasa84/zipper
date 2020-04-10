@@ -1,4 +1,5 @@
 import 'package:contractor_search/layouts/authentication_screen.dart';
+import 'package:contractor_search/model/card.dart';
 import 'package:contractor_search/model/conversation_model.dart';
 import 'package:contractor_search/model/review.dart';
 import 'package:contractor_search/model/tag.dart';
@@ -147,6 +148,12 @@ DateTime parseDateFromString(String time) {
   DateFormat dateFormat = DateFormat("EEE MMM dd yyyy HH:mm:ss zzz");
   var date = dateFormat.parse(time);
   return date;
+}
+
+int sortCardsByTime(CardModel a, CardModel b) {
+  DateTime dateA = parseDateFromString(a.createdAt);
+  DateTime dateB = parseDateFromString(b.createdAt);
+  return dateB.compareTo(dateA);
 }
 
 UserTag getMainTag(User user) {
