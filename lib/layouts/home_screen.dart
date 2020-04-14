@@ -18,7 +18,8 @@ class HomeScreen extends StatefulWidget {
   final List<CardModel> cards;
   final Function onCardsUpdated;
 
-  const HomeScreen({Key key, this.cards, this.onCardsUpdated}) : super(key: key);
+  const HomeScreen({Key key, this.cards, this.onCardsUpdated})
+      : super(key: key);
 
   @override
   HomeScreenState createState() => HomeScreenState();
@@ -82,14 +83,18 @@ class HomeScreenState extends State<HomeScreen> {
       inAsyncCall: _saving,
       child: Scaffold(
         appBar: _buildAppBar(),
-        body: _cardsList.isNotEmpty
-            ? _buildContent()
-            : (_saving
-                ? Container()
-                : Center(
-                    child: Text(
-                        Localization.of(context).getString('emptyPostsList')),
-                  )),
+        body: RefreshIndicator(
+          child: _cardsList.isNotEmpty
+              ? _buildContent()
+              : (_saving
+                  ? Container()
+                  : Center(
+                      child: Text(
+                          Localization.of(context).getString('emptyPostsList')),
+                    )),
+          onRefresh: () async => getCards(),
+          color: ColorUtils.orangeAccent,
+        ),
       ),
     );
   }
@@ -208,7 +213,7 @@ class HomeScreenState extends State<HomeScreen> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => UserDetailsScreen(
-                                        user: card.postedBy,
+                                          user: card.postedBy,
                                         ))).then((_) {
                               getCards();
                             });

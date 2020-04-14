@@ -13,7 +13,7 @@ import 'package:http/http.dart' as http;
 
 class ApiProvider {
   static HttpLink link =
-      HttpLink(uri: 'http://192.168.100.41:4000');
+      HttpLink(uri: 'https://xfriends.azurewebsites.net/graphql');
 
   static final CustomAuthLink _authLink = CustomAuthLink();
 

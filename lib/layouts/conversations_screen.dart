@@ -179,7 +179,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
       child: ModalProgressHUD(
         progressIndicator: CircularProgressIndicator(
           valueColor:
-          new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
+              new AlwaysStoppedAnimation<Color>(ColorUtils.orangeAccent),
         ),
         inAsyncCall: _loading,
         child: Scaffold(
@@ -219,12 +219,16 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   Widget _showConversationsUI() {
-    return Container(
-      color: ColorUtils.messageGray,
-      child: new Container(
-        margin: EdgeInsets.fromLTRB(16, 16, 16, 16),
-        child: _getListView(_pubNubConversations),
+    return RefreshIndicator(
+      child: Container(
+        color: ColorUtils.messageGray,
+        child: new Container(
+          margin: EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: _getListView(_pubNubConversations),
+        ),
       ),
+      onRefresh: () async => _getConversations(),
+      color: ColorUtils.orangeAccent,
     );
   }
 

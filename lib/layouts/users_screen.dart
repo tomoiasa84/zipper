@@ -141,7 +141,11 @@ class UsersScreenState extends State<UsersScreen> {
           inAsyncCall: _saving,
           child: Scaffold(
             appBar: _buildAppBar(),
-            body: _buildUsersListView(),
+            body: RefreshIndicator(
+                child: _buildUsersListView(),
+                onRefresh: () async => getCurrentUserConnections(),
+                color: ColorUtils.orangeAccent,
+            ),
           ),
         ));
   }

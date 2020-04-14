@@ -5,4 +5,6 @@ class UnjoinedContactsModel {
   bool selected;
 
   UnjoinedContactsModel(this.contact, this.selected);
+
+  bool isReadyForSync() => this != null && this.selected && this.contact != null;
 }

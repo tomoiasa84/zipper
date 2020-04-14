@@ -175,35 +175,7 @@ class MyProfileScreenState extends State<MyProfileScreen> {
 
   @override
   void initState() {
-    if (widget.user != null) {
-      widget.user.cards.sort((a, b) {
-        DateTime dateA = parseDateFromString(a.createdAt);
-        DateTime dateB = parseDateFromString(b.createdAt);
-        return dateB.compareTo(dateA);
-      });
-      _user = widget.user;
-      _getMainTag();
-      _myProfileBloc.getUserByIdWithMainInfo();
-      _myProfileBloc.getUserByIdWithMainInfoObservable.listen((result) {
-        if (result.errors == null) {
-          User newUser = User.fromJson(result.data['get_user']);
-          if (_user != newUser && mounted) {
-            setState(() {
-              newUser.cards = _user.cards;
-              _user = newUser;
-              _user.cards.sort((a, b) {
-                DateTime dateA = parseDateFromString(a.createdAt);
-                DateTime dateB = parseDateFromString(b.createdAt);
-                return dateB.compareTo(dateA);
-              });
-              _getMainTag();
-            });
-          }
-        }
-      });
-    } else {
-      _getCurrentUserInfo();
-    }
+    _getCurrentUserInfo();
     super.initState();
   }
 

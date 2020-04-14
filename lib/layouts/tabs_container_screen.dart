@@ -1,14 +1,14 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:contractor_search/bloc/share_selected_bloc.dart';
+import 'package:contractor_search/bloc/sync_contacts_bloc.dart';
 import 'package:contractor_search/bloc/tabs_container_bloc.dart';
 import 'package:contractor_search/layouts/card_details_screen.dart';
 import 'package:contractor_search/layouts/conversations_screen.dart';
 import 'package:contractor_search/layouts/home_screen.dart';
 import 'package:contractor_search/model/card.dart';
-import 'package:contractor_search/model/connection_model.dart';
 import 'package:contractor_search/model/user.dart';
 import 'package:contractor_search/models/PubNubConversation.dart';
 import 'package:contractor_search/models/PushNotification.dart';
@@ -41,6 +41,8 @@ class TabsContainerScreen extends StatefulWidget {
 class _TabsContainerScreenState extends State<TabsContainerScreen> {
   bool blurred = false;
   TabsContainerBloc _tabsContainerBloc = TabsContainerBloc();
+  SyncContactsBloc _syncContactsBloc = SyncContactsBloc();
+  ShareSelectedBloc _shareSelectedBloc = ShareSelectedBloc();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   UserMessage _message;
@@ -57,7 +59,6 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
 
   @override
   void initState() {
-    _tabsContainerBloc = TabsContainerBloc();
     if (widget.syncContactsFlagRequired) {
       _saveSyncContactsFlag(true);
     }
@@ -68,7 +69,9 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
       if (result.errors == null) {
         _user = User.fromJson(result.data['get_user']);
       }
+      _syncContacts();
     });
+
     _initFirebaseClientMessaging();
     _initLocalNotifications();
     _tabsContainerBloc.updateDeviceToken();
@@ -99,6 +102,32 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: onSelectNotification);
+  }
+
+  void _syncContacts() {
+    _syncContactsBloc.syncContacts(_user.id);
+    _syncContactsBloc.syncContactsObservable.listen((syncResult) {
+      if (syncResult.error.isNotEmpty) {
+        print('ERROR IN syncContscts ${syncResult.error}');
+      } else {
+        List<String> existingUsers = [];
+        syncResult.existingUsers.forEach((contact) {
+          if (contact.isReadyForSync()) {
+            existingUsers.add(contact.formattedPhoneNumber);
+          }
+        });
+        List<String> phoneContactsToBeLoaded = [];
+        syncResult.unjoinedContacts.forEach((contact) => {
+              if (contact.isReadyForSync())
+                {
+                  phoneContactsToBeLoaded
+                      .add(contact.contact.formattedPhoneNumber)
+                }
+            });
+        _shareSelectedBloc.loadContacts(phoneContactsToBeLoaded);
+        _shareSelectedBloc.loadConnections(existingUsers);
+      }
+    });
   }
 
   Future _filterNotifications(Map<String, dynamic> notification) async {
@@ -191,8 +220,7 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
     _firebaseMessaging.requestNotificationPermissions(
         IosNotificationSettings(sound: true, badge: true, alert: true));
     _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-    });
+        .listen((IosNotificationSettings settings) {});
   }
 
   @override
@@ -226,17 +254,10 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
                     user: _user,
                     connections: _userConnections,
                     updateConnections: (List<User> connections) {
-                      _userConnections = connections;
+                      setState(() {
+                        _userConnections = connections;
+                      });
                     },
-                    /*updateConnectedUser: (connectedUser) {
-                      Connection connection = _user.connections.firstWhere(
-                          (item) => item.targetUser.id == connectedUser.id,
-                          orElse: () => null);
-                      if (connection != null) {
-                        int index = _user.connections.indexOf(connection);
-                        _user.connections[index].targetUser = connectedUser;
-                      }
-                    },*/
                   );
                 case NavBarItem.PLUS:
                   return Container();
@@ -254,29 +275,9 @@ class _TabsContainerScreenState extends State<TabsContainerScreen> {
                     onChanged: _onBlurredChanged,
                     isStartedFromHomeScreen: true,
                     onUserChanged: (newUser) {
-                      if (_user != null && newUser != null) {
-                        _user.name = newUser.name;
-                        _user.phoneNumber = newUser.phoneNumber;
-                        _user.description = newUser.description;
-                        _user.tags = newUser.tags;
-                        _user.cards = newUser.cards;
-                        _user.profilePicUrl = newUser.profilePicUrl;
-                        _user.reviews = newUser.reviews;
-                      } else {
-                        _tabsContainerBloc.getCurrentUser().then((result) {
-                          if (result.errors == null) {
-                            _user = User.fromJson(result.data['get_user']);
-                          }
-                        });
-                        _user = new User();
-                        _user.name = newUser.name;
-                        _user.phoneNumber = newUser.phoneNumber;
-                        _user.description = newUser.description;
-                        _user.tags = newUser.tags;
-                        _user.cards = newUser.cards;
-                        _user.profilePicUrl = newUser.profilePicUrl;
-                        _user.reviews = newUser.reviews;
-                      }
+                      setState(() {
+                        _user = newUser;
+                      });
                     },
                   );
                 default:
