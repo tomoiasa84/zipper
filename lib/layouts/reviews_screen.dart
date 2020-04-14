@@ -148,7 +148,7 @@ class ReviewsScreenState extends State<ReviewsScreen> {
                     review.author.profilePicUrl.isNotEmpty
                 ? NetworkImage(review.author.profilePicUrl)
                 : null,
-            backgroundColor: ColorUtils.lightLightGray,
+            backgroundColor: ColorUtils.getColorForName(review.author.name)
           ),
         ),
         Text(review.author.name,

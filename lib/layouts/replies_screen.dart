@@ -125,7 +125,7 @@ class RepliesScreenState extends State<RepliesScreen> {
           backgroundImage: widget.card.postedBy.profilePicUrl != null
               ? NetworkImage(widget.card.postedBy.profilePicUrl)
               : null,
-          backgroundColor: ColorUtils.lightLightGray,
+          backgroundColor: ColorUtils.getColorForName(widget.card.postedBy.name)
         ),
         Flexible(
           child: Padding(

@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:flutter/painting.dart';
+
 class ColorUtils {
   //Orange
   static const Color messageOrange = Color(0XFFFB8A40);
@@ -27,4 +29,15 @@ class ColorUtils {
 
   //Red
   static const Color red = Color(0XFFE12D2D);
+
+  static Color getColorForName(String name, {double saturation = 0.7, double lightness = 0.7}) {
+
+    var hash = 0;
+    for (var i = 0; i < name.length; i++) {
+    hash = name.codeUnitAt(i) + ((hash << 5) - hash);
+    }
+    int hue = hash % 360;
+
+    return HSLColor.fromAHSL(1, hue.toDouble(), saturation, lightness).toColor();
+  }
 }

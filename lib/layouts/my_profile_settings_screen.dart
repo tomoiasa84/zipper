@@ -377,7 +377,7 @@ class MyProfileSettingsScreenState extends State<MyProfileSettingsScreen> {
                   style: TextStyle(color: ColorUtils.darkerGray))
               : null,
           backgroundImage: _backgroundImage(),
-          backgroundColor: ColorUtils.lightLightGray,
+          backgroundColor: ColorUtils.getColorForName(widget.user.name),
         ),
         GestureDetector(
           child: Padding(

@@ -277,7 +277,7 @@ Widget generateContactUI(
                         userRec.profilePicUrl.isNotEmpty
                     ? NetworkImage(userRec.profilePicUrl)
                     : null,
-                backgroundColor: ColorUtils.lightLightGray,
+                backgroundColor: ColorUtils.getColorForName(userRec.name),
               ),
             )
           ],

@@ -247,7 +247,7 @@ class RecommendFriendScreenState extends State<RecommendFriendScreen> {
                 backgroundImage: users.elementAt(index).profilePicUrl != null
                     ? NetworkImage(users.elementAt(index).profilePicUrl)
                     : null,
-                backgroundColor: ColorUtils.lightLightGray,
+                backgroundColor: ColorUtils.getColorForName(users.elementAt(index).name),
               ),
             ),
             Expanded(

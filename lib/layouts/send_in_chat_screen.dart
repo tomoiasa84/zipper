@@ -328,7 +328,7 @@ class SendInChatScreenState extends State<SendInChatScreen> {
                             usersList.elementAt(index).profilePicUrl.isNotEmpty
                         ? NetworkImage(usersList.elementAt(index).profilePicUrl)
                         : null,
-                backgroundColor: ColorUtils.lightLightGray,
+                backgroundColor: ColorUtils.getColorForName(usersList.elementAt(index).name),
               ),
             ),
             Expanded(

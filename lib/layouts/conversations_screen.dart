@@ -338,7 +338,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                     user.profilePicUrl != null && user.profilePicUrl.isNotEmpty
                         ? NetworkImage(user.profilePicUrl)
                         : null,
-                backgroundColor: ColorUtils.lightLightGray,
+                backgroundColor: ColorUtils.getColorForName(user.name),
               ),
             ),
             Flexible(

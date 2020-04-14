@@ -151,7 +151,7 @@ class UnjoinedContactsScreenState extends State<UnjoinedContactsScreen> {
                             ? '+'
                             : getInitials(unjoinedContact.contact.contact.displayName),
                         style: TextStyle(color: ColorUtils.darkerGray)),
-                    backgroundColor: ColorUtils.lightLightGray,
+                    backgroundColor: ColorUtils.getColorForName(unjoinedContact.contact.contact.displayName),
                   ),
             Expanded(
               child: Padding(

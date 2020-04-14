@@ -348,7 +348,11 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                             .userRecommend
                             .profilePicUrl)
                         : null,
-                    backgroundColor: ColorUtils.lightLightGray,
+                    backgroundColor: ColorUtils.getColorForName(_card
+                        .recommendsList
+                        .elementAt(index)
+                        .userRecommend
+                        .name),
                   ),
                 ),
               ),
@@ -455,7 +459,7 @@ class CardDetailsScreenState extends State<CardDetailsScreen> {
                   _card.postedBy.profilePicUrl.isNotEmpty
               ? NetworkImage(_card.postedBy.profilePicUrl)
               : null,
-          backgroundColor: ColorUtils.lightLightGray,
+          backgroundColor: ColorUtils.getColorForName(_card.postedBy.name),
         ),
         Flexible(
           child: Padding(

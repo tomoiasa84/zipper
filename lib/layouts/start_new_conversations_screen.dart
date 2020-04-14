@@ -168,7 +168,7 @@ class _StartNewConversationScreenState
                   user.profilePicUrl != null && user.profilePicUrl.isNotEmpty
                       ? NetworkImage(user.profilePicUrl)
                       : null,
-              backgroundColor: ColorUtils.lightLightGray,
+              backgroundColor: ColorUtils.getColorForName(user.name),
             ),
             title: Row(
               children: <Widget>[

@@ -332,7 +332,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen> {
               _user.profilePicUrl != null && _user.profilePicUrl.isNotEmpty
                   ? NetworkImage(_user.profilePicUrl)
                   : null,
-          backgroundColor: ColorUtils.lightLightGray,
+          backgroundColor: ColorUtils.getColorForName(_user.name),
         ),
         Flexible(
           child: Padding(

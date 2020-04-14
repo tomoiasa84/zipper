@@ -82,7 +82,7 @@ class JoinedContactsScreenState extends State<JoinedContactsScreen> {
                             ? '+'
                             : getInitials(contact.displayName),
                         style: TextStyle(color: ColorUtils.darkerGray)),
-                    backgroundColor: ColorUtils.lightLightGray,
+                    backgroundColor: ColorUtils.getColorForName(contact.displayName),
                   ),
             Flexible(
               child: Padding(

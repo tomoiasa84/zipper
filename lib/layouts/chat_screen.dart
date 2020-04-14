@@ -584,7 +584,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       _currentUser.profilePicUrl.isNotEmpty
                   ? NetworkImage(_currentUser.profilePicUrl)
                   : null,
-              backgroundColor: ColorUtils.lightLightGray,
+              backgroundColor: ColorUtils.getColorForName(_currentUser.name),
             ),
           ),
         )
@@ -646,7 +646,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       _currentUser.profilePicUrl.isNotEmpty
                   ? NetworkImage(_currentUser.profilePicUrl)
                   : null,
-              backgroundColor: ColorUtils.lightLightGray,
+              backgroundColor: ColorUtils.getColorForName(_currentUser.name),
             ),
           ),
         )
@@ -681,7 +681,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         _interlocutorUser.profilePicUrl.isNotEmpty
                     ? NetworkImage(_interlocutorUser.profilePicUrl)
                     : null,
-                backgroundColor: ColorUtils.lightLightGray,
+                backgroundColor: ColorUtils.getColorForName(_interlocutorUser.name),
               ),
             ),
           ),
@@ -737,7 +737,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         _interlocutorUser.profilePicUrl.isNotEmpty
                     ? NetworkImage(_interlocutorUser.profilePicUrl)
                     : null,
-                backgroundColor: ColorUtils.lightLightGray,
+                backgroundColor: ColorUtils.getColorForName(_interlocutorUser.name),
               ),
             ),
           ),
@@ -936,7 +936,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   cardModel.postedBy.profilePicUrl.isNotEmpty
               ? NetworkImage(cardModel.postedBy.profilePicUrl)
               : null,
-          backgroundColor: ColorUtils.lightLightGray,
+          backgroundColor: ColorUtils.getColorForName(cardModel.postedBy.name),
         ),
         Flexible(
           child: Padding(
@@ -1153,7 +1153,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             userRec.profilePicUrl.isNotEmpty
                         ? NetworkImage(userRec.profilePicUrl)
                         : null,
-                    backgroundColor: ColorUtils.lightLightGray,
+                    backgroundColor: ColorUtils.getColorForName(userRec.name),
                   ),
                 )
               ],

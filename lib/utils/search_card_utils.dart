@@ -114,7 +114,7 @@ class SearchCard extends SearchDelegate<String> {
                   card.postedBy.profilePicUrl.isNotEmpty
               ? NetworkImage(card.postedBy.profilePicUrl)
               : null,
-          backgroundColor: ColorUtils.lightLightGray,
+          backgroundColor: ColorUtils.getColorForName(card.postedBy.name),
         ),
         Flexible(
           child: Padding(

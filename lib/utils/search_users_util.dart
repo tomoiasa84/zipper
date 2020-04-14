@@ -76,7 +76,7 @@ class UserSearch extends SearchDelegate<String> {
                     suggestionList.elementAt(index).profilePicUrl.isNotEmpty
                 ? NetworkImage(suggestionList.elementAt(index).profilePicUrl)
                 : null,
-            backgroundColor: ColorUtils.lightLightGray,
+            backgroundColor: ColorUtils.getColorForName(suggestionList.elementAt(index).name),
           ),
         ),
         title: Column(
