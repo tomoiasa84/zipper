@@ -1,4 +1,5 @@
 import 'package:contractor_search/model/user.dart';
+import 'package:contractor_search/model/user_tag.dart';
 import 'package:contractor_search/resources/color_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -46,8 +47,14 @@ class UserSearch extends SearchDelegate<String> {
   Widget buildSuggestions(BuildContext context) {
     final suggestionList = query.isEmpty
         ? _users
-        : _users.where(
-            (user) => user.name.toLowerCase().contains(query.toLowerCase()));
+        : _users.where((user) {
+            UserTag mainTag = getMainTag(user);
+            bool containsMainTag = mainTag != null
+                ? mainTag.tag.name.toLowerCase().contains(query.toLowerCase())
+                : false;
+            return user.name.toLowerCase().contains(query.toLowerCase()) ||
+                containsMainTag;
+          });
 
     return ListView.builder(
       itemBuilder: (context, index) => ListTile(
@@ -76,7 +83,8 @@ class UserSearch extends SearchDelegate<String> {
                     suggestionList.elementAt(index).profilePicUrl.isNotEmpty
                 ? NetworkImage(suggestionList.elementAt(index).profilePicUrl)
                 : null,
-            backgroundColor: ColorUtils.getColorForName(suggestionList.elementAt(index).name),
+            backgroundColor: ColorUtils.getColorForName(
+                suggestionList.elementAt(index).name),
           ),
         ),
         title: Column(
